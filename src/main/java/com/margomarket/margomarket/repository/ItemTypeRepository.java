@@ -1,4 +1,4 @@
-package com.margomarket.margomarket.Repository;
+package com.margomarket.margomarket.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.margomarket.margomarket.model.ItemType;
