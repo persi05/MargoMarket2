@@ -1,16 +1,14 @@
-package com.margomarket.margomarket.model;
+package com.margomarket.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
-@Table(name = "currencies")
+@Table(name = "roles")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Currency {
+public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,4 +16,8 @@ public class Currency {
 
     @Column(nullable = false, unique = true, length = 50)
     private String name;
+
+    public Role(String name) {
+        this.name = name;
+    }
 }

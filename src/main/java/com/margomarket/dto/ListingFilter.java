@@ -1,4 +1,4 @@
-package com.margomarket.margomarket.dto;
+package com.margomarket.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +25,11 @@ public class ListingFilter {
         return (maxLevel != null && maxLevel >= 0) ? Math.min(maxLevel, 300) : 300;
     }
 
-    public String getNullableSearch() {
-        return (search != null && !search.isBlank()) ? search.trim() : null;
+    public String getSearchOrEmpty() {
+        return (search != null && !search.isBlank()) ? search.trim() : "";
+    }
+
+    public boolean hasSearch() {
+        return search != null && !search.isBlank();
     }
 }

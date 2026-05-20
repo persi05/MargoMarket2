@@ -1,4 +1,4 @@
-package com.margomarket.margomarket.dto;
+package com.margomarket.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.margomarket.margomarket.model;
+package com.margomarket.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

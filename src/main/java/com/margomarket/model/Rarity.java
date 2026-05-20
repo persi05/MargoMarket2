@@ -1,4 +1,4 @@
-package com.margomarket.margomarket.model;
+package com.margomarket.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -6,11 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "servers")
+@Table(name = "rarities")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Server {
+public class Rarity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

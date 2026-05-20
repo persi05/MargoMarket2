@@ -1,8 +1,8 @@
-package com.margomarket.margomarket.repository;
+package com.margomarket.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import com.margomarket.margomarket.model.User;
+import com.margomarket.model.User;
 
 import java.util.Optional;
 

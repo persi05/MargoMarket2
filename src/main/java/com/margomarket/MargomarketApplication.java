@@ -1,4 +1,4 @@
-package com.margomarket.margomarket;
+package com.margomarket;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

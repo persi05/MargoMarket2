@@ -1,13 +1,14 @@
-package com.margomarket.margomarket.service;
+package com.margomarket.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.margomarket.margomarket.model.Listing;
-import com.margomarket.margomarket.model.ListingFavorite;
-import com.margomarket.margomarket.model.User;
-import com.margomarket.margomarket.repository.FavoriteRepository;
-import com.margomarket.margomarket.repository.ListingRepository;
+import com.margomarket.exception.NotFoundException;
+import com.margomarket.model.Listing;
+import com.margomarket.model.ListingFavorite;
+import com.margomarket.model.User;
+import com.margomarket.repository.FavoriteRepository;
+import com.margomarket.repository.ListingRepository;
 
 import java.util.List;
 
@@ -34,16 +35,16 @@ public class FavoriteService {
     }
 
     @Transactional
-    public boolean toggleFavorite(User user, Long listingId) {
+    public void addFavorite(User user, Long listingId) {
         Listing listing = listingRepository.findById(listingId)
-                .orElseThrow(() -> new IllegalArgumentException("Listing not found: " + listingId));
+                .orElseThrow(() -> new NotFoundException("Ogłoszenie nie istnieje"));
 
-        if (favoriteRepository.existsByUserAndListing(user, listing)) {
-            favoriteRepository.deleteByUserAndListing(user, listing);
-            return false;
-        } else {
+        if (!listing.isActive()) {
+            throw new IllegalArgumentException("Do ulubionych można dodać tylko aktywne ogłoszenie");
+        }
+
+        if (!favoriteRepository.existsByUserAndListing(user, listing)) {
             favoriteRepository.save(new ListingFavorite(user, listing));
-            return true;
         }
     }
 
