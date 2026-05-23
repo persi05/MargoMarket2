@@ -15,6 +15,7 @@ import java.util.Optional;
 
 public interface ListingRepository extends JpaRepository<Listing, Long> {
 
+    @EntityGraph(attributePaths = {"user", "itemType", "rarity", "currency", "server", "status"})
     List<Listing> findByUserOrderByCreatedAtDesc(User user);
 
     @EntityGraph(attributePaths = {"user", "itemType", "rarity", "currency", "server", "status"})
