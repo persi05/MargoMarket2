@@ -1,0 +1,126 @@
+.auth-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: clamp(28px, 6vw, 78px);
+  align-items: center;
+  min-height: calc(100vh - 70px);
+  padding: clamp(32px, 7vw, 82px) clamp(18px, 4vw, 56px);
+  background:
+    linear-gradient(120deg, rgba(248, 250, 252, 0.95), rgba(236, 253, 245, 0.86)),
+    url("https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80") center/cover;
+}
+
+.copy {
+  max-width: 680px;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: #0f766e;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1;
+}
+
+.copy p:not(.eyebrow) {
+  max-width: 620px;
+  margin: 20px 0;
+  color: #475569;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.copy a {
+  color: #0f766e;
+  font-weight: 800;
+}
+
+form {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 10px;
+  background: #f1f5f9;
+}
+
+.tabs button {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.tabs button.active {
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 12px;
+  color: #0f172a;
+  font: inherit;
+}
+
+.submit {
+  border: 0;
+  border-radius: 8px;
+  padding: 13px 16px;
+  background: #15232f;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.error {
+  margin: 0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 700;
+}
+
+@media (max-width: 860px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+  }
+}
