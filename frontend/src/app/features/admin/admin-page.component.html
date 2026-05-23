@@ -1,0 +1,144 @@
+<section class="admin">
+  <header>
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h1>Moderacja ogłoszeń i użytkowników</h1>
+    </div>
+  </header>
+
+  <div class="stats-row">
+    @if (listings$ | async; as page) {
+      <div class="stat">
+        <span>Ogłoszenia</span>
+        <strong>{{ page.totalElements | number }}</strong>
+      </div>
+    }
+
+    @if (users$ | async; as users) {
+      <div class="stat">
+        <span>Użytkownicy</span>
+        <strong>{{ users.length | number }}</strong>
+      </div>
+    }
+  </div>
+
+  <div class="tabs">
+    <button type="button" [class.active]="activeTab === 'listings'" (click)="activeTab = 'listings'">
+      Ogłoszenia
+    </button>
+    <button type="button" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">
+      Użytkownicy
+    </button>
+  </div>
+
+  @if (notice) {
+    <p class="notice">{{ notice }}</p>
+  }
+
+  @if (activeTab === 'listings') {
+    <aside class="filters">
+      @if (dictionaries$ | async; as dictionaries) {
+        <form [formGroup]="filters" (ngSubmit)="applyFilters()">
+          <label>
+            Szukaj
+            <input type="search" formControlName="search" placeholder="Nazwa lub sprzedający">
+          </label>
+
+          <label>
+            Serwer
+            <select formControlName="serverId">
+              <option value="">Wszystkie</option>
+              @for (server of dictionaries.servers; track server.id) {
+                <option [value]="server.id">{{ server.name }}</option>
+              }
+            </select>
+          </label>
+
+          <label>
+            Status
+            <select formControlName="status">
+              <option value="">Wszystkie</option>
+              <option value="active">Aktywne</option>
+              <option value="sold">Sprzedane</option>
+            </select>
+          </label>
+
+          <div class="filter-actions">
+            <button type="submit">Filtruj</button>
+            <button type="button" class="secondary" (click)="resetFilters()">Wyczyść</button>
+          </div>
+        </form>
+      }
+    </aside>
+
+    @if (listings$ | async; as page) {
+      <div class="section-head">
+        <div>
+          <h2>Wszystkie ogłoszenia</h2>
+          <p>{{ page.totalElements }} wyników, strona {{ page.page }} z {{ page.totalPages || 1 }}</p>
+        </div>
+
+        <div class="pager">
+          <button type="button" [disabled]="page.first" (click)="previousPage(page)">Poprzednia</button>
+          <button type="button" [disabled]="page.last" (click)="nextPage(page)">Następna</button>
+        </div>
+      </div>
+
+      @if (loadingListings) {
+        <div class="empty">Ładowanie ogłoszeń...</div>
+      } @else if (page.content.length) {
+        <div class="grid">
+          @for (listing of page.content; track listing.id) {
+            <mm-listing-card
+              [listing]="listing"
+              [showOwnerActions]="true"
+              (sold)="markAsSold($event)"
+              (deleteListing)="deleteListing($event)"
+            />
+          }
+        </div>
+      } @else {
+        <div class="empty">Brak ogłoszeń dla wybranych filtrów.</div>
+      }
+    }
+  } @else {
+    @if (users$ | async; as users) {
+      @if (loadingUsers) {
+        <div class="empty">Ładowanie użytkowników...</div>
+      } @else if (users.length) {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Rola</th>
+                <th>Ogłoszenia</th>
+                <th>Aktywne</th>
+                <th>Sprzedane</th>
+                <th>Utworzono</th>
+                <th>Akcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of users; track row.user.id) {
+                <tr>
+                  <td>{{ row.user.email }}</td>
+                  <td><span class="role">{{ row.user.role }}</span></td>
+                  <td>{{ row.stats.totalListings }}</td>
+                  <td>{{ row.stats.activeListings }}</td>
+                  <td>{{ row.stats.soldListings }}</td>
+                  <td>{{ row.user.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>
+                  <td>
+                    <button type="button" class="danger" (click)="deleteUser(row.user)">Usuń</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="empty">Brak użytkowników.</div>
+      }
+    }
+  }
+</section>
