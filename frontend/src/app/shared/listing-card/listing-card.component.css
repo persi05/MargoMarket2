@@ -1,0 +1,161 @@
+.listing {
+  display: grid;
+  gap: 18px;
+  height: 100%;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.listing-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.type {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h3 {
+  margin: 6px 0 0;
+  color: #0f172a;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.price {
+  flex: 0 0 auto;
+  color: #0f766e;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.meta span,
+.status {
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 14px;
+}
+
+dt {
+  color: #64748b;
+  font-size: 13px;
+}
+
+dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.status {
+  color: #14532d;
+  background: #dcfce7;
+}
+
+.status.sold {
+  color: #7f1d1d;
+  background: #fee2e2;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+button {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: #fff;
+  color: #15232f;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+button:hover {
+  border-color: #15232f;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+button.favorite {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+button.favorite span {
+  color: #94a3b8;
+  font-size: 18px;
+  line-height: 1;
+}
+
+button.favorite.is-favorite {
+  border-color: #facc15;
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+button.favorite.is-favorite span {
+  color: #eab308;
+}
+
+button.danger {
+  color: #b42318;
+}
+
+@media (max-width: 520px) {
+  .listing-head,
+  footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .actions {
+    justify-content: flex-start;
+  }
+}

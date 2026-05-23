@@ -1,0 +1,124 @@
+<section class="hero">
+  <div class="hero-content">
+    <p class="eyebrow">MargoMarket</p>
+    <h1>Giełda przedmiotów dla graczy Margonem</h1>
+    <p class="lead">Przeglądaj oferty, filtruj po serwerze, typie, poziomie i rzadkości, a po zalogowaniu zapisuj interesujące ogłoszenia.</p>
+  </div>
+  <div class="hero-panel">
+    <strong>Aktywne oferty</strong>
+    @if (listings$ | async; as page) {
+      <span>{{ page.totalElements }}</span>
+    } @else {
+      <span>...</span>
+    }
+  </div>
+</section>
+
+<section class="market-shell">
+  <aside class="filters">
+    <h2>Filtry</h2>
+
+    @if (dictionaries$ | async; as dictionaries) {
+      <form [formGroup]="filters" (ngSubmit)="applyFilters()">
+        <label>
+          Szukaj
+          <input type="search" formControlName="search" placeholder="np. smocza zbroja">
+        </label>
+
+        <label>
+          Serwer
+          <select formControlName="serverId">
+            <option value="">Wszystkie</option>
+            @for (server of dictionaries.servers; track server.id) {
+              <option [value]="server.id">{{ server.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Typ
+          <select formControlName="itemTypeId">
+            <option value="">Wszystkie</option>
+            @for (type of dictionaries.itemTypes; track type.id) {
+              <option [value]="type.id">{{ type.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Rzadkość
+          <select formControlName="rarityId">
+            <option value="">Wszystkie</option>
+            @for (rarity of dictionaries.rarities; track rarity.id) {
+              <option [value]="rarity.id">{{ rarity.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Waluta
+          <select formControlName="currencyId">
+            <option value="">Wszystkie</option>
+            @for (currency of dictionaries.currencies; track currency.id) {
+              <option [value]="currency.id">{{ currency.name }}</option>
+            }
+          </select>
+        </label>
+
+        <div class="range">
+          <label>
+            Min lvl
+            <input type="number" formControlName="minLevel" min="1" max="300">
+          </label>
+          <label>
+            Max lvl
+            <input type="number" formControlName="maxLevel" min="1" max="300">
+          </label>
+        </div>
+
+        <div class="filter-actions">
+          <button type="submit">Zastosuj</button>
+          <button type="button" class="secondary" (click)="resetFilters()">Wyczyść</button>
+        </div>
+      </form>
+    }
+  </aside>
+
+  <div class="results">
+    @if (notice) {
+      <p class="notice">{{ notice }}</p>
+    }
+
+    @if (listings$ | async; as page) {
+      <div class="results-head">
+        <div>
+          <h2>Ogłoszenia</h2>
+          <p>{{ page.totalElements }} wyników, strona {{ page.page }} z {{ page.totalPages || 1 }}</p>
+        </div>
+
+        <div class="pager">
+          <button type="button" [disabled]="page.first" (click)="previousPage(page)">Poprzednia</button>
+          <button type="button" [disabled]="page.last" (click)="nextPage(page)">Następna</button>
+        </div>
+      </div>
+
+      @if (loading) {
+        <div class="empty">Ładowanie ofert...</div>
+      } @else if (page.content.length) {
+        <div class="grid">
+          @for (listing of page.content; track listing.id) {
+            <mm-listing-card
+              [listing]="listing"
+              [showFavorite]="authService.isLoggedIn"
+              [isFavorite]="isFavorite(listing)"
+              [favoriteBusy]="isFavoriteBusy(listing)"
+              (favorite)="toggleFavorite($event)"
+            />
+          }
+        </div>
+      } @else {
+        <div class="empty">Brak ogłoszeń dla wybranych filtrów.</div>
+      }
+    }
+  </div>
+</section>

@@ -1,0 +1,62 @@
+<article class="listing">
+  <div class="listing-head">
+    <div>
+      <span class="type">{{ listing.itemType.name }}</span>
+      <h3>{{ listing.itemName }}</h3>
+    </div>
+    <strong class="price">{{ listing.price | number }} {{ listing.currency.name }}</strong>
+  </div>
+
+  <div class="meta">
+    <span>Lvl {{ listing.level }}</span>
+    <span>{{ listing.rarity.name }}</span>
+    <span>{{ listing.server.name }}</span>
+  </div>
+
+  <dl>
+    <div>
+      <dt>Kontakt</dt>
+      <dd>{{ listing.contact }}</dd>
+    </div>
+    <div>
+      <dt>Sprzedający</dt>
+      <dd>{{ listing.sellerEmail }}</dd>
+    </div>
+    <div>
+      <dt>Dodano</dt>
+      <dd>{{ listing.createdAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
+    </div>
+  </dl>
+
+  <footer>
+    <span class="status" [class.sold]="listing.status === 'SOLD'">{{ listing.status }}</span>
+
+    <div class="actions">
+      @if (showFavorite && !favoriteMode) {
+        <button
+          type="button"
+          class="favorite"
+          [class.is-favorite]="isFavorite"
+          [disabled]="favoriteBusy"
+          [attr.title]="isFavorite ? 'Usuń z obserwowanych' : 'Dodaj do obserwowanych'"
+          (click)="favorite.emit(listing)"
+        >
+          <span aria-hidden="true">{{ isFavorite ? '★' : '☆' }}</span>
+          {{ favoriteBusy ? 'Zapisywanie...' : (isFavorite ? 'Przestań obserwować' : 'Obserwuj') }}
+        </button>
+      }
+      @if (favoriteMode) {
+        <button type="button" class="favorite is-favorite" (click)="removeFavorite.emit(listing)">
+          <span aria-hidden="true">★</span>
+          Przestań obserwować
+        </button>
+      }
+      @if (showOwnerActions && listing.status !== 'SOLD') {
+        <button type="button" (click)="sold.emit(listing)">Sprzedane</button>
+      }
+      @if (showOwnerActions) {
+        <button type="button" class="danger" (click)="deleteListing.emit(listing)">Kasuj</button>
+      }
+    </div>
+  </footer>
+</article>
