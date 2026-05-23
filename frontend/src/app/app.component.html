@@ -1,0 +1,31 @@
+<header class="topbar">
+  <a class="brand" routerLink="/">
+    <span class="brand-mark">M</span>
+    <span>
+      <strong>MargoMarket</strong>
+      <small>rynek przedmiotów</small>
+    </span>
+  </a>
+
+  <nav class="nav">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Giełda</a>
+    <a routerLink="/new" routerLinkActive="active">Dodaj</a>
+    <a routerLink="/dashboard" routerLinkActive="active">Panel</a>
+    @if ((user$ | async)?.role === 'admin') {
+      <a routerLink="/admin" routerLinkActive="active">Admin</a>
+    }
+  </nav>
+
+  @if (user$ | async; as user) {
+    <div class="session">
+      <span>{{ user.email }}</span>
+      <button type="button" class="ghost-button" (click)="logout()">Wyloguj</button>
+    </div>
+  } @else {
+    <a class="primary-link" routerLink="/auth">Zaloguj</a>
+  }
+</header>
+
+<main>
+  <router-outlet />
+</main>
