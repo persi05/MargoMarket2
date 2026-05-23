@@ -1,0 +1,102 @@
+<section class="page">
+  <header>
+    <p class="eyebrow">Nowa oferta</p>
+    <h1>Dodaj przedmiot na giełdę</h1>
+  </header>
+
+  @if (dictionaries$ | async; as dictionaries) {
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @if (error) {
+        <p class="error">{{ error }}</p>
+      }
+
+      <label class="wide" [class.invalid]="hasFieldError('itemName')">
+        Nazwa przedmiotu
+        <input type="text" formControlName="itemName" placeholder="np. Smocza zbroja">
+        @if (fieldError('itemName')) {
+          <small>{{ fieldError('itemName') }}</small>
+        }
+      </label>
+
+      <label [class.invalid]="hasFieldError('itemTypeId')">
+        Typ
+        <select formControlName="itemTypeId">
+          <option [ngValue]="0">Wybierz</option>
+          @for (type of dictionaries.itemTypes; track type.id) {
+            <option [ngValue]="type.id">{{ type.name }}</option>
+          }
+        </select>
+        @if (fieldError('itemTypeId')) {
+          <small>Wybierz typ przedmiotu.</small>
+        }
+      </label>
+
+      <label [class.invalid]="hasFieldError('level')">
+        Poziom
+        <input type="number" formControlName="level" min="1" max="300">
+        @if (fieldError('level')) {
+          <small>{{ fieldError('level') }}</small>
+        }
+      </label>
+
+      <label [class.invalid]="hasFieldError('rarityId')">
+        Rzadkość
+        <select formControlName="rarityId">
+          <option [ngValue]="0">Wybierz</option>
+          @for (rarity of dictionaries.rarities; track rarity.id) {
+            <option [ngValue]="rarity.id">{{ rarity.name }}</option>
+          }
+        </select>
+        @if (fieldError('rarityId')) {
+          <small>Wybierz rzadkość przedmiotu.</small>
+        }
+      </label>
+
+      <label [class.invalid]="hasFieldError('price')">
+        Cena
+        <input type="number" formControlName="price" min="1">
+        @if (fieldError('price')) {
+          <small>{{ fieldError('price') }}</small>
+        }
+      </label>
+
+      <label [class.invalid]="hasFieldError('currencyId')">
+        Waluta
+        <select formControlName="currencyId">
+          <option [ngValue]="0">Wybierz</option>
+          @for (currency of dictionaries.currencies; track currency.id) {
+            <option [ngValue]="currency.id">{{ currency.name }}</option>
+          }
+        </select>
+        @if (fieldError('currencyId')) {
+          <small>Wybierz walutę.</small>
+        }
+      </label>
+
+      <label [class.invalid]="hasFieldError('serverId')">
+        Serwer
+        <select formControlName="serverId">
+          <option [ngValue]="0">Wybierz</option>
+          @for (server of dictionaries.servers; track server.id) {
+            <option [ngValue]="server.id">{{ server.name }}</option>
+          }
+        </select>
+        @if (fieldError('serverId')) {
+          <small>Wybierz serwer.</small>
+        }
+      </label>
+
+      <label class="wide" [class.invalid]="hasFieldError('contact')">
+        Kontakt
+        <input type="text" formControlName="contact" placeholder="Discord, nick w grze albo email">
+        @if (fieldError('contact')) {
+          <small>{{ fieldError('contact') }}</small>
+        }
+      </label>
+
+      <button type="submit" [disabled]="loading">{{ loading ? 'Dodawanie...' : 'Dodaj ogłoszenie' }}</button>
+    </form>
+  } @else {
+    <div class="empty">Ładowanie formularza...</div>
+  }
+</section>
