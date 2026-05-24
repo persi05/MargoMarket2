@@ -1,6 +1,7 @@
 package com.margomarket.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import com.margomarket.model.Listing;
@@ -26,12 +27,21 @@ public interface FavoriteRepository extends JpaRepository<ListingFavorite, Long>
         JOIN FETCH l.server
         JOIN FETCH l.status
         WHERE f.user = :user
+          AND l.status.name = 'active'
         ORDER BY f.createdAt DESC
         """)
     List<ListingFavorite> findByUserWithDetails(@Param("user") User user);
 
-    @Query("SELECT f.listing.id FROM ListingFavorite f WHERE f.user = :user")
+    @Query("""
+        SELECT f.listing.id FROM ListingFavorite f
+        WHERE f.user = :user
+          AND f.listing.status.name = 'active'
+        """)
     List<Long> findFavoriteIdsByUser(@Param("user") User user);
 
     void deleteByUserAndListing(User user, Listing listing);
+
+    @Modifying
+    @Query("DELETE FROM ListingFavorite f WHERE f.listing.id = :listingId")
+    int deleteByListingId(@Param("listingId") Long listingId);
 }

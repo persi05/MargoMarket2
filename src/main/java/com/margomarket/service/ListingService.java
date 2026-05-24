@@ -1,3 +1,4 @@
+
 package com.margomarket.service;
 
 import com.margomarket.dto.ListingFilter;
@@ -12,17 +13,20 @@ import com.margomarket.model.Rarity;
 import com.margomarket.model.Server;
 import com.margomarket.model.User;
 import com.margomarket.repository.CurrencyRepository;
+import com.margomarket.repository.FavoriteRepository;
 import com.margomarket.repository.ItemTypeRepository;
 import com.margomarket.repository.ListingRepository;
 import com.margomarket.repository.ListingStatusRepository;
 import com.margomarket.repository.RarityRepository;
 import com.margomarket.repository.ServerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.margomarket.event.ListingSoldEvent;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,7 +36,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ListingService {
 
-    private static final int PAGE_SIZE = 20;
+    private static final int PAGE_SIZE = 50;
 
     private final ListingRepository listingRepository;
     private final ListingStatusRepository listingStatusRepository;
@@ -40,6 +44,8 @@ public class ListingService {
     private final ItemTypeRepository itemTypeRepository;
     private final RarityRepository rarityRepository;
     private final CurrencyRepository currencyRepository;
+    private final FavoriteRepository favoriteRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Page<Listing> searchActiveListings(ListingFilter filter) {
         Pageable pageable = PageRequest.of(Math.max(0, filter.getPage() - 1), PAGE_SIZE);
@@ -94,7 +100,7 @@ public class ListingService {
     }
 
     public List<Listing> getUserListings(User user) {
-        return listingRepository.findByUserOrderByCreatedAtDesc(user);
+        return listingRepository.findByUserSortedByStatusAndCreatedAtDesc(user);
     }
 
     @Transactional
@@ -126,6 +132,12 @@ public class ListingService {
         }
         listing.setStatus(getStatus("sold"));
         listing.setSoldAt(LocalDateTime.now());
+        favoriteRepository.deleteByListingId(listing.getId());
+        eventPublisher.publishEvent(new ListingSoldEvent(
+                listing.getId(),
+                listing.getUser().getId(),
+                listing.getItemName()
+        ));
         return listing;
     }
 
@@ -133,6 +145,10 @@ public class ListingService {
     public void deleteListing(Long id, User currentUser) {
         Listing listing = getListing(id);
         requireOwnerOrAdmin(listing, currentUser);
+        if (!currentUser.isAdmin() && !listing.isActive()) {
+            throw new IllegalArgumentException("Można usunąć tylko aktywne ogłoszenie");
+        }
+        favoriteRepository.deleteByListingId(listing.getId());
         listingRepository.delete(listing);
     }
 

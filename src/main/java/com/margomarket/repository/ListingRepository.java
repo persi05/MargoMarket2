@@ -16,7 +16,19 @@ import java.util.Optional;
 public interface ListingRepository extends JpaRepository<Listing, Long> {
 
     @EntityGraph(attributePaths = {"user", "itemType", "rarity", "currency", "server", "status"})
-    List<Listing> findByUserOrderByCreatedAtDesc(User user);
+    @Query("""
+        SELECT l
+        FROM Listing l
+        WHERE l.user = :user
+        ORDER BY
+          CASE
+            WHEN l.status.name = 'active' THEN 0
+            WHEN l.status.name = 'sold' THEN 1
+            ELSE 2
+          END,
+          l.createdAt DESC
+        """)
+    List<Listing> findByUserSortedByStatusAndCreatedAtDesc(@Param("user") User user);
 
     @EntityGraph(attributePaths = {"user", "itemType", "rarity", "currency", "server", "status"})
     @Query("SELECT l FROM Listing l WHERE l.id = :id")

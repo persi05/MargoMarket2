@@ -69,7 +69,7 @@ public class UserService implements UserDetailsService {
     public UserStats getUserStats(Long userId) {
         User user = getById(userId);
 
-        var userListings = listingRepository.findByUserOrderByCreatedAtDesc(user);
+        var userListings = listingRepository.findByUserSortedByStatusAndCreatedAtDesc(user);
         long total = userListings.size();
         long active = userListings.stream().filter(listing -> "active".equals(listing.getStatus().getName())).count();
         long sold = userListings.stream().filter(listing -> "sold".equals(listing.getStatus().getName())).count();
