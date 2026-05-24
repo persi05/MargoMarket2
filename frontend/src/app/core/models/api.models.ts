@@ -96,3 +96,15 @@ export interface UserStats {
   activeListings: number;
   soldListings: number;
 }
+
+export interface NotificationResponse {
+  id: number;
+  type: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface UnreadNotificationsResponse {
+  count: number;
+}

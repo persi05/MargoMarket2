@@ -1,0 +1,41 @@
+<section class="notifications-page">
+  <header>
+    <div>
+      <p class="eyebrow">Powiadomienia</p>
+      <h1>Twoje powiadomienia</h1>
+    </div>
+
+    @if (notifications.length) {
+      <div class="summary">
+        <span>Nieprzeczytane</span>
+        <strong>{{ unreadCount }}</strong>
+      </div>
+    }
+  </header>
+
+  @if (notice) {
+    <p class="notice">{{ notice }}</p>
+  }
+
+  @if (loading) {
+    <div class="empty">Ładowanie powiadomień...</div>
+  } @else if (notifications.length) {
+    <div class="notifications">
+      @for (notification of notifications; track notification.id) {
+        <article class="notification" [class.unread]="!notification.read">
+          <div>
+            <span class="type">{{ notification.type === 'LISTING_SOLD' ? 'Sprzedaż ogłoszenia' : 'Powiadomienie' }}</span>
+            <p>{{ notification.message }}</p>
+            <time [dateTime]="notification.createdAt">{{ notification.createdAt | date: 'dd.MM.yyyy HH:mm' }}</time>
+          </div>
+
+          @if (!notification.read) {
+            <button type="button" (click)="markAsRead(notification)">Oznacz jako przeczytane</button>
+          }
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="empty">Brak powiadomień.</div>
+  }
+</section>
