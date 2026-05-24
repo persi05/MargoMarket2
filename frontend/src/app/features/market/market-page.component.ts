@@ -7,12 +7,11 @@ import { ListingResponse, PageResponse } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ListingService } from '../../core/services/listing.service';
-import { ListingCardComponent } from '../../shared/listing-card/listing-card.component';
 
 @Component({
   selector: 'mm-market-page',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, ListingCardComponent],
+  imports: [AsyncPipe, ReactiveFormsModule],
   templateUrl: './market-page.component.html',
   styleUrl: './market-page.component.css'
 })
@@ -114,6 +113,17 @@ export class MarketPageComponent {
           : 'Nie udało się dodać ogłoszenia do obserwowanych.';
       }
     });
+  }
+
+  protected priceLabel(listing: ListingResponse): string {
+    const formattedPrice = new Intl.NumberFormat('pl-PL').format(listing.price);
+    const currencyName = listing.currency.name.trim();
+
+    if (currencyName.toLowerCase() === 'w grze') {
+      return `${formattedPrice} złota`;
+    }
+
+    return `${formattedPrice} ${currencyName}`;
   }
 
   private reloadFavorites(): void {

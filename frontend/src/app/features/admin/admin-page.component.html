@@ -1,7 +1,7 @@
 <section class="admin">
   <header>
     <div>
-      <p class="eyebrow">Admin</p>
+      <p class="eyebrow">Administracja</p>
       <h1>Moderacja ogłoszeń i użytkowników</h1>
     </div>
   </header>
@@ -92,6 +92,7 @@
             <mm-listing-card
               [listing]="listing"
               [showOwnerActions]="true"
+              [allowInactiveDelete]="true"
               (sold)="markAsSold($event)"
               (deleteListing)="deleteListing($event)"
             />
@@ -110,7 +111,7 @@
           <table>
             <thead>
               <tr>
-                <th>Email</th>
+                <th>E-mail</th>
                 <th>Rola</th>
                 <th>Ogłoszenia</th>
                 <th>Aktywne</th>
@@ -123,7 +124,7 @@
               @for (row of users; track row.user.id) {
                 <tr>
                   <td>{{ row.user.email }}</td>
-                  <td><span class="role">{{ row.user.role }}</span></td>
+                  <td><span class="role">{{ roleLabel(row.user.role) }}</span></td>
                   <td>{{ row.stats.totalListings }}</td>
                   <td>{{ row.stats.activeListings }}</td>
                   <td>{{ row.stats.soldListings }}</td>

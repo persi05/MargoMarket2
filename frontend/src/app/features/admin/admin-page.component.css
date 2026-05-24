@@ -1,7 +1,9 @@
 .admin {
   display: grid;
-  gap: 22px;
-  padding: clamp(32px, 6vw, 72px) clamp(18px, 4vw, 56px);
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px clamp(18px, 4vw, 40px);
 }
 
 header {
@@ -13,7 +15,7 @@ header {
 
 .eyebrow {
   margin: 0 0 10px;
-  color: #0f766e;
+  color: var(--color-primary);
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -23,12 +25,12 @@ header {
 h1,
 h2 {
   margin: 0;
-  color: #0f172a;
+  color: white;
 }
 
 h1 {
   max-width: 860px;
-  font-size: clamp(34px, 5vw, 58px);
+  font-size: clamp(32px, 5vw, 52px);
   line-height: 1;
 }
 
@@ -42,30 +44,27 @@ h1 {
   display: grid;
   gap: 8px;
   padding: 18px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card-dark);
 }
 
 .stat span {
-  color: #64748b;
+  color: var(--color-text-muted);
   font-size: 13px;
   font-weight: 800;
   text-transform: uppercase;
 }
 
 .stat strong {
-  color: #0f172a;
+  color: var(--color-primary);
   font-size: 34px;
 }
 
 .tabs {
   display: flex;
-  gap: 8px;
-  padding: 6px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: #f8fafc;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .tabs button,
@@ -80,30 +79,33 @@ td button {
 }
 
 .tabs button {
-  background: transparent;
-  color: #64748b;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 999px;
+  background: var(--color-card-dark);
+  color: var(--color-text-muted);
 }
 
 .tabs button.active {
-  background: #fff;
+  border-color: var(--color-primary);
+  background: var(--color-primary);
   color: #0f172a;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
 }
 
 .notice {
   margin: 0;
   border-radius: 8px;
   padding: 12px 14px;
-  background: #ecfeff;
-  color: #155e75;
-  font-weight: 700;
+  border: 1px solid rgba(212, 175, 55, 0.24);
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--color-primary);
+  font-weight: 800;
 }
 
 .filters {
   padding: 18px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card-dark);
 }
 
 form {
@@ -116,7 +118,7 @@ form {
 label {
   display: grid;
   gap: 7px;
-  color: #475569;
+  color: var(--color-text-muted);
   font-size: 13px;
   font-weight: 800;
 }
@@ -124,12 +126,23 @@ label {
 input,
 select {
   width: 100%;
-  border: 1px solid #cbd5e1;
+  border: 1px solid transparent;
   border-radius: 8px;
   padding: 11px 12px;
-  background: #fff;
-  color: #0f172a;
-  font: inherit;
+  background: var(--color-input-dark);
+  color: white;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--color-primary);
+  background: #3e4c63;
+  outline: none;
+}
+
+select option {
+  background: var(--color-card-dark);
+  color: var(--color-text-main);
 }
 
 .filter-actions,
@@ -139,15 +152,15 @@ select {
 }
 
 .filter-actions button:first-child {
-  background: #15232f;
-  color: #fff;
+  background: var(--color-primary);
+  color: #0f172a;
 }
 
 .secondary,
 .pager button {
-  border: 1px solid #cbd5e1;
-  background: #fff;
-  color: #15232f;
+  border: 1px solid var(--color-border);
+  background: var(--color-input-dark);
+  color: var(--color-text-main);
 }
 
 button:disabled {
@@ -164,31 +177,33 @@ button:disabled {
 
 .section-head p {
   margin: 6px 0 0;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
 }
 
 .empty {
   display: grid;
   min-height: 260px;
   place-items: center;
-  border: 1px dashed #cbd5e1;
-  border-radius: 8px;
-  background: #f8fafc;
-  color: #64748b;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-card-dark);
+  color: var(--color-text-muted);
   font-weight: 800;
+  text-align: center;
 }
 
 .table-wrap {
   overflow-x: auto;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card-dark);
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3);
 }
 
 table {
@@ -199,19 +214,20 @@ table {
 
 th,
 td {
-  padding: 13px 14px;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   text-align: left;
 }
 
 th {
-  color: #64748b;
+  background: rgba(0, 0, 0, 0.24);
+  color: var(--color-text-muted);
   font-size: 12px;
   text-transform: uppercase;
 }
 
 td {
-  color: #1e293b;
+  color: var(--color-text-main);
   font-weight: 700;
 }
 
@@ -220,23 +236,23 @@ tr:last-child td {
 }
 
 .role {
+  border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: 999px;
   padding: 5px 9px;
-  background: #f1f5f9;
-  color: #334155;
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--color-primary);
   font-size: 12px;
   text-transform: uppercase;
 }
 
 .danger {
-  border: 1px solid #fecaca;
-  background: #fff;
-  color: #b42318;
+  border: 1px solid rgba(239, 68, 68, 0.32);
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
 }
 
 @media (max-width: 900px) {
-  form,
-  .section-head {
+  form {
     grid-template-columns: 1fr;
   }
 
@@ -244,17 +260,6 @@ tr:last-child td {
   .filter-actions,
   .pager {
     align-items: stretch;
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 620px) {
-  .tabs,
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .tabs {
     flex-direction: column;
   }
 }

@@ -136,6 +136,18 @@ export class AdminPageComponent {
       }
     });
   }
+
+  protected roleLabel(role: string): string {
+    if (role === 'admin') {
+      return 'Administrator';
+    }
+
+    if (role === 'user') {
+      return 'Użytkownik';
+    }
+
+    return role;
+  }
 }
 
 interface UserWithStats {

@@ -2,21 +2,10 @@
   <header>
     <div>
       <p class="eyebrow">Panel</p>
-      <h1>Twoje ogłoszenia i obserwowane oferty</h1>
+      <h1>{{ pageTitle }}</h1>
     </div>
-    <a routerLink="/new">Dodaj ogłoszenie</a>
+    <a routerLink="/new">Stwórz ogłoszenie</a>
   </header>
-
-  <div class="tabs">
-    <button type="button" [class.active]="activeTab === 'mine'" (click)="activeTab = 'mine'">
-      Moje ogłoszenia
-      <span>{{ mine.length }}</span>
-    </button>
-    <button type="button" [class.active]="activeTab === 'favorites'" (click)="activeTab = 'favorites'">
-      Obserwowane
-      <span>{{ favorites.length }}</span>
-    </button>
-  </div>
 
   @if (notice) {
     <p class="notice">{{ notice }}</p>
@@ -24,7 +13,7 @@
 
   @if (loading) {
     <div class="empty">Ładowanie panelu...</div>
-  } @else if (activeTab === 'mine') {
+  } @else if (!isFavoritesPage) {
     @if (mine.length) {
       <div class="grid">
         @for (listing of mine; track listing.id) {

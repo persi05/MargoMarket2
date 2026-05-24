@@ -4,11 +4,11 @@
       <span class="type">{{ listing.itemType.name }}</span>
       <h3>{{ listing.itemName }}</h3>
     </div>
-    <strong class="price">{{ listing.price | number }} {{ listing.currency.name }}</strong>
+    <strong class="price">{{ priceLabel }}</strong>
   </div>
 
   <div class="meta">
-    <span>Lvl {{ listing.level }}</span>
+    <span>Poz. {{ listing.level }}</span>
     <span>{{ listing.rarity.name }}</span>
     <span>{{ listing.server.name }}</span>
   </div>
@@ -29,7 +29,7 @@
   </dl>
 
   <footer>
-    <span class="status" [class.sold]="listing.status === 'SOLD'">{{ listing.status }}</span>
+    <span class="status" [class.sold]="isSold">{{ statusLabel }}</span>
 
     <div class="actions">
       @if (showFavorite && !favoriteMode) {
@@ -51,11 +51,11 @@
           Przestań obserwować
         </button>
       }
-      @if (showOwnerActions && listing.status !== 'SOLD') {
-        <button type="button" (click)="sold.emit(listing)">Sprzedane</button>
+      @if (showOwnerActions && isActive) {
+        <button type="button" (click)="sold.emit(listing)">Oznacz jako sprzedane</button>
       }
-      @if (showOwnerActions) {
-        <button type="button" class="danger" (click)="deleteListing.emit(listing)">Kasuj</button>
+      @if (showOwnerActions && canDelete) {
+        <button type="button" class="danger" (click)="deleteListing.emit(listing)">Usuń</button>
       }
     </div>
   </footer>

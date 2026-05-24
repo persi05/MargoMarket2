@@ -45,8 +45,8 @@ export class AuthPageComponent {
       next: () => void this.router.navigate(['/dashboard']),
       error: () => {
         this.error = this.mode === 'login'
-          ? 'Nie udało się zalogować. Sprawdź email i hasło.'
-          : 'Nie udało się utworzyć konta. Email może być już zajęty.';
+          ? 'Nie udało się zalogować. Sprawdź e-mail i hasło.'
+          : 'Nie udało się utworzyć konta. E-mail może być już zajęty.';
       }
     });
   }

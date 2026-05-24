@@ -1,54 +1,87 @@
 .listing {
-  display: grid;
-  gap: 18px;
+  display: flex;
   height: 100%;
-  padding: 20px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  min-height: 420px;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card-dark);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.listing:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212, 175, 55, 0.42);
+  box-shadow: 0 20px 36px rgba(0, 0, 0, 0.34);
 }
 
 .listing-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
+  position: relative;
+  display: grid;
+  gap: 14px;
+  min-height: 118px;
+  padding: 18px 18px 16px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(212, 175, 55, 0.18), transparent 11rem),
+    var(--color-input-dark);
 }
 
 .type {
-  color: #64748b;
-  font-size: 12px;
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: var(--color-text-muted);
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 h3 {
-  margin: 6px 0 0;
-  color: #0f172a;
+  overflow: hidden;
+  margin: 8px 0 0;
+  color: white;
   font-size: 20px;
   line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listing:hover h3 {
+  color: var(--color-primary);
 }
 
 .price {
-  flex: 0 0 auto;
-  color: #0f766e;
-  font-size: 18px;
-  white-space: nowrap;
+  color: var(--color-primary);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.meta,
+dl,
+footer {
+  padding-inline: 18px;
 }
 
 .meta {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  padding-top: 18px;
 }
 
 .meta span,
 .status {
-  border-radius: 999px;
-  padding: 7px 10px;
-  background: #f1f5f9;
-  color: #334155;
+  display: inline-flex;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 6px;
+  padding: 5px 9px;
+  background: var(--color-input-dark);
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 800;
 }
@@ -56,65 +89,69 @@ h3 {
 dl {
   display: grid;
   gap: 10px;
-  margin: 0;
+  margin: 18px 0 0;
 }
 
 dl div {
   display: grid;
   grid-template-columns: 92px 1fr;
   gap: 14px;
+  align-items: start;
 }
 
 dt {
-  color: #64748b;
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 
 dd {
-  margin: 0;
   min-width: 0;
+  margin: 0;
   overflow-wrap: anywhere;
-  color: #1e293b;
+  color: var(--color-text-main);
   font-weight: 700;
 }
 
 footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  display: grid;
+  gap: 14px;
   margin-top: auto;
+  padding-block: 18px;
+  border-top: 1px solid var(--color-border);
 }
 
 .status {
-  color: #14532d;
-  background: #dcfce7;
+  width: fit-content;
+  border-color: rgba(34, 197, 94, 0.32);
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  text-transform: uppercase;
 }
 
 .status.sold {
-  color: #7f1d1d;
-  background: #fee2e2;
+  border-color: rgba(239, 68, 68, 0.32);
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
 }
 
 .actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
+  display: grid;
+  gap: 10px;
 }
 
 button {
-  border: 1px solid #cbd5e1;
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 8px;
-  padding: 9px 12px;
-  background: #fff;
-  color: #15232f;
+  padding: 10px 12px;
+  background: var(--color-input-dark);
+  color: var(--color-text-main);
   cursor: pointer;
   font-weight: 800;
 }
 
 button:hover {
-  border-color: #15232f;
+  border-color: rgba(212, 175, 55, 0.42);
 }
 
 button:disabled {
@@ -135,27 +172,22 @@ button.favorite span {
 }
 
 button.favorite.is-favorite {
-  border-color: #facc15;
-  background: #fef9c3;
-  color: #854d0e;
+  border-color: rgba(250, 204, 21, 0.42);
+  background: rgba(250, 204, 21, 0.12);
+  color: #facc15;
 }
 
 button.favorite.is-favorite span {
-  color: #eab308;
+  color: #facc15;
 }
 
 button.danger {
-  color: #b42318;
+  border-color: rgba(239, 68, 68, 0.32);
+  color: #f87171;
 }
 
 @media (max-width: 520px) {
-  .listing-head,
-  footer {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
   .actions {
-    justify-content: flex-start;
+    flex-direction: column;
   }
 }

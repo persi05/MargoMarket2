@@ -8,11 +8,12 @@
   </a>
 
   <nav class="nav">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Giełda</a>
-    <a routerLink="/new" routerLinkActive="active">Dodaj</a>
-    <a routerLink="/dashboard" routerLinkActive="active">Panel</a>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Ogłoszenia</a>
+    <a routerLink="/dashboard" routerLinkActive="active">Moje ogłoszenia</a>
+    <a routerLink="/favorites" routerLinkActive="active">Obserwowane</a>
+    <a routerLink="/new" routerLinkActive="active">Stwórz ogłoszenie</a>
     @if ((user$ | async)?.role === 'admin') {
-      <a routerLink="/admin" routerLinkActive="active">Admin</a>
+      <a routerLink="/admin" routerLinkActive="active">Administracja</a>
     }
   </nav>
 

@@ -23,13 +23,19 @@ export const routes: Routes = [
     path: 'dashboard',
     canActivate: [authGuard],
     loadComponent: () => import('./features/dashboard/dashboard-page.component').then((m) => m.DashboardPageComponent),
-    title: 'Panel | MargoMarket'
+    title: 'Moje ogłoszenia | MargoMarket'
+  },
+  {
+    path: 'favorites',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/dashboard/dashboard-page.component').then((m) => m.DashboardPageComponent),
+    title: 'Obserwowane | MargoMarket'
   },
   {
     path: 'admin',
     canActivate: [authGuard],
     loadComponent: () => import('./features/admin/admin-page.component').then((m) => m.AdminPageComponent),
-    title: 'Admin | MargoMarket'
+    title: 'Administracja | MargoMarket'
   },
   {
     path: '**',

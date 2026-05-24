@@ -26,7 +26,20 @@ export class DashboardPageComponent {
   protected loading = true;
   protected notice = '';
 
+  protected get isFavoritesPage(): boolean {
+    return this.activeTab === 'favorites';
+  }
+
+  protected get pageTitle(): string {
+    if (this.isFavoritesPage) {
+      return 'Obserwowane ogłoszenia';
+    }
+
+    return 'Moje ogłoszenia';
+  }
+
   constructor() {
+    this.activeTab = this.router.url.startsWith('/favorites') ? 'favorites' : 'mine';
     this.reload();
   }
 
@@ -41,8 +54,8 @@ export class DashboardPageComponent {
       this.loading = false;
     })).subscribe({
       next: ({ mine, favorites }) => {
-        this.mine = mine;
-        this.favorites = favorites;
+        this.mine = this.sortUserListings(mine);
+        this.favorites = favorites.filter((listing) => listing.status === 'active');
       },
       error: (response: unknown) => {
         this.handleLoadError(response);
@@ -91,5 +104,23 @@ export class DashboardPageComponent {
     }
 
     this.notice = 'Nie udało się pobrać panelu. Sprawdź, czy backend działa i spróbuj odświeżyć stronę.';
+  }
+
+  private sortUserListings(listings: ListingResponse[]): ListingResponse[] {
+    const statusOrder: Record<string, number> = {
+      active: 0,
+      sold: 1
+    };
+
+    return [...listings].sort((left, right) => {
+      const leftOrder = statusOrder[left.status] ?? 2;
+      const rightOrder = statusOrder[right.status] ?? 2;
+
+      if (leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+
+      return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
+    });
   }
 }
