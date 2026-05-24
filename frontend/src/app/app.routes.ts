@@ -32,6 +32,12 @@ export const routes: Routes = [
     title: 'Obserwowane | MargoMarket'
   },
   {
+    path: 'notifications',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/notifications/notifications-page.component').then((m) => m.NotificationsPageComponent),
+    title: 'Powiadomienia | MargoMarket'
+  },
+  {
     path: 'admin',
     canActivate: [authGuard],
     loadComponent: () => import('./features/admin/admin-page.component').then((m) => m.AdminPageComponent),

@@ -132,10 +132,12 @@ public class ListingService {
         }
         listing.setStatus(getStatus("sold"));
         listing.setSoldAt(LocalDateTime.now());
+        List<Long> observerIds = favoriteRepository.findUserIdsByListingId(listing.getId());
         favoriteRepository.deleteByListingId(listing.getId());
         eventPublisher.publishEvent(new ListingSoldEvent(
                 listing.getId(),
                 listing.getUser().getId(),
+                observerIds,
                 listing.getItemName()
         ));
         return listing;

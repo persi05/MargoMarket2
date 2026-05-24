@@ -39,6 +39,12 @@ public interface FavoriteRepository extends JpaRepository<ListingFavorite, Long>
         """)
     List<Long> findFavoriteIdsByUser(@Param("user") User user);
 
+    @Query("""
+        SELECT f.user.id FROM ListingFavorite f
+        WHERE f.listing.id = :listingId
+        """)
+    List<Long> findUserIdsByListingId(@Param("listingId") Long listingId);
+
     void deleteByUserAndListing(User user, Listing listing);
 
     @Modifying

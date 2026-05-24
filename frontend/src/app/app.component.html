@@ -11,6 +11,9 @@
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Ogłoszenia</a>
     <a routerLink="/dashboard" routerLinkActive="active">Moje ogłoszenia</a>
     <a routerLink="/favorites" routerLinkActive="active">Obserwowane</a>
+    @if (user$ | async) {
+      <a routerLink="/notifications" routerLinkActive="active">Powiadomienia</a>
+    }
     <a routerLink="/new" routerLinkActive="active">Stwórz ogłoszenie</a>
     @if ((user$ | async)?.role === 'admin') {
       <a routerLink="/admin" routerLinkActive="active">Administracja</a>

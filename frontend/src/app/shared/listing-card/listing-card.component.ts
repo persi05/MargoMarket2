@@ -18,6 +18,7 @@ export class ListingCardComponent {
   @Input() isFavorite = false;
   @Input() favoriteBusy = false;
   @Input() allowInactiveDelete = false;
+  @Input() showSoldAt = false;
 
   @Output() favorite = new EventEmitter<ListingResponse>();
   @Output() removeFavorite = new EventEmitter<ListingResponse>();

@@ -26,6 +26,12 @@
       <dt>Dodano</dt>
       <dd>{{ listing.createdAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
     </div>
+    @if (showSoldAt && listing.soldAt) {
+      <div>
+        <dt>Sprzedano</dt>
+        <dd>{{ listing.soldAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
+      </div>
+    }
   </dl>
 
   <footer>
