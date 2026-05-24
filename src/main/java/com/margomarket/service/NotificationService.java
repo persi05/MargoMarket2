@@ -38,11 +38,12 @@ public class NotificationService {
         recipientIds.add(ownerId);
         recipientIds.addAll(observerIds);
 
-        return recipientIds.stream()
+        List<UserNotification> notifications = recipientIds.stream()
                 .map(userRepository::getReferenceById)
                 .map(user -> new UserNotification(user, LISTING_SOLD_TYPE, message))
-                .map(notificationRepository::save)
                 .toList();
+
+        return notificationRepository.saveAll(notifications);
     }
 
     @Transactional
