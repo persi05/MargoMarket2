@@ -49,3 +49,7 @@ Frontend będzie dostępny pod adresem:
 ```text
 http://localhost:4200
 ```
+
+
+Na podstawie mojego poprzedniego projektu:
+https://github.com/persi05/MargoMarket
