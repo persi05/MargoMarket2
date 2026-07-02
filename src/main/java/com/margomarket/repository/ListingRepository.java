@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public interface ListingRepository extends JpaRepository<Listing, Long> {
 
-    @EntityGraph(attributePaths = {"user", "itemType", "rarity", "currency", "server", "status"})
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
     @Query("""
         SELECT l
         FROM Listing l
@@ -30,11 +30,11 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
         """)
     List<Listing> findByUserSortedByStatusAndCreatedAtDesc(@Param("user") User user);
 
-    @EntityGraph(attributePaths = {"user", "itemType", "rarity", "currency", "server", "status"})
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
     @Query("SELECT l FROM Listing l WHERE l.id = :id")
     Optional<Listing> findByIdWithDetails(@Param("id") Long id);
 
-    @EntityGraph(attributePaths = {"user", "itemType", "rarity", "currency", "server", "status"})
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
     @Query("""
         SELECT l
         FROM Listing l
@@ -58,7 +58,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
             Pageable pageable
     );
 
-    @EntityGraph(attributePaths = {"user", "itemType", "rarity", "currency", "server", "status"})
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
     @Query("""
         SELECT l
         FROM Listing l
@@ -80,7 +80,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
             Pageable pageable
     );
 
-    @EntityGraph(attributePaths = {"user", "itemType", "rarity", "currency", "server", "status"})
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
     @Query("""
         SELECT l
         FROM Listing l
@@ -96,7 +96,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
             Pageable pageable
     );
 
-    @EntityGraph(attributePaths = {"user", "itemType", "rarity", "currency", "server", "status"})
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
     @Query("""
         SELECT l
         FROM Listing l
