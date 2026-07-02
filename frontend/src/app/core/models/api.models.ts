@@ -10,6 +10,18 @@ export interface DictionariesResponse {
   currencies: LookupResponse[];
 }
 
+export interface ItemResponse {
+  id: number;
+  externalId: number;
+  name: string;
+  iconUrl: string;
+  level: number;
+  itemType: LookupResponse;
+  rarity: LookupResponse;
+  description: string | null;
+  stats: string | null;
+}
+
 export interface UserResponse {
   id: number;
   email: string;
@@ -36,9 +48,14 @@ export interface LoginResponse {
 
 export interface ListingResponse {
   id: number;
+  itemId: number | null;
   itemName: string;
+  iconUrl: string | null;
+  itemDescription: string | null;
+  itemStats: string | null;
   itemType: LookupResponse;
   level: number;
+  enhancementLevel: number;
   rarity: LookupResponse;
   price: number;
   currency: LookupResponse;
@@ -52,9 +69,11 @@ export interface ListingResponse {
 }
 
 export interface ListingRequest {
+  itemId: number;
   itemName: string;
   itemTypeId: number;
   level: number;
+  enhancementLevel: number;
   rarityId: number;
   price: number;
   currencyId: number;

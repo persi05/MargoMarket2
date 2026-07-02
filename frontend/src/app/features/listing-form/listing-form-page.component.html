@@ -10,18 +10,60 @@
         <p class="error">{{ error }}</p>
       }
 
-      <label class="wide" [class.invalid]="hasFieldError('itemName')">
-        Nazwa przedmiotu
-        <input type="text" formControlName="itemName" placeholder="np. Smocza zbroja">
+      <div class="wide item-picker" [class.invalid]="hasFieldError('itemId') || hasFieldError('itemName')">
+        <label class="manual-field">
+          Nazwa przedmiotu
+          <input type="text" formControlName="itemName" placeholder="Zacznij wpisywać nazwę przedmiotu">
+        </label>
+
         @if (fieldError('itemName')) {
           <small>{{ fieldError('itemName') }}</small>
+        } @else if (fieldError('itemId')) {
+          <small>{{ fieldError('itemId') }}</small>
         }
+
+        @if (selectedItem) {
+          <div class="selected-item">
+            <span
+              class="catalog-icon-frame"
+              (mouseenter)="showItemTooltip(selectedItem, $event)"
+              (mousemove)="moveItemTooltip($event)"
+              (mouseleave)="hideItemTooltip()"
+            >
+              @if (showCatalogImage(selectedItem)) {
+                <img [src]="selectedItem.iconUrl" [alt]="selectedItem.name" loading="lazy" (error)="markCatalogImageBroken(selectedItem)">
+              } @else {
+                <span class="item-placeholder">{{ selectedItem.name.charAt(0) }}</span>
+              }
+            </span>
+            <div>
+              <strong>{{ selectedItem.name }}</strong>
+              <span>{{ selectedItem.itemType.name }} | poz. {{ selectedItem.level }} | {{ selectedItem.rarity.name }}</span>
+              <em>Aby zmienić przedmiot, wpisz inną nazwę, zmień filtry i kliknij inny kafelek.</em>
+            </div>
+          </div>
+        }
+      </div>
+
+      <label class="filter-field">
+        Filtr typu przedmiotu
+        <select formControlName="itemCatalogTypeId">
+          <option value="">Wszystkie typy</option>
+          @for (type of catalogItemTypes(dictionaries.itemTypes); track type.id) {
+            <option [value]="type.id">{{ type.name }}</option>
+          }
+        </select>
       </label>
 
-      <label [class.invalid]="hasFieldError('itemTypeId')">
-        Typ
+      <label class="filter-field">
+        Filtr poziomu przedmiotu
+        <input type="number" formControlName="itemCatalogLevel" min="1" max="300" placeholder="Dowolny">
+      </label>
+
+      <label class="auto-field" [class.invalid]="hasFieldError('itemTypeId')">
+        Typ przedmiotu
         <select formControlName="itemTypeId">
-          <option [ngValue]="0">Wybierz</option>
+          <option [ngValue]="0">Wybierz przedmiot</option>
           @for (type of dictionaries.itemTypes; track type.id) {
             <option [ngValue]="type.id">{{ type.name }}</option>
           }
@@ -31,18 +73,36 @@
         }
       </label>
 
-      <label [class.invalid]="hasFieldError('level')">
-        Poziom
+      <label class="auto-field" [class.invalid]="hasFieldError('level')">
+        Poziom przedmiotu
         <input type="number" formControlName="level" min="1" max="300">
         @if (fieldError('level')) {
           <small>{{ fieldError('level') }}</small>
         }
       </label>
 
-      <label [class.invalid]="hasFieldError('rarityId')">
+      <label class="manual-field" [class.invalid]="hasFieldError('enhancementLevel')">
+        Poziom ulepszenia
+        <select formControlName="enhancementLevel">
+          <option [ngValue]="0">+0</option>
+          <option [ngValue]="1">+1</option>
+          <option [ngValue]="2">+2</option>
+          <option [ngValue]="3">+3</option>
+          <option [ngValue]="4">+4</option>
+          <option [ngValue]="5">+5</option>
+        </select>
+        @if (isEnhancementLocked()) {
+          <small>Skrytki nie mają poziomu ulepszenia.</small>
+        }
+        @if (fieldError('enhancementLevel')) {
+          <small>{{ fieldError('enhancementLevel') }}</small>
+        }
+      </label>
+
+      <label class="auto-field" [class.invalid]="hasFieldError('rarityId')">
         Rzadkość
         <select formControlName="rarityId">
-          <option [ngValue]="0">Wybierz</option>
+          <option [ngValue]="0">Wybierz przedmiot</option>
           @for (rarity of dictionaries.rarities; track rarity.id) {
             <option [ngValue]="rarity.id">{{ rarity.name }}</option>
           }
@@ -52,20 +112,20 @@
         }
       </label>
 
-      <label [class.invalid]="hasFieldError('price')">
+      <label class="manual-field" [class.invalid]="hasFieldError('price')">
         Cena
-        <input type="number" formControlName="price" min="1">
+        <input type="number" formControlName="price" min="1" placeholder="Wpisz cenę">
         @if (fieldError('price')) {
           <small>{{ fieldError('price') }}</small>
         }
       </label>
 
-      <label [class.invalid]="hasFieldError('currencyId')">
-        Waluta
+      <label class="manual-field" [class.invalid]="hasFieldError('currencyId')">
+        Waluta (PLN/złoto)
         <select formControlName="currencyId">
           <option [ngValue]="0">Wybierz</option>
           @for (currency of dictionaries.currencies; track currency.id) {
-            <option [ngValue]="currency.id">{{ currency.name }}</option>
+            <option [ngValue]="currency.id">{{ currencyLabel(currency.name) }}</option>
           }
         </select>
         @if (fieldError('currencyId')) {
@@ -73,7 +133,7 @@
         }
       </label>
 
-      <label [class.invalid]="hasFieldError('serverId')">
+      <label class="manual-field" [class.invalid]="hasFieldError('serverId')">
         Serwer
         <select formControlName="serverId">
           <option [ngValue]="0">Wybierz</option>
@@ -86,7 +146,7 @@
         }
       </label>
 
-      <label class="wide" [class.invalid]="hasFieldError('contact')">
+      <label class="wide manual-field" [class.invalid]="hasFieldError('contact')">
         Kontakt
         <input type="text" formControlName="contact" placeholder="Discord, nick w grze albo email">
         @if (fieldError('contact')) {
@@ -95,7 +155,83 @@
       </label>
 
       <button type="submit" [disabled]="loading">{{ loading ? 'Dodawanie...' : 'Dodaj ogłoszenie' }}</button>
+
+      @if (itemResults$ | async; as itemResults) {
+        <section class="wide catalog-panel">
+          <div class="catalog-head">
+            <div class="catalog-title">
+              <h2>Katalog przedmiotów</h2>
+              <p>Wciśnij przedmiot, który chcesz sprzedać.</p>
+            </div>
+            <span>{{ itemResults.length }} / 60</span>
+          </div>
+
+          @if (itemResults.length) {
+            <div class="catalog-grid">
+              @for (item of itemResults; track item.id) {
+                <button
+                  type="button"
+                  class="catalog-item"
+                  [class.selected]="selectedItem?.id === item.id"
+                  (click)="selectItem(item, dictionaries)"
+                  (mouseenter)="showItemTooltip(item, $event)"
+                  (mousemove)="moveItemTooltip($event)"
+                  (mouseleave)="hideItemTooltip()"
+                >
+                  <span class="catalog-icon-frame">
+                    @if (showCatalogImage(item)) {
+                      <img [src]="item.iconUrl" [alt]="item.name" loading="lazy" (error)="markCatalogImageBroken(item)">
+                    } @else {
+                      <span class="item-placeholder">{{ item.name.charAt(0) }}</span>
+                    }
+                  </span>
+                  <strong>{{ item.name }}</strong>
+                  <span>{{ item.itemType.name }}</span>
+                  <em>poz. {{ item.level }} | {{ item.rarity.name }}</em>
+                </button>
+              }
+            </div>
+          } @else {
+            <p class="no-items">Brak przedmiotów dla tych filtrów.</p>
+          }
+        </section>
+      }
     </form>
+
+    @if (hoveredCatalogItem; as tooltipItem) {
+      <div
+        class="item-detail-tooltip floating-tooltip"
+        [class.rarity-unique]="rarityClass(tooltipItem) === 'rarity-unique'"
+        [class.rarity-heroic]="rarityClass(tooltipItem) === 'rarity-heroic'"
+        [class.rarity-legendary]="rarityClass(tooltipItem) === 'rarity-legendary'"
+        [class.rarity-upgraded]="rarityClass(tooltipItem) === 'rarity-upgraded'"
+        role="tooltip"
+        [style.left.px]="tooltipX"
+        [style.top.px]="tooltipY"
+      >
+        <span class="tooltip-head">
+          <span class="catalog-icon-frame">
+            @if (showCatalogImage(tooltipItem)) {
+              <img [src]="tooltipItem.iconUrl" [alt]="tooltipItem.name" loading="lazy" (error)="markCatalogImageBroken(tooltipItem)">
+            } @else {
+              <span class="item-placeholder">{{ tooltipItem.name.charAt(0) }}</span>
+            }
+          </span>
+          <span>
+            <strong>{{ tooltipItem.name }}</strong>
+            <span>Typ: {{ tooltipItem.itemType.name }}</span>
+          </span>
+        </span>
+        <b class="tooltip-rarity">{{ tooltipItem.rarity.name }}</b>
+        @for (stat of statLines(tooltipItem); track stat.label) {
+          <span class="tooltip-line">{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
+        }
+        @if (tooltipItem.description) {
+          <span class="tooltip-description">{{ tooltipItem.description }}</span>
+        }
+        <span class="tooltip-line">Wymagany poziom: <b>{{ tooltipItem.level }}</b></span>
+      </div>
+    }
   } @else {
     <div class="empty">Ładowanie formularza...</div>
   }

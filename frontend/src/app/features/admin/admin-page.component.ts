@@ -24,7 +24,7 @@ export class AdminPageComponent {
   private readonly pageSubject = new BehaviorSubject(1);
   private readonly usersReloadSubject = new BehaviorSubject(0);
 
-  protected activeTab: 'listings' | 'users' = 'listings';
+    protected activeTab: 'listings' | 'users' = 'listings';
   protected loadingListings = false;
   protected loadingUsers = false;
   protected notice = '';
