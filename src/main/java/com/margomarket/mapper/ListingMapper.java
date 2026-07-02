@@ -14,9 +14,14 @@ public class ListingMapper {
     public ListingResponse toResponse(Listing listing) {
         return new ListingResponse(
                 listing.getId(),
+                listing.getItem() == null ? null : listing.getItem().getId(),
                 listing.getItemName(),
+                listing.getItem() == null ? null : listing.getItem().getIconUrl(),
+                listing.getItem() == null ? null : listing.getItem().getDescription(),
+                listing.getItem() == null ? null : listing.getItem().getStats(),
                 lookupMapper.toResponse(listing.getItemType()),
                 listing.getLevel(),
+                listing.getEnhancementLevel(),
                 lookupMapper.toResponse(listing.getRarity()),
                 listing.getPrice(),
                 lookupMapper.toResponse(listing.getCurrency()),

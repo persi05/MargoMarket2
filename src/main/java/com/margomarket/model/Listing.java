@@ -28,11 +28,18 @@ public class Listing {
     private String itemName;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "item_id")
+    private Item item;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "item_type_id", nullable = false)
     private ItemType itemType;
 
     @Column(nullable = false)
     private Integer level;
+
+    @Column(name = "enhancement_level", nullable = false)
+    private Integer enhancementLevel = 0;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rarity_id", nullable = false)
