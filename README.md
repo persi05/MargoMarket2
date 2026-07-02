@@ -55,4 +55,3 @@ Uruchomienie skryptu do pobrania przedmiotów z margoworld:
 ```powershell
 node scripts\update-margoworld-items.mjs
 ```
-

@@ -34,7 +34,7 @@
           <select formControlName="currencyId">
             <option value="">Wszystkie</option>
             @for (currency of dictionaries.currencies; track currency.id) {
-              <option [value]="currency.id">{{ currency.name }}</option>
+              <option [value]="currency.id">{{ currencyLabel(currency.name) }}</option>
             }
           </select>
         </label>
@@ -97,7 +97,7 @@
                 }
                 <th>Nazwa przedmiotu</th>
                 <th>Poziom</th>
-                <th>Rzadkość</th>
+                <th>Ulepszenie</th>
                 <th>Cena</th>
                 <th>Kontakt</th>
                 <th>Serwer</th>
@@ -127,9 +127,54 @@
                         </button>
                       </td>
                     }
-                    <td><span class="item-name">{{ listing.itemName }}</span></td>
+                    <td>
+                      <span class="item-cell">
+                        <span
+                          class="item-frame"
+                          [class.rarity-unique]="rarityClass(listing) === 'rarity-unique'"
+                          [class.rarity-heroic]="rarityClass(listing) === 'rarity-heroic'"
+                          [class.rarity-legendary]="rarityClass(listing) === 'rarity-legendary'"
+                          [class.rarity-upgraded]="rarityClass(listing) === 'rarity-upgraded'"
+                        >
+                          @if (showListingImage(listing)) {
+                            <img class="item-icon" [src]="listing.iconUrl" [alt]="listing.itemName" loading="lazy" (error)="markListingImageBroken(listing)">
+                          } @else {
+                            <span class="item-placeholder">{{ listing.itemName.charAt(0) }}</span>
+                          }
+                          <span class="item-tooltip" role="tooltip">
+                            <span class="tooltip-title">
+                              <span class="tooltip-icon">
+                                @if (showListingImage(listing)) {
+                                  <img [src]="listing.iconUrl" [alt]="listing.itemName" loading="lazy" (error)="markListingImageBroken(listing)">
+                                } @else {
+                                  <span class="item-placeholder">{{ listing.itemName.charAt(0) }}</span>
+                                }
+                              </span>
+                              <span>
+                                <strong>{{ listing.itemName }}</strong>
+                                <span class="tooltip-muted">Typ: {{ listing.itemType.name }}</span>
+                              </span>
+                            </span>
+                            <span class="tooltip-rarity">{{ listing.rarity.name }}</span>
+                            <span>Poziom: {{ listing.level }}</span>
+                            <span>Ulepszenie: +{{ listing.enhancementLevel }}</span>
+                            @for (stat of statLines(listing); track stat.label) {
+                              <span>{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
+                            }
+                            @if (listing.itemDescription) {
+                              <span class="description">{{ listing.itemDescription }}</span>
+                            }
+                            <span class="tooltip-separator"></span>
+                            <span>Cena: {{ priceLabel(listing) }}</span>
+                            <span>Serwer: {{ listing.server.name }}</span>
+                            <span>Kontakt: {{ listing.contact }}</span>
+                          </span>
+                        </span>
+                        <span class="item-name">{{ listing.itemName }}</span>
+                      </span>
+                    </td>
                     <td class="center muted">{{ listing.level }}</td>
-                    <td><span class="badge">{{ listing.rarity.name }}</span></td>
+                    <td class="center"><span class="upgrade">+{{ listing.enhancementLevel }}</span></td>
                     <td><span class="price">{{ priceLabel(listing) }}</span></td>
                     <td><span class="contact">{{ listing.contact }}</span></td>
                     <td><span class="badge">{{ listing.server.name }}</span></td>

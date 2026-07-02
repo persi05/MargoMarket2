@@ -6,6 +6,7 @@ import com.margomarket.dto.ListingRequest;
 import com.margomarket.exception.ForbiddenOperationException;
 import com.margomarket.exception.NotFoundException;
 import com.margomarket.model.Currency;
+import com.margomarket.model.Item;
 import com.margomarket.model.ItemType;
 import com.margomarket.model.Listing;
 import com.margomarket.model.ListingStatus;
@@ -14,6 +15,7 @@ import com.margomarket.model.Server;
 import com.margomarket.model.User;
 import com.margomarket.repository.CurrencyRepository;
 import com.margomarket.repository.FavoriteRepository;
+import com.margomarket.repository.ItemRepository;
 import com.margomarket.repository.ItemTypeRepository;
 import com.margomarket.repository.ListingRepository;
 import com.margomarket.repository.ListingStatusRepository;
@@ -29,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.margomarket.event.ListingSoldEvent;
 
 import java.time.LocalDateTime;
+import java.text.Normalizer;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +46,7 @@ public class ListingService {
     private final ListingStatusRepository listingStatusRepository;
     private final ServerRepository serverRepository;
     private final ItemTypeRepository itemTypeRepository;
+    private final ItemRepository itemRepository;
     private final RarityRepository rarityRepository;
     private final CurrencyRepository currencyRepository;
     private final FavoriteRepository favoriteRepository;
@@ -155,10 +160,13 @@ public class ListingService {
     }
 
     private void applyRequest(Listing listing, ListingRequest request) {
-        listing.setItemName(request.itemName().trim());
-        listing.setItemType(getItemType(request.itemTypeId()));
-        listing.setLevel(request.level());
-        listing.setRarity(getRarity(request.rarityId()));
+        Item item = getItem(request.itemId());
+        listing.setItem(item);
+        listing.setItemName(item.getName());
+        listing.setItemType(item.getItemType());
+        listing.setLevel(item.getLevel());
+        listing.setEnhancementLevel(isSkrytka(item) || request.enhancementLevel() == null ? 0 : request.enhancementLevel());
+        listing.setRarity(item.getRarity());
         listing.setPrice(request.price());
         listing.setCurrency(getCurrency(request.currencyId()));
         listing.setServer(getServer(request.serverId()));
@@ -184,6 +192,18 @@ public class ListingService {
     private ItemType getItemType(Long id) {
         return itemTypeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Typ przedmiotu nie istnieje"));
+    }
+
+    private Item getItem(Long id) {
+        return itemRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Przedmiot nie istnieje"));
+    }
+
+    private boolean isSkrytka(Item item) {
+        String normalizedName = Normalizer.normalize(item.getName(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT);
+        return normalizedName.contains("skrytk");
     }
 
     private Rarity getRarity(Long id) {

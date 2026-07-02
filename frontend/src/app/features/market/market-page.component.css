@@ -146,7 +146,7 @@ h1 {
 }
 
 .table-wrapper {
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid var(--color-border);
   border-radius: 12px;
   background: var(--color-card-dark);
@@ -154,7 +154,7 @@ h1 {
 }
 
 .table-scroll {
-  overflow-x: auto;
+  overflow: visible;
 }
 
 table {
@@ -221,6 +221,43 @@ tr:last-child td {
   font-weight: 800;
 }
 
+.item-cell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+}
+
+.item-frame {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+}
+
+.item-icon {
+  width: 34px;
+  height: 34px;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.item-tooltip b {
+  color: inherit;
+}
+
+.item-tooltip b.accent {
+  color: #22d3ee;
+}
+
+.item-tooltip .description {
+  margin-top: 5px;
+  border-top: 1px solid rgba(148, 163, 184, 0.24);
+  padding-top: 7px;
+  color: #facc15;
+  white-space: pre-line;
+}
+
 tbody tr:hover .item-name {
   color: var(--color-primary);
 }
@@ -245,6 +282,18 @@ tbody tr:hover .item-name {
   color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 800;
+}
+
+.upgrade {
+  display: inline-flex;
+  min-width: 34px;
+  justify-content: center;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 6px;
+  padding: 4px 8px;
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--color-primary);
+  font-weight: 900;
 }
 
 .price {
