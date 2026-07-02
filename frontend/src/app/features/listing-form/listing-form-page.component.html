@@ -114,7 +114,7 @@
 
       <label class="manual-field" [class.invalid]="hasFieldError('price')">
         Cena
-        <input type="number" formControlName="price" min="1" placeholder="Wpisz cenę">
+        <input type="text" formControlName="price" [attr.inputmode]="isGoldCurrencySelected() ? 'decimal' : 'numeric'" [placeholder]="pricePlaceholder()">
         @if (fieldError('price')) {
           <small>{{ fieldError('price') }}</small>
         }

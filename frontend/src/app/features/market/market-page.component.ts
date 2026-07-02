@@ -7,6 +7,7 @@ import { ListingResponse, PageResponse } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ListingService } from '../../core/services/listing.service';
+import { formatListingPrice } from '../../core/utils/price-format';
 import { itemStatLines } from '../../core/utils/item-stats';
 
 @Component({
@@ -125,18 +126,7 @@ export class MarketPageComponent {
   }
 
   protected priceLabel(listing: ListingResponse): string {
-    const formattedPrice = new Intl.NumberFormat('pl-PL').format(listing.price);
-    const currencyName = listing.currency.name.trim();
-
-    if (currencyName.toLowerCase() === 'w grze') {
-      return `${formattedPrice} złota`;
-    }
-
-    if (currencyName.toLowerCase() === 'pln') {
-      return `${formattedPrice} PLN`;
-    }
-
-    return `${formattedPrice} ${currencyName}`;
+    return formatListingPrice(listing.price, listing.currency.name);
   }
 
   protected rarityClass(listing: ListingResponse): string {
