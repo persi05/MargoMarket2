@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { ListingResponse } from '../../core/models/api.models';
+import { formatListingPrice } from '../../core/utils/price-format';
 import { itemStatLines } from '../../core/utils/item-stats';
 
 @Component({
@@ -57,18 +58,7 @@ export class ListingCardComponent {
   }
 
   protected get priceLabel(): string {
-    const formattedPrice = new Intl.NumberFormat('pl-PL').format(this.listing.price);
-    const currencyName = this.listing.currency.name.trim();
-
-    if (currencyName.toLowerCase() === 'w grze') {
-      return `${formattedPrice} złota`;
-    }
-
-    if (currencyName.toLowerCase() === 'pln') {
-      return `${formattedPrice} PLN`;
-    }
-
-    return `${formattedPrice} ${currencyName}`;
+    return formatListingPrice(this.listing.price, this.listing.currency.name);
   }
 
   protected get showImage(): boolean {

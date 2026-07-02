@@ -10,6 +10,7 @@ import { DictionaryService } from '../../core/services/dictionary.service';
 import { ItemService } from '../../core/services/item.service';
 import { ListingService } from '../../core/services/listing.service';
 import { itemStatLines } from '../../core/utils/item-stats';
+import { parseListingPrice } from '../../core/utils/price-format';
 
 @Component({
   selector: 'mm-listing-form-page',
@@ -46,8 +47,10 @@ export class ListingFormPageComponent {
   private readonly listingService = inject(ListingService);
   private readonly itemService = inject(ItemService);
   private readonly router = inject(Router);
+  private readonly dictionaryService = inject(DictionaryService);
 
-  protected readonly dictionaries$ = inject(DictionaryService).getAll();
+  protected readonly dictionaries$ = this.dictionaryService.getAll();
+  protected dictionaries: DictionariesResponse | null = null;
   protected loading = false;
   protected error = '';
   protected selectedItem: ItemResponse | null = null;
@@ -67,7 +70,7 @@ export class ListingFormPageComponent {
     level: this.fb.nonNullable.control(1, [Validators.required, Validators.min(1), Validators.max(300)]),
     enhancementLevel: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0), Validators.max(5)]),
     rarityId: this.fb.nonNullable.control(0, [Validators.required, Validators.min(1)]),
-    price: this.fb.control<number | null>(null, [Validators.required, Validators.min(1), Validators.max(2000000000)]),
+    price: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(24)]),
     currencyId: this.fb.nonNullable.control(0, [Validators.required, Validators.min(1)]),
     serverId: this.fb.nonNullable.control(0, [Validators.required, Validators.min(1)]),
     contact: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(50)])
@@ -90,6 +93,10 @@ export class ListingFormPageComponent {
   );
 
   constructor() {
+    this.dictionaries$.subscribe((dictionaries) => {
+      this.dictionaries = dictionaries;
+    });
+
     this.form.controls.itemTypeId.disable();
     this.form.controls.level.disable();
     this.form.controls.rarityId.disable();
@@ -106,6 +113,14 @@ export class ListingFormPageComponent {
           rarityId: 0
         }, { emitEvent: false });
       }
+    });
+
+    this.form.controls.price.valueChanges.subscribe(() => {
+      delete this.serverErrors['price'];
+    });
+
+    this.form.controls.currencyId.valueChanges.subscribe(() => {
+      delete this.serverErrors['price'];
     });
   }
 
@@ -142,8 +157,12 @@ export class ListingFormPageComponent {
     this.loading = true;
 
     const raw = this.form.getRawValue();
-    const price = raw.price;
-    if (price === null) {
+    const currencyName = this.selectedCurrencyName();
+    const price = currencyName ? parseListingPrice(raw.price, currencyName) : null;
+    if (price === null || price > 2_000_000_000) {
+      this.serverErrors['price'] = currencyName?.toLowerCase() === 'w grze'
+        ? 'Wpisz cenę jako liczbę albo skrót, np. 500m lub 2g.'
+        : 'Wpisz poprawną cenę liczbową.';
       this.form.controls.price.markAsTouched();
       this.loading = false;
       return;
@@ -222,6 +241,10 @@ export class ListingFormPageComponent {
     return name.trim().toLowerCase() === 'pln' ? 'PLN' : name;
   }
 
+  pricePlaceholder(): string {
+    return this.isGoldCurrencySelected() ? 'Np. 500m albo 2g' : 'Wpisz cenę';
+  }
+
   showCatalogImage(item: ItemResponse): boolean {
     return Boolean(item.iconUrl) && !this.brokenCatalogImageIds.has(item.id);
   }
@@ -260,6 +283,10 @@ export class ListingFormPageComponent {
     return this.selectedItem ? this.isSkrytka(this.selectedItem) : false;
   }
 
+  isGoldCurrencySelected(): boolean {
+    return this.selectedCurrencyName()?.toLowerCase() === 'w grze';
+  }
+
   showItemTooltip(item: ItemResponse, event: MouseEvent): void {
     this.hoveredCatalogItem = item;
     this.moveItemTooltip(event);
@@ -291,6 +318,11 @@ export class ListingFormPageComponent {
     Object.keys(this.serverErrors).forEach((key) => {
       delete this.serverErrors[key];
     });
+  }
+
+  private selectedCurrencyName(): string | null {
+    const currencyId = this.form.controls.currencyId.value;
+    return this.dictionaries?.currencies.find((currency) => currency.id === currencyId)?.name || null;
   }
 
   private lookupId(options: LookupResponse[], name: string): number {
