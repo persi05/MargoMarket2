@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { ListingResponse } from '../../core/models/api.models';
+import { itemStatLines } from '../../core/utils/item-stats';
 
 @Component({
   selector: 'mm-listing-card',
@@ -24,6 +25,8 @@ export class ListingCardComponent {
   @Output() removeFavorite = new EventEmitter<ListingResponse>();
   @Output() sold = new EventEmitter<ListingResponse>();
   @Output() deleteListing = new EventEmitter<ListingResponse>();
+
+  protected imageFailed = false;
 
   protected get isActive(): boolean {
     return this.listing.status === 'active';
@@ -61,6 +64,55 @@ export class ListingCardComponent {
       return `${formattedPrice} złota`;
     }
 
+    if (currencyName.toLowerCase() === 'pln') {
+      return `${formattedPrice} PLN`;
+    }
+
     return `${formattedPrice} ${currencyName}`;
+  }
+
+  protected get showImage(): boolean {
+    return Boolean(this.listing.iconUrl) && !this.imageFailed;
+  }
+
+  protected get statLines() {
+    return itemStatLines(this.listing.itemStats);
+  }
+
+  protected markImageFailed(): void {
+    this.imageFailed = true;
+  }
+
+  protected get rarityClass(): string {
+    return `rarity-${this.rarityKey}`;
+  }
+
+  private get rarityKey(): string {
+    const rarity = this.normalize(this.listing.rarity.name);
+
+    if (rarity.includes('legendarn')) {
+      return 'legendary';
+    }
+
+    if (rarity.includes('heroiczn')) {
+      return 'heroic';
+    }
+
+    if (rarity.includes('unikat')) {
+      return 'unique';
+    }
+
+    if (rarity.includes('ulepszon')) {
+      return 'upgraded';
+    }
+
+    return 'normal';
+  }
+
+  private normalize(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
   }
 }

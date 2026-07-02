@@ -1,12 +1,13 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { BehaviorSubject, combineLatest, finalize, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, finalize, shareReplay, switchMap, tap } from 'rxjs';
 
 import { ListingResponse, PageResponse } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ListingService } from '../../core/services/listing.service';
+import { itemStatLines } from '../../core/utils/item-stats';
 
 @Component({
   selector: 'mm-market-page',
@@ -36,6 +37,7 @@ export class MarketPageComponent {
   protected notice = '';
   protected readonly favoriteIds = new Set<number>();
   protected readonly favoriteBusyIds = new Set<number>();
+  protected readonly brokenListingImageIds = new Set<number>();
 
   protected readonly listings$ = combineLatest([this.pageSubject]).pipe(
     tap(() => {
@@ -51,6 +53,13 @@ export class MarketPageComponent {
   );
 
   constructor() {
+    this.filters.controls.search.valueChanges.pipe(
+      debounceTime(250),
+      distinctUntilChanged()
+    ).subscribe(() => {
+      this.pageSubject.next(1);
+    });
+
     this.reloadFavorites();
   }
 
@@ -123,7 +132,49 @@ export class MarketPageComponent {
       return `${formattedPrice} złota`;
     }
 
+    if (currencyName.toLowerCase() === 'pln') {
+      return `${formattedPrice} PLN`;
+    }
+
     return `${formattedPrice} ${currencyName}`;
+  }
+
+  protected rarityClass(listing: ListingResponse): string {
+    const rarity = this.normalizeRarity(listing.rarity.name);
+
+    if (rarity.includes('legendarn')) {
+      return 'rarity-legendary';
+    }
+
+    if (rarity.includes('heroiczn')) {
+      return 'rarity-heroic';
+    }
+
+    if (rarity.includes('unikat')) {
+      return 'rarity-unique';
+    }
+
+    if (rarity.includes('ulepszon')) {
+      return 'rarity-upgraded';
+    }
+
+    return 'rarity-normal';
+  }
+
+  protected currencyLabel(name: string): string {
+    return name.trim().toLowerCase() === 'pln' ? 'PLN' : name;
+  }
+
+  protected showListingImage(listing: ListingResponse): boolean {
+    return Boolean(listing.iconUrl) && !this.brokenListingImageIds.has(listing.id);
+  }
+
+  protected markListingImageBroken(listing: ListingResponse): void {
+    this.brokenListingImageIds.add(listing.id);
+  }
+
+  protected statLines(listing: ListingResponse) {
+    return itemStatLines(listing.itemStats);
   }
 
   private reloadFavorites(): void {
@@ -138,5 +189,12 @@ export class MarketPageComponent {
         listings.forEach((listing) => this.favoriteIds.add(listing.id));
       }
     });
+  }
+
+  private normalizeRarity(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
   }
 }
