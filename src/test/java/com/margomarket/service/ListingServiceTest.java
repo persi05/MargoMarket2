@@ -6,6 +6,7 @@ import com.margomarket.event.ListingSoldEvent;
 import com.margomarket.exception.ForbiddenOperationException;
 import com.margomarket.exception.NotFoundException;
 import com.margomarket.model.Currency;
+import com.margomarket.model.Item;
 import com.margomarket.model.ItemType;
 import com.margomarket.model.Listing;
 import com.margomarket.model.ListingStatus;
@@ -15,6 +16,7 @@ import com.margomarket.model.Server;
 import com.margomarket.model.User;
 import com.margomarket.repository.CurrencyRepository;
 import com.margomarket.repository.FavoriteRepository;
+import com.margomarket.repository.ItemRepository;
 import com.margomarket.repository.ItemTypeRepository;
 import com.margomarket.repository.ListingRepository;
 import com.margomarket.repository.ListingStatusRepository;
@@ -58,6 +60,9 @@ class ListingServiceTest {
     private ItemTypeRepository itemTypeRepository;
 
     @Mock
+    private ItemRepository itemRepository;
+
+    @Mock
     private RarityRepository rarityRepository;
 
     @Mock
@@ -92,6 +97,7 @@ class ListingServiceTest {
         assertThat(created.getItemName()).isEqualTo("Smoczy miecz");
         assertThat(created.getContact()).isEqualTo("Discord#1234");
         assertThat(created.getLevel()).isEqualTo(100);
+        assertThat(created.getEnhancementLevel()).isZero();
         assertThat(created.getPrice()).isEqualTo(2500);
         assertThat(created.getServer()).isSameAs(server);
         assertThat(created.getItemType()).isSameAs(itemType);
@@ -99,6 +105,28 @@ class ListingServiceTest {
         assertThat(created.getCurrency()).isSameAs(currency);
         assertThat(created.getStatus()).isSameAs(activeStatus);
         verify(listingRepository).save(created);
+    }
+
+    @Test
+    void createListingForSkrytkaForcesZeroEnhancementLevel() {
+        User owner = user(1L, "user");
+        ListingRequest request = request("Lekka skrytka mocy", "Discord#1234", 5);
+        ListingStatus activeStatus = status("active");
+        Server server = server(1L);
+        ItemType itemType = itemType(2L);
+        Rarity rarity = rarity(3L);
+        Currency currency = currency(4L);
+
+        when(serverRepository.findById(1L)).thenReturn(Optional.of(server));
+        when(itemRepository.findById(9L)).thenReturn(Optional.of(item(9L, "Lekka skrytka mocy", 20, itemType, rarity)));
+        when(currencyRepository.findById(4L)).thenReturn(Optional.of(currency));
+        when(listingStatusRepository.findByName("active")).thenReturn(Optional.of(activeStatus));
+        when(listingRepository.save(any(Listing.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Listing created = listingService.createListing(request, owner);
+
+        assertThat(created.getEnhancementLevel()).isZero();
+        assertThat(created.getItemName()).isEqualTo("Lekka skrytka mocy");
     }
 
     @Test
@@ -137,9 +165,10 @@ class ListingServiceTest {
         Listing updated = listingService.updateListing(10L, request, admin);
 
         assertThat(updated).isSameAs(listing);
-        assertThat(updated.getItemName()).isEqualTo("Zbroja");
+        assertThat(updated.getItemName()).isEqualTo("Smoczy miecz");
         assertThat(updated.getContact()).isEqualTo("mail@example.com");
         assertThat(updated.getLevel()).isEqualTo(100);
+        assertThat(updated.getEnhancementLevel()).isZero();
         assertThat(updated.getPrice()).isEqualTo(2500);
     }
 
@@ -265,13 +294,16 @@ class ListingServiceTest {
 
     private void mockLookups(Server server, ItemType itemType, Rarity rarity, Currency currency) {
         when(serverRepository.findById(1L)).thenReturn(Optional.of(server));
-        when(itemTypeRepository.findById(2L)).thenReturn(Optional.of(itemType));
-        when(rarityRepository.findById(3L)).thenReturn(Optional.of(rarity));
+        when(itemRepository.findById(9L)).thenReturn(Optional.of(item(9L, "Smoczy miecz", 100, itemType, rarity)));
         when(currencyRepository.findById(4L)).thenReturn(Optional.of(currency));
     }
 
     private static ListingRequest request(String itemName, String contact) {
-        return new ListingRequest(itemName, 2L, 100, 3L, 2500, 4L, 1L, contact);
+        return request(itemName, contact, 0);
+    }
+
+    private static ListingRequest request(String itemName, String contact, Integer enhancementLevel) {
+        return new ListingRequest(9L, itemName, 2L, 100, enhancementLevel, 3L, 2500, 4L, 1L, contact);
     }
 
     private static User user(Long id, String roleName) {
@@ -320,5 +352,17 @@ class ListingServiceTest {
         currency.setId(id);
         currency.setName("PLN");
         return currency;
+    }
+
+    private static Item item(Long id, String name, Integer level, ItemType itemType, Rarity rarity) {
+        Item item = new Item();
+        item.setId(id);
+        item.setExternalId(1000L + id);
+        item.setName(name);
+        item.setIconUrl("https://example.com/item.gif");
+        item.setLevel(level);
+        item.setItemType(itemType);
+        item.setRarity(rarity);
+        return item;
     }
 }
