@@ -27,7 +27,6 @@ const EQUIPMENT_CLASSES = new Map([
 ]);
 
 const EXTRA_CLASSES = new Map([
-  [15, 'Neutralne'],
   [16, 'Konsumpcyjne']
 ]);
 
@@ -158,10 +157,6 @@ function shouldInclude(tip) {
     return level > 20 && hasBindingOnEquip(stat);
   }
 
-  if (tip.cl === 15) {
-    return level > 1 && hasBindingOnEquip(stat);
-  }
-
   return false;
 }
 
@@ -216,7 +211,6 @@ async function collectPath(pathAndQuery) {
 
 const paths = [
   ...[...EQUIPMENT_CLASSES.keys()].map((classId) => `/item/*,${classId}?legendary=on`),
-  '/item/*,15?legendary=on',
   '/item?name=skrytka'
 ];
 

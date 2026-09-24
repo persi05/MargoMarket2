@@ -3,12 +3,13 @@ import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, finalize, shareReplay, switchMap, tap } from 'rxjs';
 
-import { ListingResponse, PageResponse } from '../../core/models/api.models';
+import { ListingResponse, LookupResponse, PageResponse } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ListingService } from '../../core/services/listing.service';
 import { formatListingPrice } from '../../core/utils/price-format';
-import { itemStatLines } from '../../core/utils/item-stats';
+import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
+import { isSkrytkaName, marketItemTypes } from '../../core/utils/item-types';
 
 @Component({
   selector: 'mm-market-page',
@@ -288,6 +289,22 @@ export class MarketPageComponent {
 
   protected statLines(listing: ListingResponse) {
     return itemStatLines(listing.itemStats);
+  }
+
+  protected requiredProfessions(listing: ListingResponse): string | null {
+    return itemRequiredProfessions(listing.itemStats);
+  }
+
+  protected lastAvailableDuring(listing: ListingResponse): string | null {
+    return itemLastAvailableDuring(listing.itemStats);
+  }
+
+  protected itemTypes(types: LookupResponse[]): LookupResponse[] {
+    return marketItemTypes(types);
+  }
+
+  protected enhancementLabel(listing: ListingResponse): string {
+    return isSkrytkaName(listing.itemName) ? '-' : `+${listing.enhancementLevel}`;
   }
 
   private reloadFavorites(): void {

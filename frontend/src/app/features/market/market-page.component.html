@@ -41,7 +41,7 @@
           <span class="sr-only">Typ przedmiotu</span>
           <select formControlName="itemTypeId">
             <option value="">Typ przedmiotu</option>
-            @for (type of dictionaries.itemTypes; track type.id) {
+            @for (type of itemTypes(dictionaries.itemTypes); track type.id) {
               <option [value]="type.id">{{ type.name }}</option>
             }
           </select>
@@ -187,14 +187,20 @@
                               </span>
                             </span>
                             <span class="tooltip-rarity">{{ listing.rarity.name }}</span>
-                            <span>Poziom: {{ listing.level }}</span>
-                            <span>Ulepszenie: +{{ listing.enhancementLevel }}</span>
+                            <span>Ulepszenie: {{ enhancementLabel(listing) }}</span>
                             @for (stat of statLines(listing); track stat.label) {
                               <span>{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
                             }
                             @if (listing.itemDescription) {
                               <span class="description">{{ listing.itemDescription }}</span>
                             }
+                            @if (lastAvailableDuring(listing); as occasion) {
+                              <span>Ostatnio dostępny podczas: {{ occasion }}</span>
+                            }
+                            @if (requiredProfessions(listing); as professions) {
+                              <span>Wymagane profesje: {{ professions }}</span>
+                            }
+                            <span>Wymagany poziom: {{ listing.level }}</span>
                             <span class="tooltip-separator"></span>
                             <span>Cena: {{ priceLabel(listing) }}</span>
                             <span>Serwer: {{ listing.server.name }}</span>
@@ -206,7 +212,7 @@
                       <span class="item-name" [attr.title]="listing.itemName">{{ listing.itemName }}</span>
                     </td>
                     <td class="level-col muted">{{ listing.level }}</td>
-                    <td class="enhancement-col"><span class="upgrade">+{{ listing.enhancementLevel }}</span></td>
+                    <td class="enhancement-col"><span class="upgrade">{{ enhancementLabel(listing) }}</span></td>
                     <td class="price-col"><span class="price">{{ priceLabel(listing) }}</span></td>
                     <td class="contact-col"><span class="contact">{{ listing.contact }}</span></td>
                     <td class="server-col"><span class="badge">{{ listing.server.name }}</span></td>

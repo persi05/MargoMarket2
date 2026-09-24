@@ -84,12 +84,16 @@
       <label class="manual-field" [class.invalid]="hasFieldError('enhancementLevel')">
         Poziom ulepszenia
         <select formControlName="enhancementLevel">
-          <option [ngValue]="0">+0</option>
-          <option [ngValue]="1">+1</option>
-          <option [ngValue]="2">+2</option>
-          <option [ngValue]="3">+3</option>
-          <option [ngValue]="4">+4</option>
-          <option [ngValue]="5">+5</option>
+          @if (isEnhancementLocked()) {
+            <option [ngValue]="0">-</option>
+          } @else {
+            <option [ngValue]="0">+0</option>
+            <option [ngValue]="1">+1</option>
+            <option [ngValue]="2">+2</option>
+            <option [ngValue]="3">+3</option>
+            <option [ngValue]="4">+4</option>
+            <option [ngValue]="5">+5</option>
+          }
         </select>
         @if (isEnhancementLocked()) {
           <small>Skrytki nie mają poziomu ulepszenia.</small>
@@ -228,6 +232,12 @@
         }
         @if (tooltipItem.description) {
           <span class="tooltip-description">{{ tooltipItem.description }}</span>
+        }
+        @if (lastAvailableDuring(tooltipItem); as occasion) {
+          <span class="tooltip-line">Ostatnio dostępny podczas: <b>{{ occasion }}</b></span>
+        }
+        @if (requiredProfessions(tooltipItem); as professions) {
+          <span class="tooltip-line">Wymagane profesje: <b>{{ professions }}</b></span>
         }
         <span class="tooltip-line">Wymagany poziom: <b>{{ tooltipItem.level }}</b></span>
       </div>
