@@ -13,11 +13,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/dictionaries")
 @RequiredArgsConstructor
 public class DictionaryController {
+
+    private static final Set<String> MARKET_ITEM_TYPES = Set.of(
+            "Jednoręczne", "Dwuręczne", "Półtoraręczne", "Tarcza", "Dystansowe",
+            "Pomocnicze", "Różdżki", "Orby", "Strzały", "Zbroja", "Hełm",
+            "Buty", "Rękawice", "Pierścień", "Naszyjnik", "Talizmany",
+            "Konsumpcyjne", "Waluta", "Torby"
+    );
 
     private final ServerRepository serverRepository;
     private final ItemTypeRepository itemTypeRepository;
@@ -32,6 +40,7 @@ public class DictionaryController {
                         .map(lookupMapper::toResponse)
                         .toList(),
                 "itemTypes", itemTypeRepository.findAllByOrderByNameAsc().stream()
+                        .filter(type -> MARKET_ITEM_TYPES.contains(type.getName()))
                         .map(lookupMapper::toResponse)
                         .toList(),
                 "rarities", rarityRepository.findAllByOrderByIdAsc().stream()

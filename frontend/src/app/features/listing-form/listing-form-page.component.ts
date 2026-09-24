@@ -9,7 +9,8 @@ import { ApiError, DictionariesResponse, ItemResponse, LookupResponse } from '..
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ItemService } from '../../core/services/item.service';
 import { ListingService } from '../../core/services/listing.service';
-import { itemStatLines } from '../../core/utils/item-stats';
+import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
+import { isSkrytkaName, marketItemTypes } from '../../core/utils/item-types';
 import { parseListingPrice } from '../../core/utils/price-format';
 
 @Component({
@@ -20,29 +21,6 @@ import { parseListingPrice } from '../../core/utils/price-format';
   styleUrl: './listing-form-page.component.css'
 })
 export class ListingFormPageComponent {
-  private readonly catalogTypeLabels = [
-    { label: 'Broń', aliases: ['bron'] },
-    { label: 'Buty', aliases: ['buty'] },
-    { label: 'Dwuręczne', aliases: ['dwureczne'] },
-    { label: 'Dystansowe', aliases: ['dystansowe'] },
-    { label: 'Hełm', aliases: ['helm'] },
-    { label: 'Inne', aliases: ['inne'] },
-    { label: 'Jednoręczne', aliases: ['jednoreczne'] },
-    { label: 'Konsumpcyjne', aliases: ['konsumpcyjne', 'konsumcyjne'] },
-    { label: 'Naszyjniki', aliases: ['naszyjnik', 'naszyjniki'] },
-    { label: 'Neutralne', aliases: ['neutralne'] },
-    { label: 'Orby', aliases: ['orby'] },
-    { label: 'Pierścień', aliases: ['pierscien'] },
-    { label: 'Pomocnicze', aliases: ['pomocnicze'] },
-    { label: 'Półtoraręczne', aliases: ['poltorareczne'] },
-    { label: 'Różdżki', aliases: ['rozdzki'] },
-    { label: 'Rękawice', aliases: ['rekawice'] },
-    { label: 'Strzały', aliases: ['strzaly'] },
-    { label: 'Tarcza', aliases: ['tarcza'] },
-    { label: 'Zbroja', aliases: ['zbroja'] },
-    { label: 'Ulepszenie', aliases: ['ulepszenia', 'ulepszenie'] }
-  ];
-
   private readonly fb = inject(FormBuilder);
   private readonly listingService = inject(ListingService);
   private readonly itemService = inject(ItemService);
@@ -231,10 +209,7 @@ export class ListingFormPageComponent {
   }
 
   catalogItemTypes(itemTypes: LookupResponse[]): LookupResponse[] {
-    return this.catalogTypeLabels.flatMap(({ label, aliases }) => {
-      const type = this.findCatalogType(itemTypes, aliases);
-      return type ? [{ ...type, name: label }] : [];
-    });
+    return marketItemTypes(itemTypes);
   }
 
   currencyLabel(name: string): string {
@@ -255,6 +230,14 @@ export class ListingFormPageComponent {
 
   statLines(item: ItemResponse) {
     return itemStatLines(item.stats);
+  }
+
+  requiredProfessions(item: ItemResponse): string | null {
+    return itemRequiredProfessions(item.stats);
+  }
+
+  lastAvailableDuring(item: ItemResponse): string | null {
+    return itemLastAvailableDuring(item.stats);
   }
 
   rarityClass(item: ItemResponse): string {
@@ -329,10 +312,6 @@ export class ListingFormPageComponent {
     return options.find((option) => option.name === name)?.id || 0;
   }
 
-  private findCatalogType(itemTypes: LookupResponse[], aliases: string[]): LookupResponse | undefined {
-    return itemTypes.find((type) => aliases.includes(this.normalizeTypeName(type.name)));
-  }
-
   private normalizeTypeName(name: string): string {
     return name
       .normalize('NFD')
@@ -342,6 +321,6 @@ export class ListingFormPageComponent {
   }
 
   private isSkrytka(item: ItemResponse): boolean {
-    return this.normalizeTypeName(item.name).includes('skrytk');
+    return isSkrytkaName(item.name);
   }
 }

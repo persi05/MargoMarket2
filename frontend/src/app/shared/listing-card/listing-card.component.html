@@ -28,14 +28,20 @@
           </span>
         </span>
         <span class="tooltip-rarity">{{ listing.rarity.name }}</span>
-        <span>Poziom: {{ listing.level }}</span>
-        <span>Ulepszenie: +{{ listing.enhancementLevel }}</span>
+        <span>Ulepszenie: {{ enhancementLabel }}</span>
         @for (stat of statLines; track stat.label) {
           <span>{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
         }
         @if (listing.itemDescription) {
           <span class="description">{{ listing.itemDescription }}</span>
         }
+        @if (lastAvailableDuring; as occasion) {
+          <span>Ostatnio dostępny podczas: {{ occasion }}</span>
+        }
+        @if (requiredProfessions; as professions) {
+          <span>Wymagane profesje: {{ professions }}</span>
+        }
+        <span>Wymagany poziom: {{ listing.level }}</span>
         <span class="tooltip-separator"></span>
         <span>Cena: {{ priceLabel }}</span>
         <span>Serwer: {{ listing.server.name }}</span>
@@ -52,7 +58,7 @@
 
   <div class="meta">
     <span>Poz. {{ listing.level }}</span>
-    <span>+{{ listing.enhancementLevel }}</span>
+    <span>{{ enhancementLabel }}</span>
     <span>{{ listing.server.name }}</span>
   </div>
 

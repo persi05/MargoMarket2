@@ -3,7 +3,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { ListingResponse } from '../../core/models/api.models';
 import { formatListingPrice } from '../../core/utils/price-format';
-import { itemStatLines } from '../../core/utils/item-stats';
+import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
+import { isSkrytkaName } from '../../core/utils/item-types';
 
 @Component({
   selector: 'mm-listing-card',
@@ -67,6 +68,18 @@ export class ListingCardComponent {
 
   protected get statLines() {
     return itemStatLines(this.listing.itemStats);
+  }
+
+  protected get enhancementLabel(): string {
+    return isSkrytkaName(this.listing.itemName) ? '-' : `+${this.listing.enhancementLevel}`;
+  }
+
+  protected get requiredProfessions(): string | null {
+    return itemRequiredProfessions(this.listing.itemStats);
+  }
+
+  protected get lastAvailableDuring(): string | null {
+    return itemLastAvailableDuring(this.listing.itemStats);
   }
 
   protected markImageFailed(): void {
