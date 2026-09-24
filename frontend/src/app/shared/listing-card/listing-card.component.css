@@ -6,16 +6,16 @@
   flex-direction: column;
   overflow: visible;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-card-dark);
+  border-radius: 6px;
+  background: #211a16;
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
   transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
 .listing:hover {
   z-index: 20;
-  transform: translateY(-4px);
-  border-color: rgba(212, 175, 55, 0.42);
+  transform: translateY(-2px);
+  border-color: #8d7657;
   box-shadow: 0 20px 36px rgba(0, 0, 0, 0.34);
 }
 
@@ -27,10 +27,9 @@
   min-height: 118px;
   align-items: start;
   padding: 18px 18px 16px;
-  border-radius: 12px 12px 0 0;
-  background:
-    radial-gradient(circle at 20% 0%, rgba(212, 175, 55, 0.18), transparent 11rem),
-    var(--color-input-dark);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, #34322e, #27211c);
 }
 
 .item-frame {
@@ -39,9 +38,9 @@
   width: 64px;
   height: 64px;
   place-items: center;
-  border: 2px solid rgba(148, 163, 184, 0.36);
+  border: 2px solid rgba(170, 157, 141, 0.36);
   border-radius: 8px;
-  background: rgba(15, 23, 42, 0.88);
+  background: rgba(28, 23, 20, 0.88);
   box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.55);
 }
 
@@ -49,7 +48,7 @@
   --rarity-color: #facc15;
   --rarity-glow: rgba(250, 204, 21, 0.5);
   border-color: #facc15;
-  background: radial-gradient(circle, rgba(250, 204, 21, 0.24), rgba(15, 23, 42, 0.9) 72%);
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.24), rgba(28, 23, 20, 0.9) 72%);
   box-shadow: 0 0 14px rgba(250, 204, 21, 0.35), inset 0 0 12px rgba(250, 204, 21, 0.14);
 }
 
@@ -57,7 +56,7 @@
   --rarity-color: #38bdf8;
   --rarity-glow: rgba(56, 189, 248, 0.55);
   border-color: #38bdf8;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.26), rgba(15, 23, 42, 0.9) 72%);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.26), rgba(28, 23, 20, 0.9) 72%);
   box-shadow: 0 0 14px rgba(56, 189, 248, 0.38), inset 0 0 12px rgba(56, 189, 248, 0.14);
 }
 
@@ -65,7 +64,7 @@
   --rarity-color: #fb923c;
   --rarity-glow: rgba(251, 146, 60, 0.62);
   border-color: #fb923c;
-  background: radial-gradient(circle, rgba(251, 146, 60, 0.3), rgba(15, 23, 42, 0.92) 72%);
+  background: radial-gradient(circle, rgba(251, 146, 60, 0.3), rgba(28, 23, 20, 0.92) 72%);
   box-shadow: 0 0 16px rgba(251, 146, 60, 0.48), inset 0 0 12px rgba(251, 146, 60, 0.16);
 }
 
@@ -73,7 +72,7 @@
   --rarity-color: #c084fc;
   --rarity-glow: rgba(192, 132, 252, 0.26);
   border-color: #c084fc;
-  background: radial-gradient(circle, rgba(192, 132, 252, 0.22), rgba(15, 23, 42, 0.9) 72%);
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.22), rgba(28, 23, 20, 0.9) 72%);
 }
 
 .item-icon {
@@ -84,117 +83,26 @@
 }
 
 .item-tooltip {
-  position: absolute;
-  z-index: 80;
-  left: -20px;
-  top: calc(100% + 10px);
-  display: none;
-  width: min(340px, calc(100vw - 32px));
-  max-height: none;
-  overflow: visible;
-  border: 2px solid var(--rarity-color, #d4af37);
-  border-radius: 4px;
-  padding: 7px;
-  background:
-    linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(0, 0, 0, 0.99) 44%),
-    #020305;
-  box-shadow:
-    0 0 0 2px #0a0e14,
-    0 0 0 3px rgba(255, 255, 255, 0.14),
-    0 22px 44px rgba(0, 0, 0, 0.72),
-    0 0 22px var(--rarity-glow, rgba(212, 175, 55, 0.2));
-  color: #f8fafc;
-  text-align: left;
-  scrollbar-width: thin;
-}
-
-.item-frame:hover .item-tooltip,
-.item-frame:focus-within .item-tooltip {
-  display: grid;
-  gap: 3px;
-}
-
-.item-tooltip strong {
-  display: block;
-  overflow: hidden;
-  color: var(--rarity-color, #facc15);
-  font-size: 12px;
-  line-height: 1.12;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.item-tooltip span {
-  color: #f8fafc;
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1.14;
-}
-
-.item-tooltip b {
-  color: inherit;
+  top: 100%;
+  left: 0;
+  width: min(320px, calc(100vw - 32px));
 }
 
 .item-tooltip b.accent {
-  color: #22d3ee;
+  color: #a9ca88;
 }
 
 .item-tooltip .description {
-  margin-top: 3px;
-  border-top: 1px solid rgba(148, 163, 184, 0.24);
-  padding-top: 5px;
-  color: #fbbf24;
+  margin-top: 5px;
+  border-top: 1px solid rgba(168, 153, 120, 0.38);
+  padding-top: 9px;
+  color: #d7c9a9;
   white-space: pre-line;
 }
-
-.item-tooltip .tooltip-title {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 6px;
-  align-items: center;
-  margin-bottom: 3px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  padding: 4px;
-  background: rgba(30, 30, 30, 0.92);
-}
-
-.item-tooltip .tooltip-icon {
-  display: grid;
-  width: 32px;
-  height: 32px;
-  place-items: center;
-  border: 1px solid rgba(148, 163, 184, 0.36);
-  background: #05070b;
-}
-
-.item-tooltip .tooltip-icon img {
-  width: 28px;
-  height: 28px;
-  image-rendering: pixelated;
-  object-fit: contain;
-}
-
-.item-tooltip .tooltip-muted {
-  margin-top: 2px;
-  color: #a3a3a3;
-  font-weight: 700;
-}
-
-.item-tooltip .tooltip-rarity {
-  color: var(--rarity-color, #facc15);
-  font-weight: 900;
-}
-
-.item-tooltip .tooltip-separator {
-  height: 1px;
-  margin: 3px 0;
-  background: rgba(148, 163, 184, 0.28);
-}
-
 .type {
   display: inline-flex;
   width: fit-content;
-  border: 1px solid rgba(148, 163, 184, 0.26);
+  border: 1px solid rgba(170, 157, 141, 0.26);
   border-radius: 6px;
   padding: 4px 8px;
   color: var(--color-text-muted);
@@ -220,7 +128,7 @@ h3 {
 
 .price {
   grid-column: 1 / -1;
-  color: var(--color-primary);
+  color: #eee2cb;
   font-size: 24px;
   line-height: 1;
 }
@@ -241,7 +149,7 @@ footer {
 .meta span,
 .status {
   display: inline-flex;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  border: 1px solid rgba(170, 157, 141, 0.22);
   border-radius: 6px;
   padding: 5px 9px;
   background: var(--color-input-dark);
@@ -305,7 +213,7 @@ footer {
 
 button {
   width: 100%;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  border: 1px solid rgba(170, 157, 141, 0.22);
   border-radius: 8px;
   padding: 10px 12px;
   background: var(--color-input-dark);
@@ -315,7 +223,7 @@ button {
 }
 
 button:hover {
-  border-color: rgba(212, 175, 55, 0.42);
+  border-color: rgba(168, 201, 138, 0.42);
 }
 
 button:disabled {
@@ -330,7 +238,7 @@ button.favorite {
 }
 
 button.favorite span {
-  color: #94a3b8;
+  color: #aa9d8d;
   font-size: 18px;
   line-height: 1;
 }

@@ -1,16 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --color-primary: #d4af37;
-  --color-primary-hover: #b5952f;
-  --color-bg-dark: #0f172a;
-  --color-card-dark: #1e293b;
-  --color-input-dark: #334155;
-  --color-text-main: #e2e8f0;
-  --color-text-muted: #94a3b8;
-  --color-border: rgba(255, 255, 255, 0.1);
+  --color-primary: #b4ce93;
+  --color-primary-hover: #d0e2af;
+  --color-action: #31542b;
+  --color-action-hover: #426c37;
+  --color-action-text: #f1f4e9;
+  --color-bg-dark: #1b1410;
+  --color-card-dark: #261c17;
+  --color-input-dark: #332b25;
+  --color-text-main: #f1ede4;
+  --color-text-muted: #b9ad9f;
+  --color-border: rgba(151, 121, 87, 0.42);
   --color-danger: #ef4444;
-  --color-success: #22c55e;
+  --color-success: #91b775;
 }
 
 * {
@@ -29,9 +32,44 @@ body {
   margin: 0;
   color: var(--color-text-main);
   background:
-    radial-gradient(circle at 20% 0%, rgba(212, 175, 55, 0.08), transparent 32rem),
-    linear-gradient(rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.98));
-  font-family: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    radial-gradient(circle at 15% 0%, rgba(111, 75, 48, 0.15), transparent 36rem),
+    linear-gradient(#211913, var(--color-bg-dark));
+  font-family: 'Arimo', 'Segoe UI', Arial, sans-serif;
+}
+
+body::before {
+  position: fixed;
+  z-index: 0;
+  inset: -7%;
+  background: url('/trade-map.svg') center / cover no-repeat;
+  opacity: 0.24;
+  pointer-events: none;
+  content: '';
+}
+
+mm-root {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+@supports (animation-timeline: scroll()) {
+  body::before {
+    animation: trade-map-drift 1s linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes trade-map-drift {
+  from { transform: translateY(-4%); }
+  to { transform: translateY(4%); }
+}
+
+@media (max-width: 900px), (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+    opacity: 0.1;
+  }
 }
 
 button,
@@ -46,7 +84,7 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid rgba(212, 175, 55, 0.4);
+  outline: 3px solid rgba(168, 201, 138, 0.4);
   outline-offset: 2px;
 }
 
@@ -63,9 +101,9 @@ a:not(.brand):hover {
   position: relative;
   display: grid;
   place-items: center;
-  border: 2px solid var(--rarity-color, rgba(148, 163, 184, 0.36));
+  border: 2px solid var(--rarity-color, rgba(170, 157, 141, 0.36));
   border-radius: 6px;
-  background: radial-gradient(circle, var(--rarity-glow, transparent), rgba(15, 23, 42, 0.92) 72%);
+  background: radial-gradient(circle, var(--rarity-glow, transparent), rgba(28, 23, 20, 0.92) 72%);
   box-shadow: 0 0 18px var(--rarity-glow, transparent), inset 0 0 12px rgba(0, 0, 0, 0.62);
 }
 
@@ -92,24 +130,21 @@ a:not(.brand):hover {
 .item-tooltip {
   position: absolute;
   z-index: 80;
-  left: 0;
-  top: calc(100% + 10px);
+  left: 100%;
+  top: 0;
   display: none;
-  width: min(280px, 82vw);
-  max-height: min(380px, calc(100vh - 32px));
-  overflow: auto;
-  border: 2px solid var(--rarity-color, #d4af37);
-  border-radius: 4px;
-  padding: 7px;
-  background:
-    linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(0, 0, 0, 0.99) 44%),
-    #020305;
+  width: min(340px, calc(100vw - 32px));
+  max-height: min(520px, calc(100vh - 32px));
+  overflow-y: auto;
+  border: 1px solid #a8987c;
+  border-radius: 3px;
+  padding: 10px;
+  background: linear-gradient(180deg, #191815, #0d0d0c 55%);
   box-shadow:
-    0 0 0 2px #0a0e14,
-    0 0 0 3px rgba(255, 255, 255, 0.14),
-    0 22px 44px rgba(0, 0, 0, 0.72),
-    0 0 22px var(--rarity-glow, rgba(212, 175, 55, 0.2));
-  color: #f8fafc;
+    inset 0 0 0 3px #30302a,
+    inset 0 0 0 4px rgba(168, 153, 120, 0.35),
+    0 18px 38px rgba(0, 0, 0, 0.75);
+  color: var(--color-text-main);
   text-align: left;
   scrollbar-width: thin;
 }
@@ -117,23 +152,23 @@ a:not(.brand):hover {
 .item-frame:hover .item-tooltip,
 .item-frame:focus-within .item-tooltip {
   display: grid;
-  gap: 3px;
+  gap: 5px;
 }
 
 .item-tooltip strong,
 .item-tooltip span {
-  color: #f8fafc;
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1.16;
+  color: var(--color-text-main);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .item-tooltip strong {
   display: block;
   overflow: hidden;
   color: var(--rarity-color, #facc15);
-  font-size: 12px;
-  line-height: 1.18;
+  font-size: 14px;
+  line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -141,12 +176,12 @@ a:not(.brand):hover {
 .item-tooltip .tooltip-title {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 7px;
+  gap: 9px;
   align-items: center;
-  margin-bottom: 4px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  padding: 5px;
-  background: rgba(30, 30, 30, 0.92);
+  margin-bottom: 5px;
+  border: 1px solid rgba(168, 153, 120, 0.4);
+  padding: 7px;
+  background: rgba(74, 70, 58, 0.22);
 }
 
 .item-tooltip .tooltip-icon {
@@ -154,8 +189,8 @@ a:not(.brand):hover {
   width: 34px;
   height: 34px;
   place-items: center;
-  border: 1px solid rgba(148, 163, 184, 0.36);
-  background: #05070b;
+  border: 1px solid rgba(168, 153, 120, 0.5);
+  background: #141411;
 }
 
 .item-tooltip .tooltip-icon img {
@@ -167,8 +202,8 @@ a:not(.brand):hover {
 
 .item-tooltip .tooltip-muted {
   margin-top: 2px;
-  color: #a3a3a3;
-  font-weight: 700;
+  color: #aaa79c;
+  font-weight: 500;
 }
 
 .item-tooltip .tooltip-rarity {
@@ -179,7 +214,14 @@ a:not(.brand):hover {
 .item-tooltip .tooltip-separator {
   height: 1px;
   margin: 3px 0;
-  background: rgba(148, 163, 184, 0.28);
+  background: rgba(168, 153, 120, 0.38);
+}
+
+@media (max-width: 700px) {
+  .item-tooltip {
+    left: 0;
+    top: 100%;
+  }
 }
 
 .item-placeholder {

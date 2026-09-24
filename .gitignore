@@ -39,3 +39,6 @@ build/
 frontend/node_modules/
 frontend/dist/
 frontend/.angular/
+
+# Terminal Paste Image folder
+.cp-images/

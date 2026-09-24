@@ -34,8 +34,8 @@ header a {
   flex: 0 0 auto;
   border-radius: 8px;
   padding: 12px 16px;
-  background: var(--color-primary);
-  color: #0f172a;
+  background: var(--color-action);
+  color: var(--color-action-text);
   text-decoration: none;
   font-weight: 800;
 }
@@ -50,7 +50,7 @@ header a {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  border: 1px solid rgba(170, 157, 141, 0.3);
   border-radius: 999px;
   padding: 10px 18px;
   background: var(--color-card-dark);
@@ -61,8 +61,8 @@ header a {
 
 .tabs button.active {
   border-color: var(--color-primary);
-  background: var(--color-primary);
-  color: #0f172a;
+  background: var(--color-action);
+  color: var(--color-action-text);
 }
 
 .tabs span {
@@ -74,8 +74,8 @@ header a {
   margin: 0;
   border-radius: 8px;
   padding: 12px 14px;
-  border: 1px solid rgba(212, 175, 55, 0.24);
-  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(168, 201, 138, 0.24);
+  background: rgba(168, 201, 138, 0.1);
   color: var(--color-primary);
   font-weight: 800;
 }
@@ -117,7 +117,7 @@ header a {
 
 .notification.unread {
   border-left-color: var(--color-primary);
-  background: rgba(212, 175, 55, 0.08);
+  background: rgba(168, 201, 138, 0.08);
 }
 
 .notification p {
@@ -134,10 +134,10 @@ header a {
 
 .notification button {
   flex: 0 0 auto;
-  border: 1px solid rgba(212, 175, 55, 0.34);
+  border: 1px solid rgba(168, 201, 138, 0.34);
   border-radius: 8px;
   padding: 9px 12px;
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(168, 201, 138, 0.1);
   color: var(--color-primary);
   cursor: pointer;
   font-weight: 800;

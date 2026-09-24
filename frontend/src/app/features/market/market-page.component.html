@@ -1,18 +1,46 @@
 <section class="market-shell">
-  <aside class="filters">
-    <h2>Filtry</h2>
+  <aside class="filter-dock">
+    <div class="filters" #filterPanel [class.is-dragging]="filterDragging" [class.has-custom-position]="filterPosition !== null" [style.left.px]="filterPosition?.x" [style.top.px]="filterPosition?.y">
+      <div class="filter-top">
+        <h2>Filtrowanie</h2>
+        <button
+          type="button"
+          class="panel-tool reset-position"
+          aria-label="Przywróć położenie panelu filtrowania"
+          title="Przywróć położenie"
+          (click)="resetFilterPosition()"
+        >
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true" focusable="false">
+            <path d="M4 9a6 6 0 1 1 1.7 4.2M4 4v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="panel-tool drag-handle"
+          aria-label="Przesuń panel filtrowania"
+          title="Przeciągnij panel filtrowania"
+          (pointerdown)="startFilterDrag($event)"
+          (keydown)="moveFilterWithKeyboard($event)"
+        >
+          <svg viewBox="0 0 16 20" width="16" height="20" aria-hidden="true" focusable="false">
+            <circle cx="5" cy="4" r="1.6"/><circle cx="11" cy="4" r="1.6"/>
+            <circle cx="5" cy="10" r="1.6"/><circle cx="11" cy="10" r="1.6"/>
+            <circle cx="5" cy="16" r="1.6"/><circle cx="11" cy="16" r="1.6"/>
+          </svg>
+        </button>
+      </div>
 
     @if (dictionaries$ | async; as dictionaries) {
       <form [formGroup]="filters" (ngSubmit)="applyFilters()">
         <label>
-          Nazwa przedmiotu
-          <input type="search" formControlName="search" placeholder="Wpisz nazwę...">
+          <span class="sr-only">Nazwa przedmiotu</span>
+          <input type="search" formControlName="search" placeholder="Nazwa przedmiotu">
         </label>
 
         <label>
-          Typ przedmiotu
+          <span class="sr-only">Typ przedmiotu</span>
           <select formControlName="itemTypeId">
-            <option value="">Wszystkie</option>
+            <option value="">Typ przedmiotu</option>
             @for (type of dictionaries.itemTypes; track type.id) {
               <option [value]="type.id">{{ type.name }}</option>
             }
@@ -20,9 +48,9 @@
         </label>
 
         <label>
-          Rzadkość
+          <span class="sr-only">Rzadkość</span>
           <select formControlName="rarityId">
-            <option value="">Wszystkie</option>
+            <option value="">Rzadkość</option>
             @for (rarity of dictionaries.rarities; track rarity.id) {
               <option [value]="rarity.id">{{ rarity.name }}</option>
             }
@@ -30,9 +58,9 @@
         </label>
 
         <label>
-          Waluta
+          <span class="sr-only">Waluta</span>
           <select formControlName="currencyId">
-            <option value="">Wszystkie</option>
+            <option value="">Waluta</option>
             @for (currency of dictionaries.currencies; track currency.id) {
               <option [value]="currency.id">{{ currencyLabel(currency.name) }}</option>
             }
@@ -40,9 +68,9 @@
         </label>
 
         <label>
-          Serwer
+          <span class="sr-only">Serwer</span>
           <select formControlName="serverId">
-            <option value="">Wszystkie</option>
+            <option value="">Serwer</option>
             @for (server of dictionaries.servers; track server.id) {
               <option [value]="server.id">{{ server.name }}</option>
             }
@@ -51,12 +79,12 @@
 
         <div class="range">
           <label>
-            Min. poziom
-            <input type="number" formControlName="minLevel" min="1" max="300">
+            <span class="sr-only">Minimalny poziom</span>
+            <input type="number" formControlName="minLevel" min="1" max="300" placeholder="Min. poziom">
           </label>
           <label>
-            Maks. poziom
-            <input type="number" formControlName="maxLevel" min="1" max="300">
+            <span class="sr-only">Maksymalny poziom</span>
+            <input type="number" formControlName="maxLevel" min="1" max="300" placeholder="Maks. poziom">
           </label>
         </div>
 
@@ -66,6 +94,7 @@
         </div>
       </form>
     }
+    </div>
   </aside>
 
   <div class="results">
@@ -93,20 +122,21 @@
             <thead>
               <tr>
                 @if (authService.isLoggedIn) {
-                  <th class="favorite-col"></th>
+                  <th class="favorite-col" scope="col" aria-label="Obserwowane"></th>
                 }
-                <th>Nazwa przedmiotu</th>
-                <th>Poziom</th>
-                <th>Ulepszenie</th>
-                <th>Cena</th>
-                <th>Kontakt</th>
-                <th>Serwer</th>
+                <th class="preview-col" scope="col" aria-label="Podgląd przedmiotu"></th>
+                <th class="name-col" scope="col">Nazwa przedmiotu</th>
+                <th class="level-col" scope="col">Poziom</th>
+                <th class="enhancement-col" scope="col">Ulepszenie</th>
+                <th class="price-col" scope="col">Cena</th>
+                <th class="contact-col" scope="col">Kontakt</th>
+                <th class="server-col" scope="col">Serwer</th>
               </tr>
             </thead>
             <tbody>
               @if (loading) {
                 <tr>
-                  <td [attr.colspan]="authService.isLoggedIn ? 7 : 6">
+                  <td [attr.colspan]="authService.isLoggedIn ? 8 : 7">
                     <div class="empty">Ładowanie ofert...</div>
                   </td>
                 </tr>
@@ -127,10 +157,11 @@
                         </button>
                       </td>
                     }
-                    <td>
-                      <span class="item-cell">
-                        <span
+                    <td class="preview-col">
+                      <span
                           class="item-frame"
+                          tabindex="0"
+                          [attr.aria-label]="'Podgląd przedmiotu: ' + listing.itemName"
                           [class.rarity-unique]="rarityClass(listing) === 'rarity-unique'"
                           [class.rarity-heroic]="rarityClass(listing) === 'rarity-heroic'"
                           [class.rarity-legendary]="rarityClass(listing) === 'rarity-legendary'"
@@ -169,20 +200,21 @@
                             <span>Serwer: {{ listing.server.name }}</span>
                             <span>Kontakt: {{ listing.contact }}</span>
                           </span>
-                        </span>
-                        <span class="item-name">{{ listing.itemName }}</span>
                       </span>
                     </td>
-                    <td class="center muted">{{ listing.level }}</td>
-                    <td class="center"><span class="upgrade">+{{ listing.enhancementLevel }}</span></td>
-                    <td><span class="price">{{ priceLabel(listing) }}</span></td>
-                    <td><span class="contact">{{ listing.contact }}</span></td>
-                    <td><span class="badge">{{ listing.server.name }}</span></td>
+                    <td class="name-col">
+                      <span class="item-name" [attr.title]="listing.itemName">{{ listing.itemName }}</span>
+                    </td>
+                    <td class="level-col muted">{{ listing.level }}</td>
+                    <td class="enhancement-col"><span class="upgrade">+{{ listing.enhancementLevel }}</span></td>
+                    <td class="price-col"><span class="price">{{ priceLabel(listing) }}</span></td>
+                    <td class="contact-col"><span class="contact">{{ listing.contact }}</span></td>
+                    <td class="server-col"><span class="badge">{{ listing.server.name }}</span></td>
                   </tr>
                 }
               } @else {
                 <tr>
-                  <td [attr.colspan]="authService.isLoggedIn ? 7 : 6">
+                  <td [attr.colspan]="authService.isLoggedIn ? 8 : 7">
                     <div class="empty">Nie znaleziono żadnych ogłoszeń spełniających kryteria.</div>
                   </td>
                 </tr>
