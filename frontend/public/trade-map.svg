@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" fill="none">
+  <defs>
+    <pattern id="chart" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M80 0H0V80" stroke="#8d7353" stroke-opacity=".2" stroke-width="1"/>
+    </pattern>
+    <pattern id="waves" width="96" height="64" patternUnits="userSpaceOnUse">
+      <path d="M12 25q12-9 24 0t24 0M49 52q12-9 24 0t24 0" stroke="#aa8b61" stroke-opacity=".2" stroke-width="2" stroke-linecap="round"/>
+    </pattern>
+    <linearGradient id="land" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#8c6947" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#5a503d" stop-opacity=".2"/>
+    </linearGradient>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#chart)"/>
+  <rect width="1600" height="1000" fill="url(#waves)"/>
+
+  <g fill="url(#land)" stroke="#b4976b" stroke-opacity=".72" stroke-width="3" stroke-linejoin="round">
+    <path d="M-75 119 57 73l93 25 68-36 76 18 48 68 91 20 45 63-24 76-68 30-12 62-90 8-40 62-70-24-47 46-77-27-40-91-75-25-19-83Z"/>
+    <path d="m-55 638 85-65 72 19 43-30 92 25 37 64 82-4 71 42 39 79-40 58-86 19-42 68-66 8-69 57-97-33-71 17-46-45-58 6Z"/>
+    <path d="m479-85 79 74 70 14 41 61 110-6 77 42 17 73-43 61-94 15-43 58-86-25-51 37-75-20-44-77-15-99-50-41Z"/>
+    <path d="m1041 78 90-42 81 12 60-35 105 23 43 74 107 24 74 84-28 75-83 12-38 75-95 1-67 62-96-29-52 54-69-35-31-84-79-46 20-83Z"/>
+    <path d="m1075 516 71-35 82 23 61-25 86 44 24 74 84 22 56 77-23 82-76 35-18 89-91 22-64 55-79-29-41-83-62-18-52-72 12-93-35-68Z"/>
+    <path d="m564 521 49-28 30 18 9 43-27 26-55-10-18-22Zm315-61 40-18 31 23-12 38-41 11-31-22Zm-34 307 40-22 35 25-3 44-41 15-35-22Z"/>
+  </g>
+
+  <g stroke="#d3b783" stroke-opacity=".34" stroke-width="2" stroke-linecap="round">
+    <path d="m61 162 52-22 42 21m-31 102 65-27 45 18m-77 78 71-17 56 29M40 725l62-21 47 24m16 112 66-25 34 27M540 88l56 27 46-19m-20 104 54-21 59 18m-112 45 39 21 38-10m425-159 47 18 44-12m-72 108 66-19 54 22m31 109 56-12 49 24m-237 277 53-19 52 22m-29 117 65-22 49 21m-229 44 51-22 37 24"/>
+    <path d="m114 126 16-17 15 16-15 21Zm131 210 17-23 18 21-17 22Zm-100 389 17-19 17 19-17 18Zm487-626 17-20 17 20-17 20Zm567 27 17-20 17 20-17 20Zm134 625 17-20 17 20-17 20Z"/>
+  </g>
+
+  <g stroke="#c8aa75" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 11" opacity=".77">
+    <path d="M179 313C402 241 509 341 699 328S1048 210 1255 244"/>
+    <path d="M196 749C430 710 537 611 707 613s295 67 481 49"/>
+    <path d="M696 326c-72 124-61 198 11 287"/>
+    <path d="M1255 244c-153 96-174 245-67 418"/>
+    <path d="M331 722c43-169 10-288-152-409"/>
+  </g>
+
+  <g fill="#d5bf8c" stroke="#1b1410" stroke-width="3">
+    <circle cx="179" cy="313" r="8"/><circle cx="699" cy="328" r="8"/>
+    <circle cx="1255" cy="244" r="8"/><circle cx="707" cy="613" r="8"/>
+    <circle cx="1188" cy="662" r="8"/><circle cx="196" cy="749" r="8"/>
+  </g>
+  <g fill="#d5bf8c" opacity=".45" filter="url(#softGlow)">
+    <circle cx="179" cy="313" r="14"/><circle cx="1255" cy="244" r="14"/>
+    <circle cx="707" cy="613" r="14"/><circle cx="1188" cy="662" r="14"/>
+  </g>
+
+  <g transform="translate(1470 476)" stroke="#c4a779" stroke-opacity=".72" stroke-width="2">
+    <circle r="52"/><circle r="42" stroke-opacity=".36"/>
+    <path d="M0-75V75M-75 0H75M-36-36 36 36m0-72-72 72"/>
+    <path d="M0-57 10-10 57 0 10 10 0 57-10 10-57 0-10-10Z" fill="#aa8f63" fill-opacity=".23"/>
+  </g>
+</svg>

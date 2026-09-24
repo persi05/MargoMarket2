@@ -37,6 +37,41 @@ body {
   font-family: 'Arimo', 'Segoe UI', Arial, sans-serif;
 }
 
+body::before {
+  position: fixed;
+  z-index: 0;
+  inset: -7%;
+  background: url('/trade-map.svg') center / cover no-repeat;
+  opacity: 0.24;
+  pointer-events: none;
+  content: '';
+}
+
+mm-root {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+@supports (animation-timeline: scroll()) {
+  body::before {
+    animation: trade-map-drift 1s linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes trade-map-drift {
+  from { transform: translateY(-4%); }
+  to { transform: translateY(4%); }
+}
+
+@media (max-width: 900px), (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+    opacity: 0.1;
+  }
+}
+
 button,
 input,
 select {

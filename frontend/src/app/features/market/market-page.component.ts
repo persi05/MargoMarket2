@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, finalize, shareReplay, switchMap, tap } from 'rxjs';
 
@@ -18,6 +18,8 @@ import { itemStatLines } from '../../core/utils/item-stats';
   styleUrl: './market-page.component.css'
 })
 export class MarketPageComponent {
+  @ViewChild('filterPanel') private filterPanel?: ElementRef<HTMLElement>;
+
   private readonly fb = inject(FormBuilder);
   private readonly listingService = inject(ListingService);
   protected readonly authService = inject(AuthService);
@@ -39,6 +41,15 @@ export class MarketPageComponent {
   protected readonly favoriteIds = new Set<number>();
   protected readonly favoriteBusyIds = new Set<number>();
   protected readonly brokenListingImageIds = new Set<number>();
+  protected filterPosition: { x: number; y: number } | null = null;
+  protected filterDragging = false;
+  private filterDragState: {
+    pointerId: number;
+    offsetX: number;
+    offsetY: number;
+    width: number;
+    height: number;
+  } | null = null;
 
   protected readonly listings$ = combineLatest([this.pageSubject]).pipe(
     tap(() => {
@@ -62,6 +73,118 @@ export class MarketPageComponent {
     });
 
     this.reloadFavorites();
+  }
+
+  protected startFilterDrag(event: PointerEvent): void {
+    if (!event.isPrimary || event.button !== 0 || window.innerWidth <= 1280) {
+      return;
+    }
+
+    const panel = this.filterPanel?.nativeElement;
+    if (!panel) {
+      return;
+    }
+
+    const bounds = panel.getBoundingClientRect();
+    this.filterPosition = { x: bounds.left, y: bounds.top };
+    this.filterDragState = {
+      pointerId: event.pointerId,
+      offsetX: event.clientX - bounds.left,
+      offsetY: event.clientY - bounds.top,
+      width: bounds.width,
+      height: bounds.height
+    };
+    this.filterDragging = true;
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  protected resetFilterPosition(): void {
+    this.filterPosition = null;
+    this.filterDragState = null;
+    this.filterDragging = false;
+  }
+
+  @HostListener('window:pointermove', ['$event'])
+  protected moveFilter(event: PointerEvent): void {
+    const drag = this.filterDragState;
+    if (!drag || event.pointerId !== drag.pointerId) {
+      return;
+    }
+
+    this.filterPosition = this.clampFilterPosition(
+      event.clientX - drag.offsetX,
+      event.clientY - drag.offsetY,
+      drag.width,
+      drag.height
+    );
+  }
+
+  @HostListener('window:pointerup', ['$event'])
+  @HostListener('window:pointercancel', ['$event'])
+  protected stopFilterDrag(event: PointerEvent): void {
+    if (event.pointerId === this.filterDragState?.pointerId) {
+      this.filterDragState = null;
+      this.filterDragging = false;
+    }
+  }
+
+  protected moveFilterWithKeyboard(event: KeyboardEvent): void {
+    if (window.innerWidth <= 1280) {
+      return;
+    }
+
+    if (event.key === 'Home') {
+      this.filterPosition = null;
+      event.preventDefault();
+      return;
+    }
+
+    const shifts: Record<string, [number, number]> = {
+      ArrowLeft: [-24, 0],
+      ArrowRight: [24, 0],
+      ArrowUp: [0, -24],
+      ArrowDown: [0, 24]
+    };
+    const shift = shifts[event.key];
+    const panel = this.filterPanel?.nativeElement;
+    if (!shift || !panel) {
+      return;
+    }
+
+    const bounds = panel.getBoundingClientRect();
+    this.filterPosition = this.clampFilterPosition(
+      bounds.left + shift[0],
+      bounds.top + shift[1],
+      bounds.width,
+      bounds.height
+    );
+    event.preventDefault();
+  }
+
+  @HostListener('window:resize')
+  protected keepFilterInViewport(): void {
+    const panel = this.filterPanel?.nativeElement;
+    if (!panel || !this.filterPosition || window.innerWidth <= 1280) {
+      return;
+    }
+
+    const bounds = panel.getBoundingClientRect();
+    this.filterPosition = this.clampFilterPosition(
+      this.filterPosition.x,
+      this.filterPosition.y,
+      bounds.width,
+      bounds.height
+    );
+  }
+
+  private clampFilterPosition(x: number, y: number, width: number, height: number): { x: number; y: number } {
+    const maxX = Math.max(12, window.innerWidth - width - 12);
+    const maxY = Math.max(83, window.innerHeight - height - 12);
+    return {
+      x: Math.min(maxX, Math.max(12, x)),
+      y: Math.min(maxY, Math.max(83, y))
+    };
   }
 
   applyFilters(): void {
