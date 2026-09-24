@@ -56,8 +56,8 @@ h1 {
   margin: 0;
   border-radius: 8px;
   padding: 12px 14px;
-  border: 1px solid rgba(212, 175, 55, 0.24);
-  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(168, 201, 138, 0.24);
+  background: rgba(168, 201, 138, 0.1);
   color: var(--color-primary);
   font-weight: 800;
 }
@@ -81,7 +81,7 @@ h1 {
 
 .notification.unread {
   border-left-color: var(--color-primary);
-  background: rgba(212, 175, 55, 0.08);
+  background: rgba(168, 201, 138, 0.08);
 }
 
 .notification .type {
@@ -102,10 +102,10 @@ h1 {
 
 .notification button {
   flex: 0 0 auto;
-  border: 1px solid rgba(212, 175, 55, 0.34);
+  border: 1px solid rgba(168, 201, 138, 0.34);
   border-radius: 8px;
   padding: 9px 12px;
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(168, 201, 138, 0.1);
   color: var(--color-primary);
   cursor: pointer;
   font-weight: 800;

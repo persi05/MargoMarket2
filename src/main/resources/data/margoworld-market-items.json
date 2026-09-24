@@ -1053,7 +1053,7 @@
     "description": "Wznoście modły, ślijcie szczęście,\nwstawcie ciasto me do pieca... \nJeśli wyjdzie nam zakalec,\nto dopiero będzie heca!\n\nGwiazdka 2023 r.",
     "stats": "ac=45;acdmg=3;act=12;binds;crit=2;da=18;energybon=13;evade=4;heal=49;legbon=cleanse,40;lvl=40;opis=Wznoście modły, ślijcie szczęście,[br]wstawcie ciasto me do pieca... [br]Jeśli wyjdzie nam zakalec,[br]to dopiero będzie heca![br][br]Gwiazdka 2023 r.;rarity=legendary;reqp=bht;resfrost=8;sa=48;slow=19",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/50122/maska-z-czerstwego-piernika"
+    "sourceUrl": "https://margoworld.pl/item/view/50122@40/maska-z-czerstwego-piernika"
   },
   {
     "externalId": 28605,
@@ -1186,6 +1186,42 @@
     "stats": "acdmg=3;binds;crit=3;critmval=12;da=38;evade=4;heal=126;hp=232;legbon=facade,40;lvl=40;opis=Plotki o jej śmierci zostały mocno przesadzone.[br][br]13 Urodziny Margonem;rarity=legendary;reqp=mpt;resdmg=1;resfrost=6;reslight=-6;sa=38;slow=19",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/28748/wola-kociej-kurki"
+  },
+  {
+    "externalId": 61268,
+    "name": "Kask obrońcy kurnika",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1548.gif",
+    "level": 41,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Podejrzana ta błyskotka,\ncuchnie nieco amoniakiem...\nKto nie przełknął ziarna złego,\nten nie pojmie bycia ptakiem!",
+    "stats": "ac=52;binds;crit=1;da=18;evade=12;hp=334;legbon=holytouch,41;lowevade=4;lvl=41;opis=Podejrzana ta błyskotka,[br]cuchnie nieco amoniakiem...[br]Kto nie przełknął ziarna złego,[br]ten nie pojmie bycia ptakiem!;rarity=legendary;resfire=9;resfrost=-9;sa=39;slow=20",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61268/kask-obroncy-kurnika"
+  },
+  {
+    "externalId": 61269,
+    "name": "Symbol dominacji grzędy",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1398.gif",
+    "level": 41,
+    "itemTypeName": "Naszyjnik",
+    "rarityName": "Legendarny",
+    "description": "Podejrzana ta błyskotka,\ncuchnie nieco amoniakiem...\nKto nie przełknął ziarna złego,\nten nie pojmie bycia ptakiem!",
+    "stats": "acdmg=3;binds;crit=1;da=18;dmgmulphysical=6;dmgmulwound=5;dz=27;evade=8;heal=130;hp=237;legbon=puncture,41;lowevade=4;lvl=41;opis=Podejrzana ta błyskotka,[br]cuchnie nieco amoniakiem...[br]Kto nie przełknął ziarna złego,[br]ten nie pojmie bycia ptakiem!;rarity=legendary;reqp=bhw;sa=59",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61269/symbol-dominacji-grzedy"
+  },
+  {
+    "externalId": 61270,
+    "name": "Zawieszka z magicznych piórek",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1397.gif",
+    "level": 41,
+    "itemTypeName": "Naszyjnik",
+    "rarityName": "Legendarny",
+    "description": "Podejrzana ta błyskotka,\ncuchnie nieco amoniakiem...\nKto nie przełknął ziarna złego,\nten nie pojmie bycia ptakiem!",
+    "stats": "acdmg=3;binds;crit=1;da=18;di=72;dmgmulfrost=8;dmgmulphysical=3;dz=27;heal=130;hp=237;legbon=curse,41;lvl=41;opis=Podejrzana ta błyskotka,[br]cuchnie nieco amoniakiem...[br]Kto nie przełknął ziarna złego,[br]ten nie pojmie bycia ptakiem!;rarity=legendary;reqp=mpt;sa=29;slow=43",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61270/zawieszka-z-magicznych-piorek"
   },
   {
     "externalId": 45437,
@@ -3864,6 +3900,42 @@
     "sourceUrl": "https://margoworld.pl/item/view/38085/zabie-skoki"
   },
   {
+    "externalId": 61271,
+    "name": "Buciory entuzjasty kraszanek",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1456.gif",
+    "level": 81,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Ileż trzeba cierpliwości,\nby ozdobić kurze jajo... \nIleż trzeba ostrożności,\nby skorupka była całą...",
+    "stats": "ac=98;act=12;binds;crit=2;da=49;dmgmulabsolute=5;etiquette=Wielkanoc 2026 r.;evade=16;heal=93;legbon=anguish,81;lvl=81;opis=Ileż trzeba cierpliwości,[br]by ozdobić kurze jajo... [br]Ileż trzeba ostrożności,[br]by skorupka była całą...;rarity=legendary;reqp=bh;resfire=6;sa=89",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61271/buciory-entuzjasty-kraszanek"
+  },
+  {
+    "externalId": 61273,
+    "name": "Cholewy zwolennika drapanek",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1457.gif",
+    "level": 81,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Ileż trzeba cierpliwości,\nby ozdobić kurze jajo... \nIleż trzeba ostrożności,\nby skorupka była całą...",
+    "stats": "absorb=288;absorbm=144;ac=69;act=6;binds;crit=1;dmgmulfire=8;dz=49;etiquette=Wielkanoc 2026 r.;evade=16;legbon=anguish,81;lvl=81;manabon=66;opis=Ileż trzeba cierpliwości,[br]by ozdobić kurze jajo... [br]Ileż trzeba ostrożności,[br]by skorupka była całą...;rarity=legendary;reqp=mt;resfire=9;resfrost=6;sa=69",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61273/cholewy-zwolennika-drapanek"
+  },
+  {
+    "externalId": 61272,
+    "name": "Podeszwy miłośnika pisanek",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1458.gif",
+    "level": 81,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Ileż trzeba cierpliwości,\nby ozdobić kurze jajo... \nIleż trzeba ostrożności,\nby skorupka była całą...",
+    "stats": "ac=120;acdmg=6;act=6;binds;crit=3;dmgmulabsolute=5;energybon=31;etiquette=Wielkanoc 2026 r.;legbon=anguish,81;lowevade=16;lvl=81;opis=Ileż trzeba cierpliwości,[br]by ozdobić kurze jajo... [br]Ileż trzeba ostrożności,[br]by skorupka była całą...;rarity=legendary;reqp=pw;resfire=3;sa=69",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61272/podeszwy-milosnika-pisanek"
+  },
+  {
     "externalId": 47813,
     "name": "Błyskotka Wielkiej Stopy",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien910.gif",
@@ -5037,7 +5109,7 @@
     "description": "Wisior, który spoczął w twej dłoni, z pewnością należał do jednego z myśliwych pożartych przez bestię. Ciało jest bowiem ulotne, lecz duch skryty w tym naszyjniku będzie kompanem łowów po wsze czasy.\n\nWielkanoc 2020 r.",
     "stats": "binds;crit=3;critval=12;dz=115;energybon=17;evade=30;heal=180;hp=616;legbon=lastheal,100;lvl=100;opis=Wisior, który spoczął w twej dłoni, z pewnością należał do jednego z myśliwych pożartych przez bestię. Ciało jest bowiem ulotne, lecz duch skryty w tym naszyjniku będzie kompanem łowów po wsze czasy.[br][br]Wielkanoc 2020 r.;rarity=legendary;reqp=bh;resfrost=-6;reslight=6;sa=108;slow=37",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/34463@100/duch-praprzodkow"
+    "sourceUrl": "https://margoworld.pl/item/view/34463@100!heal/duch-praprzodkow"
   },
   {
     "externalId": 26374,
@@ -5049,7 +5121,7 @@
     "description": "Możliwy do założenia, gdy jedna trzecia drogi za tobą. Traktuj go jako zakończenie pewnego okresu dziecinności: potężni przeciwnicy już czekają!\n\nPamiątka z okazji rozpoczęcia roku szkolnego.",
     "stats": "ac=134;act=12;binds;crit=3;critval=6;da=33;dz=60;evade=20;hp=426;legbon=verycrit,100;lvl=100;opis=Możliwy do założenia, gdy jedna trzecia drogi za tobą. Traktuj go jako zakończenie pewnego okresu dziecinności: potężni przeciwnicy już czekają![br][br]Pamiątka z okazji rozpoczęcia roku szkolnego.;rarity=legendary;reqp=bht;resfrost=8;sa=83",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/26374@100!dz/kapelusz-finezji-trapera"
+    "sourceUrl": "https://margoworld.pl/item/view/26374@100/kapelusz-finezji-trapera"
   },
   {
     "externalId": 26372,
@@ -5269,75 +5341,75 @@
   },
   {
     "externalId": 59461,
-    "name": "Skrytka elektrycznej mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_03.gif.gif",
+    "name": "Solidna skrytka elektrycznej mocy",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_18.gif",
     "level": 101,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
     "description": "Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200. Szansa na Elektryczny komponent jest dwukrotnie większa od pozostałych.\n\nPo otworzeniu skrzynki, łup staje się związany na stałe.",
     "stats": "amount=1;canpreview;cansplit=1;capacity=100;lootbox2=2942;opis=Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200. Szansa na Elektryczny komponent jest dwukrotnie większa od pozostałych.[br][br]Po otworzeniu skrzynki, łup staje się związany na stałe.;rarity=legendary",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/59461/skrytka-elektrycznej-mocy"
+    "sourceUrl": "https://margoworld.pl/item/view/59461/solidna-skrytka-elektrycznej-mocy"
   },
   {
     "externalId": 59462,
-    "name": "Skrytka jadowej mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_05.gif.gif",
+    "name": "Solidna skrytka jadowej mocy",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_16.gif",
     "level": 101,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
     "description": "Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200. Szansa na Jadowy komponent jest dwukrotnie większa od pozostałych.\n\nPo otworzeniu skrzynki, łup staje się związany na stałe.",
     "stats": "amount=1;canpreview;cansplit=1;capacity=100;lootbox2=2943;opis=Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200. Szansa na Jadowy komponent jest dwukrotnie większa od pozostałych.[br][br]Po otworzeniu skrzynki, łup staje się związany na stałe.;rarity=legendary",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/59462/skrytka-jadowej-mocy"
+    "sourceUrl": "https://margoworld.pl/item/view/59462/solidna-skrytka-jadowej-mocy"
   },
   {
     "externalId": 59460,
-    "name": "Skrytka lodowej mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_01.gif",
+    "name": "Solidna skrytka lodowej mocy",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_10.gif",
     "level": 101,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
     "description": "Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200. Szansa na Lodowy komponent jest dwukrotnie większa od pozostałych.\n\nPo otworzeniu skrzynki, łup staje się związany na stałe.",
     "stats": "amount=1;canpreview;cansplit=1;capacity=100;lootbox2=2941;opis=Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200. Szansa na Lodowy komponent jest dwukrotnie większa od pozostałych.[br][br]Po otworzeniu skrzynki, łup staje się związany na stałe.;rarity=legendary",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/59460/skrytka-lodowej-mocy"
+    "sourceUrl": "https://margoworld.pl/item/view/59460/solidna-skrytka-lodowej-mocy"
   },
   {
     "externalId": 59455,
-    "name": "Skrytka mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_06.gif.gif",
+    "name": "Solidna skrytka mocy",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_14.gif",
     "level": 101,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
     "description": "Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200.\n\nPo otworzeniu skrzynki, łup staje się związany na stałe.",
     "stats": "amount=1;canpreview;cansplit=1;capacity=100;lootbox2=2938;opis=Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200.[br][br]Po otworzeniu skrzynki, łup staje się związany na stałe.;rarity=legendary",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/59455/skrytka-mocy"
+    "sourceUrl": "https://margoworld.pl/item/view/59455/solidna-skrytka-mocy"
   },
   {
     "externalId": 59459,
-    "name": "Skrytka ognistej mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_02.gif.gif",
+    "name": "Solidna skrytka ognistej mocy",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_08.gif",
     "level": 101,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
     "description": "Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200. Szansa na Ognisty komponent jest dwukrotnie większa od pozostałych.\n\nPo otworzeniu skrzynki, łup staje się związany na stałe.",
     "stats": "amount=1;canpreview;cansplit=1;capacity=100;lootbox2=2940;opis=Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200. Szansa na Ognisty komponent jest dwukrotnie większa od pozostałych.[br][br]Po otworzeniu skrzynki, łup staje się związany na stałe.;rarity=legendary",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/59459/skrytka-ognistej-mocy"
+    "sourceUrl": "https://margoworld.pl/item/view/59459/solidna-skrytka-ognistej-mocy"
   },
   {
     "externalId": 59458,
-    "name": "Skrytka stalowej mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_04.gif.gif",
+    "name": "Solidna skrytka stalowej mocy",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_12.gif",
     "level": 101,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
     "description": "Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200. Szansa na Stalowy komponent jest dwukrotnie większa od pozostałych.\n\nPo otworzeniu skrzynki, łup staje się związany na stałe.",
     "stats": "amount=1;canpreview;cansplit=1;capacity=100;lootbox2=2939;opis=Zawiera losowy komponent, niezbędny do utworzenia symbolu ulepszającego ekwipunek na poziomie 101-200. Szansa na Stalowy komponent jest dwukrotnie większa od pozostałych.[br][br]Po otworzeniu skrzynki, łup staje się związany na stałe.;rarity=legendary",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/59458/skrytka-stalowej-mocy"
+    "sourceUrl": "https://margoworld.pl/item/view/59458/solidna-skrytka-stalowej-mocy"
   },
   {
     "externalId": 50234,
@@ -6144,6 +6216,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/3008/walek-tesciowej"
   },
   {
+    "externalId": 63029,
+    "name": "Cholewy kryte smoczą łuską",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1506.gif",
+    "level": 114,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Harald wszystko chciał uśmiercać,\nco złą sławą go owiało!\nHarpie, smoki czy golemy:\nkażde z nich się butem stało!",
+    "stats": "ac=189;act=1;binds;dmgmulabsolute=5;dmgmulphysical=3;energybon=35;enfatig=40,7;etiquette=Wakacje 2026 r.;hp=479;legbon=puncture,114;lowevade=23;lvl=114;manafatig=40,15;opis=Harald wszystko chciał uśmiercać,[br]co złą sławą go owiało![br]Harpie, smoki czy golemy:[br]każde z nich się butem stało!;rarity=legendary;reqp=pw;resfrost=3;reslight=3;sa=94",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63029/cholewy-kryte-smocza-luska"
+  },
+  {
     "externalId": 46587,
     "name": "Czapa z białego bizona",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm782.gif",
@@ -6180,6 +6264,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/49052/jadeitowe-oko-nekromanty"
   },
   {
+    "externalId": 63030,
+    "name": "Kamasze z lodowych golemów",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1507.gif",
+    "level": 114,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Harald wszystko chciał uśmiercać,\nco złą sławą go owiało!\nHarpie, smoki czy golemy:\nkażde z nich się butem stało!",
+    "stats": "absorb=454;absorbm=227;ac=109;act=6;binds;crit=2;da=37;di=131;dz=67;enfatig=40,7;etiquette=Wakacje 2026 r.;heal=133;legbon=puncture,114;lvl=114;opis=Harald wszystko chciał uśmiercać,[br]co złą sławą go owiało![br]Harpie, smoki czy golemy:[br]każde z nich się butem stało!;rarity=legendary;reqp=mt;resfire=9;reslight=6;sa=94;slow=41",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63030/kamasze-z-lodowych-golemow"
+  },
+  {
     "externalId": 48892,
     "name": "Klątwa tysiąca i jednej nocy",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1010.gif",
@@ -6192,6 +6288,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/48892/klatwa-tysiaca-i-jednej-nocy"
   },
   {
+    "externalId": 63028,
+    "name": "Niedźwiedzie łby",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1505.gif",
+    "level": 114,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Harald wszystko chciał uśmiercać,\nco złą sławą go owiało!\nHarpie, smoki czy golemy:\nkażde z nich się butem stało!",
+    "stats": "ac=163;acdmg=9;act=8;binds;crit=1;ds=131;dz=131;energybon=18;etiquette=Wakacje 2026 r.;evade=23;legbon=anguish,114;lvl=114;opis=Harald wszystko chciał uśmiercać,[br]co złą sławą go owiało![br]Harpie, smoki czy golemy:[br]każde z nich się butem stało!;rarity=legendary;reqp=b;resfire=5;sa=94",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63028/niedzwiedzie-lby"
+  },
+  {
     "externalId": 49116,
     "name": "Obręcz władcy żywiołów",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1246.gif",
@@ -6202,6 +6310,18 @@
     "stats": "binds;crit=3;critmval=12;da=65;di=67;heal=210;hp=718;legbon=puncture,114;lowcrit=2;lowevade=11;lvl=114;manabon=62;opis=Woda, ogień, ziemia, powietrze... W klejnocie zdobiącym złotą obręcz jawią się naprzemiennie cztery żywioły. Czyżby uwięziona była w nim cząstka magii samego Rhazzga Aberu?[br][br]Trofeum po samotnym pokonaniu obrońcy Kopalni Krwawej Arogancji - Szkieletu Władcy Żywiołów.;rarity=legendary;reqp=mpt;sa=94;slow=41",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/49116/obrecz-wladcy-zywiolow"
+  },
+  {
+    "externalId": 63031,
+    "name": "Ptasie unoszenie",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1508.gif",
+    "level": 114,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Harald wszystko chciał uśmiercać,\nco złą sławą go owiało!\nHarpie, smoki czy golemy:\nkażde z nich się butem stało!",
+    "stats": "ac=145;acdmg=9;act=11;binds;da=122;dmgmulwound=5;etiquette=Wakacje 2026 r.;evade=11;legbon=anguish,114;lowevade=11;lvl=114;opis=Harald wszystko chciał uśmiercać,[br]co złą sławą go owiało![br]Harpie, smoki czy golemy:[br]każde z nich się butem stało!;rarity=legendary;reqp=h;resfire=7;reslight=3;sa=122",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63031/ptasie-unoszenie"
   },
   {
     "externalId": 48942,
@@ -9276,6 +9396,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/37493/kwiecista-ozdoba"
   },
   {
+    "externalId": 63046,
+    "name": "Lodowy uścisk z Terek-Hrabeth",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1523.gif",
+    "level": 165,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Wielki żeglarz i odkrywca,\nco na nartach świat przemierza!\nTo pamiątka z jednej z wypraw,\ncenny łup Birkebeinera!",
+    "stats": "absorb=774;absorbm=387;ac=129;binds;crit=2;critmval=6;di=462;etiquette=Wakacje 2026 r.;legbon=lastheal,165;lvl=165;opis=Wielki żeglarz i odkrywca,[br]co na nartach świat przemierza![br]To pamiątka z jednej z wypraw,[br]cenny łup Birkebeinera!;rarity=legendary;reqp=m;resfrost=9;reslight=7;sa=173",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63046/lodowy-uscisk-z-terek-hrabeth"
+  },
+  {
     "externalId": 54618,
     "name": "Mankiety z zerwanych sztandarów",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1213.gif",
@@ -9298,6 +9430,18 @@
     "stats": "absorb=852;absorbm=426;ac=204;act=6;binds;crit=2;da=49;di=187;evade=33;legbon=lastheal,165;lvl=165;manabon=46;opis=Zgodnie z dawną tradycją, raz na dziesięć lat, orcze córy przejawiające magiczne zdolności prowadzono przed oblicze pramatki. Tam każdej z nich, po kolei, nakładano na głowę srebrną maskę do czasu, aż przedmiot nie wybrał swej nowej posiadaczki. Gdy zaś już to następowało, orcze dziecię zyskiwało na najbliższą dekadę tytuł wyroczni i przenosiło się do królewskich sal, mając od tej pory realny wpływ na dzieje pradawnej dynastii.;rarity=legendary;reqp=mt;resdmg=1;resfire=9;reslight=6;sa=132",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/55340/maska-orczej-wyroczni"
+  },
+  {
+    "externalId": 63047,
+    "name": "Mechaniczna rękawica z Elancji",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1524.gif",
+    "level": 165,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Wielki żeglarz i odkrywca,\nco na nartach świat przemierza!\nTo pamiątka z jednej z wypraw,\ncenny łup Birkebeinera!",
+    "stats": "ac=194;act=14;binds;crit=1;dmgmulabsolute=5;dmgmulwound=5;energybon=21;etiquette=Wakacje 2026 r.;evade=17;legbon=anguish,165;lowevade=33;lvl=165;opis=Wielki żeglarz i odkrywca,[br]co na nartach świat przemierza![br]To pamiątka z jednej z wypraw,[br]cenny łup Birkebeinera!;rarity=legendary;reqp=ht;resfire=9;sa=214",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63047/mechaniczna-rekawica-z-elancji"
   },
   {
     "externalId": 54619,
@@ -9334,6 +9478,18 @@
     "stats": "acdmg=16;binds;crit=3;critval=6;dz=96;energybon=21;evade=33;hp=3348;legbon=cleanse,165;lowevade=33;lvl=165;opis=Pachnący stęchlizną i pokryty grubą warstwą kurzu łańcuch przynosi wspomnienia zimowych biesiad organizowanych przez dawny ród praorków. Tradycje te nie przetrwały jednak do dzisiejszych czasów, a traktują o nich jedynie pożółkłe manuskrypty.[br][br]Gwiazdka 2024 r.;rarity=legendary;reqp=ht;sa=173",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/55316/pamiatka-swiatecznej-egzekucji"
+  },
+  {
+    "externalId": 63045,
+    "name": "Pamiątka z Meryzrei",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1522.gif",
+    "level": 165,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Wielki żeglarz i odkrywca,\nco na nartach świat przemierza!\nTo pamiątka z jednej z wypraw,\ncenny łup Birkebeinera!",
+    "stats": "ac=279;act=1;binds;dmgmulphysical=3;ds=462;etiquette=Wakacje 2026 r.;legbon=curse,165;lvl=165;opis=Wielki żeglarz i odkrywca,[br]co na nartach świat przemierza![br]To pamiątka z jednej z wypraw,[br]cenny łup Birkebeinera!;rarity=legendary;reqp=w;sa=132;slow=149",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63045/pamiatka-z-meryzrei"
   },
   {
     "externalId": 31054,
@@ -9430,6 +9586,18 @@
     "stats": "ac=232;binds;crit=3;da=132;evade=17;hp=683;legbon=critred,165;lowevade=17;lvl=165;opis=Rękawice wykonane ze smoczej[br]skóry. Poprzedni właściciel[br]własnoręcznie się zadusił.[br]Czyżby zemsta smoka?;rarity=legendary;sa=132",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/1926/uscisk-smoka"
+  },
+  {
+    "externalId": 63044,
+    "name": "Wynalazek z Przylądka Gromów",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1521.gif",
+    "level": 165,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Wielki żeglarz i odkrywca,\nco na nartach świat przemierza!\nTo pamiątka z jednej z wypraw,\ncenny łup Birkebeinera!",
+    "stats": "ac=245;act=4;binds;crit=3;dmgmulphysical=3;dz=96;energybon=42;etiquette=Wakacje 2026 r.;heal=189;legbon=curse,165;lvl=165;opis=Wielki żeglarz i odkrywca,[br]co na nartach świat przemierza![br]To pamiątka z jednej z wypraw,[br]cenny łup Birkebeinera!;rarity=legendary;reqp=bp;resfire=7;sa=132;slow=55",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63044/wynalazek-z-przyladka-gromow"
   },
   {
     "externalId": 37494,
@@ -9624,6 +9792,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/27738/bojowa-czapa-mikolaja"
   },
   {
+    "externalId": 61276,
+    "name": "Dziedzictwo kurzego rodu",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1403.gif",
+    "level": 173,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Ostre szpony, krwawy grzebień\n- atrybuty to Pouleta!\nNajwspanialsza jednak kura\npod postacią jest kotleta!",
+    "stats": "binds;crit=2;critmval=6;da=51;di=388;etiquette=Wielkanoc 2026 r.;evade=17;heal=1052;legbon=curse,173;lvl=173;opis=Ostre szpony, krwawy grzebień[br]- atrybuty to Pouleta![br]Najwspanialsza jednak kura[br]pod postacią jest kotleta!;rarity=legendary;reqp=mt;sa=138;slow=107",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61276/dziedzictwo-kurzego-rodu"
+  },
+  {
     "externalId": 27737,
     "name": "Głęboki kaptur Mikołaja",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hat/kap67.gif",
@@ -9636,6 +9816,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/27737/gleboki-kaptur-mikolaja"
   },
   {
+    "externalId": 61275,
+    "name": "Grzebień wściekłego koguta",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1404.gif",
+    "level": 173,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Ostre szpony, krwawy grzebień\n- atrybuty to Pouleta!\nNajwspanialsza jednak kura\npod postacią jest kotleta!",
+    "stats": "acdmg=32;binds;crit=3;critval=12;dmgmulphysical=3;dz=100;energybon=22;etiquette=Wielkanoc 2026 r.;heal=356;hp=1203;legbon=verycrit,173;lvl=173;opis=Ostre szpony, krwawy grzebień[br]- atrybuty to Pouleta![br]Najwspanialsza jednak kura[br]pod postacią jest kotleta!;rarity=legendary;reqp=pw;sa=138;slow=107",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61275/grzebien-wscieklego-koguta"
+  },
+  {
     "externalId": 27739,
     "name": "Mikołajowe kozaki",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty400.gif",
@@ -9646,6 +9838,18 @@
     "stats": "ac=299;binds;crit=2;da=51;enfatig=40,9;evade=17;heal=209;hp=751;legbon=lastheal,173;lvl=173;manafatig=40,20;opis=Chronią Mikołaja przed odmrożeniami, gdy ten znajduje się poza domem. Ciepłe tak bardzo, że cieplejszych nie znajdziesz.[br][br]Gwiazdka 2018 r.;rarity=legendary;resfrost=-6;reslight=6;sa=138;slow=57",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/27739/mikolajowe-kozaki"
+  },
+  {
+    "externalId": 61274,
+    "name": "Sygnet złotych pazurów",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1402.gif",
+    "level": 173,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Ostre szpony, krwawy grzebień\n- atrybuty to Pouleta!\nNajwspanialsza jednak kura\npod postacią jest kotleta!",
+    "stats": "binds;crit=3;dmgmulphysical=3;energybon=22;etiquette=Wielkanoc 2026 r.;evade=69;hp=2382;legbon=holytouch,173;lowevade=17;lvl=173;opis=Ostre szpony, krwawy grzebień[br]- atrybuty to Pouleta![br]Najwspanialsza jednak kura[br]pod postacią jest kotleta!;rarity=legendary;reqp=bh;sa=224",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61274/sygnet-zlotych-pazurow"
   },
   {
     "externalId": 41506,
@@ -11642,7 +11846,7 @@
   {
     "externalId": 59497,
     "name": "Ciężka skrytka elektrycznej mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_03.gif.gif",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_17.gif",
     "level": 201,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
@@ -11654,7 +11858,7 @@
   {
     "externalId": 59498,
     "name": "Ciężka skrytka jadowej mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_05.gif.gif",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_15.gif",
     "level": 201,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
@@ -11666,7 +11870,7 @@
   {
     "externalId": 59496,
     "name": "Ciężka skrytka lodowej mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_01.gif",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_09.gif",
     "level": 201,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
@@ -11678,7 +11882,7 @@
   {
     "externalId": 59492,
     "name": "Ciężka skrytka mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_06.gif.gif",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_13.gif",
     "level": 201,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
@@ -11690,7 +11894,7 @@
   {
     "externalId": 59494,
     "name": "Ciężka skrytka ognistej mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_02.gif.gif",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_07.gif",
     "level": 201,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
@@ -11702,7 +11906,7 @@
   {
     "externalId": 59493,
     "name": "Ciężka skrytka stalowej mocy",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_04.gif.gif",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/bag/kuf_compontent_11.gif",
     "level": 201,
     "itemTypeName": "Konsumpcyjne",
     "rarityName": "Legendarny",
@@ -12732,6 +12936,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/58468/blyskotka-humanoidalnej-natury"
   },
   {
+    "externalId": 61278,
+    "name": "Drobiowe osłony",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1470.gif",
+    "level": 231,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Jak rozkochać kurzą damę? \nWręczyć ziarno? Podać trawę? \nMoże wspólne pogdakanie\nto odpowiedź na tę sprawę?",
+    "stats": "ac=452;act=1;binds;blok=35;crit=4;dmgmulphysical=3;etiquette=Wielkanoc 2026 r.;legbon=cleanse,231;lowevade=69;lvl=231;opis=Jak rozkochać kurzą damę? [br]Wręczyć ziarno? Podać trawę? [br]Może wspólne pogdakanie[br]to odpowiedź na tę sprawę?;rarity=legendary;reqp=pw;reslight=6;sa=181",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61278/drobiowe-oslony"
+  },
+  {
     "externalId": 58535,
     "name": "Genealogiczne Algi",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1451.gif",
@@ -12742,6 +12958,30 @@
     "stats": "ac=620;act=1;binds;blok=35;crit=3;ds=389;legbon=cleanse,231;lowevade=46;lvl=231;opis=Eksperyment Nikantosa, mający na celu stworzenie istoty idealnej do życia na lądzie oraz w wodzie, zakończył się połowicznym sukcesem. Chociaż powstały stwór - Magua - spełniał boskie założenia, to był jednak wyjątkowo słaby. Nikantos napoił go więc Amforą Bogów, obdarzając istotę zarówno siłą, jak i długowiecznością. Wiele lat później - gdy Magua dorósł w nurcie rzeki Yss - złożył nieplanowane przez Nikantosa jaja, dając początek rasie maddoków.;rarity=legendary;reqp=w;sa=181",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/58535/genealogiczne-algi"
+  },
+  {
+    "externalId": 61279,
+    "name": "Kogucie zaloty",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1471.gif",
+    "level": 231,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Jak rozkochać kurzą damę? \nWręczyć ziarno? Podać trawę? \nMoże wspólne pogdakanie\nto odpowiedź na tę sprawę?",
+    "stats": "absorb=1088;absorbm=544;ac=261;acdmg=26;act=6;binds;crit=2;critmval=6;di=132;dmgmullight=4;etiquette=Wielkanoc 2026 r.;evade=23;heal=276;legbon=curse,231;lvl=231;opis=Jak rozkochać kurzą damę? [br]Wręczyć ziarno? Podać trawę? [br]Może wspólne pogdakanie[br]to odpowiedź na tę sprawę?;rarity=legendary;reqp=mt;resfrost=6;reslight=9;sa=239",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61279/kogucie-zaloty"
+  },
+  {
+    "externalId": 61277,
+    "name": "Pazury dorodnej kury",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1463.gif",
+    "level": 231,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Jak rozkochać kurzą damę? \nWręczyć ziarno? Podać trawę? \nMoże wspólne pogdakanie\nto odpowiedź na tę sprawę?",
+    "stats": "ac=370;act=12;binds;crit=1;dmgmulabsolute=5;dmgmulwound=5;dz=132;etiquette=Wielkanoc 2026 r.;evade=69;legbon=anguish,231;lvl=231;opis=Jak rozkochać kurzą damę? [br]Wręczyć ziarno? Podać trawę? [br]Może wspólne pogdakanie[br]to odpowiedź na tę sprawę?;rarity=legendary;reqp=bh;resfrost=6;sa=181;slow=140",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61277/pazury-dorodnej-kury"
   },
   {
     "externalId": 58469,
@@ -12792,6 +13032,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/58467/symbol-wodnych-narodzin"
   },
   {
+    "externalId": 61570,
+    "name": "Atrybut lunarnej wojowniczki",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1582.gif",
+    "level": 235,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Nakrycie głowy wykonane ze skóry zwierzęcia to ewenement pośród elgar. Żywią się one bowiem roślinami, nie zabijają fauny, a jeśli korzystają już ze skór czy kości, to muszą pochodzić one ze zwierząt, które padły bez ich interwencji, na przykład zaatakowane przez inne zwierzę, czy w przypadku tak zwanej śmierci ze starości.",
+    "stats": "ac=531;binds;crit=2;da=126;energybon=26;heal=309;hp=1097;legbon=facade,235;lowcrit=2;lvl=235;manabon=64;opis=Nakrycie głowy wykonane ze skóry zwierzęcia to ewenement pośród elgar. Żywią się one bowiem roślinami, nie zabijają fauny, a jeśli korzystają już ze skór czy kości, to muszą pochodzić one ze zwierząt, które padły bez ich interwencji, na przykład zaatakowane przez inne zwierzę, czy w przypadku tak zwanej śmierci ze starości.;rarity=legendary;sa=184",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61570/atrybut-lunarnej-wojowniczki"
+  },
+  {
     "externalId": 36770,
     "name": "Czarna Wdowa",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien529.gif",
@@ -12816,6 +13068,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/23736/mechata-kolia-ducha-kniei"
   },
   {
+    "externalId": 61571,
+    "name": "Muśnięcie letniej pełni",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1507.gif",
+    "level": 235,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Boginki ukarane przez bogów objęły księżyc za swego opiekuna, czcząc go pod postacią śnieżnobiałego, pokrytego runami jelenia. Było to dawno temu, podczas letniej pełni, która jest celebrowana po dziś dzień. Stoły biesiadne uginają się wtedy od jedzenia i trunków, a księżyc zdaje się łaskawszy niż zazwyczaj.",
+    "stats": "ac=416;act=8;binds;crit=2;dmgmulphysical=3;energybon=77;evade=24;legbon=critred,235;lvl=235;manafatig=40,25;opis=Boginki ukarane przez bogów objęły księżyc za swego opiekuna, czcząc go pod postacią śnieżnobiałego, pokrytego runami jelenia. Było to dawno temu, podczas letniej pełni, która jest celebrowana po dziś dzień. Stoły biesiadne uginają się wtedy od jedzenia i trunków, a księżyc zdaje się łaskawszy niż zazwyczaj.;rarity=legendary;reqp=bhw;resfrost=5;sa=184;slow=75",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61571/musniecie-letniej-pelni"
+  },
+  {
     "externalId": 58753,
     "name": "Najbardziej wyjątkowy okaz",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1367.gif",
@@ -12838,6 +13102,18 @@
     "stats": "binds;crit=2;critmval=12;di=265;dz=135;evade=24;heal=539;hp=1805;legbon=curse,235;lowcrit=4;lvl=235;manabon=64;opis=Pacior w pacior - każdy jeden opleciony leśną wicią i spleciony z resztą nierozerwalnym spoiwem. Misterna dłubanina wykończona drobnymi, prawie że niewidzialnymi koralikami rozpraszającymi światło, wyglądającymi zupełnie jak zastygnięte krople jesiennej rosy tuż przed nastaniem świtu.;rarity=legendary;reqp=mt;resdmg=1;sa=184;slow=75",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/23734/obrecz-zywych-pnaczy"
+  },
+  {
+    "externalId": 61572,
+    "name": "Osłony przybywającego księżyca",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1508.gif",
+    "level": 235,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Wraz z przybywaniem tarczy księżyca, siła tego przedmiotu rośnie. Niestety, wraz z jego ubywaniem, siła prezentowana przez rękawice również maleje. Jednym z najlepszych rozwiązań dla tego problemu, wymyślonym przez elgary, jest zamknięcie przedmiotu w szkatule bez dostępu do słońca, w możliwie niskiej temperaturze.",
+    "stats": "absorb=751;absorbm=376;ac=335;act=4;binds;crit=3;dmgmullight=8;enfatig=40,11;legbon=anguish,235;lvl=235;manabon=123;opis=Wraz z przybywaniem tarczy księżyca, siła tego przedmiotu rośnie. Niestety, wraz z jego ubywaniem, siła prezentowana przez rękawice również maleje. Jednym z najlepszych rozwiązań dla tego problemu, wymyślonym przez elgary, jest zamknięcie przedmiotu w szkatule bez dostępu do słońca, w możliwie niskiej temperaturze.;rarity=legendary;reqp=mpt;resfire=6;resfrost=8;sa=184;slow=75",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61572/oslony-przybywajacego-ksiezyca"
   },
   {
     "externalId": 36769,
@@ -12898,6 +13174,42 @@
     "stats": "binds;crit=2;critmval=12;di=526;dz=135;evade=47;heal=539;hp=1805;legbon=critred,235;lowevade=24;lvl=235;opis=Z ciała Fangaja udało ci się odizolować owocnik pierwotnego grzyba, od którego rozpoczęła się zaraza. Czy na jego bazie uda się zidentyfikować eliksiry ze zniszczonej Wieży Magów, które mogły wpłynąć na rozwój mutacji? Czy istnieje cień szansy na wytworzenie antidotum i odwrócenie zaistniałych procesów? Przekonajmy się!;rarity=legendary;reqp=mt;sa=184;slow=75",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/58755/zrodlo-grzybowej-zarazy"
+  },
+  {
+    "externalId": 61574,
+    "name": "Ochrona kwitnących zawilców",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1495.gif",
+    "level": 237,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Połączenie wiedzy o roślinach z wytwarzaniem ekwipunku bojowego to domena jednej z elgar - Noumenii. W tym przypadku przed Tobą niezwykłe obuwie wzmocnione kwitnącymi zawilcami. Ich słodka woń, wraz z unoszącym się pyłkiem, wywołuje swędzenie w nosie. Następuje kichnięcie i... jesteś w pułapce. Choć kontynuujesz swoje życie, realnie stoisz w miejscu, a wszystko co przeżywasz dzieje się w twojej głowie. Wizje stają się coraz dziwniejsze, nachalne, zaczynają cię ranić - dopiero wtedy orientujesz się, że coś jest nie tak.",
+    "stats": "absorb=816;absorbm=408;ac=408;binds;crit=3;di=136;dmgmulfire=8;heal=302;hp=1076;legbon=puncture,237;lvl=237;manabon=64;opis=Połączenie wiedzy o roślinach z wytwarzaniem ekwipunku bojowego to domena jednej z elgar - Noumenii. W tym przypadku przed Tobą niezwykłe obuwie wzmocnione kwitnącymi zawilcami. Ich słodka woń, wraz z unoszącym się pyłkiem, wywołuje swędzenie w nosie. Następuje kichnięcie i... jesteś w pułapce. Choć kontynuujesz swoje życie, realnie stoisz w miejscu, a wszystko co przeżywasz dzieje się w twojej głowie. Wizje stają się coraz dziwniejsze, nachalne, zaczynają cię ranić - dopiero wtedy orientujesz się, że coś jest nie tak.;rarity=legendary;reqp=mp;resfire=8;reslight=6;sa=186",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61574/ochrona-kwitnacych-zawilcow"
+  },
+  {
+    "externalId": 61573,
+    "name": "Protekcja gęstych jagodzin",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1494.gif",
+    "level": 237,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Połączenie wiedzy o roślinach z wytwarzaniem ekwipunku bojowego to domena jednej z elgar - Noumenii. W tym przypadku przed Tobą niezwykłe obuwie wzmocnione krzewami podstępnych jagód. Niedojrzałe owoce posłużyć mogą za pociski do procy, dojrzałe - jako przekąska w trakcie walki, zaś przejrzałe, po wysuszeniu, sprawdzą się jako zasłona dymna, uwalniając barwny pył wytrącony z ich fioletowego miąższu.",
+    "stats": "ac=538;act=5;binds;crit=2;critval=6;da=67;dmgmulabsolute=5;energybon=26;heal=302;legbon=anguish,237;lowevade=24;lvl=237;opis=Połączenie wiedzy o roślinach z wytwarzaniem ekwipunku bojowego to domena jednej z elgar - Noumenii. W tym przypadku przed Tobą niezwykłe obuwie wzmocnione krzewami podstępnych jagód. Niedojrzałe owoce posłużyć mogą za pociski do procy, dojrzałe - jako przekąska w trakcie walki, zaś przejrzałe, po wysuszeniu, sprawdzą się jako zasłona dymna, uwalniając barwny pył wytrącony z ich fioletowego miąższu.;rarity=legendary;reqp=bw;resfire=4;sa=186;slow=76",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61573/protekcja-gestych-jagodzin"
+  },
+  {
+    "externalId": 61575,
+    "name": "Wsparcie amortyzujących mchów",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1496.gif",
+    "level": 237,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Połączenie wiedzy o roślinach z wytwarzaniem ekwipunku bojowego to domena jednej z elgar - Noumenii. W tym przypadku przed Tobą niezwykłe obuwie wzmocnione magicznym mchem z Gaju Księżycowego Blasku. Jego porowata struktura amortyzuje wszelkie uderzenia czy potencjalne upadki, podczas których mogłoby dojść do uszkodzenia stóp czy kostek.",
+    "stats": "ac=408;act=14;binds;crit=2;critval=6;dmgmulphysical=6;energybon=52;evade=24;legbon=puncture,237;lvl=237;opis=Połączenie wiedzy o roślinach z wytwarzaniem ekwipunku bojowego to domena jednej z elgar - Noumenii. W tym przypadku przed Tobą niezwykłe obuwie wzmocnione magicznym mchem z Gaju Księżycowego Blasku. Jego porowata struktura amortyzuje wszelkie uderzenia czy potencjalne upadki, podczas których mogłoby dojść do uszkodzenia stóp czy kostek.;rarity=legendary;reqp=ht;resfire=9;sa=245",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61575/wsparcie-amortyzujacych-mchow"
   },
   {
     "externalId": 56386,
@@ -13222,6 +13534,42 @@
     "stats": "absorb=932;absorbm=466;ac=416;act=4;binds;crit=2;critmval=12;heal=904;legbon=facade,240;lvl=240;manabon=125;opis=Kora potężnego Dendroculusa zalewana była kolejnymi warstwami żywicy w celu ukojenia ran wyniesionych z setek walk. Zaschnięta, lepka wydzielina stanowi skuteczną obronę przed obrażeniami wrogów lasu.;rarity=legendary;reqp=mpt;resfire=-3;resfrost=17;sa=188",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/58758/zywiczne-korzonki"
+  },
+  {
+    "externalId": 61576,
+    "name": "Blask Istnienia",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1461.gif",
+    "level": 241,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Z drzewa powstałeś, w drwa się obrócisz,\nogniem strawiony do ziemi powrócisz!\nChoć gnomia krew w twych sokach się spienia,\nw ogniu zagaśnie blask twego istnienia...",
+    "stats": "binds;crit=3;critval=6;dmgmulphysical=3;ds=138;energybon=26;enfatig=40,12;evade=48;hp=3712;legbon=verycrit,241;lowevade=24;lvl=241;opis=Z drzewa powstałeś, w drwa się obrócisz,[br]ogniem strawiony do ziemi powrócisz![br]Choć gnomia krew w twych sokach się spienia,[br]w ogniu zagaśnie blask twego istnienia...;rarity=legendary;reqp=bw;sa=249",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61576/blask-istnienia"
+  },
+  {
+    "externalId": 61578,
+    "name": "Symbol leśnej obfitości",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1463.gif",
+    "level": 241,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Toksyny zawarte w wodzie na terenach zasiedlonych przez dendrostwory wpływają w znaczny sposób na rozwój tamtejszych drzew. W przypadku niektórych gałęzie zaczynają wrastać do środka korony, liście tracą zielony barwnik, czy kora odpada wielkimi płatami. Zgoła inaczej ma się to jednak w stosunku do drzew owocowych, które wystawione na działanie toksyn... owocują tak silnie, że czasem wręcz łamią się pod własnym ciężarem.",
+    "stats": "binds;crit=2;critval=6;dmgmulabsolute=5;dz=138;energybon=52;enfatig=40,12;evade=48;hp=3712;legbon=curse,241;lowevade=24;lvl=241;opis=Toksyny zawarte w wodzie na terenach zasiedlonych przez dendrostwory wpływają w znaczny sposób na rozwój tamtejszych drzew. W przypadku niektórych gałęzie zaczynają wrastać do środka korony, liście tracą zielony barwnik, czy kora odpada wielkimi płatami. Zgoła inaczej ma się to jednak w stosunku do drzew owocowych, które wystawione na działanie toksyn... owocują tak silnie, że czasem wręcz łamią się pod własnym ciężarem.;rarity=legendary;reqp=ht;sa=249",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61578/symbol-lesnej-obfitosci"
+  },
+  {
+    "externalId": 61577,
+    "name": "Wierzbowy zawijas",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1462.gif",
+    "level": 241,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Silvanasus odziedziczył niezwykłą witalność gatunku drzewa, z którego powstał. A mowa tu o żywotności wierzby, która w połączeniu z gnomią krwią, pozwala mu odradzać się w nieskończoność. Prawdziwe zagrożenie dla jego życia stanowi jedynie ogień... Czy zakładając pierścień na palec, zaczynasz odczuwać strach przed płomieniami?",
+    "stats": "binds;crit=2;critmval=12;di=138;dmgmulfrost=4;dmgmullight=4;dz=138;heal=558;hp=3712;legbon=cleanse,241;lvl=241;manabon=126;manafatig=40,25;opis=Silvanasus odziedziczył niezwykłą witalność gatunku drzewa, z którego powstał. A mowa tu o żywotności wierzby, która w połączeniu z gnomią krwią, pozwala mu odradzać się w nieskończoność. Prawdziwe zagrożenie dla jego życia stanowi jedynie ogień... Czy zakładając pierścień na palec, zaczynasz odczuwać strach przed płomieniami?;rarity=legendary;reqp=mp;sa=189",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61577/wierzbowy-zawijas"
   },
   {
     "externalId": 55331,
@@ -14136,6 +14484,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/60190/wszechstronne-obcasy-sybilli"
   },
   {
+    "externalId": 60284,
+    "name": "Fragment magicznej bariery",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1423.gif",
+    "level": 265,
+    "itemTypeName": "Naszyjnik",
+    "rarityName": "Legendarny",
+    "description": "Kryształy formujące kolię przesycone są energią bariery magicznej otaczającej Skalne Pustkowie, która ma za zadanie być swoistym więzieniem dla zesłanych tam ślepych faunów. Nikomu do tej pory nie udało się określić natury tej blokady, poza faktem, iż ma ona dosłownie boskie pochodzenie.",
+    "stats": "binds;crit=1;critval=6;da=207;dmgmulabsolute=5;energybon=55;evade=80;hp=2130;legbon=glare,265;lowevade=53;lvl=265;opis=Kryształy formujące kolię przesycone są energią bariery magicznej otaczającej Skalne Pustkowie, która ma za zadanie być swoistym więzieniem dla zesłanych tam ślepych faunów. Nikomu do tej pory nie udało się określić natury tej blokady, poza faktem, iż ma ona dosłownie boskie pochodzenie.;rarity=legendary;reqp=bht;sa=273",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60284/fragment-magicznej-bariery"
+  },
+  {
     "externalId": 60221,
     "name": "Kaptur wyzwolenia ducha",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1501.gif",
@@ -14172,6 +14532,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/32493/krysztal-zatrucia-wod"
   },
   {
+    "externalId": 60285,
+    "name": "Odłamek boskiego meteorytu",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1421.gif",
+    "level": 265,
+    "itemTypeName": "Naszyjnik",
+    "rarityName": "Legendarny",
+    "description": "Trzymasz w dłoniach odłamek meteorytu, który uderzył w Skalne Pustkowie, kryjąc wewnątrz swojej masy golema - Wysłannika Tellarów. Zesłany został on na ten padół, aby pilnować magicznej bariery, a - w razie ewentualnych problemów - pozbywać się kłopotliwych, faunich jednostek.",
+    "stats": "binds;crit=3;critval=12;da=141;dmgmulabsolute=5;hp=8448;legbon=anguish,265;lowevade=53;lvl=265;opis=Trzymasz w dłoniach odłamek meteorytu, który uderzył w Skalne Pustkowie, kryjąc wewnątrz swojej masy golema - Wysłannika Tellarów. Zesłany został on na ten padół, aby pilnować magicznej bariery, a - w razie ewentualnych problemów - pozbywać się kłopotliwych, faunich jednostek.;rarity=legendary;reqp=pw;sa=207;slow=84",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60285/odlamek-boskiego-meteorytu"
+  },
+  {
     "externalId": 60222,
     "name": "Ofiara eliksiru hydrofilowego",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1502.gif",
@@ -14182,6 +14554,18 @@
     "stats": "ac=746;act=1;binds;crit=2;energybon=28;heal=708;legbon=cleanse,265;lowcrit=2;lowevade=53;lvl=265;opis=Ziołowy napar zaoferowany Sprawiedliwej przez Sybillę doprawiony został kroplą stężonego eliksiru hydrofilowego. Gdy aromatyczna ciecz odbyła swą podróż przełykiem, członkini Triady w ciągu kilku sekund wyschła na wiór, a cała woda z jej ciała skondensowała się do postaci drobnego kryształka. Tym samym ostatnia ze sprawujących władzę wiedźm została wyeliminowana, a Sybilla nie miała już żadnych przeszkód, by w czasie Wojny Magów stanąć po stronie zła i nękać Werbin upiorami z Rodu Kruzo oraz najazdami kontrolowanych magią czerwonych orków.;rarity=legendary;reqp=pw;resfire=6;sa=207;slow=84",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/60222/ofiara-eliksiru-hydrofilowego"
+  },
+  {
+    "externalId": 60286,
+    "name": "Pieczęć Wysłannika Tellarów",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1422.gif",
+    "level": 265,
+    "itemTypeName": "Naszyjnik",
+    "rarityName": "Legendarny",
+    "description": "Ten jeden z dwóch magicznych amuletów umieszczony został przez Tellarów między skałami budującymi ciało golema. Boska pieczęć wzmacnia siłę, nadaje świadomość i... wpływa na organizm poprzez przekazywanie sugestii szeptanych przez właściciela drugiego z naszyjników.",
+    "stats": "binds;crit=3;da=339;di=298;dmgmulabsolute=5;dmgmullight=4;heal=1900;legbon=anguish,265;lvl=265;manabon=71;opis=Ten jeden z dwóch magicznych amuletów umieszczony został przez Tellarów między skałami budującymi ciało golema. Boska pieczęć wzmacnia siłę, nadaje świadomość i... wpływa na organizm poprzez przekazywanie sugestii szeptanych przez właściciela drugiego z naszyjników.;rarity=legendary;reqp=m;sa=141",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60286/pieczec-wyslannika-tellarow"
   },
   {
     "externalId": 60223,
@@ -14206,6 +14590,42 @@
     "stats": "binds;blok=40;crit=3;critval=18;da=141;ds=151;energybon=28;hp=4236;legbon=glare,265;lvl=265;opis=... A uniosłwszy palec trzeci ku górze, wezwał do siebie hordy piekielne - liczne tak bardzo, że mnogością swą doszczętnie przysłoniły niebo. Ludzki świat zatonął wtedy w mroku, dając śmiertelnikom żywą wizję tego, co niosła ze sobą przyszłość...[br][br]Halloween 2019 r.;rarity=legendary;reqp=pw;sa=273",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/32491/symbol-przyzwania-potworow"
+  },
+  {
+    "externalId": 61281,
+    "name": "Atrybut malarza pisanek",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1410.gif",
+    "level": 266,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Ptasią formą sygnet kusi,\nwiosny aurę nam roztacza! \nGdy na palcu połyskuje,\nsiłę daję, umysł spacza!",
+    "stats": "binds;blok=40;crit=4;di=152;dmgmulfrost=4;etiquette=Wielkanoc 2026 r.;heal=1276;legbon=verycrit,266;lvl=266;manabon=72;opis=Ptasią formą sygnet kusi,[br]wiosny aurę nam roztacza! [br]Gdy na palcu połyskuje,[br]siłę daję, umysł spacza!;rarity=legendary;reqp=mp;resdmg=1;sa=208;slow=236",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61281/atrybut-malarza-pisanek"
+  },
+  {
+    "externalId": 61280,
+    "name": "Latawiec",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1408.gif",
+    "level": 266,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Ptasią formą sygnet kusi,\nwiosny aurę nam roztacza! \nGdy na palcu połyskuje,\nsiłę daję, umysł spacza!",
+    "stats": "binds;crit=3;critval=6;da=75;dmgmulphysical=3;ds=152;energybon=28;etiquette=Wielkanoc 2026 r.;heal=1276;hp=4259;legbon=curse,266;lvl=266;opis=Ptasią formą sygnet kusi,[br]wiosny aurę nam roztacza! [br]Gdy na palcu połyskuje,[br]siłę daję, umysł spacza!;rarity=legendary;reqp=bw;sa=208;slow=160",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61280/latawiec"
+  },
+  {
+    "externalId": 61282,
+    "name": "Wiosenne skrzydełka",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1409.gif",
+    "level": 266,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Ptasią formą sygnet kusi,\nwiosny aurę nam roztacza! \nGdy na palcu połyskuje,\nsiłę daję, umysł spacza!",
+    "stats": "binds;crit=3;da=75;dmgmulabsolute=5;dz=300;etiquette=Wielkanoc 2026 r.;evade=80;heal=642;hp=2142;legbon=curse,266;lvl=266;opis=Ptasią formą sygnet kusi,[br]wiosny aurę nam roztacza! [br]Gdy na palcu połyskuje,[br]siłę daję, umysł spacza!;rarity=legendary;reqp=ht;sa=208;slow=160",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61282/wiosenne-skrzydelka"
   },
   {
     "externalId": 32488,
@@ -14242,6 +14662,18 @@
     "stats": "ac=575;act=1;binds;crit=4;critval=6;ds=153;energybon=28;legbon=cleanse,268;lowevade=27;lvl=268;opis=A tocząc zagorzały bój na pustynnym polu bitwy, wypełzł z katakumb on sam - Czarny Kapłan Negthotep - i objawił mu się w swej własnej postaci. Obdarowawszy go niezwykłymi rękawicami i złotym, przedwiecznym ostrzem, odesłał go ponownie w ferwor walki. Opętany potęgą, jaką począł dzierżyć, generał zatracił rozum, a lśniący miecz opłynął gęstą krwią zarówno jego wrogów, jak i sprzymierzeńców...;rarity=legendary;reqp=pw;reslight=6;sa=209;slow=85",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/32489/zloty-chwyt-generala"
+  },
+  {
+    "externalId": 60290,
+    "name": "Ślad dawnej cywilizacji",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1497.gif",
+    "level": 269,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Choć niekończący się upływ czasu okrył prawdę mgłą, buty te wciąż pamiętają chwalebne dla Imperium Wernoradu czasy. Pokonawszy w boju Królestwo Shaiharrud, które wypadło z łask Hebrehotha, wernoradcy nekrolordowie skradli jego tajemnice, a w chciwości i żądzy potęgi zawarli pakt ze złym Negthotepem, by podbić świat i doszczętnie zniszczyć smoczych władców...",
+    "stats": "ac=501;binds;crit=2;da=210;energybon=28;heal=331;hp=1184;legbon=lastheal,269;lvl=269;manabon=72;opis=Choć niekończący się upływ czasu okrył prawdę mgłą, buty te wciąż pamiętają chwalebne dla Imperium Wernoradu czasy. Pokonawszy w boju Królestwo Shaiharrud, które wypadło z łask Hebrehotha, wernoradcy nekrolordowie skradli jego tajemnice, a w chciwości i żądzy potęgi zawarli pakt ze złym Negthotepem, by podbić świat i doszczętnie zniszczyć smoczych władców...;rarity=legendary;sa=210",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60290/slad-dawnej-cywilizacji"
   },
   {
     "externalId": 52903,
@@ -14292,6 +14724,30 @@
     "sourceUrl": "https://margoworld.pl/item/view/36280/naszyjnik-z-kotwiczka"
   },
   {
+    "externalId": 60287,
+    "name": "Oblicze paraliżującego strachu",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1572.gif",
+    "level": 270,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Fovos... Przestraszony, a sam wzbudza trwogę. Zakładając maskę zastanawiasz się, co jest dla ciebie gorsze: upiorne pieśni faunów, czy może wynaturzone sylwetki przestraszonych?",
+    "stats": "ac=687;acdmg=33;act=8;binds;crit=1;dz=154;energybon=56;evade=54;legbon=curse,270;lowevade=27;lvl=270;opis=Fovos... Przestraszony, a sam wzbudza trwogę. Zakładając maskę zastanawiasz się, co jest dla ciebie gorsze: upiorne pieśni faunów, czy może wynaturzone sylwetki przestraszonych?;rarity=legendary;reqp=bhw;resfire=5;sa=211;slow=85",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60287/oblicze-paralizujacego-strachu"
+  },
+  {
+    "externalId": 60291,
+    "name": "Odbicie wód Wernoradu",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1445.gif",
+    "level": 270,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Zawarcie paktu z Negthotepem, który obdarzył kapłanów mocą wskrzeszania i nieśmiertelnością, rozgniewało bogów i ściągnęło na Imperium klątwę. Potężne mocarstwo w jednej chwili zapadło się pod ziemię, a powierzchnię zalały wtedy słone wody, które wymyć miały plugastwo nekromancji z tych ziem. W ten właśnie sposób powstało Morze Wernoradu, co uznane zostało za symbol zakończenia antycznych dziejów i dało początek kolejnej erze, gdzie setki lat później rozkwitła nowa kraina - Margonem.",
+    "stats": "binds;crit=3;critval=12;ds=304;dz=304;energybon=28;evade=54;hp=4349;legbon=anguish,270;lvl=270;opis=Zawarcie paktu z Negthotepem, który obdarzył kapłanów mocą wskrzeszania i nieśmiertelnością, rozgniewało bogów i ściągnęło na Imperium klątwę. Potężne mocarstwo w jednej chwili zapadło się pod ziemię, a powierzchnię zalały wtedy słone wody, które wymyć miały plugastwo nekromancji z tych ziem. W ten właśnie sposób powstało Morze Wernoradu, co uznane zostało za symbol zakończenia antycznych dziejów i dało początek kolejnej erze, gdzie setki lat później rozkwitła nowa kraina - Margonem.;rarity=legendary;reqp=bhw;sa=211",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60291/odbicie-wod-wernoradu"
+  },
+  {
     "externalId": 36281,
     "name": "Pamięć o śmierci",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/w20-pir-h-nasz5-l.gif",
@@ -14316,6 +14772,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/58181/piracka-tajemnica"
   },
   {
+    "externalId": 60289,
+    "name": "Podeszwy zrodzone z Chaosu",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1486.gif",
+    "level": 270,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Powstali z resztek Chaosu, wyłonili się ze szczelin i skał. Przyjęli humanoidalne formy, choć do bycia ludźmi zdecydowanie im za daleko. Odrażający, bez twarzy, a przede wszystkim... Przestraszeni! Być może kiedyś chadzali po Skalnym Pustkowiu, jednak - gdy bogowie zmienili ten teren na więzienie dla ślepych faunów - zaszyli się oni w jaskiniach i ukryli przed światem, bojąc się zarówno faunowej muzyki, jak również i samego gniewu bogów.",
+    "stats": "ac=605;binds;crit=3;heal=699;legbon=critred,270;lowevade=54;lvl=270;opis=Powstali z resztek Chaosu, wyłonili się ze szczelin i skał. Przyjęli humanoidalne formy, choć do bycia ludźmi zdecydowanie im za daleko. Odrażający, bez twarzy, a przede wszystkim... Przestraszeni! Być może kiedyś chadzali po Skalnym Pustkowiu, jednak - gdy bogowie zmienili ten teren na więzienie dla ślepych faunów - zaszyli się oni w jaskiniach i ukryli przed światem, bojąc się zarówno faunowej muzyki, jak również i samego gniewu bogów.;rarity=legendary;sa=211;slow=162",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60289/podeszwy-zrodzone-z-chaosu"
+  },
+  {
     "externalId": 58184,
     "name": "Sekret morskiej toni",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1284.gif",
@@ -14328,6 +14796,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/58184/sekret-morskiej-toni"
   },
   {
+    "externalId": 60292,
+    "name": "Sygnet oddanego dowódcy",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1446.gif",
+    "level": 270,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Chcąc pozostać wiernym Imperium, Chopesz - centurion wiodący oddziały przeciwko smokom, zgodził się na swe własne wskrzeszenie, aby dowodzić nieumarłym legionem. W swej naiwności jednak wykorzystany został przez podstępnych nekrolordów i po dziś dzień, nie mogąc odejść w sen wieczny, snuje się zrezygnowany korytarzami pustynnych katakumb...",
+    "stats": "binds;crit=3;da=76;dmgmulfire=4;heal=656;hp=8673;legbon=lastheal,270;lowevade=27;lvl=270;manabon=208;opis=Chcąc pozostać wiernym Imperium, Chopesz - centurion wiodący oddziały przeciwko smokom, zgodził się na swe własne wskrzeszenie, aby dowodzić nieumarłym legionem. W swej naiwności jednak wykorzystany został przez podstępnych nekrolordów i po dziś dzień, nie mogąc odejść w sen wieczny, snuje się zrezygnowany korytarzami pustynnych katakumb...;rarity=legendary;reqp=mpt;sa=211",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60292/sygnet-oddanego-dowodcy"
+  },
+  {
     "externalId": 52904,
     "name": "Ścisk ruchliwego muchomora",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1170.gif",
@@ -14338,6 +14818,18 @@
     "stats": "ac=504;binds;crit=1;da=76;evade=27;heal=332;hp=3517;legbon=facade,270;lowcrit=4;lvl=270;opis=Emanuje potężną magią. Zakładając go próbujesz odpowiedzieć sobie na pytania:[br]Czy czuję zaklętą w nim siłę? Czy nadaje się do najbardziej krwawych pojedynków? Czy nowa karta w jego historii będzie przełomowa?[br][br]Sabat Czarownic #YEAR# r.;rarity=legendary;sa=211;created=1718284396",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/52904/scisk-ruchliwego-muchomora"
+  },
+  {
+    "externalId": 60288,
+    "name": "Ślepiec",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1573.gif",
+    "level": 270,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Przestraszeni sami straszą,\nwygląd ich w wielkiej potrzebie!\nDobrze więc, że brak im oczu,\nbo nie widzą samych siebie!",
+    "stats": "absorb=1670;absorbm=621;ac=554;act=4;binds;dmgmulfrost=4;ds=154;hp=5107;legbon=glare,270;lvl=270;opis=Przestraszeni sami straszą,[br]wygląd ich w wielkiej potrzebie![br]Dobrze więc, że brak im oczu,[br]bo nie widzą samych siebie!;rarity=legendary;reqp=mpt;resdmg=1;reslight=14;sa=278",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60288/slepiec"
   },
   {
     "externalId": 45186,
@@ -14400,40 +14892,76 @@
     "sourceUrl": "https://margoworld.pl/item/view/58182/zagadka-oceanu"
   },
   {
-    "externalId": 8452,
-    "name": "Furia potężnego Seta",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/set_but2.gif",
-    "level": 274,
-    "itemTypeName": "Buty",
+    "externalId": 60294,
+    "name": "Dłonie wielkiego wezyra",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1502.gif",
+    "level": 271,
+    "itemTypeName": "Rękawice",
     "rarityName": "Legendarny",
-    "description": "Legendy głoszą, że dzięki tym butom Neferkar\nSet był szybki jak wiatr, zwinny jak pantera,\nsilny jak niedźwiedź. Jak one wpłyną na\nciebie? Czy odważysz się je założyć?",
-    "stats": "ac=585;act=12;binds;crit=2;critval=6;dz=156;energybon=28;evade=55;hp=1278;legbon=verycrit,274;lvl=274;opis=Legendy głoszą, że dzięki tym butom Neferkar[br]Set był szybki jak wiatr, zwinny jak pantera,[br]silny jak niedźwiedź. Jak one wpłyną na[br]ciebie? Czy odważysz się je założyć?;rarity=legendary;reqp=bh;resfrost=6;sa=282",
+    "description": "W niedługim czasie, zgodnie z obietnicą Negthotepa, Set stanął na czele Wernoadu. Czarny Kapłan przyjął wtedy tożsamość Mehena, wezyra Seta i nauczył poddany lud tajników nekromancji, powołując tym samym do życia profesję nekrolorda. Ożywiane ciała wystawiane do walki przeważyły szalę zwycięstwa i zaowocowały ujarzmieniem Shaiharrud przez Imperium, a Negthotep - korzystając z ignorancji Seta - krok po kroku nadal realizuje przygotowania do otwarcia pułapki Chaosu.",
+    "stats": "absorb=947;absorbm=473;ac=423;act=4;binds;blok=41;crit=3;di=305;heal=333;legbon=puncture,271;lvl=271;manabon=73;opis=W niedługim czasie, zgodnie z obietnicą Negthotepa, Set stanął na czele Wernoadu. Czarny Kapłan przyjął wtedy tożsamość Mehena, wezyra Seta i nauczył poddany lud tajników nekromancji, powołując tym samym do życia profesję nekrolorda. Ożywiane ciała wystawiane do walki przeważyły szalę zwycięstwa i zaowocowały ujarzmieniem Shaiharrud przez Imperium, a Negthotep - korzystając z ignorancji Seta - krok po kroku nadal realizuje przygotowania do otwarcia pułapki Chaosu.;rarity=legendary;reqp=mpt;resfire=8;resfrost=6;sa=279",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/8452/furia-poteznego-seta"
+    "sourceUrl": "https://margoworld.pl/item/view/60294/dlonie-wielkiego-wezyra"
+  },
+  {
+    "externalId": 60295,
+    "name": "Okucia Chaosu",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1503.gif",
+    "level": 271,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "W jednej z pierwszych er, z Chaosu powstała nowa istota, która wkrótce nazwała sama siebie imieniem Negthotep. Mimo że bogowie starali się wymordować tego typu twory i zamknąć Chaos w więzieniu, to nie wszystko poszło po ich myśli. Choć pułapka odniosła sukces, to świat nadal był pełen niepożądanych istot, a samo więzienie z czasem wymknęło się bogom i rozpoczęło podróż w czasie i przestrzeni. W pogoń za nim wyruszył Negthotep, mając w zamiarze złamanie pieczęci i uwolnienie Chaosu.",
+    "stats": "ac=451;act=16;binds;crit=2;critval=12;energybon=56;evade=27;legbon=holytouch,271;lvl=271;opis=W jednej z pierwszych er, z Chaosu powstała nowa istota, która wkrótce nazwała sama siebie imieniem Negthotep. Mimo że bogowie starali się wymordować tego typu twory i zamknąć Chaos w więzieniu, to nie wszystko poszło po ich myśli. Choć pułapka odniosła sukces, to świat nadal był pełen niepożądanych istot, a samo więzienie z czasem wymknęło się bogom i rozpoczęło podróż w czasie i przestrzeni. W pogoń za nim wyruszył Negthotep, mając w zamiarze złamanie pieczęci i uwolnienie Chaosu.;rarity=legendary;reqp=h;resfire=7;sa=347",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60295/okucia-chaosu"
+  },
+  {
+    "externalId": 60293,
+    "name": "Uścisk podstępnych obietnic",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1501.gif",
+    "level": 271,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Po licznych podróżach i sianiu zamętu, Negthotep przybył za więzieniem Chaosu do Margonem, do tętniącego życiem Imperium Wernoradu. Tam napotkał Seta i Ozirusa, których nakłonił do walki ze sobą. Pomagając wygrać w starciu Setowi, którego uznał za podatnego na wpływy, obiecał mu panowanie nad narodem, a pewnego dnia nawet nad całym światem.",
+    "stats": "ac=558;act=5;binds;crit=2;energybon=28;evade=54;legbon=holytouch,271;lowevade=54;lvl=271;opis=Po licznych podróżach i sianiu zamętu, Negthotep przybył za więzieniem Chaosu do Margonem, do tętniącego życiem Imperium Wernoradu. Tam napotkał Seta i Ozirusa, których nakłonił do walki ze sobą. Pomagając wygrać w starciu Setowi, którego uznał za podatnego na wpływy, obiecał mu panowanie nad narodem, a pewnego dnia nawet nad całym światem.;rarity=legendary;reqp=bw;reslight=4;sa=279;slow=85",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/60293/uscisk-podstepnych-obietnic"
   },
   {
     "externalId": 8450,
-    "name": "Magia mrocznego Seta",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/set_but3.gif",
+    "name": "Cholewy mrocznej kolaboracji",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1489.gif",
     "level": 274,
     "itemTypeName": "Buty",
     "rarityName": "Legendarny",
-    "description": "Neferkar Set dzięki tym butom wytwarzał\npotężną aurę magiczną, odpychającą od siebie\nprzeciwników. Czy potrafisz okiełznać ogrom\nmagii, którą przesiąknięte są te buty? \nUważaj, by moc w nich zawarta nie\nzawładnęła twą duszą...",
-    "stats": "absorb=1721;absorbm=861;ac=413;act=6;binds;crit=1;critmval=6;di=156;evade=27;heal=712;legbon=facade,274;lvl=274;manabon=74;opis=Neferkar Set dzięki tym butom wytwarzał[br]potężną aurę magiczną, odpychającą od siebie[br]przeciwników. Czy potrafisz okiełznać ogrom[br]magii, którą przesiąknięte są te buty? [br]Uważaj, by moc w nich zawarta nie[br]zawładnęła twą duszą...;rarity=legendary;reqp=mt;resdmg=1;resfrost=15;sa=214;slow=86",
+    "description": "Choć minęły już setki lat, pakt zawarty między Setem a Czarnym Kapłanem wciąż jest w mocy, a truchło dosiadające sfinksa nadal podąża za złowrogimi sugestiami... Czy po uwolnieniu Chaosu - głównym celu Negthotepa - Neferkar Set będzie mógł nareszcie odejść w zaświaty?",
+    "stats": "absorb=1721;absorbm=861;ac=413;act=6;binds;crit=1;critmval=6;di=156;evade=27;heal=712;legbon=facade,274;lvl=274;manabon=74;opis=Choć minęły już setki lat, pakt zawarty między Setem a Czarnym Kapłanem wciąż jest w mocy, a truchło dosiadające sfinksa nadal podąża za złowrogimi sugestiami... Czy po uwolnieniu Chaosu - głównym celu Negthotepa - Neferkar Set będzie mógł nareszcie odejść w zaświaty?;rarity=legendary;reqp=mt;resdmg=1;resfrost=15;sa=214;slow=86",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/8450/magia-mrocznego-seta"
+    "sourceUrl": "https://margoworld.pl/item/view/8450/cholewy-mrocznej-kolaboracji"
   },
   {
     "externalId": 8451,
-    "name": "Niezłomność bezlitosnego Seta",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/set_but1.gif",
+    "name": "Chód przywódcy narodu",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1487.gif",
     "level": 274,
     "itemTypeName": "Buty",
     "rarityName": "Legendarny",
-    "description": "Zakładając te buty zauważasz, że twoje\nzmysły się wyostrzają. Czujesz nieznane\nzapachy, widzisz to, czego wcześniej nie\nmożna było dostrzec. Słyszysz nieznany głos. \nWiatr niesie ze sobą szept, który wzywa cię na\npustynię...",
-    "stats": "ac=716;act=1;binds;blok=41;crit=2;critval=6;da=77;ds=156;energybon=28;heal=360;legbon=glare,274;lowevade=27;lvl=274;opis=Zakładając te buty zauważasz, że twoje[br]zmysły się wyostrzają. Czujesz nieznane[br]zapachy, widzisz to, czego wcześniej nie[br]można było dostrzec. Słyszysz nieznany głos. [br]Wiatr niesie ze sobą szept, który wzywa cię na[br]pustynię...;rarity=legendary;reqp=pw;resfrost=6;sa=214",
+    "description": "Niesamowite bronie i magiczne wyposażenie podarowane Setowi przez Negthotepa przyczyniły się do wygranej Wernoradu nad Shaiharrud, a poprzez poślubienie córki króla - Vendivy - Set objął rolę przywódcy narodu. Jakim był władcą? Czy rządził sprawiedliwie? Historycznych zapisków już nie ma, więc pozostały tylko domysły...",
+    "stats": "ac=716;act=1;binds;blok=41;crit=2;critval=6;da=77;ds=156;energybon=28;heal=360;legbon=glare,274;lowevade=27;lvl=274;opis=Niesamowite bronie i magiczne wyposażenie podarowane Setowi przez Negthotepa przyczyniły się do wygranej Wernoradu nad Shaiharrud, a poprzez poślubienie córki króla - Vendivy - Set objął rolę przywódcy narodu. Jakim był władcą? Czy rządził sprawiedliwie? Historycznych zapisków już nie ma, więc pozostały tylko domysły...;rarity=legendary;reqp=pw;resfrost=6;sa=214",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/8451/niezlomnosc-bezlitosnego-seta"
+    "sourceUrl": "https://margoworld.pl/item/view/8451/chod-przywodcy-narodu"
+  },
+  {
+    "externalId": 8452,
+    "name": "Zdradzieckie kamasze Seta",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1490.gif",
+    "level": 274,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Podczas ucieczki przed barbarzyńcami z ludu Shaiharrud, Set z Ozirusem natrafili na pustyni na tajemniczy artefakt, któremu towarzyszyła postać w kapturze. Ozirus chciał pozbyć się przedmiotu, a Set odwrotnie - wykorzystać go. Za radą zakapturzonego kapłana, dwójka ta przystąpiła do siłowego starcia, które zakończyło się na korzyść Ozirusa. Niestety, sfrustrowany Set ugodził z zaskoczenia swojego przyjaciela sztyletem, doprowadzając do jego śmierci. Chwilę później ciało Ozirusa powstało jednak z ziemi, lecz już jako bezwolna marionetka kierowana przez Negthotepa.",
+    "stats": "ac=585;act=12;binds;crit=2;critval=6;dz=156;energybon=28;evade=55;hp=1278;legbon=verycrit,274;lvl=274;opis=Podczas ucieczki przed barbarzyńcami z ludu Shaiharrud, Set z Ozirusem natrafili na pustyni na tajemniczy artefakt, któremu towarzyszyła postać w kapturze. Ozirus chciał pozbyć się przedmiotu, a Set odwrotnie - wykorzystać go. Za radą zakapturzonego kapłana, dwójka ta przystąpiła do siłowego starcia, które zakończyło się na korzyść Ozirusa. Niestety, sfrustrowany Set ugodził z zaskoczenia swojego przyjaciela sztyletem, doprowadzając do jego śmierci. Chwilę później ciało Ozirusa powstało jednak z ziemi, lecz już jako bezwolna marionetka kierowana przez Negthotepa.;rarity=legendary;reqp=bh;resfrost=6;sa=282",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/8452/zdradzieckie-kamasze-seta"
   },
   {
     "externalId": 49654,
@@ -14520,6 +15048,102 @@
     "sourceUrl": "https://margoworld.pl/item/view/27780/monumentalna-kolia-burzuja"
   },
   {
+    "externalId": 61458,
+    "name": "Dłonie niepokojącej przyszłości",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1486.gif",
+    "level": 279,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Jeśli Agnrakhowi i Vaenrze udało się uzyskać błogosławieństwo shaiharrudzkiego boga, to biada całym krainom. Gdy tylko smokoludzie popadli w niełaskę Hebrethotha, Ojca Smoków, Legion był w stanie złamać ich potęgę. Gdyby Agnrakh zasłużył na nowo na jego łaskę, to niedługo wśród ruin na powrót mogą zalęgnąć się smoki! Jeśli Shaiharrud dosiądzie dojrzałych wierzchowców, to zamieni wkrótce swą surową pustynię na nasze żyzne pola...",
+    "stats": "ac=532;act=5;binds;crit=2;da=78;enfatig=40,13;evade=56;hp=1235;legbon=holytouch,279;lowevade=28;lvl=279;opis=Jeśli Agnrakhowi i Vaenrze udało się uzyskać błogosławieństwo shaiharrudzkiego boga, to biada całym krainom. Gdy tylko smokoludzie popadli w niełaskę Hebrethotha, Ojca Smoków, Legion był w stanie złamać ich potęgę. Gdyby Agnrakh zasłużył na nowo na jego łaskę, to niedługo wśród ruin na powrót mogą zalęgnąć się smoki! Jeśli Shaiharrud dosiądzie dojrzałych wierzchowców, to zamieni wkrótce swą surową pustynię na nasze żyzne pola...;rarity=legendary;resfire=-3;sa=287",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61458/dlonie-niepokojacej-przyszlosci"
+  },
+  {
+    "externalId": 61463,
+    "name": "Dusza krwawego smoka",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1412.gif",
+    "level": 279,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazała się krew. Na samo wspomnienie o świeżej posoce, smocza skóra twardniała, a umysł zaślepiała żądza rzezi. Toteż, wypuszczany samopas na pole bitwy, masakrował wrogów bez opamiętania. Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.",
+    "stats": "acdmg=35;binds;crit=3;critval=18;ds=314;energybon=57;heal=688;legbon=lastheal,279;lowevade=28;lvl=279;opis=Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazała się krew. Na samo wspomnienie o świeżej posoce, smocza skóra twardniała, a umysł zaślepiała żądza rzezi. Toteż, wypuszczany samopas na pole bitwy, masakrował wrogów bez opamiętania. Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.;rarity=legendary;reqp=w;sa=287",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61463/dusza-krwawego-smoka"
+  },
+  {
+    "externalId": 61466,
+    "name": "Dusza mrocznego smoka",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1415.gif",
+    "level": 279,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazał się mrok. Zamiast ognia, ze smoczej paszczy wydobywała się fala nieprzeniknionej ciemności odbierająca zmysł wzroku przyszłym ofiarom. Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.",
+    "stats": "binds;crit=2;critmval=6;di=159;dz=159;energybon=29;evade=56;heal=1367;hp=2290;legbon=curse,279;lvl=279;manabon=75;opis=Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazał się mrok. Zamiast ognia, ze smoczej paszczy wydobywała się fala nieprzeniknionej ciemności odbierająca zmysł wzroku przyszłym ofiarom. Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.;rarity=legendary;reqp=t;sa=287;slow=88",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61466/dusza-mrocznego-smoka"
+  },
+  {
+    "externalId": 61467,
+    "name": "Dusza ognistego smoka",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1416.gif",
+    "level": 279,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazał się żywioł ognia. Kłęby żaru toczone ze smoczego pyska bez problemu topiły stal, a utracone na polu bitwy łuski emanowały ciepłem tak długo i intensywnie, że zastępowały ogniska. Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.",
+    "stats": "binds;crit=3;critval=6;dz=314;energybon=29;evade=56;heal=688;hp=2290;legbon=curse,279;lowevade=28;lvl=279;opis=Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazał się żywioł ognia. Kłęby żaru toczone ze smoczego pyska bez problemu topiły stal, a utracone na polu bitwy łuski emanowały ciepłem tak długo i intensywnie, że zastępowały ogniska. Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.;rarity=legendary;reqp=h;sa=287;slow=88",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61467/dusza-ognistego-smoka"
+  },
+  {
+    "externalId": 61465,
+    "name": "Dusza powietrznego smoka",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1414.gif",
+    "level": 279,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazał się żywioł powietrza. Zapisał się on w historii jako tajna broń królestwa - smok atakujący z przestworzy, kaleczący ofiary precyzyjnym wichrem generowanym przez własne skrzydła. Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.",
+    "stats": "binds;crit=3;critmval=12;di=159;heal=1367;hp=4555;legbon=glare,279;lvl=279;manabon=145;opis=Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazał się żywioł powietrza. Zapisał się on w historii jako tajna broń królestwa - smok atakujący z przestworzy, kaleczący ofiary precyzyjnym wichrem generowanym przez własne skrzydła. Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.;rarity=legendary;reqp=m;resdmg=1;sa=287",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61465/dusza-powietrznego-smoka"
+  },
+  {
+    "externalId": 61462,
+    "name": "Dusza wodnego smoka",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1411.gif",
+    "level": 279,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazał się żywioł wody. Czy jednak na pustynnych terenach, gdzie wody zwyczajnie brakuje, manipulacja nią jest aż tak skuteczna? Biorąc pod uwagę, że ciała składają się w większości z wody, do wniosków możecie dojść sami! Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.",
+    "stats": "binds;crit=2;critval=12;ds=159;dz=159;energybon=29;evade=84;hp=4555;legbon=lastheal,279;lvl=279;opis=Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazał się żywioł wody. Czy jednak na pustynnych terenach, gdzie wody zwyczajnie brakuje, manipulacja nią jest aż tak skuteczna? Biorąc pod uwagę, że ciała składają się w większości z wody, do wniosków możecie dojść sami! Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.;rarity=legendary;reqp=b;sa=287;slow=88",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61462/dusza-wodnego-smoka"
+  },
+  {
+    "externalId": 61464,
+    "name": "Dusza ziemnego smoka",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1413.gif",
+    "level": 279,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazał się żywioł ziemi. Każde miejsce przemarszu smoka - mimo pustynnych terenów - w niedługim czasie pokrywało się gęstą roślinnością, co służyło wojownikom królestwa niczym prywatne oazy. Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.",
+    "stats": "binds;blok=42;crit=3;di=159;ds=159;energybon=57;heal=688;hp=2290;legbon=cleanse,279;lowevade=28;lvl=279;manabon=145;opis=Po osiągnięciu przez smoka dojrzałości cielesnej, ujawnia się jego prawdziwa natura. Sygnet ten wspomina jednego z tych wzbudzających trwogę gadów, którego atrybutem okazał się żywioł ziemi. Każde miejsce przemarszu smoka - mimo pustynnych terenów - w niedługim czasie pokrywało się gęstą roślinnością, co służyło wojownikom królestwa niczym prywatne oazy. Tego zaś, jaka przyszłość czeka Młodego Smoka, być może niebawem się dowiemy... na własnej skórze.;rarity=legendary;reqp=p;sa=287",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61464/dusza-ziemnego-smoka"
+  },
+  {
+    "externalId": 61457,
+    "name": "Łapy zjednoczenia",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1485.gif",
+    "level": 279,
+    "itemTypeName": "Rękawice",
+    "rarityName": "Legendarny",
+    "description": "Wieść niesie, że nomadyczne klany Shaiharrud zostały zjednoczone przez młodego wodza Agnrakha, który przybrał tytuł starożytnego króla-kapłana, chaegda, i chce przywrócić swojemu ludowi utracone królestwo. Pomagać ma mu w tym jego małżonka, czarownica Vaenra z Nithal, która niegdyś studiowała historię starożytnych i wykradła z uniwersytetu manuskrypty opisujące pradawny rytuał transfuzji smoczej krwi, który miał przemienić wybrańców i dać im siłę smoków...",
+    "stats": "ac=532;binds;crit=3;da=78;evade=28;heal=345;legbon=verycrit,279;lvl=279;manafatig=40,28;opis=Wieść niesie, że nomadyczne klany Shaiharrud zostały zjednoczone przez młodego wodza Agnrakha, który przybrał tytuł starożytnego króla-kapłana, chaegda, i chce przywrócić swojemu ludowi utracone królestwo. Pomagać ma mu w tym jego małżonka, czarownica Vaenra z Nithal, która niegdyś studiowała historię starożytnych i wykradła z uniwersytetu manuskrypty opisujące pradawny rytuał transfuzji smoczej krwi, który miał przemienić wybrańców i dać im siłę smoków...;rarity=legendary;sa=287;slow=88",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61457/lapy-zjednoczenia"
+  },
+  {
     "externalId": 31136,
     "name": "Armet smoczego rycerza",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm381.gif",
@@ -14554,6 +15178,18 @@
     "stats": "ac=628;act=12;binds;crit=2;critval=6;dz=160;energybon=57;evade=56;legbon=curse,280;lvl=280;opis=Ten dostojny, połyskujący złotem hełm czerpie energię ze starożytnego rubinu skrytego w świątynnym skarbcu. Moc z niego pochodząca, wnika w ciało nosiciela i obdarza je magią prawdziwego smoka.;rarity=legendary;reqp=bht;resfrost=8;sa=288",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/31135/barbuta-gwardii-kaplanskiej"
+  },
+  {
+    "externalId": 61455,
+    "name": "Czasza zwęglonych skał",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1559.gif",
+    "level": 280,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Piaski Wernoradu skrywają niejedną tajemnicę, niejedno niebezpieczeństwo. Jak odważny lub głupi mógłby być ktoś patrzący w nieprzeniknioną dal? Co mógłby ujrzeć w miejscach, gdzie ustępują nawet ruiny piramid Imperium? Najstarsze hieroglify mówią o spalonych skałach, bielących się olbrzymich kościach i wielkim, smoczym królestwie...",
+    "stats": "ac=730;act=8;binds;crit=2;critval=6;dmgmulphysical=6;evade=56;legbon=glare,280;lowevade=56;lvl=280;opis=Piaski Wernoradu skrywają niejedną tajemnicę, niejedno niebezpieczeństwo. Jak odważny lub głupi mógłby być ktoś patrzący w nieprzeniknioną dal? Co mógłby ujrzeć w miejscach, gdzie ustępują nawet ruiny piramid Imperium? Najstarsze hieroglify mówią o spalonych skałach, bielących się olbrzymich kościach i wielkim, smoczym królestwie...;rarity=legendary;reqp=bhw;resfire=5;sa=218",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61455/czasza-zweglonych-skal"
   },
   {
     "externalId": 42214,
@@ -14617,27 +15253,15 @@
   },
   {
     "externalId": 20110,
-    "name": "Kryształ w obrączce Agnrakha",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien201.gif",
+    "name": "Kryształ Chaegda Agnrakha",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1423.gif",
     "level": 280,
     "itemTypeName": "Pierścień",
     "rarityName": "Legendarny",
-    "description": "W tym krysztale zamknięta była smocza dusza, która zyskała Wybrańcom przychylność smoczego boga. Choć rozpadł się, gdy duch opuścił swe więzienie, jego odłamki wciąż zachowały potężną moc. Wybrańcy podzielili je między siebie i użyli do stworzenia dwóch obrączek, by Hebrehoth pobłogosławił ich małżeństwo. Jeden pierścień związany jest z drugim, tak jak miłość wiąże smoczych kochanków...",
-    "stats": "binds;crit=2;critval=18;ds=160;energybon=29;evade=56;hp=4578;legbon=critred,280;lowcrit=2;lowevade=28;lvl=280;opis=W tym krysztale zamknięta była smocza dusza, która zyskała Wybrańcom przychylność smoczego boga. Choć rozpadł się, gdy duch opuścił swe więzienie, jego odłamki wciąż zachowały potężną moc. Wybrańcy podzielili je między siebie i użyli do stworzenia dwóch obrączek, by Hebrehoth pobłogosławił ich małżeństwo. Jeden pierścień związany jest z drugim, tak jak miłość wiąże smoczych kochanków...;rarity=legendary;reqp=bhw;sa=288",
+    "description": "W tym krysztale zamknięta była gadzia dusza, która zyskała Wybrańcom przychylność smoczego boga. Choć klejnot rozpadł się, gdy duch opuścił swe więzienie, jego odłamki wciąż zachowały potężną moc. Wybrańcy podzielili je między siebie i użyli do stworzenia dwóch obrączek, by smocze bóstwo pobłogosławiło ich małżeństwo. Jeden pierścień związany jest z drugim, tak jak miłość wiąże smoczych kochanków...",
+    "stats": "binds;crit=2;critval=18;ds=160;energybon=29;evade=56;hp=4578;legbon=critred,280;lowcrit=2;lowevade=28;lvl=280;opis=W tym krysztale zamknięta była gadzia dusza, która zyskała Wybrańcom przychylność smoczego boga. Choć klejnot rozpadł się, gdy duch opuścił swe więzienie, jego odłamki wciąż zachowały potężną moc. Wybrańcy podzielili je między siebie i użyli do stworzenia dwóch obrączek, by smocze bóstwo pobłogosławiło ich małżeństwo. Jeden pierścień związany jest z drugim, tak jak miłość wiąże smoczych kochanków...;rarity=legendary;reqp=bhw;sa=288",
     "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/20110@280/krysztal-w-obraczce-agnrakha"
-  },
-  {
-    "externalId": 20099,
-    "name": "Kryształ w obrączce Vaenry",
-    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien197.gif",
-    "level": 280,
-    "itemTypeName": "Pierścień",
-    "rarityName": "Legendarny",
-    "description": "W tym krysztale zamknięta była smocza dusza, która zyskała Wybrańcom przychylność smoczego boga. Choć rozpadł się, gdy duch opuścił swe więzienie, jego odłamki wciąż zachowały potężną moc. Wybrańcy podzielili je między siebie i użyli do stworzenia dwóch obrączek, by Hebrehoth pobłogosławił ich małżeństwo. Jeden pierścień związany jest z drugim, tak jak miłość wiąże smoczych kochanków...",
-    "stats": "binds;crit=2;critmval=12;da=218;evade=28;heal=1374;hp=2301;legbon=critred,280;lowcrit=2;lvl=280;manabon=75;opis=W tym krysztale zamknięta była smocza dusza, która zyskała Wybrańcom przychylność smoczego boga. Choć rozpadł się, gdy duch opuścił swe więzienie, jego odłamki wciąż zachowały potężną moc. Wybrańcy podzielili je między siebie i użyli do stworzenia dwóch obrączek, by Hebrehoth pobłogosławił ich małżeństwo. Jeden pierścień związany jest z drugim, tak jak miłość wiąże smoczych kochanków...;rarity=legendary;reqp=mpt;sa=218;slow=88",
-    "source": "margoworld",
-    "sourceUrl": "https://margoworld.pl/item/view/20099/krysztal-w-obraczce-vaenry"
+    "sourceUrl": "https://margoworld.pl/item/view/20110@280/krysztal-chaegda-agnrakha"
   },
   {
     "externalId": 42213,
@@ -14700,6 +15324,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/39278/nocne-oblicze-tlaltecuhtli"
   },
   {
+    "externalId": 20099,
+    "name": "Obrączka Vaenry Charkhaam",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1426.gif",
+    "level": 280,
+    "itemTypeName": "Pierścień",
+    "rarityName": "Legendarny",
+    "description": "W tym krysztale zamknięta była gadzia dusza, która zyskała Wybrańcom przychylność smoczego boga. Choć klejnot rozpadł się, gdy duch opuścił swe więzienie, jego odłamki wciąż zachowały potężną moc. Wybrańcy podzielili je między siebie i użyli do stworzenia dwóch obrączek, by smocze bóstwo pobłogosławiło ich małżeństwo. Jeden pierścień związany jest z drugim, tak jak miłość wiąże smoczych kochanków...",
+    "stats": "binds;crit=2;critmval=12;da=218;evade=28;heal=1374;hp=2301;legbon=critred,280;lowcrit=2;lvl=280;manabon=75;opis=W tym krysztale zamknięta była gadzia dusza, która zyskała Wybrańcom przychylność smoczego boga. Choć klejnot rozpadł się, gdy duch opuścił swe więzienie, jego odłamki wciąż zachowały potężną moc. Wybrańcy podzielili je między siebie i użyli do stworzenia dwóch obrączek, by smocze bóstwo pobłogosławiło ich małżeństwo. Jeden pierścień związany jest z drugim, tak jak miłość wiąże smoczych kochanków...;rarity=legendary;reqp=mpt;sa=218;slow=88",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/20099/obraczka-vaenry-charkhaam"
+  },
+  {
     "externalId": 41576,
     "name": "Obroża Przeistoczenia",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik736.gif",
@@ -14710,6 +15346,30 @@
     "stats": "binds;crit=3;critval=18;dz=315;energybon=29;evade=56;hp=4578;legbon=facade,280;lowevade=28;lvl=280;opis=Załóż ją na szyję, a dowiesz się kim możesz zostać i piękne, gadzie łuski okryją twe ciało... Skrop ją własną krwią, a przypomnisz sobie swoją przeszłość, wspomnisz dawną naturę, która już nigdy nie powróci...;rarity=legendary;reqp=bht;sa=288",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/41576/obroza-przeistoczenia"
+  },
+  {
+    "externalId": 61460,
+    "name": "Oko Hebrehotha",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1410.gif",
+    "level": 280,
+    "itemTypeName": "Naszyjnik",
+    "rarityName": "Legendarny",
+    "description": "Hieroglify mówią, że klejnot ten łączył się z magiczną kulą i pozwalał najwyższemu kapłanowi widzieć świat oczami posiadacza naszyjnika. Dawne legendy zaś powiadają, że to sam Hebrehoth spogląda przez nie na krainę swych dzieci...",
+    "stats": "ac=344;binds;crit=4;critval=12;ds=315;energybon=57;hp=4578;legbon=cleanse,280;lowevade=56;lvl=280;opis=Hieroglify mówią, że klejnot ten łączył się z magiczną kulą i pozwalał najwyższemu kapłanowi widzieć świat oczami posiadacza naszyjnika. Dawne legendy zaś powiadają, że to sam Hebrehoth spogląda przez nie na krainę swych dzieci...;rarity=legendary;reqp=pw;sa=218",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61460/oko-hebrehotha"
+  },
+  {
+    "externalId": 61461,
+    "name": "Ozdoba gadzich jeźdźców",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1411.gif",
+    "level": 280,
+    "itemTypeName": "Naszyjnik",
+    "rarityName": "Legendarny",
+    "description": "Terrozaury, choć przysposobione do szarży na wroga, niekiedy ujeżdżane były przez odpowiednio wytrenowanych jeźdźców. Sztuka ta, w odróżnieniu od dosiadania smoków, wymagała jednak precyzji i niezwykłego wyczucia z powodu dzikiej natury bestii, toteż wysyłanie tych wojów do walki następowało tylko w wyjątkowych sytuacjach.",
+    "stats": "binds;crit=3;critmval=18;da=78;di=471;heal=691;hp=2301;legbon=cleanse,280;lvl=280;manabon=145;opis=Terrozaury, choć przysposobione do szarży na wroga, niekiedy ujeżdżane były przez odpowiednio wytrenowanych jeźdźców. Sztuka ta, w odróżnieniu od dosiadania smoków, wymagała jednak precyzji i niezwykłego wyczucia z powodu dzikiej natury bestii, toteż wysyłanie tych wojów do walki następowało tylko w wyjątkowych sytuacjach.;rarity=legendary;reqp=m;sa=218;slow=88",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61461/ozdoba-gadzich-jezdzcow"
   },
   {
     "externalId": 37121,
@@ -14724,6 +15384,18 @@
     "sourceUrl": "https://margoworld.pl/item/view/37121/pancerna-piesc-wojownika-shaiharrud"
   },
   {
+    "externalId": 61456,
+    "name": "Relikt ze smoczego królestwa",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1560.gif",
+    "level": 280,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Eony minęły od czasów, gdy Królestwo Smoka, dumny lud Shaiharrud, został zdławiony pod butem Legionu. Dziś po czcicielach smoków ostały się niemal wyłącznie błądzące jak duchy, nomadzkie niedobitki zasiedlające oazy wśród ruin. Jednak głęboko skrywane wspomnienie o dawnej chwale, o wielkich zigguratach kapłanów Charkhaam, na których siadały obłaskawione smoki... Nie zginęło i wkrótce miało  powrócić silniejsze.",
+    "stats": "absorb=1318;absorbm=659;ac=589;act=4;binds;crit=2;critmval=12;di=160;dmgmullight=8;heal=384;legbon=puncture,280;lvl=280;manabon=75;opis=Eony minęły od czasów, gdy Królestwo Smoka, dumny lud Shaiharrud, został zdławiony pod butem Legionu. Dziś po czcicielach smoków ostały się niemal wyłącznie błądzące jak duchy, nomadzkie niedobitki zasiedlające oazy wśród ruin. Jednak głęboko skrywane wspomnienie o dawnej chwale, o wielkich zigguratach kapłanów Charkhaam, na których siadały obłaskawione smoki... Nie zginęło i wkrótce miało  powrócić silniejsze.;rarity=legendary;reqp=mpt;resfire=6;resfrost=8;sa=218",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61456/relikt-ze-smoczego-krolestwa"
+  },
+  {
     "externalId": 42779,
     "name": "Smocze Kroki",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty731.gif",
@@ -14734,6 +15406,18 @@
     "stats": "ac=642;binds;crit=3;da=78;energybon=29;evade=28;hp=1311;legbon=lastheal,280;lvl=280;manabon=75;opis=Aparatura ta, chociaż do złudzenia przypomina smocze stopy, jest wyłącznie zmyślną pamiątką nieudanego, ludzkiego podstępu. Niezwykła imitacja za zadanie miała wywabić młode, smocze dziecię z terenów pustyni Shaiharrud. Nikczemnika, który podjął się tego wyzwania, dosięgnął jednak zawczasu pastorał Vaenry Charkhaam.;rarity=legendary;sa=288",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/42779/smocze-kroki"
+  },
+  {
+    "externalId": 61459,
+    "name": "Smoczy determinant",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/nas/naszyjnik1409.gif",
+    "level": 280,
+    "itemTypeName": "Naszyjnik",
+    "rarityName": "Legendarny",
+    "description": "Nie każdy nomad mający za przodka mieszkańca Królestwa Shaiharrud, był w stanie przejść rytuał transfuzji smoczej krwi. Pomagać więc w wyłonieniu wybrańców miał właśnie ten amulet. Przyłożony do skóry, miejscowo przeobrażał ją w smoczą łuskę, co kwalifikowało nomada do przejścia rytuału.",
+    "stats": "binds;crit=3;critval=18;dz=315;energybon=29;evade=56;hp=4578;legbon=facade,280;lowevade=28;lvl=280;opis=Nie każdy nomad mający za przodka mieszkańca Królestwa Shaiharrud, był w stanie przejść rytuał transfuzji smoczej krwi. Pomagać więc w wyłonieniu wybrańców miał właśnie ten amulet. Przyłożony do skóry, miejscowo przeobrażał ją w smoczą łuskę, co kwalifikowało nomada do przejścia rytuału.;rarity=legendary;reqp=bht;sa=288",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61459/smoczy-determinant"
   },
   {
     "externalId": 39277,
@@ -14820,6 +15504,30 @@
     "sourceUrl": "https://margoworld.pl/item/view/31123/buty-smoczych-jezdzcow"
   },
   {
+    "externalId": 61468,
+    "name": "Głębinowy hełm Mazurnika",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1579.gif",
+    "level": 282,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Topieliska przy dolnym biegu Narumii są nie tylko niebezpieczne, ale również zdradliwe... Pozornie grunt jest twardy, lecz po chwili grząska ziemia pochłania ciało i zabiera je w głębiny, gdzie Mazurnik staje się prawdziwym potworem. Ratunku szukać daremne - jego hełmu nie przebije nic, a ofiara może jedynie czuć, jak staje się pożywką dla nowej ikry rybiego nadludka...",
+    "stats": "ac=858;act=1;binds;crit=3;critval=12;ds=161;energybon=29;hp=1366;legbon=facade,282;lvl=282;opis=Topieliska przy dolnym biegu Narumii są nie tylko niebezpieczne, ale również zdradliwe... Pozornie grunt jest twardy, lecz po chwili grząska ziemia pochłania ciało i zabiera je w głębiny, gdzie Mazurnik staje się prawdziwym potworem. Ratunku szukać daremne - jego hełmu nie przebije nic, a ofiara może jedynie czuć, jak staje się pożywką dla nowej ikry rybiego nadludka...;rarity=legendary;reqp=w;sa=290",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61468/glebinowy-helm-mazurnika"
+  },
+  {
+    "externalId": 61470,
+    "name": "Kask żarłocznej rdzy",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1581.gif",
+    "level": 282,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Niegdyś błyszczał, teraz rdzawy,\nhełm ten mieni się rudością!\nNabrał przez to nowych mocy,\no czym dowiesz się z pewnością!",
+    "stats": "ac=635;act=12;binds;crit=2;critval=6;dz=161;energybon=58;evade=56;legbon=curse,282;lvl=282;opis=Niegdyś błyszczał, teraz rdzawy,[br]hełm ten mieni się rudością![br]Nabrał przez to nowych mocy,[br]o czym dowiesz się z pewnością!;rarity=legendary;reqp=bht;resfrost=8;sa=290",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61470/kask-zarlocznej-rdzy"
+  },
+  {
     "externalId": 42781,
     "name": "Maska gniewu Shaiharrud",
     "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm658.gif",
@@ -14830,6 +15538,18 @@
     "stats": "ac=635;act=12;binds;crit=2;critval=6;dz=161;energybon=58;evade=56;legbon=curse,282;lvl=282;opis=Minęło wiele lat, nim Królestwu Smoków udało się odzyskać bezcenną maskę wykradzioną im przez Imperium Wernoradu. Niegdyś chroniła ona głowę przywódcy smoczych oddziałów, potem zaś wróciła na tereny Shaihrrud już jako ozdoba wskrzeszonego wojownika wrogiej armii nieumarłych. Zaklęte kości jej właściciela - dawnego smoczego dowódcy - przechwycono i zatopiono na wieki w szklanym bloku, który to spoczął na dnie pustyni...;rarity=legendary;reqp=bht;resfrost=8;sa=290",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/42781/maska-gniewu-shaiharrud"
+  },
+  {
+    "externalId": 61469,
+    "name": "Patron rybaków",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1580.gif",
+    "level": 282,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Obecność wiecznie młodych rusałek i odurzającej woni rozrzucanych przez nie roślinnych pyłków umila każdy wypad na ryby na sąsiadujące z Nithal rozlewiska. To, w połączeniu z zawartością opróżnianych piersiówek sprawia, że z czasem już nie tylko rusałki, ale także i dziwożony zaczynają przykuwać twoją uwagę...",
+    "stats": "absorb=1191;absorbm=596;ac=596;act=5;binds;crit=3;critmval=12;di=161;heal=387;legbon=glare,282;lvl=282;manabon=76;opis=Obecność wiecznie młodych rusałek i odurzającej woni rozrzucanych przez nie roślinnych pyłków umila każdy wypad na ryby na sąsiadujące z Nithal rozlewiska. To, w połączeniu z zawartością opróżnianych piersiówek sprawia, że z czasem już nie tylko rusałki, ale także i dziwożony zaczynają przykuwać twoją uwagę...;rarity=legendary;reqp=mp;reslight=11;sa=290",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61469/patron-rybakow"
   },
   {
     "externalId": 42782,
@@ -14866,6 +15586,54 @@
     "stats": "ac=826;act=1;binds;blok=42;crit=2;critval=12;ds=161;energybon=29;hp=1366;legbon=facade,282;lvl=282;opis=Smoczy płomień rozświetla wnętrze hełmu, rozgrzewając metalową klatkę, która parzy dłonie przy próbie jej dotknięcia. Gdy jednak odważysz się poświęcić swe kończyny, by obłaskawić pradawny, gadzi ogień, on zaleczy twe rany i otuli kojącym ciepłem, uznając twoją władzę nad nim.;rarity=legendary;reqp=pw;resfire=6;sa=290",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/42780/wiezienie-gadzich-plomieni"
+  },
+  {
+    "externalId": 63062,
+    "name": "Kask północnych władców",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1597.gif",
+    "level": 284,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Każdy z czterech hełmów inny,\nnie są to cudeńka tanie...\nKto na głowę kask ten włoży,\nten wikingiem wnet się stanie!",
+    "stats": "absorb=2410;absorbm=1205;ac=402;act=5;binds;dmgmulfire=8;etiquette=Wakacje 2026 r.;heal=1155;legbon=puncture,284;lvl=284;manabon=76;opis=Każdy z czterech hełmów inny,[br]nie są to cudeńka tanie...[br]Kto na głowę kask ten włoży,[br]ten wikingiem wnet się stanie!;rarity=legendary;reqp=m;resdmg=2;resfrost=7;reslight=6;sa=292",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63062/kask-polnocnych-wladcow"
+  },
+  {
+    "externalId": 63061,
+    "name": "Maska smoczych dziedziców",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1596.gif",
+    "level": 284,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Każdy z czterech hełmów inny,\nnie są to cudeńka tanie...\nKto na głowę kask ten włoży,\nten wikingiem wnet się stanie!",
+    "stats": "ac=803;binds;blok=85;crit=1;da=150;dmgmulabsolute=5;ds=162;etiquette=Wakacje 2026 r.;legbon=anguish,284;lowevade=28;lvl=284;opis=Każdy z czterech hełmów inny,[br]nie są to cudeńka tanie...[br]Kto na głowę kask ten włoży,[br]ten wikingiem wnet się stanie!;rarity=legendary;reqp=p;resfire=3;reslight=6;sa=292",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63061/maska-smoczych-dziedzicow"
+  },
+  {
+    "externalId": 63060,
+    "name": "Oziębłe oblicze wikinga",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1595.gif",
+    "level": 284,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Każdy z czterech hełmów inny,\nnie są to cudeńka tanie...\nKto na głowę kask ten włoży,\nten wikingiem wnet się stanie!",
+    "stats": "ac=795;act=5;binds;dmgmulwound=10;energybon=29;etiquette=Wakacje 2026 r.;evade=57;heal=390;legbon=puncture,284;lowevade=57;lvl=284;opis=Każdy z czterech hełmów inny,[br]nie są to cudeńka tanie...[br]Kto na głowę kask ten włoży,[br]ten wikingiem wnet się stanie!;rarity=legendary;reqp=bw;reslight=4;sa=292",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63060/ozieble-oblicze-wikinga"
+  },
+  {
+    "externalId": 63063,
+    "name": "Przyłbica wielkiego odkrywcy",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/hel/helm1598.gif",
+    "level": 284,
+    "itemTypeName": "Hełm",
+    "rarityName": "Legendarny",
+    "description": "Każdy z czterech hełmów inny,\nnie są to cudeńka tanie...\nKto na głowę kask ten włoży,\nten wikingiem wnet się stanie!",
+    "stats": "ac=602;acdmg=72;act=14;binds;crit=2;dmgmulphysical=3;dz=162;etiquette=Wakacje 2026 r.;evade=28;legbon=anguish,284;lvl=284;opis=Każdy z czterech hełmów inny,[br]nie są to cudeńka tanie...[br]Kto na głowę kask ten włoży,[br]ten wikingiem wnet się stanie!;rarity=legendary;reqp=ht;reslight=9;sa=292;slow=89",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/63063/przylbica-wielkiego-odkrywcy"
   },
   {
     "externalId": 45533,
@@ -14914,6 +15682,18 @@
     "stats": "absorb=1040;absorbm=520;ac=464;act=4;binds;crit=2;critmval=6;da=152;heal=357;hp=1277;legbon=lastheal,287;lvl=287;manabon=149;opis=Ofiara z własnej krwi, zaaplikowana wewnątrz rękawic, pozwala kontrolować otaczającą przyrodę, wykorzystując do tego energię płynącą bezpośrednio z sił życiowych użytkownika. Ten atrybut zakazanej sztuki posiada jednak szczególny szkopuł - przez lata swego istnienia doprowadził on do śmierci wielu władających, którzy rozrywani i pożerani byli przez ich własną broń - łakome posoki pnącza i porosty. Nikt nie wie co stanowi czynnik wyzwalający taką reakcję artefaktu i w jaki sposób Nymphemonia opiera się tej klątwie samodestrukcji.;rarity=legendary;reqp=mpt;reslight=14;sa=223",
     "source": "margoworld",
     "sourceUrl": "https://margoworld.pl/item/view/8533/palce-wymuszonej-symbiozy"
+  },
+  {
+    "externalId": 61471,
+    "name": "Pamiątka z Królestwa Driad",
+    "iconUrl": "https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1491.gif",
+    "level": 287,
+    "itemTypeName": "Buty",
+    "rarityName": "Legendarny",
+    "description": "Drewniane kozaki należące do królewskiego rodu leśnych opiekunek odnaleziono po latach w jednym z kanionów Przepaści Aguti. Strzeżone przez czarne hydry, które obrały głębiny za swoje lęgowisko, kryją w sobie dawne wspomnienie wyniosłego Królestwa Driad - wzniosłych budowli złączonych bluszczowymi mostami, pełnych roślinnego przepychu komnat i porośniętych magicznym mchem podziemnych labiryntów. Strach pomyśleć, że taką potęgę zniszczyć mógł zaledwie jeden konflikt...",
+    "stats": "ac=669;binds;crit=3;da=80;energybon=29;evade=29;hp=1351;legbon=lastheal,287;lvl=287;manabon=77;opis=Drewniane kozaki należące do królewskiego rodu leśnych opiekunek odnaleziono po latach w jednym z kanionów Przepaści Aguti. Strzeżone przez czarne hydry, które obrały głębiny za swoje lęgowisko, kryją w sobie dawne wspomnienie wyniosłego Królestwa Driad - wzniosłych budowli złączonych bluszczowymi mostami, pełnych roślinnego przepychu komnat i porośniętych magicznym mchem podziemnych labiryntów. Strach pomyśleć, że taką potęgę zniszczyć mógł zaledwie jeden konflikt...;rarity=legendary;sa=295",
+    "source": "margoworld",
+    "sourceUrl": "https://margoworld.pl/item/view/61471/pamiatka-z-krolestwa-driad"
   },
   {
     "externalId": 41538,

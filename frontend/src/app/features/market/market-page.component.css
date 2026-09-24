@@ -13,7 +13,7 @@
   height: calc(100vh - 71px);
   padding: 30px 20px;
   border-right: 1px solid var(--color-border);
-  background: rgba(15, 23, 42, 0.5);
+  background: #241b16;
   backdrop-filter: blur(10px);
   overflow-y: auto;
 }
@@ -40,21 +40,22 @@ label {
 input,
 select {
   width: 100%;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  border: 1px solid #76634f;
+  border-radius: 5px;
   padding: 11px 12px;
-  background: var(--color-input-dark);
-  color: white;
+  background: #211e1b;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45);
+  color: var(--color-text-main);
 }
 
 input::placeholder {
-  color: rgba(148, 163, 184, 0.68);
+  color: rgba(170, 157, 141, 0.68);
 }
 
 input:focus,
 select:focus {
   border-color: var(--color-primary);
-  background: #3e4c63;
+  background: #2a2923;
   outline: none;
 }
 
@@ -75,13 +76,14 @@ select option {
 }
 
 button {
-  border: 0;
-  border-radius: 8px;
+  border: 1px solid #71915e;
+  border-radius: 5px;
   padding: 11px 14px;
-  background: var(--color-primary);
-  color: #0f172a;
+  background: var(--color-action);
+  color: var(--color-action-text);
   cursor: pointer;
   font-weight: 800;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.18), 0 2px 5px rgba(0, 0, 0, 0.28);
 }
 
 button.secondary,
@@ -105,8 +107,8 @@ button:disabled {
   margin: 0 0 16px;
   border-radius: 8px;
   padding: 12px 14px;
-  border: 1px solid rgba(212, 175, 55, 0.24);
-  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(168, 201, 138, 0.24);
+  background: rgba(168, 201, 138, 0.1);
   color: var(--color-primary);
   font-weight: 800;
 }
@@ -147,10 +149,10 @@ h1 {
 
 .table-wrapper {
   overflow: visible;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-card-dark);
-  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3);
+  border: 1px solid #80654c;
+  border-radius: 6px;
+  background: #1c1613;
+  box-shadow: inset 0 0 0 2px rgba(177, 143, 104, 0.1), 0 18px 35px rgba(0, 0, 0, 0.35);
 }
 
 .table-scroll {
@@ -164,20 +166,20 @@ table {
 }
 
 thead {
-  border-bottom: 1px solid var(--color-border);
-  background: rgba(0, 0, 0, 0.28);
+  border-bottom: 1px solid #786b5b;
+  background: #3c3b38;
 }
 
 th,
 td {
   padding: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(156, 132, 106, 0.28);
   text-align: left;
   vertical-align: middle;
 }
 
 th {
-  color: var(--color-text-muted);
+  color: #e8e5df;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -185,11 +187,16 @@ th {
 }
 
 tbody tr {
+  background: #1d1714;
   transition: background-color 0.2s;
 }
 
+tbody tr:nth-child(even) {
+  background: #251d18;
+}
+
 tbody tr:hover {
-  background: rgba(255, 255, 255, 0.035);
+  background: #30291f;
 }
 
 tr:last-child td {
@@ -206,7 +213,7 @@ tr:last-child td {
   height: 32px;
   padding: 0;
   background: transparent;
-  color: #94a3b8;
+  color: #aa9d8d;
   font-size: 24px;
   line-height: 1;
 }
@@ -247,14 +254,14 @@ tr:last-child td {
 }
 
 .item-tooltip b.accent {
-  color: #22d3ee;
+  color: #a9ca88;
 }
 
 .item-tooltip .description {
   margin-top: 5px;
-  border-top: 1px solid rgba(148, 163, 184, 0.24);
-  padding-top: 7px;
-  color: #facc15;
+  border-top: 1px solid rgba(168, 153, 120, 0.38);
+  padding-top: 9px;
+  color: #d7c9a9;
   white-space: pre-line;
 }
 
@@ -275,7 +282,7 @@ tbody tr:hover .item-name {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  border: 1px solid rgba(170, 157, 141, 0.22);
   border-radius: 6px;
   padding: 5px 10px;
   background: var(--color-input-dark);
@@ -288,16 +295,16 @@ tbody tr:hover .item-name {
   display: inline-flex;
   min-width: 34px;
   justify-content: center;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  border: 1px solid rgba(168, 201, 138, 0.3);
   border-radius: 6px;
   padding: 4px 8px;
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(168, 201, 138, 0.1);
   color: var(--color-primary);
   font-weight: 900;
 }
 
 .price {
-  color: var(--color-primary);
+  color: #eee2cb;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-weight: 800;
 }
