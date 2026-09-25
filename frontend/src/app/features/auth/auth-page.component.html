@@ -18,16 +18,33 @@
 
     <label>
       E-mail
-      <input type="email" formControlName="email" autocomplete="email">
+      <input type="email" formControlName="email" autocomplete="email" (input)="onFieldInput('email')"
+        [attr.aria-invalid]="mode === 'register' && emailErrorVisible ? true : null"
+        [attr.aria-describedby]="mode === 'register' && emailErrorVisible ? 'email-error' : null">
     </label>
+    @if (mode === 'register' && emailErrorVisible && form.controls.email.hasError('required')) {
+      <p id="email-error" class="field-error" role="alert">Podaj adres e-mail.</p>
+    } @else if (mode === 'register' && emailErrorVisible && form.controls.email.hasError('email')) {
+      <p id="email-error" class="field-error" role="alert">Podaj poprawny adres e-mail.</p>
+    }
 
     <label>
       Hasło
-      <input type="password" formControlName="password" autocomplete="current-password">
+      <input type="password" formControlName="password" (input)="onFieldInput('password')"
+        [attr.autocomplete]="mode === 'register' ? 'new-password' : 'current-password'"
+        [attr.aria-invalid]="mode === 'register' && passwordErrorVisible ? true : null"
+        [attr.aria-describedby]="mode === 'register' && passwordErrorVisible ? 'password-error' : null">
     </label>
+    @if (mode === 'register' && passwordErrorVisible && form.controls.password.hasError('required')) {
+      <p id="password-error" class="field-error" role="alert">Podaj hasło.</p>
+    } @else if (mode === 'register' && passwordErrorVisible && form.controls.password.hasError('minlength')) {
+      <p id="password-error" class="field-error" role="alert">Hasło musi mieć co najmniej 6 znaków.</p>
+    } @else if (mode === 'register' && passwordErrorVisible && form.controls.password.hasError('maxlength')) {
+      <p id="password-error" class="field-error" role="alert">Hasło może mieć maksymalnie 72 znaki.</p>
+    }
 
-    <button class="submit" type="submit" [disabled]="loading">
-      {{ loading ? 'Przetwarzanie...' : (mode === 'login' ? 'Zaloguj' : 'Utwórz konto') }}
+    <button class="submit" type="submit" [disabled]="loading || (mode === 'register' && retryBlocked)">
+      {{ loading ? 'Przetwarzanie...' : (mode === 'register' && retryBlocked ? 'Spróbuj za chwilę' : (mode === 'login' ? 'Zaloguj' : 'Utwórz konto')) }}
     </button>
   </form>
 </section>
