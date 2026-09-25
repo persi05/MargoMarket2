@@ -238,8 +238,11 @@ h1 {
 }
 
 .table-wrapper {
+  position: relative;
+  margin-right: -6px;
   overflow: visible;
   border: 1px solid #80654c;
+  border-right: 0;
   border-radius: 6px;
   background: #1c1613;
   box-shadow: inset 0 0 0 2px rgba(177, 143, 104, 0.1), 0 18px 35px rgba(0, 0, 0, 0.35);
@@ -251,7 +254,7 @@ h1 {
 
 table {
   width: 100%;
-  min-width: 820px;
+  min-width: 960px;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -329,6 +332,22 @@ tr:last-child td {
 .server-col {
   width: 100px;
 }
+
+.table-wrapper::after {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background: #80654c;
+  content: '';
+  pointer-events: none;
+}
+
+.discussion-col { width: 130px; }
+.discussion-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 8px; background: rgba(168, 201, 138, .1); color: var(--color-primary); font-size: 12px; }
+.discussion-button:hover { background: rgba(168, 201, 138, .2); }
 
 .favorite-btn {
   width: 32px;
@@ -451,7 +470,7 @@ tbody tr:hover .item-name {
   text-align: center;
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1420px) {
   .market-shell {
     grid-template-columns: 1fr;
     background: none;
@@ -518,7 +537,7 @@ tbody tr:hover .item-name {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1050px) {
   .table-scroll {
     overflow-x: auto;
   }

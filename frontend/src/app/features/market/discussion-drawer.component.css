@@ -1,0 +1,41 @@
+.discussion-layer { position: fixed; z-index: 40; inset: 0; display: flex; justify-content: flex-end; }
+.backdrop { position: absolute; inset: 0; border: 0; background: rgba(8, 7, 6, .7); cursor: pointer; animation: fade-in .2s ease-out; }
+.backdrop:hover { transform: none; }
+.drawer { position: relative; display: flex; flex-direction: column; width: min(470px, 100%); height: 100dvh; border-left: 1px solid #80654c; background: #211a16; box-shadow: -20px 0 48px rgba(0, 0, 0, .5); animation: slide-in .24s ease-out; }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px 18px; border-bottom: 1px solid var(--color-border); background: #302720; }
+.eyebrow { color: var(--color-primary); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+h2 { margin: 5px 0 0; color: white; font-size: 26px; }
+.close-button { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid var(--color-border); border-radius: 7px; background: #41362d; color: white; cursor: pointer; font-size: 25px; line-height: 1; }
+.listing-summary { display: grid; gap: 5px; padding: 16px 24px; border-bottom: 1px solid var(--color-border); background: rgba(168, 201, 138, .05); }
+.listing-summary strong { color: white; overflow-wrap: anywhere; }
+.listing-summary span { color: var(--color-text-muted); font-size: 13px; }
+.messages { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 20px 24px; scrollbar-color: #625141 #211a16; }
+.older-button { align-self: center; border: 1px solid var(--color-border); border-radius: 7px; padding: 8px 12px; background: #332b25; color: var(--color-primary); cursor: pointer; font-weight: 700; }
+.older-button:disabled { opacity: .6; cursor: wait; }
+.state { margin: auto 0; color: var(--color-text-muted); line-height: 1.5; text-align: center; }
+.message { align-self: flex-start; width: fit-content; max-width: 85%; border: 1px solid rgba(151, 121, 87, .3); border-radius: 9px; padding: 12px 14px; background: #302720; }
+.message.seller { border-color: rgba(168, 201, 138, .4); background: rgba(49, 84, 43, .2); }
+.message.own { align-self: flex-end; border-color: rgba(168, 201, 138, .5); background: #31542b; }
+.message-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.message-head strong { color: var(--color-primary); font-size: 13px; }
+.message-head time { color: var(--color-text-muted); font-size: 11px; }
+.message-tools { display: flex; align-items: center; gap: 8px; }
+.delete-message { border: 0; padding: 0; background: none; color: #f4aaa5; cursor: pointer; font-size: 11px; font-weight: 700; }
+.delete-message:hover { color: #ffd0cc; text-decoration: underline; }
+.delete-message:disabled { opacity: .6; cursor: wait; }
+.message p { margin: 9px 0 0; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.composer { display: grid; gap: 9px; padding: 16px 24px 22px; border-top: 1px solid var(--color-border); background: #2c231d; }
+.composer label { color: white; font-weight: 800; font-size: 13px; }
+.composer textarea { width: 100%; min-height: 84px; resize: vertical; border: 1px solid #76634f; border-radius: 7px; padding: 10px 12px; background: #1c1815; color: white; font: inherit; }
+.composer textarea:focus { border-color: var(--color-primary); outline: none; }
+.composer-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.composer-actions span, .composer p { margin: 0; color: var(--color-text-muted); font-size: 12px; }
+.composer-actions button, .composer a { border: 1px solid #71915e; border-radius: 7px; padding: 9px 17px; background: var(--color-action); color: white; cursor: pointer; font-weight: 800; text-decoration: none; }
+.composer-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.composer a { justify-self: start; }
+.composer small, .inline-error, .state.error { color: #fca5a5; }
+.inline-error { margin: 0; font-size: 12px; }
+@media (max-width: 520px) { .drawer-head, .listing-summary, .messages, .composer { padding-inline: 16px; } }
+@keyframes slide-in { from { transform: translateX(100%); } }
+@keyframes fade-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .backdrop, .drawer { animation: none; } }

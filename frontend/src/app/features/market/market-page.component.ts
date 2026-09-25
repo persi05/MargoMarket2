@@ -11,11 +11,12 @@ import { ListingService } from '../../core/services/listing.service';
 import { formatListingPrice } from '../../core/utils/price-format';
 import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
 import { hasEnhancementLevel, marketItemTypes } from '../../core/utils/item-types';
+import { DiscussionDrawerComponent } from './discussion-drawer.component';
 
 @Component({
   selector: 'mm-market-page',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
+  imports: [AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe, DiscussionDrawerComponent],
   templateUrl: './market-page.component.html',
   styleUrl: './market-page.component.css'
 })
@@ -43,6 +44,7 @@ export class MarketPageComponent {
   protected readonly favoriteIds = new Set<number>();
   protected readonly favoriteBusyIds = new Set<number>();
   protected readonly brokenListingImageIds = new Set<number>();
+  protected activeDiscussionListing: ListingResponse | null = null;
   protected filterPosition: { x: number; y: number } | null = null;
   protected filterDragging = false;
   private filterDragState: {
@@ -78,7 +80,7 @@ export class MarketPageComponent {
   }
 
   protected startFilterDrag(event: PointerEvent): void {
-    if (!event.isPrimary || event.button !== 0 || window.innerWidth <= 1280) {
+    if (!event.isPrimary || event.button !== 0 || window.innerWidth <= 1420) {
       return;
     }
 
@@ -132,7 +134,7 @@ export class MarketPageComponent {
   }
 
   protected moveFilterWithKeyboard(event: KeyboardEvent): void {
-    if (window.innerWidth <= 1280) {
+    if (window.innerWidth <= 1420) {
       return;
     }
 
@@ -167,7 +169,7 @@ export class MarketPageComponent {
   @HostListener('window:resize')
   protected keepFilterInViewport(): void {
     const panel = this.filterPanel?.nativeElement;
-    if (!panel || !this.filterPosition || window.innerWidth <= 1280) {
+    if (!panel || !this.filterPosition || window.innerWidth <= 1420) {
       return;
     }
 
@@ -248,6 +250,14 @@ export class MarketPageComponent {
           : 'Nie udało się dodać ogłoszenia do obserwowanych.';
       }
     });
+  }
+
+  protected openDiscussion(listing: ListingResponse): void {
+    this.activeDiscussionListing = listing;
+  }
+
+  protected closeDiscussion(): void {
+    this.activeDiscussionListing = null;
   }
 
   protected priceLabel(listing: ListingResponse): string {

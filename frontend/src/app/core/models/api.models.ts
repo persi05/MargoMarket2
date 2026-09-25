@@ -69,6 +69,15 @@ export interface ListingResponse {
   soldAt: string | null;
 }
 
+export interface ListingCommentResponse {
+  id: number;
+  authorId: number;
+  seller: boolean;
+  body: string;
+  createdAt: string;
+  canDelete: boolean;
+}
+
 export interface ListingRequest {
   itemId: number;
   itemName: string;

@@ -1,0 +1,72 @@
+<div class="discussion-layer">
+  <button class="backdrop" type="button" aria-label="Zamknij dyskusję" (click)="closed.emit()"></button>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="discussion-title">
+    <header class="drawer-head">
+      <div>
+        <span class="eyebrow">Ogłoszenie #{{ listing.id }}</span>
+        <h2 id="discussion-title">Dyskusja</h2>
+      </div>
+      <button #closeButton type="button" class="close-button" aria-label="Zamknij dyskusję" (click)="closed.emit()">×</button>
+    </header>
+
+    <div class="listing-summary">
+      <strong>{{ listing.itemName }}</strong>
+      <span>{{ priceLabel }} · {{ listing.server.name }}</span>
+    </div>
+
+    <div class="messages" #messages>
+      @if (hasMore) {
+        <button type="button" class="older-button" [disabled]="loadingOlder" (click)="loadOlder()">
+          {{ loadingOlder ? 'Wczytywanie...' : 'Pokaż starsze komentarze' }}
+        </button>
+      }
+      @if (loading && !comments.length) {
+        <p class="state">Wczytywanie dyskusji...</p>
+      } @else if (loadError && !comments.length) {
+        <p class="state error">{{ loadError }}</p>
+      } @else if (!comments.length) {
+        <p class="state">Nie ma jeszcze komentarzy. Rozpocznij dyskusję o tym przedmiocie.</p>
+      }
+      @if (loadError && comments.length) {
+        <p class="inline-error">{{ loadError }}</p>
+      }
+      @for (comment of comments; track comment.id) {
+        <article class="message" [class.seller]="comment.seller" [class.own]="comment.authorId === currentUserId">
+          <div class="message-head">
+            <strong>{{ comment.authorId === currentUserId ? (comment.seller ? 'Ty · Sprzedający' : 'Ty') : (comment.seller ? 'Sprzedający' : 'Użytkownik #' + comment.authorId) }}</strong>
+            <div class="message-tools">
+              <time [attr.datetime]="comment.createdAt">{{ comment.createdAt | date: 'dd.MM.yyyy HH:mm' }}</time>
+              @if (comment.canDelete) {
+                <button type="button" class="delete-message" [disabled]="deletingIds.has(comment.id)" [attr.aria-label]="'Usuń wiadomość użytkownika ' + comment.authorId" (click)="deleteComment(comment)">
+                  {{ deletingIds.has(comment.id) ? 'Usuwanie...' : 'Usuń' }}
+                </button>
+              }
+            </div>
+          </div>
+          <p>{{ comment.body }}</p>
+        </article>
+      }
+    </div>
+
+    <div class="composer">
+      @if (listing.status !== 'active') {
+        <p>Dyskusja przy tym ogłoszeniu jest zamknięta.</p>
+      } @else if (authService.isLoggedIn) {
+        <label for="comment-body">Dodaj komentarz</label>
+        <textarea id="comment-body" [(ngModel)]="draft" (keydown)="onComposerKeydown($event)" maxlength="1000" rows="3" placeholder="Napisz wiadomość o ogłoszeniu..."></textarea>
+        @if (sendError) {
+          <small>{{ sendError }}</small>
+        }
+        <div class="composer-actions">
+          <span>{{ draft.length }} / 1000</span>
+          <button type="button" [disabled]="sending || !draft.trim()" (click)="send()">
+            {{ sending ? 'Wysyłanie...' : 'Wyślij' }}
+          </button>
+        </div>
+      } @else {
+        <p>Zaloguj się, aby dołączyć do dyskusji.</p>
+        <a routerLink="/auth">Przejdź do logowania</a>
+      }
+    </div>
+  </aside>
+</div>
