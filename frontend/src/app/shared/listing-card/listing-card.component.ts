@@ -2,14 +2,15 @@ import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { ListingResponse } from '../../core/models/api.models';
+import { ItemDescriptionPipe } from '../../core/pipes/item-description.pipe';
 import { formatListingPrice } from '../../core/utils/price-format';
 import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
-import { isSkrytkaName } from '../../core/utils/item-types';
+import { hasEnhancementLevel } from '../../core/utils/item-types';
 
 @Component({
   selector: 'mm-listing-card',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, ItemDescriptionPipe],
   templateUrl: './listing-card.component.html',
   styleUrl: './listing-card.component.css'
 })
@@ -71,7 +72,7 @@ export class ListingCardComponent {
   }
 
   protected get enhancementLabel(): string {
-    return isSkrytkaName(this.listing.itemName) ? '-' : `+${this.listing.enhancementLevel}`;
+    return hasEnhancementLevel(this.listing.itemType.name, this.listing.itemName) ? `+${this.listing.enhancementLevel}` : '-';
   }
 
   protected get requiredProfessions(): string | null {

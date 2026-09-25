@@ -1,3 +1,9 @@
+:host {
+  display: block;
+  min-height: calc(100vh - 71px);
+  background: rgba(17, 14, 12, 0.68);
+}
+
 .dashboard {
   display: grid;
   gap: 24px;

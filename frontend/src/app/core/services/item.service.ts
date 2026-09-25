@@ -8,7 +8,8 @@ import { ItemResponse } from '../models/api.models';
 export interface ItemSearchParams {
   search?: string;
   itemTypeId?: number | string | null;
-  level?: number | string | null;
+  minLevel?: number | string | null;
+  maxLevel?: number | string | null;
   limit?: number;
 }
 
@@ -27,8 +28,12 @@ export class ItemService {
       params = params.set('itemTypeId', String(normalizedFilters.itemTypeId));
     }
 
-    if (normalizedFilters.level) {
-      params = params.set('level', String(normalizedFilters.level));
+    if (normalizedFilters.minLevel) {
+      params = params.set('minLevel', String(normalizedFilters.minLevel));
+    }
+
+    if (normalizedFilters.maxLevel) {
+      params = params.set('maxLevel', String(normalizedFilters.maxLevel));
     }
 
     return this.http.get<ItemResponse[]>(this.baseUrl, { params });

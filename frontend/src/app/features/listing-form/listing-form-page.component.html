@@ -6,9 +6,13 @@
 
   @if (dictionaries$ | async; as dictionaries) {
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      @if (error) {
-        <p class="error">{{ error }}</p>
-      }
+      <div class="section-heading wide">
+        <span>1</span>
+        <div>
+          <h2>Wybierz przedmiot</h2>
+          <p>Wyszukaj przedmiot w katalogu i kliknij jego kafelek.</p>
+        </div>
+      </div>
 
       <div class="wide item-picker" [class.invalid]="hasFieldError('itemId') || hasFieldError('itemName')">
         <label class="manual-field">
@@ -39,47 +43,88 @@
             <div>
               <strong>{{ selectedItem.name }}</strong>
               <span>{{ selectedItem.itemType.name }} | poz. {{ selectedItem.level }} | {{ selectedItem.rarity.name }}</span>
-              <em>Aby zmienić przedmiot, wpisz inną nazwę, zmień filtry i kliknij inny kafelek.</em>
+              <em>Aby zmienić przedmiot, wpisz inną nazwę.</em>
             </div>
           </div>
         }
       </div>
 
-      <label class="filter-field">
-        Filtr typu przedmiotu
-        <select formControlName="itemCatalogTypeId">
-          <option value="">Wszystkie typy</option>
-          @for (type of catalogItemTypes(dictionaries.itemTypes); track type.id) {
-            <option [value]="type.id">{{ type.name }}</option>
-          }
-        </select>
-      </label>
+      @if (!selectedItem) {
+        <div class="filter-row wide">
+          <label class="filter-field">
+            Typ przedmiotu
+            <select formControlName="itemCatalogTypeId">
+              <option value="">Wszystkie typy</option>
+              @for (type of catalogItemTypes(dictionaries.itemTypes); track type.id) {
+                <option [value]="type.id">{{ type.name }}</option>
+              }
+            </select>
+          </label>
 
-      <label class="filter-field">
-        Filtr poziomu przedmiotu
-        <input type="number" formControlName="itemCatalogLevel" min="1" max="300" placeholder="Dowolny">
-      </label>
+          <label class="filter-field">
+            Poziom od
+            <input type="number" formControlName="itemCatalogMinLevel" min="1" max="300" placeholder="Min.">
+          </label>
 
-      <label class="auto-field" [class.invalid]="hasFieldError('itemTypeId')">
-        Typ przedmiotu
-        <select formControlName="itemTypeId">
-          <option [ngValue]="0">Wybierz przedmiot</option>
-          @for (type of dictionaries.itemTypes; track type.id) {
-            <option [ngValue]="type.id">{{ type.name }}</option>
-          }
-        </select>
-        @if (fieldError('itemTypeId')) {
-          <small>Wybierz typ przedmiotu.</small>
+          <label class="filter-field">
+            Poziom do
+            <input type="number" formControlName="itemCatalogMaxLevel" min="1" max="300" placeholder="Maks.">
+          </label>
+        </div>
+
+        @if (itemResults$ | async; as itemResults) {
+          <section class="wide catalog-panel">
+            <div class="catalog-head">
+              <div class="catalog-title">
+                <h2>Katalog przedmiotów</h2>
+                <p>Wybierz przedmiot, który chcesz sprzedać.</p>
+              </div>
+              <span>{{ itemResults.length }} / 60</span>
+            </div>
+
+            @if (itemResults.length) {
+              <div class="catalog-grid">
+                @for (item of itemResults; track item.id) {
+                  <button
+                    type="button"
+                    class="catalog-item"
+                    (click)="selectItem(item, dictionaries)"
+                    (mouseenter)="showItemTooltip(item, $event)"
+                    (mousemove)="moveItemTooltip($event)"
+                    (mouseleave)="hideItemTooltip()"
+                  >
+                    <span class="catalog-icon-frame">
+                      @if (showCatalogImage(item)) {
+                        <img [src]="item.iconUrl" [alt]="item.name" loading="lazy" (error)="markCatalogImageBroken(item)">
+                      } @else {
+                        <span class="item-placeholder">{{ item.name.charAt(0) }}</span>
+                      }
+                    </span>
+                    <strong>{{ item.name }}</strong>
+                    <span>{{ item.itemType.name }}</span>
+                    <em>poz. {{ item.level }} | {{ item.rarity.name }}</em>
+                  </button>
+                }
+              </div>
+            } @else {
+              <p class="no-items">Brak przedmiotów dla tych filtrów.</p>
+            }
+          </section>
         }
-      </label>
+      }
 
-      <label class="auto-field" [class.invalid]="hasFieldError('level')">
-        Poziom przedmiotu
-        <input type="number" formControlName="level" min="1" max="300">
-        @if (fieldError('level')) {
-          <small>{{ fieldError('level') }}</small>
-        }
-      </label>
+      @if (selectedItem) {
+      <div class="section-heading details-heading wide">
+        <span>2</span>
+        <div>
+          <h2>Szczegóły ogłoszenia</h2>
+          <p>Ustaw cenę, serwer i sposób kontaktu.</p>
+        </div>
+      </div>
+
+      @if (error) {
+        <p class="error">{{ error }}</p>
+      }
 
       <label class="manual-field" [class.invalid]="hasFieldError('enhancementLevel')">
         Poziom ulepszenia
@@ -95,24 +140,8 @@
             <option [ngValue]="5">+5</option>
           }
         </select>
-        @if (isEnhancementLocked()) {
-          <small>Skrytki nie mają poziomu ulepszenia.</small>
-        }
         @if (fieldError('enhancementLevel')) {
           <small>{{ fieldError('enhancementLevel') }}</small>
-        }
-      </label>
-
-      <label class="auto-field" [class.invalid]="hasFieldError('rarityId')">
-        Rzadkość
-        <select formControlName="rarityId">
-          <option [ngValue]="0">Wybierz przedmiot</option>
-          @for (rarity of dictionaries.rarities; track rarity.id) {
-            <option [ngValue]="rarity.id">{{ rarity.name }}</option>
-          }
-        </select>
-        @if (fieldError('rarityId')) {
-          <small>Wybierz rzadkość przedmiotu.</small>
         }
       </label>
 
@@ -150,7 +179,7 @@
         }
       </label>
 
-      <label class="wide manual-field" [class.invalid]="hasFieldError('contact')">
+      <label class="contact-field manual-field" [class.invalid]="hasFieldError('contact')">
         Kontakt
         <input type="text" formControlName="contact" placeholder="Discord, nick w grze albo email">
         @if (fieldError('contact')) {
@@ -158,48 +187,25 @@
         }
       </label>
 
+      <div class="bound-row">
+        <button type="button" class="bound-toggle" [class.is-bound]="form.controls.bound.value" [disabled]="isBindingLocked()"
+          role="switch" [attr.aria-checked]="form.controls.bound.value" (click)="toggleBound()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="5" y="10" width="14" height="11" rx="2" />
+            @if (form.controls.bound.value) {
+              <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+            } @else {
+              <path d="M8 10V7a4 4 0 0 1 8 0v1" />
+            }
+          </svg>
+          <span>Związane: {{ form.controls.bound.value ? 'Tak' : 'Nie' }}</span>
+        </button>
+      </div>
+
       <button type="submit" [disabled]="loading">{{ loading ? 'Dodawanie...' : 'Dodaj ogłoszenie' }}</button>
-
-      @if (itemResults$ | async; as itemResults) {
-        <section class="wide catalog-panel">
-          <div class="catalog-head">
-            <div class="catalog-title">
-              <h2>Katalog przedmiotów</h2>
-              <p>Wciśnij przedmiot, który chcesz sprzedać.</p>
-            </div>
-            <span>{{ itemResults.length }} / 60</span>
-          </div>
-
-          @if (itemResults.length) {
-            <div class="catalog-grid">
-              @for (item of itemResults; track item.id) {
-                <button
-                  type="button"
-                  class="catalog-item"
-                  [class.selected]="selectedItem?.id === item.id"
-                  (click)="selectItem(item, dictionaries)"
-                  (mouseenter)="showItemTooltip(item, $event)"
-                  (mousemove)="moveItemTooltip($event)"
-                  (mouseleave)="hideItemTooltip()"
-                >
-                  <span class="catalog-icon-frame">
-                    @if (showCatalogImage(item)) {
-                      <img [src]="item.iconUrl" [alt]="item.name" loading="lazy" (error)="markCatalogImageBroken(item)">
-                    } @else {
-                      <span class="item-placeholder">{{ item.name.charAt(0) }}</span>
-                    }
-                  </span>
-                  <strong>{{ item.name }}</strong>
-                  <span>{{ item.itemType.name }}</span>
-                  <em>poz. {{ item.level }} | {{ item.rarity.name }}</em>
-                </button>
-              }
-            </div>
-          } @else {
-            <p class="no-items">Brak przedmiotów dla tych filtrów.</p>
-          }
-        </section>
       }
+
     </form>
 
     @if (hoveredCatalogItem; as tooltipItem) {
@@ -231,7 +237,7 @@
           <span class="tooltip-line">{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
         }
         @if (tooltipItem.description) {
-          <span class="tooltip-description">{{ tooltipItem.description }}</span>
+          <span class="tooltip-description">{{ tooltipItem.description | itemDescription:tooltipItem.stats }}</span>
         }
         @if (lastAvailableDuring(tooltipItem); as occasion) {
           <span class="tooltip-line">Ostatnio dostępny podczas: <b>{{ occasion }}</b></span>

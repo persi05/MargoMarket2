@@ -165,7 +165,8 @@ public class ListingService {
         listing.setItemName(item.getName());
         listing.setItemType(item.getItemType());
         listing.setLevel(item.getLevel());
-        listing.setEnhancementLevel(isSkrytka(item) || request.enhancementLevel() == null ? 0 : request.enhancementLevel());
+        listing.setEnhancementLevel(isEnhancementLocked(item) || request.enhancementLevel() == null ? 0 : request.enhancementLevel());
+        listing.setBound(canBindItem(item) && request.bound());
         listing.setRarity(item.getRarity());
         listing.setPrice(request.price());
         listing.setCurrency(getCurrency(request.currencyId()));
@@ -204,6 +205,15 @@ public class ListingService {
                 .replaceAll("\\p{M}", "")
                 .toLowerCase(Locale.ROOT);
         return normalizedName.contains("skrytk");
+    }
+
+    private boolean isEnhancementLocked(Item item) {
+        return isSkrytka(item) || java.util.Set.of("Konsumpcyjne", "Talizmany", "Waluta", "Torby")
+                .contains(item.getItemType().getName());
+    }
+
+    private boolean canBindItem(Item item) {
+        return !java.util.Set.of("Konsumpcyjne", "Waluta").contains(item.getItemType().getName());
     }
 
     private Rarity getRarity(Long id) {

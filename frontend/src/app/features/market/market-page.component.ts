@@ -4,17 +4,18 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, finalize, shareReplay, switchMap, tap } from 'rxjs';
 
 import { ListingResponse, LookupResponse, PageResponse } from '../../core/models/api.models';
+import { ItemDescriptionPipe } from '../../core/pipes/item-description.pipe';
 import { AuthService } from '../../core/services/auth.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ListingService } from '../../core/services/listing.service';
 import { formatListingPrice } from '../../core/utils/price-format';
 import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
-import { isSkrytkaName, marketItemTypes } from '../../core/utils/item-types';
+import { hasEnhancementLevel, marketItemTypes } from '../../core/utils/item-types';
 
 @Component({
   selector: 'mm-market-page',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule],
+  imports: [AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
   templateUrl: './market-page.component.html',
   styleUrl: './market-page.component.css'
 })
@@ -304,7 +305,7 @@ export class MarketPageComponent {
   }
 
   protected enhancementLabel(listing: ListingResponse): string {
-    return isSkrytkaName(listing.itemName) ? '-' : `+${listing.enhancementLevel}`;
+    return hasEnhancementLevel(listing.itemType.name, listing.itemName) ? `+${listing.enhancementLevel}` : '-';
   }
 
   private reloadFavorites(): void {

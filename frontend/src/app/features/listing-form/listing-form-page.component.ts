@@ -6,17 +6,18 @@ import { Router } from '@angular/router';
 import { catchError, combineLatest, debounceTime, finalize, of, startWith, switchMap } from 'rxjs';
 
 import { ApiError, DictionariesResponse, ItemResponse, LookupResponse } from '../../core/models/api.models';
+import { ItemDescriptionPipe } from '../../core/pipes/item-description.pipe';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ItemService } from '../../core/services/item.service';
 import { ListingService } from '../../core/services/listing.service';
 import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
-import { isSkrytkaName, marketItemTypes } from '../../core/utils/item-types';
+import { canBindItem, hasEnhancementLevel, marketItemTypes } from '../../core/utils/item-types';
 import { parseListingPrice } from '../../core/utils/price-format';
 
 @Component({
   selector: 'mm-listing-form-page',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule],
+  imports: [AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
   templateUrl: './listing-form-page.component.html',
   styleUrl: './listing-form-page.component.css'
 })
@@ -43,10 +44,12 @@ export class ListingFormPageComponent {
     itemId: this.fb.nonNullable.control(0, [Validators.required, Validators.min(1)]),
     itemName: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]),
     itemCatalogTypeId: this.fb.nonNullable.control(''),
-    itemCatalogLevel: this.fb.nonNullable.control(''),
+    itemCatalogMinLevel: this.fb.nonNullable.control(''),
+    itemCatalogMaxLevel: this.fb.nonNullable.control(''),
     itemTypeId: this.fb.nonNullable.control(0, [Validators.required, Validators.min(1)]),
     level: this.fb.nonNullable.control(1, [Validators.required, Validators.min(1), Validators.max(300)]),
     enhancementLevel: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0), Validators.max(5)]),
+    bound: this.fb.nonNullable.control(false),
     rarityId: this.fb.nonNullable.control(0, [Validators.required, Validators.min(1)]),
     price: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(24)]),
     currencyId: this.fb.nonNullable.control(0, [Validators.required, Validators.min(1)]),
@@ -57,13 +60,15 @@ export class ListingFormPageComponent {
   protected readonly itemResults$ = combineLatest([
     this.form.controls.itemName.valueChanges.pipe(startWith(this.form.controls.itemName.value)),
     this.form.controls.itemCatalogTypeId.valueChanges.pipe(startWith(this.form.controls.itemCatalogTypeId.value)),
-    this.form.controls.itemCatalogLevel.valueChanges.pipe(startWith(this.form.controls.itemCatalogLevel.value))
+    this.form.controls.itemCatalogMinLevel.valueChanges.pipe(startWith(this.form.controls.itemCatalogMinLevel.value)),
+    this.form.controls.itemCatalogMaxLevel.valueChanges.pipe(startWith(this.form.controls.itemCatalogMaxLevel.value))
   ]).pipe(
     debounceTime(160),
-    switchMap(([search, itemTypeId, level]) => this.itemService.search({
+    switchMap(([search, itemTypeId, minLevel, maxLevel]) => this.itemService.search({
       search,
       itemTypeId,
-      level,
+      minLevel,
+      maxLevel,
       limit: 60
     }).pipe(
       catchError(() => of([]))
@@ -103,14 +108,17 @@ export class ListingFormPageComponent {
   }
 
   selectItem(item: ItemResponse, dictionaries: DictionariesResponse): void {
+    this.hideItemTooltip();
     this.selectedItem = item;
-    const locksEnhancementLevel = this.isSkrytka(item);
+    const locksEnhancementLevel = !hasEnhancementLevel(item.itemType.name, item.name);
+    const locksBinding = !canBindItem(item.itemType.name);
     this.form.patchValue({
       itemId: item.id,
       itemName: item.name,
       itemTypeId: this.lookupId(dictionaries.itemTypes, item.itemType.name),
       level: item.level,
       enhancementLevel: 0,
+      bound: locksBinding ? false : this.form.controls.bound.value,
       rarityId: this.lookupId(dictionaries.rarities, item.rarity.name)
     });
     if (locksEnhancementLevel) {
@@ -120,6 +128,15 @@ export class ListingFormPageComponent {
     }
     this.form.controls.itemId.markAsDirty();
     this.form.controls.itemId.markAsTouched();
+  }
+
+  toggleBound(): void {
+    if (this.isBindingLocked()) {
+      return;
+    }
+    const control = this.form.controls.bound;
+    control.setValue(!control.value);
+    control.markAsDirty();
   }
 
   submit(): void {
@@ -152,6 +169,7 @@ export class ListingFormPageComponent {
       itemTypeId: raw.itemTypeId,
       level: raw.level,
       enhancementLevel: raw.enhancementLevel,
+      bound: raw.bound,
       rarityId: raw.rarityId,
       price,
       currencyId: raw.currencyId,
@@ -263,7 +281,11 @@ export class ListingFormPageComponent {
   }
 
   isEnhancementLocked(): boolean {
-    return this.selectedItem ? this.isSkrytka(this.selectedItem) : false;
+    return this.selectedItem ? !hasEnhancementLevel(this.selectedItem.itemType.name, this.selectedItem.name) : false;
+  }
+
+  isBindingLocked(): boolean {
+    return this.selectedItem ? !canBindItem(this.selectedItem.itemType.name) : false;
   }
 
   isGoldCurrencySelected(): boolean {
@@ -320,7 +342,4 @@ export class ListingFormPageComponent {
       .replace(/[^a-z0-9]+/g, '');
   }
 
-  private isSkrytka(item: ItemResponse): boolean {
-    return isSkrytkaName(item.name);
-  }
 }
