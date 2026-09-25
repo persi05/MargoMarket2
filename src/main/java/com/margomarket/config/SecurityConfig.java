@@ -65,6 +65,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/listings/mine", "/api/listings/favorites").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/*", "/api/dictionaries", "/api/items").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/listings/*/comments").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

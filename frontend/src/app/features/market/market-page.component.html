@@ -131,12 +131,13 @@
                 <th class="price-col" scope="col">Cena</th>
                 <th class="contact-col" scope="col">Kontakt</th>
                 <th class="server-col" scope="col">Serwer</th>
+                <th class="discussion-col" scope="col">Dyskusja</th>
               </tr>
             </thead>
             <tbody>
               @if (loading) {
                 <tr>
-                  <td [attr.colspan]="authService.isLoggedIn ? 8 : 7">
+                  <td [attr.colspan]="authService.isLoggedIn ? 9 : 8">
                     <div class="empty">Ładowanie ofert...</div>
                   </td>
                 </tr>
@@ -218,11 +219,19 @@
                     <td class="price-col"><span class="price">{{ priceLabel(listing) }}</span></td>
                     <td class="contact-col"><span class="contact">{{ listing.contact }}</span></td>
                     <td class="server-col"><span class="badge">{{ listing.server.name }}</span></td>
+                    <td class="discussion-col">
+                      <button type="button" class="discussion-button" [attr.aria-label]="'Otwórz dyskusję o ' + listing.itemName" (click)="openDiscussion(listing)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5 8 8 0 0 1-3.2-.7L4 20l1.6-4.5A7.5 7.5 0 1 1 20 11.5Z" />
+                        </svg>
+                        Dyskusja
+                      </button>
+                    </td>
                   </tr>
                 }
               } @else {
                 <tr>
-                  <td [attr.colspan]="authService.isLoggedIn ? 8 : 7">
+                  <td [attr.colspan]="authService.isLoggedIn ? 9 : 8">
                     <div class="empty">Nie znaleziono żadnych ogłoszeń spełniających kryteria.</div>
                   </td>
                 </tr>
@@ -234,3 +243,7 @@
     }
   </div>
 </section>
+
+@if (activeDiscussionListing; as listing) {
+  <mm-discussion-drawer [listing]="listing" (closed)="closeDiscussion()" />
+}
