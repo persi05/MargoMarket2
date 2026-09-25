@@ -26,7 +26,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
         WHERE i.marketEnabled = true
           AND (:search = '' OR LOWER(i.name) LIKE LOWER(CONCAT('%', :search, '%')))
           AND (:itemTypeId IS NULL OR i.itemType.id = :itemTypeId)
-          AND (:level IS NULL OR i.level = :level)
+          AND (:minLevel IS NULL OR i.level >= :minLevel)
+          AND (:maxLevel IS NULL OR i.level <= :maxLevel)
         ORDER BY
           CASE
             WHEN :search = '' THEN 2
@@ -40,7 +41,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> searchCatalog(
             @Param("search") String search,
             @Param("itemTypeId") Long itemTypeId,
-            @Param("level") Integer level,
+            @Param("minLevel") Integer minLevel,
+            @Param("maxLevel") Integer maxLevel,
             Pageable pageable
     );
 }

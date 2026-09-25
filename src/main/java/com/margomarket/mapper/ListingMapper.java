@@ -22,6 +22,7 @@ public class ListingMapper {
                 lookupMapper.toResponse(listing.getItemType()),
                 listing.getLevel(),
                 listing.getEnhancementLevel(),
+                listing.isBound(),
                 lookupMapper.toResponse(listing.getRarity()),
                 listing.getPrice(),
                 lookupMapper.toResponse(listing.getCurrency()),

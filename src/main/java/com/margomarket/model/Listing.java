@@ -41,6 +41,9 @@ public class Listing {
     @Column(name = "enhancement_level", nullable = false)
     private Integer enhancementLevel = 0;
 
+    @Column(name = "is_bound", nullable = false)
+    private boolean bound = false;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rarity_id", nullable = false)
     private Rarity rarity;

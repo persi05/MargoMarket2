@@ -32,3 +32,12 @@ export function marketItemTypes(types: LookupResponse[]): LookupResponse[] {
 export function isSkrytkaName(name: string): boolean {
   return name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes('skrytk');
 }
+
+export function hasEnhancementLevel(typeName: string, itemName: string): boolean {
+  return !isSkrytkaName(itemName)
+    && !['Konsumpcyjne', 'Talizmany', 'Waluta', 'Torby'].includes(typeName);
+}
+
+export function canBindItem(typeName: string): boolean {
+  return !['Konsumpcyjne', 'Waluta'].includes(typeName);
+}

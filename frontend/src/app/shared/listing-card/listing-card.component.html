@@ -1,4 +1,4 @@
-<article class="listing">
+<article class="listing" [class.owner-listing]="showOwnerActions" [class.favorite-listing]="favoriteMode" [class.admin-listing]="showSoldAt">
   <div class="listing-head">
     <div
       class="item-frame"
@@ -29,11 +29,12 @@
         </span>
         <span class="tooltip-rarity">{{ listing.rarity.name }}</span>
         <span>Ulepszenie: {{ enhancementLabel }}</span>
+        <span>Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
         @for (stat of statLines; track stat.label) {
           <span>{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
         }
         @if (listing.itemDescription) {
-          <span class="description">{{ listing.itemDescription }}</span>
+          <span class="description">{{ listing.itemDescription | itemDescription:listing.itemStats }}</span>
         }
         @if (lastAvailableDuring; as occasion) {
           <span>Ostatnio dostępny podczas: {{ occasion }}</span>
@@ -57,9 +58,10 @@
   </div>
 
   <div class="meta">
-    <span>Poz. {{ listing.level }}</span>
-    <span>{{ enhancementLabel }}</span>
-    <span>{{ listing.server.name }}</span>
+    <span>Lvl: {{ listing.level }}</span>
+    <span>Ulepszenie: {{ enhancementLabel }}</span>
+    <span>Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
+    <span>{{ favoriteMode || (showOwnerActions && !showSoldAt) ? 'Świat: ' : '' }}{{ listing.server.name }}</span>
   </div>
 
   <dl>
@@ -75,16 +77,18 @@
       <dt>Dodano</dt>
       <dd>{{ listing.createdAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
     </div>
-    @if (showSoldAt && listing.soldAt) {
+    @if (showSoldAt) {
       <div>
         <dt>Sprzedano</dt>
-        <dd>{{ listing.soldAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
+        <dd>{{ listing.soldAt ? (listing.soldAt | date: 'dd.MM.yyyy HH:mm') : '—' }}</dd>
       </div>
     }
   </dl>
 
   <footer>
-    <span class="status" [class.sold]="isSold">{{ statusLabel }}</span>
+    @if (!favoriteMode) {
+      <span class="status" [class.sold]="isSold">{{ statusLabel }}</span>
+    }
 
     <div class="actions">
       @if (showFavorite && !favoriteMode) {

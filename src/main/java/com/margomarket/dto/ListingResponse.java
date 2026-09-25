@@ -12,6 +12,7 @@ public record ListingResponse(
         LookupResponse itemType,
         Integer level,
         Integer enhancementLevel,
+        boolean bound,
         LookupResponse rarity,
         Integer price,
         LookupResponse currency,

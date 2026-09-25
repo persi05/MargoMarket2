@@ -56,6 +56,7 @@ export interface ListingResponse {
   itemType: LookupResponse;
   level: number;
   enhancementLevel: number;
+  bound: boolean;
   rarity: LookupResponse;
   price: number;
   currency: LookupResponse;
@@ -74,6 +75,7 @@ export interface ListingRequest {
   itemTypeId: number;
   level: number;
   enhancementLevel: number;
+  bound: boolean;
   rarityId: number;
   price: number;
   currencyId: number;

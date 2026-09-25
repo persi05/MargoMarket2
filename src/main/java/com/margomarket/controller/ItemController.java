@@ -25,18 +25,21 @@ public class ItemController {
     public List<ItemResponse> search(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(required = false) Long itemTypeId,
-            @RequestParam(required = false) Integer level,
+            @RequestParam(required = false) Integer minLevel,
+            @RequestParam(required = false) Integer maxLevel,
             @RequestParam(defaultValue = "" + DEFAULT_RESULTS) int limit
     ) {
         String normalizedSearch = search.trim();
         int pageSize = Math.min(Math.max(1, limit), MAX_RESULTS);
-        Integer normalizedLevel = level == null || level < 1 ? null : Math.min(level, 300);
+        Integer normalizedMinLevel = minLevel == null || minLevel < 1 ? null : Math.min(minLevel, 300);
+        Integer normalizedMaxLevel = maxLevel == null || maxLevel < 1 ? null : Math.min(maxLevel, 300);
         Long normalizedItemTypeId = itemTypeId == null || itemTypeId < 1 ? null : itemTypeId;
 
         return itemRepository.searchCatalog(
                         normalizedSearch,
                         normalizedItemTypeId,
-                        normalizedLevel,
+                        normalizedMinLevel,
+                        normalizedMaxLevel,
                         PageRequest.of(0, pageSize)
                 ).stream()
                 .map(itemMapper::toResponse)

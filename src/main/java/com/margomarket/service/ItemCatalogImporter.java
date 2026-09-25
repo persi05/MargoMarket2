@@ -51,10 +51,10 @@ public class ItemCatalogImporter implements ApplicationRunner {
         try (InputStream inputStream = catalog.getInputStream()) {
             List<CatalogItem> catalogItems = objectMapper.readValue(inputStream, new TypeReference<List<CatalogItem>>() {
             });
+            itemRepository.disableMarketCatalog();
             Map<Long, Item> existingItems = itemRepository.findAll().stream()
                     .collect(Collectors.toMap(Item::getExternalId, Function.identity()));
 
-            itemRepository.disableMarketCatalog();
             List<Item> batch = new ArrayList<>(BATCH_SIZE);
             for (CatalogItem catalogItem : catalogItems) {
                 ItemType itemType = getRequiredDictionaryValue(itemTypes, catalogItem.itemTypeName(), "item type");

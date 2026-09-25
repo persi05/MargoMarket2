@@ -188,11 +188,12 @@
                             </span>
                             <span class="tooltip-rarity">{{ listing.rarity.name }}</span>
                             <span>Ulepszenie: {{ enhancementLabel(listing) }}</span>
+                            <span>Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
                             @for (stat of statLines(listing); track stat.label) {
                               <span>{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
                             }
                             @if (listing.itemDescription) {
-                              <span class="description">{{ listing.itemDescription }}</span>
+                              <span class="description">{{ listing.itemDescription | itemDescription:listing.itemStats }}</span>
                             }
                             @if (lastAvailableDuring(listing); as occasion) {
                               <span>Ostatnio dostępny podczas: {{ occasion }}</span>
@@ -210,6 +211,7 @@
                     </td>
                     <td class="name-col">
                       <span class="item-name" [attr.title]="listing.itemName">{{ listing.itemName }}</span>
+                      <span class="binding-label">Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
                     </td>
                     <td class="level-col muted">{{ listing.level }}</td>
                     <td class="enhancement-col"><span class="upgrade">{{ enhancementLabel(listing) }}</span></td>

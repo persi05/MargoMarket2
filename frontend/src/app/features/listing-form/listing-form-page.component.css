@@ -40,6 +40,7 @@ form {
 label {
   display: grid;
   gap: 5px;
+  align-content: start;
   color: var(--color-text-muted);
   font-size: 13px;
   font-weight: 800;
@@ -47,7 +48,6 @@ label {
 
 .wide,
 .error,
-.helper,
 form > button {
   grid-column: 1 / -1;
 }
@@ -66,17 +66,109 @@ input::placeholder {
   color: rgba(170, 157, 141, 0.68);
 }
 
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(168, 201, 138, 0.2);
+  border-radius: 9px;
+  padding: 12px 14px;
+  background: rgba(168, 201, 138, 0.07);
+}
+
+.section-heading > span {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-action);
+  color: white;
+  font-weight: 800;
+}
+
+.section-heading h2,
+.section-heading p {
+  margin: 0;
+}
+
+.section-heading p {
+  margin-top: 3px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.details-heading {
+  margin-top: 10px;
+  border-top-color: rgba(151, 121, 87, 0.45);
+  background: rgba(12, 10, 9, 0.27);
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  border: 1px solid rgba(151, 121, 87, 0.24);
+  border-radius: 9px;
+  padding: 12px;
+  background: rgba(12, 10, 9, 0.2);
+}
+
+.bound-row {
+  grid-column: -2 / -1;
+  display: grid;
+  align-self: start;
+  justify-items: end;
+  gap: 5px;
+  padding-top: 20px;
+}
+
+.contact-field {
+  grid-column: 1 / -2;
+}
+
+.bound-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.bound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgba(170, 157, 141, 0.32);
+  border-radius: 8px;
+  padding: 9px 13px;
+  background: var(--color-input-dark);
+  color: var(--color-text-main);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.bound-toggle svg {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+}
+
+.bound-toggle.is-bound {
+  border-color: rgba(168, 201, 138, 0.5);
+  background: rgba(168, 201, 138, 0.12);
+  color: var(--color-primary);
+}
+
+.bound-toggle:hover,
+.bound-toggle:focus-visible {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
 .manual-field input,
 .manual-field select {
   border-color: rgba(168, 201, 138, 0.24);
   background: #41382f;
-}
-
-.auto-field input,
-.auto-field select {
-  border-color: rgba(170, 157, 141, 0.14);
-  background: rgba(43, 34, 29, 0.62);
-  color: rgba(238, 233, 225, 0.78);
 }
 
 .filter-field input,
@@ -181,18 +273,6 @@ select option {
   color: #86efac;
 }
 
-.helper {
-  margin: 0;
-  border: 1px solid rgba(168, 201, 138, 0.24);
-  border-radius: 8px;
-  padding: 12px 14px;
-  background: rgba(168, 201, 138, 0.08);
-  color: var(--color-text-main);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.45;
-}
-
 .no-items {
   margin: 0;
   padding: 12px;
@@ -224,8 +304,10 @@ form > button:disabled {
 .catalog-panel {
   display: grid;
   gap: 10px;
-  border-top: 1px solid var(--color-border);
-  padding-top: 14px;
+  border: 1px solid rgba(151, 121, 87, 0.32);
+  border-radius: 9px;
+  padding: 14px;
+  background: rgba(12, 10, 9, 0.2);
 }
 
 .catalog-head {
@@ -456,5 +538,19 @@ h2 {
 @media (max-width: 700px) {
   form {
     grid-template-columns: 1fr;
+  }
+
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .bound-row {
+    grid-column: 1;
+    justify-items: start;
+    padding-top: 0;
+  }
+
+  .contact-field {
+    grid-column: 1;
   }
 }

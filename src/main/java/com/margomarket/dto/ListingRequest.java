@@ -26,6 +26,8 @@ public record ListingRequest(
         @Max(value = 5, message = "Poziom ulepszenia nie moze przekraczac 5")
         Integer enhancementLevel,
 
+        boolean bound,
+
         @NotNull(message = "Rzadkosc jest wymagana")
         Long rarityId,
 
