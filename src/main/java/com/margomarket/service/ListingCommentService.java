@@ -26,12 +26,20 @@ public class ListingCommentService {
 
     private final ListingRepository listingRepository;
     private final ListingCommentRepository commentRepository;
+    private final TextModerationService moderation;
+    private final DiscussionCooldownService cooldown;
+
+    public com.margomarket.dto.CommentPostingStatus postingStatus(Long listingId, User author) {
+        getListing(listingId);
+        return author.isAdmin() ? cooldown.unrestrictedStatus() : cooldown.status(listingId, author.getId());
+    }
 
     public Page<ListingCommentResponse> getComments(Long listingId, int page, User viewer) {
         Listing listing = getListing(listingId);
+        var masker = moderation.masker();
         return commentRepository.findByListingIdOrderByIdDesc(
                 listingId, PageRequest.of(Math.max(0, page - 1), PAGE_SIZE)
-        ).map(comment -> toResponse(comment, listing.getUser().getId(), viewer));
+        ).map(comment -> toResponse(comment, listing.getUser().getId(), viewer, masker));
     }
 
     @Transactional
@@ -41,11 +49,17 @@ public class ListingCommentService {
             throw new IllegalArgumentException("Dyskusja przy tym ogłoszeniu jest zamknięta.");
         }
 
+        String trimmedBody = body.trim();
+        var masker = moderation.masker();
+        String maskedBody = masker.apply(trimmedBody);
+        if (!author.isAdmin()) {
+            cooldown.claim(listingId, author.getId(), !maskedBody.equals(trimmedBody));
+        }
         ListingComment comment = new ListingComment();
         comment.setListing(listing);
         comment.setAuthor(author);
-        comment.setBody(body.trim());
-        return toResponse(commentRepository.save(comment), listing.getUser().getId(), author);
+        comment.setBody(maskedBody);
+        return toResponse(commentRepository.save(comment), listing.getUser().getId(), author, masker);
     }
 
     @Transactional
@@ -66,12 +80,13 @@ public class ListingCommentService {
                 .orElseThrow(() -> new NotFoundException("Ogłoszenie nie istnieje"));
     }
 
-    private ListingCommentResponse toResponse(ListingComment comment, Long sellerId, User viewer) {
+    private ListingCommentResponse toResponse(ListingComment comment, Long sellerId, User viewer,
+                                             java.util.function.UnaryOperator<String> masker) {
         return new ListingCommentResponse(
                 comment.getId(),
                 comment.getAuthor().getId(),
                 sellerId.equals(comment.getAuthor().getId()),
-                comment.getBody(),
+                masker.apply(comment.getBody()),
                 comment.getCreatedAt(),
                 canDelete(comment, viewer)
         );

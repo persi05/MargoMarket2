@@ -14,6 +14,31 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(CommentMutedException.class)
+    public ResponseEntity<java.util.Map<String, Object>> muted(CommentMutedException exception) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(exception.getRetryAfterSeconds()))
+                .body(java.util.Map.of("status", 429, "message", exception.getMessage(),
+                        "retryAfterSeconds", exception.getRetryAfterSeconds(),
+                        "muteRemainingSeconds", exception.getRetryAfterSeconds(),
+                        "postingStatus", exception.getPostingStatus()));
+    }
+
+    @ExceptionHandler(CommentCooldownException.class)
+    public ResponseEntity<java.util.Map<String, Object>> cooldown(CommentCooldownException exception) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(exception.getRetryAfterSeconds()))
+                .body(java.util.Map.of("status", 429, "message", exception.getMessage(),
+                        "retryAfterSeconds", exception.getRetryAfterSeconds(),
+                        "postingStatus", exception.getPostingStatus()));
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> dataConflict(org.springframework.dao.DataIntegrityViolationException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of(409, "Conflict", "Nie można zapisać wpisu. Sprawdź, czy już istnieje."));
+    }
+
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiError> notFound(NotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

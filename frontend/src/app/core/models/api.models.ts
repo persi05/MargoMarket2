@@ -138,3 +138,25 @@ export interface NotificationResponse {
 export interface UnreadNotificationsResponse {
   count: number;
 }
+
+export interface BlockedWord {
+  id: number;
+  term: string;
+  matchMode: 'EXACT' | 'PREFIX';
+  enabled: boolean;
+}
+
+export type BlockedWordRequest = Omit<BlockedWord, 'id'>;
+
+export interface CommentPostingStatus {
+  retryAfterSeconds: number;
+  muteRemainingSeconds: number;
+  serverTime: string;
+  mutedUntil: string | null;
+}
+
+export interface CommentSendResponse {
+  comment: ListingCommentResponse;
+  censored: boolean;
+  postingStatus: CommentPostingStatus;
+}
