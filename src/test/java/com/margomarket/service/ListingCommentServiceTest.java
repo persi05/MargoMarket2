@@ -34,11 +34,18 @@ class ListingCommentServiceTest {
     @Mock
     private ListingCommentRepository commentRepository;
 
+    @Mock
+    private TextModerationService moderation;
+
+    @Mock
+    private DiscussionCooldownService cooldown;
+
     @InjectMocks
     private ListingCommentService commentService;
 
     @Test
     void addCommentTrimsBodyAndMarksSeller() {
+        when(moderation.masker()).thenReturn(java.util.function.UnaryOperator.identity());
         User seller = user(4L);
         Listing listing = listing("active", seller);
         when(listingRepository.findByIdWithDetails(12L)).thenReturn(Optional.of(listing));
@@ -56,6 +63,94 @@ class ListingCommentServiceTest {
         assertThat(response.seller()).isTrue();
         assertThat(response.canDelete()).isTrue();
         verify(commentRepository).save(any(ListingComment.class));
+        verify(cooldown).claim(12L, seller.getId(), false);
+    }
+
+    @Test
+    void oldCommentsAreMaskedBeforeReturningAndOriginalBodyIsPreserved() {
+        Listing listing = listing("active", user(4L));
+        ListingComment comment = comment(user(5L), LocalDateTime.now().minusDays(3));
+        comment.setBody("zakazane słowo");
+        when(listingRepository.findByIdWithDetails(12L)).thenReturn(Optional.of(listing));
+        when(commentRepository.findByListingIdOrderByIdDesc(org.mockito.ArgumentMatchers.eq(12L), any()))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(java.util.List.of(comment)));
+        when(moderation.masker()).thenReturn(body -> "******** słowo");
+
+        var result = commentService.getComments(12L, 1, null);
+
+        assertThat(result.getContent().getFirst().body()).isEqualTo("******** słowo");
+        assertThat(comment.getBody()).isEqualTo("zakazane słowo");
+        assertThat(result.getContent().getFirst().canDelete()).isFalse();
+    }
+
+    @Test
+    void newlyAddedCommentIsMaskedInResponse() {
+        when(listingRepository.findByIdWithDetails(12L)).thenReturn(Optional.of(listing("active", user(4L))));
+        when(commentRepository.save(any(ListingComment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(moderation.masker()).thenReturn(body -> "****");
+        assertThat(commentService.addComment(12L, "test", user(5L)).body()).isEqualTo("****");
+        verify(commentRepository).save(org.mockito.ArgumentMatchers.argThat(comment -> comment.getBody().equals("****")));
+        verify(cooldown).claim(12L, 5L, true);
+    }
+
+    @Test
+    void administratorCanSendRepeatedCensoredMessagesWithoutAnyLimits() {
+        when(listingRepository.findByIdWithDetails(12L)).thenReturn(Optional.of(listing("active", user(4L))));
+        when(moderation.masker()).thenReturn(body -> "****");
+        when(commentRepository.save(any(ListingComment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        User admin = user(5L);
+        admin.setRole(new Role("admin"));
+        assertThat(commentService.addComment(12L, "test", admin).body()).isEqualTo("****");
+        assertThat(commentService.addComment(12L, "test", admin).body()).isEqualTo("****");
+        org.mockito.Mockito.verifyNoInteractions(cooldown);
+    }
+
+    @Test
+    void cooldownRejectsRepeatSendBeforeSavingComment() {
+        when(listingRepository.findByIdWithDetails(12L)).thenReturn(Optional.of(listing("active", user(4L))));
+        when(moderation.masker()).thenReturn(java.util.function.UnaryOperator.identity());
+        org.mockito.Mockito.doThrow(new com.margomarket.exception.CommentCooldownException(status(599, 0)))
+                .when(cooldown).claim(12L, 5L, false);
+
+        assertThatThrownBy(() -> commentService.addComment(12L, "hello", user(5L)))
+                .isInstanceOf(com.margomarket.exception.CommentCooldownException.class);
+        verify(commentRepository, never()).save(any());
+    }
+
+    @Test
+    void postingStatusUsesAuthenticatedAuthorAndDiscussion() {
+        when(listingRepository.findByIdWithDetails(12L)).thenReturn(Optional.of(listing("active", user(4L))));
+        when(cooldown.status(12L, 5L)).thenReturn(status(12, 0));
+        assertThat(commentService.postingStatus(12L, user(5L)).retryAfterSeconds()).isEqualTo(12);
+    }
+
+    @Test
+    void mutedAuthorCannotSendEvenInAnotherDiscussion() {
+        when(listingRepository.findByIdWithDetails(12L)).thenReturn(Optional.of(listing("active", user(4L))));
+        when(moderation.masker()).thenReturn(java.util.function.UnaryOperator.identity());
+        org.mockito.Mockito.doThrow(new com.margomarket.exception.CommentMutedException(status(43000, 43000)))
+                .when(cooldown).claim(12L, 5L, false);
+        assertThatThrownBy(() -> commentService.addComment(12L, "hello", user(5L)))
+                .isInstanceOf(com.margomarket.exception.CommentMutedException.class);
+        verify(commentRepository, never()).save(any());
+    }
+
+    @Test
+    void administratorStatusIgnoresPreviouslyStoredMuteAndCooldown() {
+        when(listingRepository.findByIdWithDetails(12L)).thenReturn(Optional.of(listing("active", user(4L))));
+        when(cooldown.unrestrictedStatus()).thenReturn(status(0, 0));
+        User admin = user(5L);
+        admin.setRole(new Role("admin"));
+        var result = commentService.postingStatus(12L, admin);
+        assertThat(result.retryAfterSeconds()).isZero();
+        assertThat(result.mutedUntil()).isNull();
+        verify(cooldown, never()).status(any(), any());
+    }
+
+    private static com.margomarket.dto.CommentPostingStatus status(int retrySeconds, int muteSeconds) {
+        var now = java.time.Instant.parse("2026-09-27T18:00:00Z");
+        return new com.margomarket.dto.CommentPostingStatus(retrySeconds, muteSeconds, now,
+                muteSeconds > 0 ? now.plusSeconds(muteSeconds) : null);
     }
 
     @Test

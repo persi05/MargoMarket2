@@ -53,13 +53,23 @@
         <p>Dyskusja przy tym ogłoszeniu jest zamknięta.</p>
       } @else if (authService.isLoggedIn) {
         <label for="comment-body">Dodaj komentarz</label>
-        <textarea id="comment-body" [(ngModel)]="draft" (keydown)="onComposerKeydown($event)" maxlength="1000" rows="3" placeholder="Napisz wiadomość o ogłoszeniu..."></textarea>
-        @if (sendError) {
-          <small>{{ sendError }}</small>
-        }
+        <textarea id="comment-body" [(ngModel)]="draft" (keydown)="onComposerKeydown($event)" [disabled]="sending" aria-describedby="comment-feedback" maxlength="1000" rows="3" placeholder="Napisz wiadomość o ogłoszeniu..."></textarea>
+        <div id="comment-feedback" class="comment-feedback" aria-live="polite">
+          @if (sendNotice) {
+            <small>{{ sendNotice }}</small>
+          }
+          @if (!isAdmin && muteRemainingSeconds > 0) {
+            <small>Pisanie we wszystkich dyskusjach jest zablokowane do {{ muteEndLabel }}. Pozostało {{ muteLabel }}.</small>
+          } @else if (!isAdmin && retryAfterSeconds > 0) {
+            <p class="cooldown">Kolejna wiadomość za {{ cooldownLabel }}.</p>
+          }
+          @if (sendError) {
+            <small>{{ sendError }}</small>
+          }
+        </div>
         <div class="composer-actions">
           <span>{{ draft.length }} / 1000</span>
-          <button type="button" [disabled]="sending || !draft.trim()" (click)="send()">
+          <button type="button" [disabled]="!canSend" (click)="send()">
             {{ sending ? 'Wysyłanie...' : 'Wyślij' }}
           </button>
         </div>

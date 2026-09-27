@@ -28,6 +28,12 @@ public class ListingCommentController {
     private final ListingCommentService commentService;
     private final PageMapper pageMapper;
 
+    @GetMapping("/posting-status")
+    public com.margomarket.dto.CommentPostingStatus postingStatus(
+            @PathVariable Long listingId, @AuthenticationPrincipal User user) {
+        return commentService.postingStatus(listingId, user);
+    }
+
     @GetMapping
     public PageResponse<ListingCommentResponse> getComments(
             @PathVariable Long listingId,
@@ -39,12 +45,14 @@ public class ListingCommentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ListingCommentResponse addComment(
+    public com.margomarket.dto.CommentSendResponse addComment(
             @PathVariable Long listingId,
             @Valid @RequestBody ListingCommentRequest request,
             @AuthenticationPrincipal User user
     ) {
-        return commentService.addComment(listingId, request.body(), user);
+        var comment = commentService.addComment(listingId, request.body(), user);
+        return new com.margomarket.dto.CommentSendResponse(comment,
+                !comment.body().equals(request.body().trim()), commentService.postingStatus(listingId, user));
     }
 
     @DeleteMapping("/{commentId}")

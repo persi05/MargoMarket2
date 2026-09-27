@@ -8,11 +8,12 @@ import { AdminService } from '../../core/services/admin.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ListingService } from '../../core/services/listing.service';
 import { ListingCardComponent } from '../../shared/listing-card/listing-card.component';
+import { ModerationPanelComponent } from './moderation-panel.component';
 
 @Component({
   selector: 'mm-admin-page',
   standalone: true,
-  imports: [AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, ListingCardComponent],
+  imports: [AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, ListingCardComponent, ModerationPanelComponent],
   templateUrl: './admin-page.component.html',
   styleUrl: './admin-page.component.css'
 })
@@ -24,7 +25,7 @@ export class AdminPageComponent {
   private readonly pageSubject = new BehaviorSubject(1);
   private readonly usersReloadSubject = new BehaviorSubject(0);
 
-    protected activeTab: 'listings' | 'users' = 'listings';
+  protected activeTab: 'listings' | 'users' | 'moderation' = 'listings';
   protected loadingListings = false;
   protected loadingUsers = false;
   protected notice = '';
