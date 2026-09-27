@@ -5,10 +5,11 @@ import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { ListingCommentResponse, ListingResponse } from '../../core/models/api.models';
+import { CommentPostingStatus, ListingCommentResponse, ListingResponse } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 import { ListingCommentService } from '../../core/services/listing-comment.service';
 import { formatListingPrice } from '../../core/utils/price-format';
+import { DiscussionPostingClock, formatMuteDeadline } from './discussion-posting-clock';
 
 @Component({
   selector: 'mm-discussion-drawer',
@@ -27,6 +28,9 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
   private readonly commentService = inject(ListingCommentService);
   private readonly destroyRef = inject(DestroyRef);
   private refreshTimer?: ReturnType<typeof setInterval>;
+  private countdownTimer?: ReturnType<typeof setInterval>;
+  private readonly postingClock = new DiscussionPostingClock();
+  private postingVersion = 0;
 
   protected comments: ListingCommentResponse[] = [];
   protected draft = '';
@@ -38,6 +42,11 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
   protected loadError = '';
   protected sendError = '';
   protected currentUserId: number | null = null;
+  protected isAdmin = false;
+  protected sendNotice = '';
+  protected retryAfterSeconds = 0;
+  protected muteRemainingSeconds = 0;
+  protected loadingPostingStatus = false;
   private nextOlderPage = 2;
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -48,8 +57,16 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.authService.user$.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((user) => this.currentUserId = user?.id ?? null);
+      .subscribe((user) => {
+        this.currentUserId = user?.id ?? null;
+        this.isAdmin = user?.role === 'admin';
+        this.postingClock.reset();
+        this.updateCountdown();
+        this.sendNotice = '';
+        this.loadPostingStatus();
+      });
     this.refreshTimer = setInterval(() => this.refreshLatest(), 12000);
+    this.countdownTimer = setInterval(() => this.updateCountdown(), 1000);
     setTimeout(() => this.closeButton?.nativeElement.focus());
   }
 
@@ -57,6 +74,7 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
     if (this.refreshTimer) {
       clearInterval(this.refreshTimer);
     }
+    if (this.countdownTimer) clearInterval(this.countdownTimer);
   }
 
   @HostListener('document:keydown.escape')
@@ -64,8 +82,70 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
     this.closed.emit();
   }
 
+  @HostListener('window:focus')
+  @HostListener('window:pageshow')
+  @HostListener('document:visibilitychange')
+  protected syncPostingStatus(): void {
+    if (document.visibilityState === 'visible') this.loadPostingStatus();
+  }
+
   protected get priceLabel(): string {
     return formatListingPrice(this.listing.price, this.listing.currency.name);
+  }
+
+  protected get canSend(): boolean {
+    const body = this.draft.trim();
+    return !!body && body.length <= 1000 && !this.sending
+      && (this.isAdmin || (!this.loadingPostingStatus && this.retryAfterSeconds === 0))
+      && this.listing.status === 'active';
+  }
+
+  protected get cooldownLabel(): string {
+    return `${Math.floor(this.retryAfterSeconds / 60)}:${String(this.retryAfterSeconds % 60).padStart(2, '0')}`;
+  }
+
+  protected get muteLabel(): string {
+    const hours = Math.floor(this.muteRemainingSeconds / 3600);
+    const minutes = Math.floor(this.muteRemainingSeconds % 3600 / 60);
+    const seconds = this.muteRemainingSeconds % 60;
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  protected get muteEndLabel(): string {
+    return this.postingClock.mutedUntil ? formatMuteDeadline(this.postingClock.mutedUntil) : '';
+  }
+
+  private loadPostingStatus(): void {
+    const version = ++this.postingVersion;
+    const listingId = this.listing.id;
+    const authorId = this.currentUserId;
+    if (authorId === null || this.listing.status !== 'active') {
+      this.loadingPostingStatus = false;
+      return;
+    }
+    this.loadingPostingStatus = true;
+    this.commentService.postingStatus(listingId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: status => {
+        if (version !== this.postingVersion || listingId !== this.listing.id || authorId !== this.currentUserId) return;
+        this.loadingPostingStatus = false;
+        this.setPostingStatus(status);
+      },
+      error: () => {
+        if (version !== this.postingVersion || listingId !== this.listing.id || authorId !== this.currentUserId) return;
+        this.loadingPostingStatus = false;
+        this.sendError = 'Nie udało się pobrać limitu wysyłania. Serwer sprawdzi go przy wysłaniu.';
+      }
+    });
+  }
+
+  private setPostingStatus(status: CommentPostingStatus): void {
+    this.postingClock.set(status);
+    this.updateCountdown();
+  }
+
+  private updateCountdown(): void {
+    this.retryAfterSeconds = this.postingClock.retryAfterSeconds;
+    this.muteRemainingSeconds = this.postingClock.muteRemainingSeconds;
   }
 
   protected loadOlder(): void {
@@ -90,22 +170,39 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
 
   protected send(): void {
     const body = this.draft.trim();
-    if (this.sending || !body || body.length > 1000 || this.listing.status !== 'active') {
+    if (!this.canSend) {
       return;
     }
     const listingId = this.listing.id;
+    const authorId = this.currentUserId;
     this.sending = true;
     this.sendError = '';
+    this.sendNotice = '';
     this.commentService.addComment(listingId, body)
       .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.sending = false))
       .subscribe({
-        next: (comment) => {
-          if (listingId !== this.listing.id) return;
+        next: (result) => {
+          if (listingId !== this.listing.id || authorId !== this.currentUserId) return;
+          ++this.postingVersion;
+          this.loadingPostingStatus = false;
           this.draft = '';
-          this.mergeComments([comment]);
+          this.setPostingStatus(result.postingStatus);
+          if (result.censored && result.postingStatus.muteRemainingSeconds > 0) {
+            this.sendNotice = 'Wysłano wiadomość zawierającą obraźliwe słowo. Nałożono blokadę pisania na 12 godzin.';
+          }
+          this.mergeComments([result.comment]);
           this.scrollToBottom();
         },
-        error: () => this.sendError = 'Nie udało się dodać komentarza. Spróbuj ponownie.'
+        error: response => {
+          if (listingId !== this.listing.id || authorId !== this.currentUserId) return;
+          this.sendError = response.error?.message || 'Nie udało się dodać komentarza. Spróbuj ponownie.';
+          if (response.status === 429) {
+            ++this.postingVersion;
+            this.loadingPostingStatus = false;
+            if (response.error?.postingStatus) this.setPostingStatus(response.error.postingStatus);
+            else this.loadPostingStatus();
+          }
+        }
       });
   }
 
@@ -138,6 +235,11 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
     this.hasMore = false;
     this.loadError = '';
     this.draft = '';
+    this.sendNotice = '';
+    this.sendError = '';
+    this.postingClock.reset();
+    this.updateCountdown();
+    this.loadPostingStatus();
     this.loading = true;
     this.commentService.getComments(listingId)
       .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.loading = false))
@@ -155,6 +257,7 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
   private refreshLatest(): void {
     if (this.loading || this.loadingOlder) return;
     const listingId = this.listing.id;
+    this.loadPostingStatus();
     const container = this.messages?.nativeElement;
     const nearBottom = !container || container.scrollHeight - container.scrollTop - container.clientHeight < 120;
     this.commentService.getComments(listingId)
@@ -165,7 +268,7 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
           this.mergeComments(page.content);
           if (nearBottom) this.scrollToBottom();
         },
-        error: () => { /* The next refresh can recover without interrupting the discussion. */ }
+        error: () => { }
       });
   }
 
