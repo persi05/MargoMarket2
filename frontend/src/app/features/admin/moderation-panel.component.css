@@ -1,0 +1,174 @@
+.moderation {
+  display: grid;
+  gap: 20px;
+  color: var(--color-text-main);
+}
+
+h2 {
+  margin: 0;
+  color: var(--color-text-main);
+}
+
+p {
+  margin: 10px 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+form {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(180px, 240px) auto auto;
+  align-items: start;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card-dark);
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+form > label {
+  line-height: 18px;
+}
+
+.field-error {
+  visibility: hidden;
+}
+
+.field-error.visible {
+  visibility: visible;
+}
+
+form > .checkbox,
+form > .actions {
+  margin-top: 26px;
+}
+
+input,
+select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-input-dark);
+  color: var(--color-text-main);
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+.actions,
+.list-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-head {
+  justify-content: space-between;
+}
+
+.list-head label {
+  margin-left: auto;
+}
+
+button {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: var(--color-input-dark);
+  color: var(--color-text-main);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--color-action);
+  color: var(--color-action-text);
+}
+
+button.danger {
+  border-color: rgba(239, 68, 68, .32);
+  color: #f87171;
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #f87171;
+}
+
+.notice {
+  color: var(--color-primary);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card-dark);
+}
+
+table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+th {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+@media (max-width: 1000px) {
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  form > .checkbox,
+  form > .actions {
+    margin-top: 0;
+  }
+
+  .list-head label {
+    margin-left: 0;
+  }
+}

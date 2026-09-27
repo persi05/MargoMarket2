@@ -1,0 +1,66 @@
+<section class="moderation">
+  <div>
+    <h2>Zakazane słowa i frazy</h2>
+    <p>Pasujące słowa w dyskusjach są zastępowane gwiazdkami, także w starszych wiadomościach. Filtr pomija wielkość liter i polskie znaki.</p>
+    <p>„Całe słowo / fraza” dopasowuje pełny wpis. „Początek słowa” obejmuje również odmiany — używaj go ostrożnie, aby nie ukrywać zwykłych wyrazów.</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <label>Słowo lub fraza
+      <input formControlName="term" maxlength="80" placeholder="Minimum 3 znaki, nie licząc spacji">
+      <span
+        class="error field-error"
+        [class.visible]="form.controls.term.dirty && form.controls.term.hasError('minimumCharacters')"
+        [attr.aria-hidden]="!(form.controls.term.dirty && form.controls.term.hasError('minimumCharacters'))"
+      >Wpisz co najmniej 3 znaki, nie licząc spacji.</span>
+    </label>
+    <label>Dopasowanie
+      <select formControlName="matchMode">
+        <option value="EXACT">Całe słowo / fraza</option>
+        <option value="PREFIX">Początek słowa</option>
+      </select>
+    </label>
+    <label class="checkbox"><input type="checkbox" formControlName="enabled"> Włączony</label>
+    <div class="actions">
+      <button class="primary" type="submit" [disabled]="form.invalid || busy || loading">{{ editingId === undefined ? 'Dodaj' : 'Zapisz zmiany' }}</button>
+      @if (editingId !== undefined) {
+        <button type="button" [disabled]="busy" (click)="cancel()">Anuluj</button>
+      }
+    </div>
+  </form>
+
+  @if (error) { <p class="error" role="alert">{{ error }}</p> }
+  @if (notice) { <p class="notice" role="status">{{ notice }}</p> }
+  <div class="list-head">
+    <span>{{ words.length }} wpisów</span>
+    <label>Szukaj na liście
+      <input type="search" [value]="search" (input)="search = $any($event.target).value" placeholder="Szukaj słowa">
+    </label>
+    <button type="button" [disabled]="busy || loading" (click)="load()">Odśwież</button>
+  </div>
+  @if (loading) {
+    <p role="status">Ładowanie listy...</p>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Słowo / fraza</th><th>Dopasowanie</th><th>Status</th><th>Akcje</th></tr></thead>
+        <tbody>
+          @for (word of filteredWords; track word.id) {
+            <tr>
+              <td>{{ word.term }}</td>
+              <td>{{ word.matchMode === 'EXACT' ? 'Całe słowo / fraza' : 'Początek słowa' }}</td>
+              <td>{{ word.enabled ? 'Włączony' : 'Wyłączony' }}</td>
+              <td><div class="actions">
+                <button type="button" [disabled]="busy" (click)="edit(word)">Edytuj</button>
+                <button type="button" [disabled]="busy" (click)="toggle(word)">{{ word.enabled ? 'Wyłącz' : 'Włącz' }}</button>
+                <button class="danger" type="button" [disabled]="busy" (click)="remove(word)">Usuń</button>
+              </div></td>
+            </tr>
+          } @empty {
+            <tr><td colspan="4">Brak wpisów pasujących do wyszukiwania.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

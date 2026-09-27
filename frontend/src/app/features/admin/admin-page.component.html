@@ -2,7 +2,7 @@
   <header>
     <div>
       <p class="eyebrow">Administracja</p>
-      <h1>Moderacja ogłoszeń i użytkowników</h1>
+      <h1>Moderacja serwisu</h1>
     </div>
   </header>
 
@@ -28,6 +28,9 @@
     </button>
     <button type="button" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">
       Użytkownicy
+    </button>
+    <button type="button" [class.active]="activeTab === 'moderation'" (click)="activeTab = 'moderation'">
+      Zakazane słowa
     </button>
   </div>
 
@@ -103,7 +106,7 @@
         <div class="empty">Brak ogłoszeń dla wybranych filtrów.</div>
       }
     }
-  } @else {
+  } @else if (activeTab === 'users') {
     @if (users$ | async; as users) {
       @if (loadingUsers) {
         <div class="empty">Ładowanie użytkowników...</div>
@@ -142,5 +145,7 @@
         <div class="empty">Brak użytkowników.</div>
       }
     }
+  } @else {
+    <mm-moderation-panel />
   }
 </section>

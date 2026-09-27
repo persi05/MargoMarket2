@@ -3,11 +3,15 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { ListingCommentResponse, PageResponse } from '../models/api.models';
+import { CommentSendResponse, CommentPostingStatus, ListingCommentResponse, PageResponse } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class ListingCommentService {
   private readonly http = inject(HttpClient);
+
+  postingStatus(listingId: number): Observable<CommentPostingStatus> {
+    return this.http.get<CommentPostingStatus>(`${environment.apiUrl}/listings/${listingId}/comments/posting-status`);
+  }
 
   getComments(listingId: number, page = 1): Observable<PageResponse<ListingCommentResponse>> {
     return this.http.get<PageResponse<ListingCommentResponse>>(
@@ -15,8 +19,8 @@ export class ListingCommentService {
     );
   }
 
-  addComment(listingId: number, body: string): Observable<ListingCommentResponse> {
-    return this.http.post<ListingCommentResponse>(
+  addComment(listingId: number, body: string): Observable<CommentSendResponse> {
+    return this.http.post<CommentSendResponse>(
       `${environment.apiUrl}/listings/${listingId}/comments`, { body }
     );
   }
