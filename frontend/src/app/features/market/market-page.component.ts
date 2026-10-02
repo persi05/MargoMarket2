@@ -368,10 +368,8 @@ export class MarketPageComponent {
       next: () => {
         if (shouldRemove) {
           this.favoriteIds.delete(listing.id);
-          this.notice = `${listing.itemName} usunięto z obserwowanych.`;
         } else {
           this.favoriteIds.add(listing.id);
-          this.notice = `${listing.itemName} dodano do obserwowanych.`;
         }
       },
       error: () => {
