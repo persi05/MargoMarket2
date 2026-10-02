@@ -1,4 +1,8 @@
-export function formatListingPrice(price: number, currencyName: string): string {
+export function formatListingPrice(price: number | null, currencyName: string): string {
+  if (price === null) {
+    return 'Zaloguj się, aby zobaczyć';
+  }
+
   const normalizedCurrency = currencyName.trim().toLowerCase();
 
   if (normalizedCurrency === 'w grze') {

@@ -11,7 +11,7 @@
 
     <div class="listing-summary">
       <strong>{{ listing.itemName }}</strong>
-      <span>{{ priceLabel }} · {{ listing.server.name }}</span>
+      <span><mm-private-detail [value]="listing.price === null ? null : priceLabel" [compact]="true" /> · {{ listing.server.name }}</span>
     </div>
 
     <div class="messages" #messages>

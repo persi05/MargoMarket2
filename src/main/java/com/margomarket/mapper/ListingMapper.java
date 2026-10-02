@@ -12,6 +12,10 @@ public class ListingMapper {
     private final LookupMapper lookupMapper;
 
     public ListingResponse toResponse(Listing listing) {
+        return toResponse(listing, true);
+    }
+
+    public ListingResponse toResponse(Listing listing, boolean showPrivateDetails) {
         return new ListingResponse(
                 listing.getId(),
                 listing.getItem() == null ? null : listing.getItem().getId(),
@@ -24,13 +28,13 @@ public class ListingMapper {
                 listing.getEnhancementLevel(),
                 listing.isBound(),
                 lookupMapper.toResponse(listing.getRarity()),
-                listing.getPrice(),
+                showPrivateDetails ? listing.getPrice() : null,
                 lookupMapper.toResponse(listing.getCurrency()),
                 lookupMapper.toResponse(listing.getServer()),
-                listing.getContact(),
+                showPrivateDetails ? listing.getContact() : null,
                 listing.getStatus().getName(),
                 listing.getUser().getId(),
-                listing.getUser().getEmail(),
+                showPrivateDetails ? listing.getUser().getEmail() : null,
                 listing.getCreatedAt(),
                 listing.getSoldAt()
         );

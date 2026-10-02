@@ -37,13 +37,15 @@ public class ListingController {
     private final PageMapper pageMapper;
 
     @GetMapping
-    public PageResponse<ListingResponse> search(@ModelAttribute ListingFilter filter) {
-        return pageMapper.toResponse(listingService.searchActiveListings(filter), listingMapper::toResponse);
+    public PageResponse<ListingResponse> search(@ModelAttribute ListingFilter filter,
+                                                @AuthenticationPrincipal User user) {
+        return pageMapper.toResponse(listingService.searchActiveListings(filter),
+                listing -> listingMapper.toResponse(listing, user != null));
     }
 
     @GetMapping("/{id}")
-    public ListingResponse getOne(@PathVariable Long id) {
-        return listingMapper.toResponse(listingService.getListing(id));
+    public ListingResponse getOne(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        return listingMapper.toResponse(listingService.getListing(id), user != null);
     }
 
     @GetMapping("/mine")

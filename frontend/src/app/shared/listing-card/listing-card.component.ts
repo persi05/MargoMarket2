@@ -7,11 +7,12 @@ import { ItemDescriptionPipe } from '../../core/pipes/item-description.pipe';
 import { formatListingPrice } from '../../core/utils/price-format';
 import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
 import { hasEnhancementLevel } from '../../core/utils/item-types';
+import { PrivateDetailComponent } from '../private-detail/private-detail.component';
 
 @Component({
   selector: 'mm-listing-card',
   standalone: true,
-  imports: [DatePipe, RouterLink, ItemDescriptionPipe],
+  imports: [DatePipe, RouterLink, ItemDescriptionPipe, PrivateDetailComponent],
   templateUrl: './listing-card.component.html',
   styleUrl: './listing-card.component.css'
 })
