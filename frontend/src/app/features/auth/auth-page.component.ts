@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, switchMap } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
@@ -16,6 +16,7 @@ export class AuthPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected mode: 'login' | 'register' = 'login';
   protected loading = false;
@@ -57,7 +58,11 @@ export class AuthPageComponent {
     request$.pipe(finalize(() => {
       this.loading = false;
     })).subscribe({
-      next: () => void this.router.navigate(['/dashboard']),
+      next: () => {
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        void this.router.navigateByUrl(returnUrl?.startsWith('/') && !returnUrl.startsWith('//')
+          ? returnUrl : '/dashboard');
+      },
       error: () => {
         this.error = submittedMode === 'login'
           ? 'Nie udało się zalogować. Sprawdź e-mail i hasło.'

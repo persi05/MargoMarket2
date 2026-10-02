@@ -16,6 +16,10 @@ export class ListingService {
     });
   }
 
+  getOne(id: number): Observable<ListingResponse> {
+    return this.http.get<ListingResponse>(`${this.baseUrl}/${id}`);
+  }
+
   create(request: ListingRequest): Observable<ListingResponse> {
     return this.http.post<ListingResponse>(this.baseUrl, request);
   }

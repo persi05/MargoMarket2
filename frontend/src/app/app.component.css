@@ -75,6 +75,25 @@
   color: var(--color-primary);
 }
 
+.nav .messages-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.message-badge {
+  display: grid;
+  min-width: 19px;
+  height: 19px;
+  place-items: center;
+  border-radius: 999px;
+  padding-inline: 4px;
+  background: var(--color-primary);
+  color: #1c1714;
+  font-size: 10px;
+  font-weight: 900;
+}
+
 .nav a.active::after {
   position: absolute;
   right: 0;

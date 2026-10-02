@@ -1,6 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, ElementRef, HostListener, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, finalize, shareReplay, switchMap, tap } from 'rxjs';
 
 import { ListingResponse, LookupResponse, PageResponse } from '../../core/models/api.models';
@@ -16,7 +17,7 @@ import { DiscussionDrawerComponent } from './discussion-drawer.component';
 @Component({
   selector: 'mm-market-page',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe, DiscussionDrawerComponent],
+  imports: [AsyncPipe, ReactiveFormsModule, RouterLink, ItemDescriptionPipe, DiscussionDrawerComponent],
   templateUrl: './market-page.component.html',
   styleUrl: './market-page.component.css'
 })
@@ -93,7 +94,8 @@ export class MarketPageComponent {
   }
 
   protected startFilterDrag(event: PointerEvent): void {
-    if (!event.isPrimary || event.button !== 0 || window.innerWidth <= 1420) {
+    if (!event.isPrimary || event.button !== 0 || window.innerWidth <= 920
+        || (event.target as HTMLElement).closest('.reset-position')) {
       return;
     }
 
@@ -112,7 +114,7 @@ export class MarketPageComponent {
       height: bounds.height
     };
     this.filterDragging = true;
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    panel.setPointerCapture(event.pointerId);
     event.preventDefault();
   }
 
@@ -122,7 +124,6 @@ export class MarketPageComponent {
     this.filterDragging = false;
   }
 
-  @HostListener('window:pointermove', ['$event'])
   protected moveFilter(event: PointerEvent): void {
     const drag = this.filterDragState;
     if (!drag || event.pointerId !== drag.pointerId) {
@@ -137,8 +138,6 @@ export class MarketPageComponent {
     );
   }
 
-  @HostListener('window:pointerup', ['$event'])
-  @HostListener('window:pointercancel', ['$event'])
   protected stopFilterDrag(event: PointerEvent): void {
     if (event.pointerId === this.filterDragState?.pointerId) {
       this.filterDragState = null;
@@ -254,7 +253,7 @@ export class MarketPageComponent {
   }
 
   protected moveFilterWithKeyboard(event: KeyboardEvent): void {
-    if (window.innerWidth <= 1420) {
+    if (window.innerWidth <= 920) {
       return;
     }
 
@@ -300,7 +299,7 @@ export class MarketPageComponent {
       ));
     });
     const panel = this.filterPanel?.nativeElement;
-    if (!panel || !this.filterPosition || window.innerWidth <= 1420) {
+    if (!panel || !this.filterPosition || window.innerWidth <= 920) {
       return;
     }
 
