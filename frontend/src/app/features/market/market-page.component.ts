@@ -12,12 +12,13 @@ import { ListingService } from '../../core/services/listing.service';
 import { formatListingPrice } from '../../core/utils/price-format';
 import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
 import { hasEnhancementLevel, marketItemTypes } from '../../core/utils/item-types';
+import { PrivateDetailComponent } from '../../shared/private-detail/private-detail.component';
 import { DiscussionDrawerComponent } from './discussion-drawer.component';
 
 @Component({
   selector: 'mm-market-page',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, RouterLink, ItemDescriptionPipe, DiscussionDrawerComponent],
+  imports: [AsyncPipe, ReactiveFormsModule, RouterLink, ItemDescriptionPipe, DiscussionDrawerComponent, PrivateDetailComponent],
   templateUrl: './market-page.component.html',
   styleUrl: './market-page.component.css'
 })

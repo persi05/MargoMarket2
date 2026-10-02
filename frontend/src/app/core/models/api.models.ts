@@ -58,13 +58,13 @@ export interface ListingResponse {
   enhancementLevel: number;
   bound: boolean;
   rarity: LookupResponse;
-  price: number;
+  price: number | null;
   currency: LookupResponse;
   server: LookupResponse;
-  contact: string;
+  contact: string | null;
   status: string;
   sellerId: number;
-  sellerEmail: string;
+  sellerEmail: string | null;
   createdAt: string;
   soldAt: string | null;
 }

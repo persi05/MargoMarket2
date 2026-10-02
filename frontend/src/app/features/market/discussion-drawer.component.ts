@@ -9,12 +9,13 @@ import { CommentPostingStatus, ListingCommentResponse, ListingResponse } from '.
 import { AuthService } from '../../core/services/auth.service';
 import { ListingCommentService } from '../../core/services/listing-comment.service';
 import { formatListingPrice } from '../../core/utils/price-format';
+import { PrivateDetailComponent } from '../../shared/private-detail/private-detail.component';
 import { DiscussionPostingClock, formatMuteDeadline } from './discussion-posting-clock';
 
 @Component({
   selector: 'mm-discussion-drawer',
   standalone: true,
-  imports: [DatePipe, FormsModule, RouterLink],
+  imports: [DatePipe, FormsModule, RouterLink, PrivateDetailComponent],
   templateUrl: './discussion-drawer.component.html',
   styleUrl: './discussion-drawer.component.css'
 })

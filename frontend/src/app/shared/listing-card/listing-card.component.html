@@ -44,9 +44,9 @@
         }
         <span>Wymagany poziom: {{ listing.level }}</span>
         <span class="tooltip-separator"></span>
-        <span>Cena: {{ priceLabel }}</span>
+        <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel" [compact]="true" /></span>
         <span>Serwer: {{ listing.server.name }}</span>
-        <span>Kontakt: {{ listing.contact }}</span>
+        <span>Kontakt: <mm-private-detail [value]="listing.contact" /></span>
       </div>
     </div>
 
@@ -54,7 +54,7 @@
       <span class="type">{{ listing.itemType.name }}</span>
       <h3>{{ listing.itemName }}</h3>
     </div>
-    <strong class="price">{{ priceLabel }}</strong>
+    <strong class="price"><mm-private-detail [value]="listing.price === null ? null : priceLabel" [compact]="true" /></strong>
   </div>
 
   <div class="meta">
@@ -67,11 +67,11 @@
   <dl>
     <div>
       <dt>Kontakt</dt>
-      <dd>{{ listing.contact }}</dd>
+      <dd><mm-private-detail [value]="listing.contact" /></dd>
     </div>
     <div>
       <dt>Sprzedający</dt>
-      <dd>{{ listing.sellerEmail }}</dd>
+      <dd><mm-private-detail [value]="listing.sellerEmail" /></dd>
     </div>
     <div>
       <dt>Dodano</dt>
