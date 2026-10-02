@@ -234,6 +234,18 @@ footer {
   gap: 10px;
 }
 
+.message-seller {
+  display: block;
+  border: 1px solid rgba(168, 201, 138, 0.42);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(168, 201, 138, 0.14);
+  color: var(--color-primary);
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+}
+
 .favorite-listing .actions,
 .admin-listing .actions {
   margin-top: auto;

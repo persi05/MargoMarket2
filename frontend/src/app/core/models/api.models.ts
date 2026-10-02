@@ -78,6 +78,28 @@ export interface ListingCommentResponse {
   canDelete: boolean;
 }
 
+export interface ConversationResponse {
+  id: number;
+  listingId: number | null;
+  itemName: string;
+  buyerId: number;
+  sellerId: number;
+  intermediaryId: number | null;
+  intermediaryStatus: 'NONE' | 'REQUESTED' | 'ASSIGNED';
+  updatedAt: string;
+  lastMessage: string;
+  unreadCount: number;
+}
+
+export interface ChatMessageResponse {
+  id: number;
+  senderId: number | null;
+  senderRole: 'buyer' | 'seller' | 'intermediary' | 'system';
+  kind: 'TEXT' | 'SYSTEM';
+  body: string;
+  createdAt: string;
+}
+
 export interface ListingRequest {
   itemId: number;
   itemName: string;

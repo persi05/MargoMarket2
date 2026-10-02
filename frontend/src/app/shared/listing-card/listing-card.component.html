@@ -105,6 +105,7 @@
         </button>
       }
       @if (favoriteMode) {
+        <a class="message-seller" [routerLink]="['/messages/new', listing.id]">Napisz do sprzedającego</a>
         <button type="button" class="favorite is-favorite" (click)="removeFavorite.emit(listing)">
           <span aria-hidden="true">★</span>
           Przestań obserwować

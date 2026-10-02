@@ -32,6 +32,24 @@ export const routes: Routes = [
     title: 'Obserwowane | MargoMarket'
   },
   {
+    path: 'messages',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/messages/messages-page.component').then((m) => m.MessagesPageComponent),
+    title: 'Wiadomości | MargoMarket'
+  },
+  {
+    path: 'messages/new/:listingId',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/messages/messages-page.component').then((m) => m.MessagesPageComponent),
+    title: 'Napisz do sprzedającego | MargoMarket'
+  },
+  {
+    path: 'messages/:conversationId',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/messages/messages-page.component').then((m) => m.MessagesPageComponent),
+    title: 'Rozmowa | MargoMarket'
+  },
+  {
     path: 'notifications',
     canActivate: [authGuard],
     loadComponent: () => import('./features/notifications/notifications-page.component').then((m) => m.NotificationsPageComponent),

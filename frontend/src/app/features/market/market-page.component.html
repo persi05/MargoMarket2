@@ -1,7 +1,7 @@
 <section class="market-shell">
   <aside class="filter-dock">
-    <div class="filters" #filterPanel [class.is-dragging]="filterDragging" [class.has-custom-position]="filterPosition !== null" [style.left.px]="filterPosition?.x" [style.top.px]="filterPosition?.y">
-      <div class="filter-top">
+    <div class="filters" #filterPanel [class.is-dragging]="filterDragging" [class.has-custom-position]="filterPosition !== null" [style.left.px]="filterPosition?.x" [style.top.px]="filterPosition?.y" (pointermove)="moveFilter($event)" (pointerup)="stopFilterDrag($event)" (pointercancel)="stopFilterDrag($event)" (lostpointercapture)="stopFilterDrag($event)">
+      <div class="filter-top" (pointerdown)="startFilterDrag($event)">
         <h2>Filtrowanie</h2>
         <button
           type="button"
@@ -19,7 +19,6 @@
           class="panel-tool drag-handle"
           aria-label="Przesuń panel filtrowania"
           title="Przeciągnij panel filtrowania"
-          (pointerdown)="startFilterDrag($event)"
           (keydown)="moveFilterWithKeyboard($event)"
         >
           <svg viewBox="0 0 16 20" width="16" height="20" aria-hidden="true" focusable="false">
@@ -224,7 +223,14 @@
                     <td class="level-col muted">{{ listing.level }}</td>
                     <td class="enhancement-col"><span class="upgrade">{{ enhancementLabel(listing) }}</span></td>
                     <td class="price-col"><span class="price">{{ priceLabel(listing) }}</span></td>
-                    <td class="contact-col"><span class="contact">{{ listing.contact }}</span></td>
+                    <td class="contact-col">
+                      <span class="contact">{{ listing.contact }}</span>
+                      @if ((authService.user$ | async)?.id !== listing.sellerId) {
+                        <a class="contact-chat" [routerLink]="['/messages/new', listing.id]" [attr.aria-label]="'Napisz do sprzedającego: ' + listing.itemName">
+                          Napisz wiadomość
+                        </a>
+                      }
+                    </td>
                     <td class="server-col"><span class="badge">{{ listing.server.name }}</span></td>
                     <td class="discussion-col">
                       <button type="button" class="discussion-button" [attr.aria-label]="'Otwórz dyskusję o ' + listing.itemName" (click)="openDiscussion(listing)">

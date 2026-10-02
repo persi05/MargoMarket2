@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { ListingResponse } from '../../core/models/api.models';
 import { ItemDescriptionPipe } from '../../core/pipes/item-description.pipe';
@@ -10,7 +11,7 @@ import { hasEnhancementLevel } from '../../core/utils/item-types';
 @Component({
   selector: 'mm-listing-card',
   standalone: true,
-  imports: [DatePipe, ItemDescriptionPipe],
+  imports: [DatePipe, RouterLink, ItemDescriptionPipe],
   templateUrl: './listing-card.component.html',
   styleUrl: './listing-card.component.css'
 })

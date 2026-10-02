@@ -1,0 +1,137 @@
+<section class="messages-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">MargoMarket</p>
+      <h1>Wiadomości</h1>
+      <p>Rozmawiaj prywatnie o ogłoszeniach i wracaj do ustaleń w jednym miejscu.</p>
+    </div>
+  </header>
+
+  @if (error) {
+    <p class="page-error" role="alert">{{ error }}</p>
+  }
+
+  <div class="messages-layout">
+    <aside class="inbox" aria-label="Lista rozmów">
+      <div class="inbox-title">
+        <h2>Twoje rozmowy</h2>
+        <span>{{ conversations.length }}</span>
+      </div>
+      @if (loadingInbox) {
+        <p class="inbox-empty">Wczytywanie rozmów...</p>
+      } @else if (!conversations.length) {
+        <p class="inbox-empty">Nie masz jeszcze rozmów. Otwórz ogłoszenie i napisz do sprzedającego.</p>
+      }
+      <div class="conversation-list">
+        @for (conversation of conversations; track conversation.id) {
+          <a class="conversation-link" [class.selected]="selectedId === conversation.id" [routerLink]="['/messages', conversation.id]">
+            <span class="conversation-avatar" aria-hidden="true">{{ conversation.itemName.charAt(0) }}</span>
+            <span class="conversation-copy">
+              <strong>{{ conversation.itemName }}</strong>
+              <small>{{ otherParticipant(conversation) }}</small>
+              <span>{{ conversation.lastMessage }}</span>
+            </span>
+            @if (conversation.unreadCount) {
+              <span class="unread" [attr.aria-label]="conversation.unreadCount + ' nieprzeczytanych wiadomości'">{{ conversation.unreadCount }}</span>
+            }
+          </a>
+        }
+      </div>
+
+      @if (isAdmin && intermediaryRequests.length) {
+        <div class="requests">
+          <h2>Prośby o pośrednika</h2>
+          @for (request of intermediaryRequests; track request.id) {
+            <div class="request-card">
+              <strong>{{ request.itemName }}</strong>
+              <span>Kupujący i sprzedający czekają na pomoc.</span>
+              <button type="button" [disabled]="intermediaryBusy" (click)="joinAsIntermediary(request)">Dołącz jako pośrednik</button>
+            </div>
+          }
+        </div>
+      }
+    </aside>
+
+    <div class="chat-panel">
+      @if (newListing; as listing) {
+        <header class="chat-heading">
+          <span class="chat-avatar" aria-hidden="true">{{ listing.itemName.charAt(0) }}</span>
+          <div>
+            <p>Nowa rozmowa ze sprzedającym</p>
+            <h2>{{ listing.itemName }}</h2>
+            <small>{{ priceLabel(listing) }} · {{ listing.server.name }}</small>
+          </div>
+        </header>
+        <div class="new-conversation">
+          <h3>Napisz o szczegóły lub zaproponuj cenę</h3>
+        </div>
+        <form class="composer" (ngSubmit)="send()">
+          <label for="new-message">Twoja wiadomość</label>
+          <textarea id="new-message" name="draft" [(ngModel)]="draft" maxlength="2000" rows="4" placeholder="Cześć, czy oferta jest nadal aktualna?" (keydown)="onComposerKeydown($event)"></textarea>
+          @if (sendError) { <p class="send-error" role="alert">{{ sendError }}</p> }
+          <div class="composer-actions"><span>Enter wysyła · Shift+Enter dodaje nową linię</span><button type="submit" [disabled]="!canSend">{{ sending ? 'Wysyłanie...' : 'Wyślij wiadomość' }}</button></div>
+        </form>
+      } @else if (selected; as conversation) {
+        <header class="chat-heading">
+          <span class="chat-avatar" aria-hidden="true">{{ conversation.itemName.charAt(0) }}</span>
+          <div>
+            <p>{{ otherParticipant(conversation) }}</p>
+            <h2>{{ conversation.itemName }}</h2>
+            @if (conversation.listingId) {
+              <small>Ogłoszenie #{{ conversation.listingId }}</small>
+            } @else {
+              <small>Ogłoszenie zostało usunięte</small>
+            }
+          </div>
+        </header>
+
+        <div class="message-list" #messageList aria-label="Wiadomości w rozmowie">
+          @if (loadingMessages) {
+            <p class="chat-info">Wczytywanie wiadomości...</p>
+          } @else {
+            @if (hasMore) {
+              <button type="button" class="older-button" [disabled]="loadingOlder" (click)="loadOlder()">{{ loadingOlder ? 'Wczytywanie...' : 'Pokaż starsze wiadomości' }}</button>
+            }
+            @for (message of messages; track message.id) {
+              @if (message.kind === 'SYSTEM') {
+                <p class="system-message">{{ message.body }}</p>
+              } @else {
+                <article class="chat-message" [class.mine]="message.senderId === currentUser?.id" [class.intermediary-message]="message.senderRole === 'intermediary'">
+                  <div class="message-meta"><strong>{{ senderLabel(message) }}</strong><time>{{ message.createdAt | date: 'dd.MM.yyyy HH:mm' }}</time></div>
+                  <p>{{ message.body }}</p>
+                </article>
+              }
+            }
+          }
+        </div>
+
+        <div class="intermediary-panel">
+          <div>
+            <strong>Pośrednik przy wymianie</strong>
+            <p>Pośrednik z administracji może dołączyć do rozmowy i pomóc bezpiecznie uzgodnić przebieg wymiany. Nie przekazuj przedmiotu ani płatności, dopóki nie ustalicie warunków.</p>
+          </div>
+          @if (conversation.intermediaryStatus === 'NONE' && currentUser?.id !== conversation.intermediaryId) {
+            <button type="button" [disabled]="intermediaryBusy" (click)="requestIntermediary()">Poproś o pośrednika</button>
+          } @else if (conversation.intermediaryStatus === 'REQUESTED') {
+            <span class="intermediary-status">Oczekiwanie na pośrednika</span>
+          } @else {
+            <span class="intermediary-status assigned">Pośrednik dołączył</span>
+          }
+        </div>
+
+        <form class="composer" (ngSubmit)="send()">
+          <label for="reply-message">Odpowiedz</label>
+          <textarea id="reply-message" name="draft" [(ngModel)]="draft" maxlength="2000" rows="3" placeholder="Napisz wiadomość..." (keydown)="onComposerKeydown($event)"></textarea>
+          @if (sendError) { <p class="send-error" role="alert">{{ sendError }}</p> }
+          <div class="composer-actions"><span>Enter wysyła · Shift+Enter dodaje nową linię</span><button type="submit" [disabled]="!canSend">{{ sending ? 'Wysyłanie...' : 'Wyślij' }}</button></div>
+        </form>
+      } @else {
+        <div class="chat-placeholder">
+          <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5 8 8 0 0 1-3.2-.7L4 20l1.6-4.5A7.5 7.5 0 1 1 20 11.5Z"/></svg>
+          <h2>Wybierz rozmowę</h2>
+          <p>Twoje wiadomości ze sprzedającymi i kupującymi będą dostępne tutaj.</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

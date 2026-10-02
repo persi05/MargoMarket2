@@ -12,6 +12,10 @@
     <a routerLink="/dashboard" routerLinkActive="active">Moje ogłoszenia</a>
     <a routerLink="/favorites" routerLinkActive="active">Obserwowane</a>
     @if (user$ | async) {
+      <a routerLink="/messages" routerLinkActive="active" class="messages-link">
+        Wiadomości
+        @if (unreadMessages) { <span class="message-badge" [attr.aria-label]="unreadMessages + ' nieprzeczytanych wiadomości'">{{ unreadMessages }}</span> }
+      </a>
       <a routerLink="/notifications" routerLinkActive="active">Powiadomienia</a>
     }
     <a routerLink="/new" routerLinkActive="active">Stwórz ogłoszenie</a>

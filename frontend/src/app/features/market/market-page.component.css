@@ -46,7 +46,11 @@
   width: 100%;
   min-height: 32px;
   place-items: center;
+  cursor: grab;
+  touch-action: none;
 }
+
+.is-dragging .filter-top { cursor: grabbing; }
 
 .panel-tool {
   position: absolute;
@@ -341,6 +345,21 @@ tr:last-child td {
   overflow-wrap: anywhere;
 }
 
+.contact-col .contact {
+  display: block;
+}
+
+.contact-chat {
+  display: inline-block;
+  margin-top: 6px;
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
 .server-col {
   width: 100px;
 }
@@ -482,7 +501,12 @@ tbody tr:hover .item-name {
   text-align: center;
 }
 
-@media (max-width: 1420px) {
+@media (min-width: 921px) and (max-width: 1180px) {
+  .market-shell { grid-template-columns: 320px minmax(0, 1fr); }
+  .filters { width: 284px; }
+}
+
+@media (max-width: 920px) {
   .market-shell {
     grid-template-columns: 1fr;
     background: none;
