@@ -173,8 +173,9 @@
                           } @else {
                             <span class="item-placeholder">{{ listing.itemName.charAt(0) }}</span>
                           }
-                          <span class="item-tooltip" role="tooltip">
-                            <span class="tooltip-title">
+                          @if (!previewPositions.has(listing.id)) {
+                          <span class="item-tooltip market-preview" role="tooltip">
+                            <span class="tooltip-title preview-title">
                               <span class="tooltip-icon">
                                 @if (showListingImage(listing)) {
                                   <img [src]="listing.iconUrl" [alt]="listing.itemName" loading="lazy" (error)="markListingImageBroken(listing)">
@@ -185,6 +186,11 @@
                               <span>
                                 <strong>{{ listing.itemName }}</strong>
                                 <span class="tooltip-muted">Typ: {{ listing.itemType.name }}</span>
+                              </span>
+                              <span class="preview-actions">
+                                <button type="button" class="preview-pin" aria-label="Przypnij podgląd przedmiotu" title="Przypnij podgląd" (click)="pinPreview(listing, $event)">
+                                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6ZM12 14v7"/></svg>
+                                </button>
                               </span>
                             </span>
                             <span class="tooltip-rarity">{{ listing.rarity.name }}</span>
@@ -208,6 +214,7 @@
                             <span>Serwer: {{ listing.server.name }}</span>
                             <span>Kontakt: {{ listing.contact }}</span>
                           </span>
+                          }
                       </span>
                     </td>
                     <td class="name-col">
@@ -243,6 +250,63 @@
     }
   </div>
 </section>
+
+@for (listing of pinnedListings; track listing.id) {
+  <div
+    #pinnedPreview
+    class="item-tooltip market-preview pinned-preview"
+    [attr.data-listing-id]="listing.id"
+    [class.is-dragging]="previewDraggingId === listing.id"
+    [style.zIndex]="frontPreviewId === listing.id ? 101 : 100"
+    [class.rarity-unique]="rarityClass(listing) === 'rarity-unique'"
+    [class.rarity-heroic]="rarityClass(listing) === 'rarity-heroic'"
+    [class.rarity-legendary]="rarityClass(listing) === 'rarity-legendary'"
+    [class.rarity-upgraded]="rarityClass(listing) === 'rarity-upgraded'"
+    [style.left.px]="previewPositions.get(listing.id)?.x"
+    [style.top.px]="previewPositions.get(listing.id)?.y"
+    role="dialog"
+    [attr.aria-label]="'Przypięty podgląd przedmiotu: ' + listing.itemName"
+    (pointerdown)="startPreviewDrag(listing.id, $event)"
+    (focusin)="bringPreviewToFront(listing.id)"
+  >
+    <span class="tooltip-title preview-title">
+      <span class="tooltip-icon">
+        @if (showListingImage(listing)) {
+          <img [src]="listing.iconUrl" [alt]="listing.itemName" loading="lazy" (error)="markListingImageBroken(listing)">
+        } @else {
+          <span class="item-placeholder">{{ listing.itemName.charAt(0) }}</span>
+        }
+      </span>
+      <span><strong>{{ listing.itemName }}</strong><span class="tooltip-muted">Typ: {{ listing.itemType.name }}</span></span>
+      <span class="preview-actions">
+        <button type="button" class="preview-tool" aria-label="Przesuń podgląd przedmiotu" title="Przeciągnij podgląd" (keydown)="movePreviewWithKeyboard(listing.id, $event)">
+          <svg viewBox="0 0 16 20" width="16" height="20" aria-hidden="true" focusable="false"><circle cx="5" cy="4" r="1.6"/><circle cx="11" cy="4" r="1.6"/><circle cx="5" cy="10" r="1.6"/><circle cx="11" cy="10" r="1.6"/><circle cx="5" cy="16" r="1.6"/><circle cx="11" cy="16" r="1.6"/></svg>
+        </button>
+        <button type="button" class="preview-tool preview-close" aria-label="Odepnij podgląd przedmiotu" title="Odepnij podgląd" (click)="unpinPreview(listing.id)">×</button>
+      </span>
+    </span>
+    <span class="tooltip-rarity">{{ listing.rarity.name }}</span>
+    <span>Ulepszenie: {{ enhancementLabel(listing) }}</span>
+    <span>Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
+    @for (stat of statLines(listing); track stat.label) {
+      <span>{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
+    }
+    @if (listing.itemDescription) {
+      <span class="description">{{ listing.itemDescription | itemDescription:listing.itemStats }}</span>
+    }
+    @if (lastAvailableDuring(listing); as occasion) {
+      <span>Ostatnio dostępny podczas: {{ occasion }}</span>
+    }
+    @if (requiredProfessions(listing); as professions) {
+      <span>Wymagane profesje: {{ professions }}</span>
+    }
+    <span>Wymagany poziom: {{ listing.level }}</span>
+    <span class="tooltip-separator"></span>
+    <span>Cena: {{ priceLabel(listing) }}</span>
+    <span>Serwer: {{ listing.server.name }}</span>
+    <span>Kontakt: {{ listing.contact }}</span>
+  </div>
+}
 
 @if (activeDiscussionListing; as listing) {
   <mm-discussion-drawer [listing]="listing" (closed)="closeDiscussion()" />

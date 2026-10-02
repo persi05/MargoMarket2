@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, finalize, shareReplay, switchMap, tap } from 'rxjs';
 
@@ -22,6 +22,7 @@ import { DiscussionDrawerComponent } from './discussion-drawer.component';
 })
 export class MarketPageComponent {
   @ViewChild('filterPanel') private filterPanel?: ElementRef<HTMLElement>;
+  @ViewChildren('pinnedPreview') private pinnedPreviewElements?: QueryList<ElementRef<HTMLElement>>;
 
   private readonly fb = inject(FormBuilder);
   private readonly listingService = inject(ListingService);
@@ -47,6 +48,18 @@ export class MarketPageComponent {
   protected activeDiscussionListing: ListingResponse | null = null;
   protected filterPosition: { x: number; y: number } | null = null;
   protected filterDragging = false;
+  protected pinnedListings: ListingResponse[] = [];
+  protected readonly previewPositions = new Map<number, { x: number; y: number }>();
+  protected previewDraggingId: number | null = null;
+  protected frontPreviewId: number | null = null;
+  private previewDragState: {
+    listingId: number;
+    pointerId: number;
+    offsetX: number;
+    offsetY: number;
+    width: number;
+    height: number;
+  } | null = null;
   private filterDragState: {
     pointerId: number;
     offsetX: number;
@@ -133,6 +146,113 @@ export class MarketPageComponent {
     }
   }
 
+  protected pinPreview(listing: ListingResponse, event: MouseEvent): void {
+    if (this.previewPositions.has(listing.id)) {
+      return;
+    }
+    const tooltip = (event.currentTarget as HTMLElement).closest('.item-tooltip');
+    const bounds = tooltip?.getBoundingClientRect();
+    const offset = this.pinnedListings.length * 24;
+    this.previewPositions.set(listing.id, bounds
+      ? this.clampPreviewPosition(bounds.left + offset, bounds.top + offset, bounds.width, bounds.height)
+      : { x: 16 + offset, y: 88 + offset });
+    this.pinnedListings = [...this.pinnedListings, listing];
+    this.frontPreviewId = listing.id;
+  }
+
+  protected unpinPreview(listingId: number): void {
+    this.pinnedListings = this.pinnedListings.filter((listing) => listing.id !== listingId);
+    this.previewPositions.delete(listingId);
+    if (this.frontPreviewId === listingId) {
+      this.frontPreviewId = this.pinnedListings.at(-1)?.id ?? null;
+    }
+    if (this.previewDragState?.listingId === listingId) {
+      this.previewDragState = null;
+      this.previewDraggingId = null;
+    }
+  }
+
+  protected bringPreviewToFront(listingId: number): void {
+    this.frontPreviewId = listingId;
+  }
+
+  protected startPreviewDrag(listingId: number, event: PointerEvent): void {
+    this.frontPreviewId = listingId;
+    if ((event.target as Element).closest('.preview-close')) {
+      return;
+    }
+    if (!event.isPrimary || event.button !== 0) {
+      return;
+    }
+    const panel = event.currentTarget as HTMLElement;
+    const bounds = panel.getBoundingClientRect();
+    this.previewDragState = {
+      listingId,
+      pointerId: event.pointerId,
+      offsetX: event.clientX - bounds.left,
+      offsetY: event.clientY - bounds.top,
+      width: bounds.width,
+      height: bounds.height
+    };
+    this.previewDraggingId = listingId;
+    panel.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  @HostListener('window:pointermove', ['$event'])
+  protected movePreview(event: PointerEvent): void {
+    const drag = this.previewDragState;
+    if (drag && event.pointerId === drag.pointerId) {
+      this.previewPositions.set(drag.listingId, this.clampPreviewPosition(
+        event.clientX - drag.offsetX,
+        event.clientY - drag.offsetY,
+        drag.width,
+        drag.height
+      ));
+    }
+  }
+
+  @HostListener('window:pointerup', ['$event'])
+  @HostListener('window:pointercancel', ['$event'])
+  protected stopPreviewDrag(event: PointerEvent): void {
+    if (event.pointerId === this.previewDragState?.pointerId) {
+      this.previewDragState = null;
+      this.previewDraggingId = null;
+    }
+  }
+
+  protected movePreviewWithKeyboard(listingId: number, event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this.unpinPreview(listingId);
+      event.preventDefault();
+      return;
+    }
+    const shifts: Record<string, [number, number]> = {
+      ArrowLeft: [-24, 0], ArrowRight: [24, 0], ArrowUp: [0, -24], ArrowDown: [0, 24]
+    };
+    const shift = shifts[event.key];
+    const panel = (event.currentTarget as HTMLElement).closest<HTMLElement>('.pinned-preview');
+    const position = this.previewPositions.get(listingId);
+    if (!shift || !panel || !position) {
+      return;
+    }
+    const bounds = panel.getBoundingClientRect();
+    this.previewPositions.set(listingId, this.clampPreviewPosition(
+      position.x + shift[0],
+      position.y + shift[1],
+      bounds.width,
+      bounds.height
+    ));
+    event.preventDefault();
+  }
+
+  private clampPreviewPosition(x: number, y: number, width: number, height: number): { x: number; y: number } {
+    return {
+      x: Math.min(Math.max(12, window.innerWidth - width - 12), Math.max(12, x)),
+      y: Math.min(Math.max(12, window.innerHeight - height - 12), Math.max(12, y))
+    };
+  }
+
   protected moveFilterWithKeyboard(event: KeyboardEvent): void {
     if (window.innerWidth <= 1420) {
       return;
@@ -168,6 +288,17 @@ export class MarketPageComponent {
 
   @HostListener('window:resize')
   protected keepFilterInViewport(): void {
+    this.pinnedPreviewElements?.forEach(({ nativeElement: preview }) => {
+      const listingId = Number(preview.dataset['listingId']);
+      const position = this.previewPositions.get(listingId);
+      if (!position) {
+        return;
+      }
+      const bounds = preview.getBoundingClientRect();
+      this.previewPositions.set(listingId, this.clampPreviewPosition(
+        position.x, position.y, bounds.width, bounds.height
+      ));
+    });
     const panel = this.filterPanel?.nativeElement;
     if (!panel || !this.filterPosition || window.innerWidth <= 1420) {
       return;
