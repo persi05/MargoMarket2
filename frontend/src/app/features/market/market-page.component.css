@@ -173,6 +173,18 @@ button {
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.18), 0 2px 5px rgba(0, 0, 0, 0.28);
 }
 
+button.preview-pin,
+button.preview-tool {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #806b50;
+  padding: 0;
+  background: rgba(57, 50, 43, 0.72);
+  color: #d0c4ab;
+  line-height: 1;
+}
+
 button.secondary,
 .pager button {
   border: 1px solid var(--color-border);
@@ -391,7 +403,7 @@ tr:last-child td {
   display: inline-grid;
   width: 40px;
   height: 40px;
-  cursor: help;
+  cursor: pointer;
 }
 
 .item-icon {
@@ -549,5 +561,9 @@ tbody tr:hover .item-name {
     width: min(340px, calc(100vw - 32px));
     max-height: min(520px, calc(100vh - 32px));
     transform: translate(-50%, -50%);
+  }
+
+  .item-tooltip.pinned-preview {
+    transform: none;
   }
 }
