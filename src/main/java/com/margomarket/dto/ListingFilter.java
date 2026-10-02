@@ -11,6 +11,7 @@ public class ListingFilter {
     private Long serverId;
     private Long itemTypeId;
     private Long rarityId;
+    private Boolean bound;
     private Long currencyId;
     private Integer minLevel;
     private Integer maxLevel;

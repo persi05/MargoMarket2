@@ -43,6 +43,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
           AND (:serverId IS NULL OR l.server.id = :serverId)
           AND (:itemTypeId IS NULL OR l.itemType.id = :itemTypeId)
           AND (:rarityId IS NULL OR l.rarity.id = :rarityId)
+          AND (:bound IS NULL OR l.bound = :bound)
           AND (:currencyId IS NULL OR l.currency.id = :currencyId)
           AND l.level BETWEEN :minLevel AND :maxLevel
         ORDER BY l.createdAt DESC
@@ -52,6 +53,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
             @Param("serverId") Long serverId,
             @Param("itemTypeId") Long itemTypeId,
             @Param("rarityId") Long rarityId,
+            @Param("bound") Boolean bound,
             @Param("currencyId") Long currencyId,
             @Param("minLevel") int minLevel,
             @Param("maxLevel") int maxLevel,
@@ -66,6 +68,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
           AND (:serverId IS NULL OR l.server.id = :serverId)
           AND (:itemTypeId IS NULL OR l.itemType.id = :itemTypeId)
           AND (:rarityId IS NULL OR l.rarity.id = :rarityId)
+          AND (:bound IS NULL OR l.bound = :bound)
           AND (:currencyId IS NULL OR l.currency.id = :currencyId)
           AND l.level BETWEEN :minLevel AND :maxLevel
         ORDER BY l.createdAt DESC
@@ -74,6 +77,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
             @Param("serverId") Long serverId,
             @Param("itemTypeId") Long itemTypeId,
             @Param("rarityId") Long rarityId,
+            @Param("bound") Boolean bound,
             @Param("currencyId") Long currencyId,
             @Param("minLevel") int minLevel,
             @Param("maxLevel") int maxLevel,

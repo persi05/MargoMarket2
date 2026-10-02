@@ -35,7 +35,7 @@ export class MarketPageComponent {
     search: [''],
     serverId: [''],
     itemTypeId: [''],
-    rarityId: [''],
+    bound: [''],
     currencyId: [''],
     minLevel: [''],
     maxLevel: ['']

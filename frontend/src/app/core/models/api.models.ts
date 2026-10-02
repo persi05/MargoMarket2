@@ -119,6 +119,7 @@ export interface ListingFilter {
   serverId?: number | string;
   itemTypeId?: number | string;
   rarityId?: number | string;
+  bound?: boolean | string;
   currencyId?: number | string;
   minLevel?: number | string;
   maxLevel?: number | string;

@@ -47,12 +47,11 @@
         </label>
 
         <label>
-          <span class="sr-only">Rzadkość</span>
-          <select formControlName="rarityId">
-            <option value="">Rzadkość</option>
-            @for (rarity of dictionaries.rarities; track rarity.id) {
-              <option [value]="rarity.id">{{ rarity.name }}</option>
-            }
+          <span class="sr-only">Powiązanie przedmiotu</span>
+          <select formControlName="bound">
+            <option value="">Wszystkie przedmioty</option>
+            <option value="true">Związane</option>
+            <option value="false">Niezwiązane</option>
           </select>
         </label>
 

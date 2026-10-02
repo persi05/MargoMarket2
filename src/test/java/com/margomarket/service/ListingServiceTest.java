@@ -322,12 +322,25 @@ class ListingServiceTest {
         Page<Listing> expectedPage = new PageImpl<>(List.of());
 
         when(listingRepository.findActiveListingsFiltered(
-                eq("miecz"), eq(null), eq(null), eq(null), eq(null), eq(0), eq(300), any(Pageable.class)
+                eq("miecz"), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(300), any(Pageable.class)
         )).thenReturn(expectedPage);
 
         Page<Listing> result = listingService.searchActiveListings(filter);
 
         assertThat(result).isSameAs(expectedPage);
+    }
+
+    @Test
+    void searchActiveListingsPassesUnboundFilterWithoutSearchText() {
+        ListingFilter filter = new ListingFilter();
+        filter.setBound(false);
+        Page<Listing> expectedPage = new PageImpl<>(List.of());
+
+        when(listingRepository.findActiveListingsFilteredWithoutSearch(
+                eq(null), eq(null), eq(null), eq(false), eq(null), eq(0), eq(300), any(Pageable.class)
+        )).thenReturn(expectedPage);
+
+        assertThat(listingService.searchActiveListings(filter)).isSameAs(expectedPage);
     }
 
     private void mockLookups(Server server, ItemType itemType, Rarity rarity, Currency currency) {
