@@ -2,7 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, ElementRef, HostListener, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, finalize, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, debounceTime, distinctUntilChanged, finalize, of, shareReplay, switchMap } from 'rxjs';
 
 import { ListingResponse, LookupResponse, PageResponse } from '../../core/models/api.models';
 import { ItemDescriptionPipe } from '../../core/pipes/item-description.pipe';
@@ -43,7 +43,9 @@ export class MarketPageComponent {
   });
 
   protected loading = false;
+  protected loadError = '';
   protected notice = '';
+  protected readonly skeletonRows = [1, 2, 3, 4, 5, 6];
   protected readonly favoriteIds = new Set<number>();
   protected readonly favoriteBusyIds = new Set<number>();
   protected readonly brokenListingImageIds = new Set<number>();
@@ -71,15 +73,20 @@ export class MarketPageComponent {
   } | null = null;
 
   protected readonly listings$ = combineLatest([this.pageSubject]).pipe(
-    tap(() => {
+    switchMap(([page]) => {
       this.loading = true;
+      this.loadError = '';
       this.notice = '';
+      return this.listingService.search({ ...this.filters.getRawValue(), page }).pipe(
+        catchError(() => {
+          this.loadError = 'Nie udało się pobrać ogłoszeń. Spróbuj ponownie.';
+          return of(null);
+        }),
+        finalize(() => {
+          this.loading = false;
+        })
+      );
     }),
-    switchMap(([page]) => this.listingService.search({ ...this.filters.getRawValue(), page }).pipe(
-      finalize(() => {
-        this.loading = false;
-      })
-    )),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 

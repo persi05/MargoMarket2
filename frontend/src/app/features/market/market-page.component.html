@@ -96,27 +96,33 @@
   </aside>
 
   <div class="results">
+    @let page = listings$ | async;
     @if (notice) {
       <p class="notice">{{ notice }}</p>
     }
 
-    @if (listings$ | async; as page) {
       <div class="results-head">
         <div>
           <p class="eyebrow">MargoMarket</p>
           <h1>Aktualne ogłoszenia</h1>
-          <p>{{ page.totalElements }} wyników, strona {{ page.page }} z {{ page.totalPages || 1 }}</p>
+          @if (loading || (!page && !loadError)) {
+            <p role="status">Ładowanie ogłoszeń...</p>
+          } @else if (page) {
+            <p>{{ page.totalElements }} wyników, strona {{ page.page }} z {{ page.totalPages || 1 }}</p>
+          }
         </div>
 
-        <div class="pager">
-          <button type="button" [disabled]="page.first" (click)="previousPage(page)">Poprzednia</button>
-          <button type="button" [disabled]="page.last" (click)="nextPage(page)">Następna</button>
-        </div>
+        @if (page && !loading) {
+          <div class="pager">
+            <button type="button" [disabled]="page.first" (click)="previousPage(page)">Poprzednia</button>
+            <button type="button" [disabled]="page.last" (click)="nextPage(page)">Następna</button>
+          </div>
+        }
       </div>
 
       <div class="table-wrapper">
         <div class="table-scroll">
-          <table>
+          <table [attr.aria-busy]="loading || (!page && !loadError)">
             <thead>
               <tr>
                 @if (authService.isLoggedIn) {
@@ -133,13 +139,23 @@
               </tr>
             </thead>
             <tbody>
-              @if (loading) {
-                <tr>
-                  <td [attr.colspan]="authService.isLoggedIn ? 9 : 8">
-                    <div class="empty">Ładowanie ofert...</div>
-                  </td>
-                </tr>
-              } @else if (page.content.length) {
+              @if (loading || (!page && !loadError)) {
+                @for (row of skeletonRows; track row) {
+                  <tr class="skeleton-row" aria-hidden="true">
+                    @if (authService.isLoggedIn) { <td class="favorite-col"><span class="skeleton-block skeleton-icon"></span></td> }
+                    <td class="preview-col"><span class="skeleton-block skeleton-image"></span></td>
+                    <td class="name-col"><span class="skeleton-block skeleton-name"></span><span class="skeleton-block skeleton-subline"></span></td>
+                    <td class="level-col"><span class="skeleton-block skeleton-short"></span></td>
+                    <td class="enhancement-col"><span class="skeleton-block skeleton-short"></span></td>
+                    <td class="price-col"><span class="skeleton-block skeleton-medium"></span></td>
+                    <td class="contact-col"><span class="skeleton-block skeleton-medium"></span></td>
+                    <td class="server-col"><span class="skeleton-block skeleton-medium"></span></td>
+                    <td class="discussion-col"><span class="skeleton-block skeleton-medium"></span></td>
+                  </tr>
+                }
+              } @else if (loadError) {
+                <tr><td [attr.colspan]="authService.isLoggedIn ? 9 : 8"><div class="empty" role="alert">{{ loadError }}</div></td></tr>
+              } @else if (page && page.content.length) {
                 @for (listing of page.content; track listing.id) {
                   <tr>
                     @if (authService.isLoggedIn) {
@@ -252,7 +268,6 @@
           </table>
         </div>
       </div>
-    }
   </div>
 </section>
 
