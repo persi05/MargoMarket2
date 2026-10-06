@@ -325,3 +325,29 @@ a:not(.brand):hover {
   line-height: 1;
   text-transform: uppercase;
 }
+
+.market-shell .skeleton-row td { height: 68px; }
+.market-shell .skeleton-block {
+  display: block;
+  width: 75%;
+  height: 13px;
+  margin-inline: auto;
+  border-radius: 4px;
+  background: linear-gradient(100deg, #3b3028 25%, #59483a 50%, #3b3028 75%);
+  background-size: 200% 100%;
+  animation: market-skeleton-shimmer 1.5s ease-in-out infinite;
+}
+.market-shell .skeleton-icon { width: 22px; height: 22px; border-radius: 50%; }
+.market-shell .skeleton-image { width: 34px; height: 34px; border-radius: 6px; }
+.market-shell .skeleton-name { width: 82%; }
+.market-shell .skeleton-subline { width: 56%; height: 10px; margin-top: 9px; }
+.market-shell .skeleton-short { width: 32px; }
+.market-shell .skeleton-medium { width: 70%; }
+
+@keyframes market-skeleton-shimmer {
+  to { background-position-x: -200%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .market-shell .skeleton-block { animation: none; }
+}

@@ -9,18 +9,18 @@
 
   <nav class="nav">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Ogłoszenia</a>
-    <a routerLink="/dashboard" routerLinkActive="active">Moje ogłoszenia</a>
-    <a routerLink="/favorites" routerLinkActive="active">Obserwowane</a>
-    @if (user$ | async) {
+    @if (user$ | async; as user) {
+      <a routerLink="/dashboard" routerLinkActive="active">Moje ogłoszenia</a>
+      <a routerLink="/favorites" routerLinkActive="active">Obserwowane</a>
       <a routerLink="/messages" routerLinkActive="active" class="messages-link">
         Wiadomości
         @if (unreadMessages) { <span class="message-badge" [attr.aria-label]="unreadMessages + ' nieprzeczytanych wiadomości'">{{ unreadMessages }}</span> }
       </a>
       <a routerLink="/notifications" routerLinkActive="active">Powiadomienia</a>
-    }
-    <a routerLink="/new" routerLinkActive="active">Stwórz ogłoszenie</a>
-    @if ((user$ | async)?.role === 'admin') {
-      <a routerLink="/admin" routerLinkActive="active">Administracja</a>
+      <a routerLink="/new" routerLinkActive="active">Stwórz ogłoszenie</a>
+      @if (user.role === 'admin') {
+        <a routerLink="/admin" routerLinkActive="active">Administracja</a>
+      }
     }
   </nav>
 

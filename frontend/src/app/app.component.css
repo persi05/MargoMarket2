@@ -1,9 +1,9 @@
 .topbar {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 30;
   display: grid;
-  grid-template-columns: minmax(210px, 1fr) auto minmax(210px, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 28px;
   padding: 16px clamp(18px, 4vw, 48px);
@@ -61,7 +61,10 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  min-width: 0;
 }
 
 .nav a {
@@ -69,6 +72,7 @@
   color: #d4cabe;
   font-size: 15px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .nav a.active {

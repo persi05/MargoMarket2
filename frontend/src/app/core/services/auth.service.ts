@@ -61,6 +61,10 @@ export class AuthService {
   }
 
   private readUser(): UserResponse | null {
+    if (!localStorage.getItem(this.tokenKey)) {
+      localStorage.removeItem(this.userKey);
+      return null;
+    }
     const raw = localStorage.getItem(this.userKey);
 
     if (!raw) {
