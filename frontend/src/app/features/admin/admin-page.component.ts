@@ -123,13 +123,13 @@ export class AdminPageComponent {
   }
 
   deleteUser(user: UserResponse): void {
-    if (!confirm(`Usunąć użytkownika ${user.email}?`)) {
+    if (!confirm(`Usunąć użytkownika ${user.username}?`)) {
       return;
     }
 
     this.adminService.deleteUser(user.id).subscribe({
       next: () => {
-        this.notice = `${user.email} usunięto.`;
+        this.notice = `${user.username} usunięto.`;
         this.usersReloadSubject.next(this.usersReloadSubject.value + 1);
       },
       error: () => {

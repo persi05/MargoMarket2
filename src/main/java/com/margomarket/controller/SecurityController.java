@@ -3,6 +3,7 @@ package com.margomarket.controller;
 import com.margomarket.dto.LoginRequest;
 import com.margomarket.dto.LoginResponse;
 import com.margomarket.dto.RegisterRequest;
+import com.margomarket.dto.VerifyEmailRequest;
 import com.margomarket.dto.UserResponse;
 import com.margomarket.mapper.UserMapper;
 import com.margomarket.model.User;
@@ -34,9 +35,9 @@ public class SecurityController {
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
+                new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
-        User user = userService.getByEmail(request.email());
+        User user = (User) userService.loadUserByUsername(request.username());
         return new LoginResponse(
                 "Bearer",
                 jwtService.generateToken(user),
@@ -49,6 +50,13 @@ public class SecurityController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse register(@Valid @RequestBody RegisterRequest request) {
         return userMapper.toResponse(userService.registerUser(request));
+    }
+
+    @PostMapping("/verify-email")
+    public void verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        if (!userService.verifyEmail(request)) {
+            throw new IllegalArgumentException("Kod jest błędny, wygasł lub przekroczono limit prób");
+        }
     }
 
     @GetMapping("/me")

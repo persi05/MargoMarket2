@@ -1,6 +1,7 @@
 package com.margomarket.service;
 
 import com.margomarket.dto.RegisterRequest;
+import com.margomarket.dto.VerifyEmailRequest;
 import com.margomarket.dto.UserStats;
 import com.margomarket.exception.EmailAlreadyUsedException;
 import com.margomarket.exception.ForbiddenOperationException;
@@ -18,9 +19,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,51 +51,156 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private JavaMailSender mailSender;
+
     @InjectMocks
     private UserService userService;
 
+    @BeforeEach
+    void configureMail() {
+        ReflectionTestUtils.setField(userService, "mailFrom", "no-reply@example.com");
+        ReflectionTestUtils.setField(userService, "blockedDomains", "10minutemail.com,mailinator.com");
+        ReflectionTestUtils.setField(userService, "codeExpirationMinutes", 10);
+        ReflectionTestUtils.setField(userService, "resendCooldownSeconds", 60);
+        ReflectionTestUtils.setField(userService, "maxVerificationAttempts", 5);
+    }
+
     @Test
     void registerUserNormalizesEmailEncodesPasswordAndAssignsUserRole() {
+        ReflectionTestUtils.setField(userService, "codeExpirationMinutes", 3);
         Role role = new Role("user");
-        RegisterRequest request = new RegisterRequest("  TEST@Example.COM  ", "secret123");
+        RegisterRequest request = new RegisterRequest("Alice", "  TEST@Example.COM  ", "secret123");
 
-        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(roleRepository.findByName("user")).thenReturn(Optional.of(role));
         when(passwordEncoder.encode("secret123")).thenReturn("encoded-password");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.saveAndFlush(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User registered = userService.registerUser(request);
 
         assertThat(registered.getEmail()).isEqualTo("test@example.com");
+        assertThat(registered.getUsername()).isEqualTo("alice");
+        assertThat(registered.isEmailVerified()).isFalse();
+        assertThat(registered.getVerificationExpiresAt())
+                .isBetween(java.time.LocalDateTime.now().plusMinutes(2), java.time.LocalDateTime.now().plusMinutes(4));
         assertThat(registered.getPassword()).isEqualTo("encoded-password");
         assertThat(registered.getRole()).isSameAs(role);
-        verify(userRepository).save(registered);
+        verify(userRepository).saveAndFlush(registered);
+        verify(mailSender).send(any(org.springframework.mail.SimpleMailMessage.class));
     }
 
     @Test
     void registerUserThrowsWhenEmailAlreadyExists() {
-        RegisterRequest request = new RegisterRequest("test@example.com", "secret123");
-        when(userRepository.existsByEmail("test@example.com")).thenReturn(true);
+        RegisterRequest request = new RegisterRequest("alice", "test@example.com", "secret123");
+        User existing = new User();
+        existing.setEmailVerified(true);
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(existing));
 
         assertThatThrownBy(() -> userService.registerUser(request))
                 .isInstanceOf(EmailAlreadyUsedException.class);
 
         verifyNoInteractions(roleRepository, passwordEncoder);
-        verify(userRepository, never()).save(any());
+        verify(userRepository, never()).saveAndFlush(any());
     }
 
     @Test
     void registerUserThrowsWhenDefaultRoleIsMissing() {
-        RegisterRequest request = new RegisterRequest("test@example.com", "secret123");
+        RegisterRequest request = new RegisterRequest("alice", "test@example.com", "secret123");
 
-        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(roleRepository.findByName("user")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.registerUser(request))
                 .isInstanceOf(NotFoundException.class);
 
         verifyNoInteractions(passwordEncoder);
-        verify(userRepository, never()).save(any());
+        verify(userRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void registerUserRejectsDisposableDomainAndSubdomain() {
+        RegisterRequest request = new RegisterRequest("alice", "a@sub.mailinator.com", "secret123");
+        assertThatThrownBy(() -> userService.registerUser(request))
+                .isInstanceOf(IllegalArgumentException.class);
+        verifyNoInteractions(userRepository, roleRepository, mailSender);
+    }
+
+    @Test
+    void registerUserUsesConfiguredResendCooldown() {
+        ReflectionTestUtils.setField(userService, "resendCooldownSeconds", 120);
+        User pending = new User();
+        pending.setEmailVerified(false);
+        pending.setVerificationSentAt(java.time.LocalDateTime.now().minusSeconds(90));
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(pending));
+
+        assertThatThrownBy(() -> userService.registerUser(
+                new RegisterRequest("alice", "test@example.com", "secret123")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Nowy kod można wysłać za");
+        verifyNoInteractions(mailSender);
+    }
+
+    @Test
+    void registerUserReleasesExpiredPendingUsernameBeforeCheckingAvailability() {
+        RegisterRequest request = new RegisterRequest("alice", "new@example.com", "secret123");
+        AtomicBoolean usernameReserved = new AtomicBoolean(true);
+        org.mockito.Mockito.doAnswer(invocation -> {
+            usernameReserved.set(false);
+            return 1;
+        }).when(userRepository).deleteExpiredUnverifiedMatching(any(LocalDateTime.class),
+                org.mockito.ArgumentMatchers.eq("new@example.com"), org.mockito.ArgumentMatchers.eq("alice"));
+        when(userRepository.existsByUsername("alice")).thenAnswer(invocation -> usernameReserved.get());
+        when(roleRepository.findByName("user")).thenReturn(Optional.of(new Role("user")));
+        when(userRepository.saveAndFlush(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User registered = userService.registerUser(request);
+
+        assertThat(usernameReserved.get()).isFalse();
+        assertThat(registered.getUsername()).isEqualTo("alice");
+        verify(mailSender).send(any(org.springframework.mail.SimpleMailMessage.class));
+    }
+
+    @Test
+    void verifyEmailUsesConfiguredAttemptLimit() {
+        ReflectionTestUtils.setField(userService, "maxVerificationAttempts", 1);
+        User pending = new User();
+        pending.setEmailVerified(false);
+        pending.setVerificationCodeHash("hash");
+        pending.setVerificationExpiresAt(java.time.LocalDateTime.now().plusMinutes(5));
+        pending.setVerificationAttempts(1);
+        when(userRepository.findByEmail("a@example.com")).thenReturn(Optional.of(pending));
+
+        assertThat(userService.verifyEmail(new VerifyEmailRequest("a@example.com", "123456"))).isFalse();
+        verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void verifyEmailRejectsWrongCodeAndCountsAttempt() {
+        User pending = new User();
+        pending.setEmailVerified(false);
+        pending.setVerificationCodeHash("hash");
+        pending.setVerificationExpiresAt(java.time.LocalDateTime.now().plusMinutes(5));
+        when(userRepository.findByEmail("a@example.com")).thenReturn(Optional.of(pending));
+        when(passwordEncoder.matches("123456", "hash")).thenReturn(false);
+
+        assertThat(userService.verifyEmail(new VerifyEmailRequest("a@example.com", "123456"))).isFalse();
+        assertThat(pending.getVerificationAttempts()).isEqualTo(1);
+        assertThat(pending.isEmailVerified()).isFalse();
+    }
+
+    @Test
+    void verifyEmailActivatesAccountAndClearsCode() {
+        User pending = new User();
+        pending.setEmailVerified(false);
+        pending.setVerificationCodeHash("hash");
+        pending.setVerificationExpiresAt(java.time.LocalDateTime.now().plusMinutes(5));
+        when(userRepository.findByEmail("a@example.com")).thenReturn(Optional.of(pending));
+        when(passwordEncoder.matches("123456", "hash")).thenReturn(true);
+
+        assertThat(userService.verifyEmail(new VerifyEmailRequest("a@example.com", "123456"))).isTrue();
+        assertThat(pending.isEmailVerified()).isTrue();
+        assertThat(pending.getVerificationCodeHash()).isNull();
     }
 
     @Test

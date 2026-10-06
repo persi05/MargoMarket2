@@ -4,6 +4,7 @@ import com.margomarket.dto.ApiError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -55,6 +56,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> conflict(EmailAlreadyUsedException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiError.of(409, "Conflict", exception.getMessage()));
+    }
+
+    @ExceptionHandler(MailException.class)
+    public ResponseEntity<ApiError> mailDeliveryFailed(MailException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(ApiError.of(502, "Bad Gateway", "Nie udało się wysłać kodu. Sprawdź adres e-mail lub spróbuj ponownie później."));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
