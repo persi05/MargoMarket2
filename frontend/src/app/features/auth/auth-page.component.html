@@ -1,50 +1,58 @@
 <section class="auth-page">
   <div class="copy">
     <p class="eyebrow">Konto gracza</p>
-    <h1>{{ mode === 'login' ? 'Zaloguj się do MargoMarket' : 'Załóż konto w MargoMarket' }}</h1>
-    <p>Po zalogowaniu możesz dodawać własne oferty, oznaczać sprzedane przedmioty i trzymać obserwowane ogłoszenia w jednym miejscu.</p>
+    <h1>{{ mode === 'login' ? 'Zaloguj się do MargoMarket' : mode === 'register' ? 'Załóż konto w MargoMarket' : 'Potwierdź e-mail' }}</h1>
+    <p>Jedno miejsce do kupowania i sprzedawania przedmiotów. Poznaj giełdę stworzoną dla graczy jednej z najpopularniejszych polskich gier MMORPG. Nad platformą czuwa Persi, którego znacie z społeczności handlarskiej.</p>
     <a routerLink="/">Wróć do giełdy</a>
   </div>
-
   <form [formGroup]="form" (ngSubmit)="submit()">
-    <div class="tabs">
-      <button type="button" [class.active]="mode === 'login'" (click)="switchMode('login')">Logowanie</button>
-      <button type="button" [class.active]="mode === 'register'" (click)="switchMode('register')">Rejestracja</button>
+    <div class="flow-heading">
+      <span class="step">{{ mode === 'login' ? 'Twoje konto' : mode === 'register' ? 'Krok 1 z 2' : 'Krok 2 z 2' }}</span>
+      <h2>{{ mode === 'login' ? 'Witaj ponownie' : mode === 'register' ? 'Utwórz konto' : 'Sprawdź pocztę' }}</h2>
+      <p>{{ mode === 'login' ? 'Wpisz nazwę użytkownika i hasło.' : mode === 'register' ? 'Wypełnij dane konta. Kod weryfikacyjny wyślemy na Twój e-mail.' : 'Wpisz sześciocyfrowy kod z wiadomości e-mail.' }}</p>
     </div>
-
-    @if (error) {
-      <p class="error">{{ error }}</p>
+    <div class="tabs">
+      <button type="button" [class.active]="mode === 'login'" [disabled]="loading" (click)="switchMode('login')">Logowanie</button>
+      <button type="button" [class.active]="mode !== 'login'" [disabled]="loading" (click)="switchMode('register')">Rejestracja</button>
+    </div>
+    @if (notice) { <p class="notice" role="status">{{ notice }}</p> }
+    @if (error) { <p class="error" role="alert">{{ error }}</p> }
+    @if (mode !== 'verify') {
+      <label>Nazwa użytkownika <input type="text" formControlName="username" autocomplete="username" [attr.aria-invalid]="form.controls.username.touched && form.controls.username.invalid"></label>
+      @if (form.controls.username.touched && form.controls.username.invalid) {
+        <p class="field-error">{{ mode === 'register' ? 'Użyj 3–32 znaków: liter, cyfr, _, . lub -.' : 'Podaj nazwę użytkownika.' }}</p>
+      }
+      @if (mode === 'register') {
+        <label>E-mail <input type="email" formControlName="email" autocomplete="email" placeholder="twoj@email.pl" [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"></label>
+        @if (form.controls.email.touched && form.controls.email.invalid) { <p class="field-error">Podaj pełny adres e-mail z domeną.</p> }
+      }
+      <label>Hasło <input type="password" formControlName="password" [attr.autocomplete]="mode === 'register' ? 'new-password' : 'current-password'" [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"></label>
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <p class="field-error">{{ mode === 'register' ? 'Hasło musi mieć od 6 do 72 znaków.' : 'Podaj hasło.' }}</p>
+      }
+      @if (mode === 'register') {
+        <label>Potwierdź hasło <input type="password" formControlName="confirmPassword" autocomplete="new-password" [attr.aria-invalid]="form.controls.confirmPassword.touched && (form.controls.confirmPassword.invalid || form.hasError('passwordMismatch'))"></label>
+        @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.hasError('required')) {
+          <p class="field-error">Wpisz hasło ponownie.</p>
+        } @else if (form.controls.confirmPassword.touched && form.hasError('passwordMismatch')) {
+          <p class="field-error">Hasła muszą być takie same.</p>
+        }
+      }
+    } @else {
+      <div class="sent-state" role="status">
+        <span class="sent-icon" aria-hidden="true">✓</span>
+        <div>
+          <strong>Wiadomość wysłana</strong>
+          <p>Kod weryfikacyjny wysłaliśmy na <b>{{ form.controls.email.value }}</b>. Sprawdź też folder spam.</p>
+        </div>
+      </div>
+      <label>Kod weryfikacyjny <input class="code-input" type="text" formControlName="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" [attr.aria-invalid]="form.controls.code.touched && form.controls.code.invalid"></label>
+      @if (form.controls.code.touched && form.controls.code.invalid) { <p class="field-error">Wpisz 6 cyfr z wiadomości.</p> }
+      <div class="verify-actions">
+        <button type="button" class="resend" (click)="resend()" [disabled]="loading">Wyślij kod ponownie</button>
+        <button type="button" class="resend" (click)="switchMode('register')" [disabled]="loading">Zmień dane konta</button>
+      </div>
     }
-
-    <label>
-      E-mail
-      <input type="email" formControlName="email" autocomplete="email" (input)="onFieldInput('email')"
-        [attr.aria-invalid]="mode === 'register' && emailErrorVisible ? true : null"
-        [attr.aria-describedby]="mode === 'register' && emailErrorVisible ? 'email-error' : null">
-    </label>
-    @if (mode === 'register' && emailErrorVisible && form.controls.email.hasError('required')) {
-      <p id="email-error" class="field-error" role="alert">Podaj adres e-mail.</p>
-    } @else if (mode === 'register' && emailErrorVisible && form.controls.email.hasError('email')) {
-      <p id="email-error" class="field-error" role="alert">Podaj poprawny adres e-mail.</p>
-    }
-
-    <label>
-      Hasło
-      <input type="password" formControlName="password" (input)="onFieldInput('password')"
-        [attr.autocomplete]="mode === 'register' ? 'new-password' : 'current-password'"
-        [attr.aria-invalid]="mode === 'register' && passwordErrorVisible ? true : null"
-        [attr.aria-describedby]="mode === 'register' && passwordErrorVisible ? 'password-error' : null">
-    </label>
-    @if (mode === 'register' && passwordErrorVisible && form.controls.password.hasError('required')) {
-      <p id="password-error" class="field-error" role="alert">Podaj hasło.</p>
-    } @else if (mode === 'register' && passwordErrorVisible && form.controls.password.hasError('minlength')) {
-      <p id="password-error" class="field-error" role="alert">Hasło musi mieć co najmniej 6 znaków.</p>
-    } @else if (mode === 'register' && passwordErrorVisible && form.controls.password.hasError('maxlength')) {
-      <p id="password-error" class="field-error" role="alert">Hasło może mieć maksymalnie 72 znaki.</p>
-    }
-
-    <button class="submit" type="submit" [disabled]="loading || (mode === 'register' && retryBlocked)">
-      {{ loading ? 'Przetwarzanie...' : (mode === 'register' && retryBlocked ? 'Spróbuj za chwilę' : (mode === 'login' ? 'Zaloguj' : 'Utwórz konto')) }}
-    </button>
+    <button class="submit" type="submit" [disabled]="loading">{{ loading ? 'Przetwarzanie...' : mode === 'login' ? 'Zaloguj' : mode === 'register' ? 'Wyślij kod weryfikacyjny na e-mail' : 'Potwierdź kod i aktywuj konto' }}</button>
   </form>
 </section>

@@ -127,7 +127,7 @@
             <tbody>
               @for (row of users; track row.user.id) {
                 <tr>
-                  <td>{{ row.user.email }}</td>
+                  <td>{{ row.user.username }}</td>
                   <td><span class="role">{{ roleLabel(row.user.role) }}</span></td>
                   <td>{{ row.stats.totalListings }}</td>
                   <td>{{ row.stats.activeListings }}</td>

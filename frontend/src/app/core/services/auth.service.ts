@@ -34,6 +34,10 @@ export class AuthService {
     return this.http.post<UserResponse>(`${environment.apiUrl}/auth/register`, request);
   }
 
+  verifyEmail(request: { email: string; code: string }): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/auth/verify-email`, request);
+  }
+
   refreshMe(): Observable<UserResponse> {
     return this.http.get<UserResponse>(`${environment.apiUrl}/auth/me`).pipe(
       tap((user) => {

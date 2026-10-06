@@ -26,7 +26,7 @@
 
   @if (user$ | async; as user) {
     <div class="session">
-      <span>{{ user.email }}</span>
+      <span>{{ user.username }}</span>
       <button type="button" class="ghost-button" (click)="logout()">Wyloguj</button>
     </div>
   } @else {

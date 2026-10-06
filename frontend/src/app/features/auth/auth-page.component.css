@@ -42,13 +42,28 @@ h1 {
 
 form {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   padding: 28px;
   border: 1px solid var(--color-border);
   border-radius: 12px;
   background: var(--color-card-dark);
   box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3);
 }
+
+.flow-heading { display: grid; gap: 6px; padding-bottom: 4px; }
+.step {
+  width: fit-content;
+  padding: 5px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.flow-heading h2 { margin: 5px 0 0; color: white; font-size: 24px; }
+.flow-heading p { margin: 0; color: var(--color-text-muted); font-size: 13px; line-height: 1.5; }
 
 .tabs {
   display: grid;
@@ -101,6 +116,9 @@ input[aria-invalid="true"] {
   border-color: #f87171;
 }
 
+input::placeholder { color: var(--color-text-muted); opacity: .7; }
+.code-input { font-size: 22px; font-weight: 800; letter-spacing: .35em; text-align: center; }
+
 .field-error {
   margin: -10px 0 0;
   color: #fca5a5;
@@ -132,6 +150,49 @@ input[aria-invalid="true"] {
   color: #fca5a5;
   font-weight: 700;
 }
+
+.notice {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(103, 209, 153, .32);
+  border-radius: 8px;
+  background: rgba(103, 209, 153, .09);
+  color: #c4f0d3;
+  font-weight: 700;
+}
+.verify-hint { color: var(--color-text-muted); margin: 0; }
+.resend { border: 0; background: transparent; color: var(--color-primary); cursor: pointer; text-align: left; font-weight: 800; }
+.resend:disabled { cursor: not-allowed; opacity: .6; }
+
+.sent-state {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(103, 209, 153, .32);
+  border-radius: 10px;
+  background: rgba(103, 209, 153, .09);
+}
+.sent-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(103, 209, 153, .2);
+  color: #8be0ae;
+  font-weight: 900;
+}
+.sent-state strong { color: #c4f0d3; }
+.sent-state p {
+  margin: 5px 0 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.sent-state b { color: white; }
+.verify-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 
 @media (max-width: 860px) {
   .auth-page {
