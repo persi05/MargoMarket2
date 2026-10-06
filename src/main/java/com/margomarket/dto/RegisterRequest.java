@@ -12,7 +12,8 @@ RegisterRequest(
         String username,
 
         @NotBlank(message = "E-mail jest wymagany")
-        @Email(message = "E-mail ma niepoprawny format")
+        @Email(regexp = "^[^\\s@]+@(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,63}$",
+                message = "Podaj pełny adres e-mail z domeną")
         String email,
 
         @NotBlank(message = "Hasło jest wymagane")

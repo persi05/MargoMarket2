@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,6 +96,7 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("Adresy z tymczasowych skrzynek są niedozwolone");
         }
 
+        userRepository.deleteExpiredUnverifiedMatching(LocalDateTime.now(), email, username);
         User user = userRepository.findByEmail(email).orElse(null);
         LocalDateTime now = LocalDateTime.now();
         if (user != null && user.isEmailVerified()) {
@@ -102,8 +104,9 @@ public class UserService implements UserDetailsService {
         }
         if (user != null && user.getVerificationSentAt() != null
                 && user.getVerificationSentAt().plusSeconds(resendCooldownSeconds).isAfter(now)) {
-            long remainingSeconds = Duration.between(now,
-                    user.getVerificationSentAt().plusSeconds(resendCooldownSeconds)).toSeconds() + 1;
+            long remainingMillis = Duration.between(now,
+                    user.getVerificationSentAt().plusSeconds(resendCooldownSeconds)).toMillis();
+            long remainingSeconds = (remainingMillis + 999) / 1000;
             throw new IllegalArgumentException("Nowy kod można wysłać za " + remainingSeconds + " s");
         }
         if (userRepository.existsByUsername(username) && (user == null || !user.getUsername().equals(username))) {
@@ -134,6 +137,12 @@ public class UserService implements UserDetailsService {
                 + codeExpirationMinutes + " minut. Jeśli nie zakładasz konta, zignoruj tę wiadomość.");
         mailSender.send(message);
         return saved;
+    }
+
+    @Scheduled(fixedDelayString = "${app.registration.cleanup-interval-ms}")
+    @Transactional
+    public void deleteExpiredUnverifiedUsers() {
+        userRepository.deleteExpiredUnverified(LocalDateTime.now());
     }
 
     @Transactional

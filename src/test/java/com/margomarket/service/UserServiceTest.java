@@ -25,6 +25,8 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -137,6 +139,26 @@ class UserServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Nowy kod można wysłać za");
         verifyNoInteractions(mailSender);
+    }
+
+    @Test
+    void registerUserReleasesExpiredPendingUsernameBeforeCheckingAvailability() {
+        RegisterRequest request = new RegisterRequest("alice", "new@example.com", "secret123");
+        AtomicBoolean usernameReserved = new AtomicBoolean(true);
+        org.mockito.Mockito.doAnswer(invocation -> {
+            usernameReserved.set(false);
+            return 1;
+        }).when(userRepository).deleteExpiredUnverifiedMatching(any(LocalDateTime.class),
+                org.mockito.ArgumentMatchers.eq("new@example.com"), org.mockito.ArgumentMatchers.eq("alice"));
+        when(userRepository.existsByUsername("alice")).thenAnswer(invocation -> usernameReserved.get());
+        when(roleRepository.findByName("user")).thenReturn(Optional.of(new Role("user")));
+        when(userRepository.saveAndFlush(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User registered = userService.registerUser(request);
+
+        assertThat(usernameReserved.get()).isFalse();
+        assertThat(registered.getUsername()).isEqualTo("alice");
+        verify(mailSender).send(any(org.springframework.mail.SimpleMailMessage.class));
     }
 
     @Test
