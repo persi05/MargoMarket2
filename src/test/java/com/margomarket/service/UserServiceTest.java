@@ -59,10 +59,14 @@ class UserServiceTest {
     void configureMail() {
         ReflectionTestUtils.setField(userService, "mailFrom", "no-reply@example.com");
         ReflectionTestUtils.setField(userService, "blockedDomains", "10minutemail.com,mailinator.com");
+        ReflectionTestUtils.setField(userService, "codeExpirationMinutes", 10);
+        ReflectionTestUtils.setField(userService, "resendCooldownSeconds", 60);
+        ReflectionTestUtils.setField(userService, "maxVerificationAttempts", 5);
     }
 
     @Test
     void registerUserNormalizesEmailEncodesPasswordAndAssignsUserRole() {
+        ReflectionTestUtils.setField(userService, "codeExpirationMinutes", 3);
         Role role = new Role("user");
         RegisterRequest request = new RegisterRequest("Alice", "  TEST@Example.COM  ", "secret123");
 
@@ -76,6 +80,8 @@ class UserServiceTest {
         assertThat(registered.getEmail()).isEqualTo("test@example.com");
         assertThat(registered.getUsername()).isEqualTo("alice");
         assertThat(registered.isEmailVerified()).isFalse();
+        assertThat(registered.getVerificationExpiresAt())
+                .isBetween(java.time.LocalDateTime.now().plusMinutes(2), java.time.LocalDateTime.now().plusMinutes(4));
         assertThat(registered.getPassword()).isEqualTo("encoded-password");
         assertThat(registered.getRole()).isSameAs(role);
         verify(userRepository).saveAndFlush(registered);
@@ -116,6 +122,35 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.registerUser(request))
                 .isInstanceOf(IllegalArgumentException.class);
         verifyNoInteractions(userRepository, roleRepository, mailSender);
+    }
+
+    @Test
+    void registerUserUsesConfiguredResendCooldown() {
+        ReflectionTestUtils.setField(userService, "resendCooldownSeconds", 120);
+        User pending = new User();
+        pending.setEmailVerified(false);
+        pending.setVerificationSentAt(java.time.LocalDateTime.now().minusSeconds(90));
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(pending));
+
+        assertThatThrownBy(() -> userService.registerUser(
+                new RegisterRequest("alice", "test@example.com", "secret123")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Nowy kod można wysłać za");
+        verifyNoInteractions(mailSender);
+    }
+
+    @Test
+    void verifyEmailUsesConfiguredAttemptLimit() {
+        ReflectionTestUtils.setField(userService, "maxVerificationAttempts", 1);
+        User pending = new User();
+        pending.setEmailVerified(false);
+        pending.setVerificationCodeHash("hash");
+        pending.setVerificationExpiresAt(java.time.LocalDateTime.now().plusMinutes(5));
+        pending.setVerificationAttempts(1);
+        when(userRepository.findByEmail("a@example.com")).thenReturn(Optional.of(pending));
+
+        assertThat(userService.verifyEmail(new VerifyEmailRequest("a@example.com", "123456"))).isFalse();
+        verifyNoInteractions(passwordEncoder);
     }
 
     @Test

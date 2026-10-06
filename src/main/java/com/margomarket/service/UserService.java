@@ -28,6 +28,8 @@ import java.util.Set;
 import java.util.Arrays;
 import java.time.LocalDateTime;
 import java.security.SecureRandom;
+import java.time.Duration;
+import jakarta.annotation.PostConstruct;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +47,22 @@ public class UserService implements UserDetailsService {
 
     @Value("${app.registration.blocked-domains}")
     private String blockedDomains;
+
+    @Value("${app.registration.code-expiration-minutes}")
+    private int codeExpirationMinutes;
+
+    @Value("${app.registration.resend-cooldown-seconds}")
+    private int resendCooldownSeconds;
+
+    @Value("${app.registration.max-verification-attempts}")
+    private int maxVerificationAttempts;
+
+    @PostConstruct
+    void validateRegistrationSettings() {
+        if (codeExpirationMinutes <= 0 || resendCooldownSeconds < 0 || maxVerificationAttempts <= 0) {
+            throw new IllegalStateException("Niepoprawna konfiguracja limitów rejestracji");
+        }
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -83,8 +101,10 @@ public class UserService implements UserDetailsService {
             throw new EmailAlreadyUsedException("Ten email jest już zarejestrowany");
         }
         if (user != null && user.getVerificationSentAt() != null
-                && user.getVerificationSentAt().plusMinutes(1).isAfter(now)) {
-            throw new IllegalArgumentException("Nowy kod można wysłać po minucie");
+                && user.getVerificationSentAt().plusSeconds(resendCooldownSeconds).isAfter(now)) {
+            long remainingSeconds = Duration.between(now,
+                    user.getVerificationSentAt().plusSeconds(resendCooldownSeconds)).toSeconds() + 1;
+            throw new IllegalArgumentException("Nowy kod można wysłać za " + remainingSeconds + " s");
         }
         if (userRepository.existsByUsername(username) && (user == null || !user.getUsername().equals(username))) {
             throw new EmailAlreadyUsedException("Ta nazwa użytkownika jest już zajęta");
@@ -101,7 +121,7 @@ public class UserService implements UserDetailsService {
         user.setEmailVerified(false);
         String code = String.format("%06d", RANDOM.nextInt(1_000_000));
         user.setVerificationCodeHash(passwordEncoder.encode(code));
-        user.setVerificationExpiresAt(now.plusMinutes(10));
+        user.setVerificationExpiresAt(now.plusMinutes(codeExpirationMinutes));
         user.setVerificationSentAt(now);
         user.setVerificationAttempts(0);
         User saved = userRepository.saveAndFlush(user);
@@ -110,7 +130,8 @@ public class UserService implements UserDetailsService {
         message.setFrom(mailFrom);
         message.setTo(email);
         message.setSubject("MargoMarket — kod potwierdzający");
-        message.setText("Twój kod potwierdzający: " + code + "\nKod jest ważny przez 10 minut. Jeśli nie zakładasz konta, zignoruj tę wiadomość.");
+        message.setText("Twój kod potwierdzający: " + code + "\nKod jest ważny przez "
+                + codeExpirationMinutes + " minut. Jeśli nie zakładasz konta, zignoruj tę wiadomość.");
         mailSender.send(message);
         return saved;
     }
@@ -119,7 +140,8 @@ public class UserService implements UserDetailsService {
     public boolean verifyEmail(VerifyEmailRequest request) {
         User user = userRepository.findByEmail(request.email().trim().toLowerCase(Locale.ROOT)).orElse(null);
         if (user == null || user.isEmailVerified() || user.getVerificationCodeHash() == null) return false;
-        if (user.getVerificationExpiresAt().isBefore(LocalDateTime.now()) || user.getVerificationAttempts() >= 5) return false;
+        if (!user.getVerificationExpiresAt().isAfter(LocalDateTime.now())
+                || user.getVerificationAttempts() >= maxVerificationAttempts) return false;
         if (!passwordEncoder.matches(request.code(), user.getVerificationCodeHash())) {
             user.setVerificationAttempts(user.getVerificationAttempts() + 1);
             return false;
