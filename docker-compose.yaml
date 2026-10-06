@@ -8,31 +8,37 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRATION: ${JWT_EXPIRATION}
-      MAIL_HOST: ${MAIL_HOST:-poczta.interia.pl}
-      MAIL_PORT: ${MAIL_PORT:-465}
-      MAIL_USERNAME: ${MAIL_USERNAME:-}
-      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
-      MAIL_FROM: ${MAIL_FROM:-}
-      BLOCKED_EMAIL_DOMAINS: ${BLOCKED_EMAIL_DOMAINS:-10minutemail.com,10minutesemail.com,guerrillamail.com,mailinator.com,tempmail.com,temp-mail.org,yopmail.com,dispostable.com,trashmail.com}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?required}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:?required}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?required}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?required}
+      JWT_SECRET: ${JWT_SECRET:?required}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:?required}
+      MAIL_HOST: ${MAIL_HOST:?required}
+      MAIL_PORT: ${MAIL_PORT:?required}
+      MAIL_USERNAME: ${MAIL_USERNAME:?required}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      MAIL_FROM: ${MAIL_FROM:?required}
+      MAIL_CONNECTION_TIMEOUT_MS: ${MAIL_CONNECTION_TIMEOUT_MS:?required}
+      MAIL_READ_TIMEOUT_MS: ${MAIL_READ_TIMEOUT_MS:?required}
+      MAIL_WRITE_TIMEOUT_MS: ${MAIL_WRITE_TIMEOUT_MS:?required}
+      REGISTRATION_CODE_EXPIRATION_MINUTES: ${REGISTRATION_CODE_EXPIRATION_MINUTES:?required}
+      REGISTRATION_RESEND_COOLDOWN_SECONDS: ${REGISTRATION_RESEND_COOLDOWN_SECONDS:?required}
+      REGISTRATION_MAX_VERIFICATION_ATTEMPTS: ${REGISTRATION_MAX_VERIFICATION_ATTEMPTS:?required}
+      BLOCKED_EMAIL_DOMAINS: ${BLOCKED_EMAIL_DOMAINS:?required}
     ports:
-      - "${APP_PORT}:8080"
+      - "${APP_PORT:?required}:8080"
 
   postgres:
     image: postgres:17-alpine
     container_name: margomarket-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?required}
+      POSTGRES_USER: ${POSTGRES_USER:?required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${POSTGRES_PORT:?required}:5432"
     volumes:
       - margomarket-postgres-data:/var/lib/postgresql/data
     healthcheck:
