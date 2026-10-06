@@ -26,6 +26,24 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
+    @Column(nullable = false, unique = true, length = 255)
+    private String username;
+
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = true;
+
+    @Column(name = "verification_code_hash")
+    private String verificationCodeHash;
+
+    @Column(name = "verification_expires_at")
+    private LocalDateTime verificationExpiresAt;
+
+    @Column(name = "verification_sent_at")
+    private LocalDateTime verificationSentAt;
+
+    @Column(name = "verification_attempts", nullable = false)
+    private int verificationAttempts;
+
     @Column(nullable = false, length = 255)
     private String password;
 
@@ -52,7 +70,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override
@@ -62,6 +80,6 @@ public class User implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() { return true; }
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() { return emailVerified; }
 }
 
