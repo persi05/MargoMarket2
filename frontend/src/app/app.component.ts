@@ -35,4 +35,8 @@ export class AppComponent {
   logout(): void {
     this.authService.logout();
   }
+
+  initial(username: string): string {
+    return username.charAt(0).toLocaleUpperCase('pl-PL');
+  }
 }

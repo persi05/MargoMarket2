@@ -33,7 +33,7 @@
       @for (comment of comments; track comment.id) {
         <article class="message" [class.seller]="comment.seller" [class.own]="comment.authorId === currentUserId">
           <div class="message-head">
-            <strong>{{ comment.authorId === currentUserId ? (comment.seller ? 'Ty · Sprzedający' : 'Ty') : (comment.seller ? 'Sprzedający' : 'Użytkownik #' + comment.authorId) }}</strong>
+            <strong>{{ comment.authorId === currentUserId ? 'Ty' : comment.authorDisplayName }}{{ comment.seller ? ' · Sprzedający' : '' }}</strong>
             <div class="message-tools">
               <time [attr.datetime]="comment.createdAt">{{ comment.createdAt | date: 'dd.MM.yyyy HH:mm' }}</time>
               @if (comment.canDelete) {

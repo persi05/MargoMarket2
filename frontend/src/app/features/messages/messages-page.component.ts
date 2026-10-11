@@ -84,16 +84,17 @@ export class MessagesPageComponent implements OnDestroy {
   }
 
   protected otherParticipant(conversation: ConversationResponse): string {
-    if (this.currentUser?.id === conversation.buyerId) return `Sprzedający #${conversation.sellerId}`;
-    if (this.currentUser?.id === conversation.sellerId) return `Kupujący #${conversation.buyerId}`;
-    return `Kupujący #${conversation.buyerId} · Sprzedający #${conversation.sellerId}`;
+    if (this.currentUser?.id === conversation.buyerId) return `Sprzedający: ${conversation.sellerDisplayName}`;
+    if (this.currentUser?.id === conversation.sellerId) return `Kupujący: ${conversation.buyerDisplayName}`;
+    return `Kupujący: ${conversation.buyerDisplayName} · Sprzedający: ${conversation.sellerDisplayName}`;
   }
 
   protected senderLabel(message: ChatMessageResponse): string {
     if (message.senderId === this.currentUser?.id) return 'Ty';
-    if (message.senderRole === 'seller') return 'Sprzedający';
-    if (message.senderRole === 'buyer') return 'Kupujący';
-    return 'Pośrednik';
+    if (message.senderRole === 'system') return 'System';
+    const role = message.senderRole === 'seller' ? 'Sprzedający'
+      : message.senderRole === 'buyer' ? 'Kupujący' : 'Pośrednik';
+    return `${message.senderDisplayName || role} · ${role}`;
   }
 
   protected priceLabel(listing: ListingResponse): string {

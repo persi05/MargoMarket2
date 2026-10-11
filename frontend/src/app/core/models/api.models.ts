@@ -25,6 +25,7 @@ export interface ItemResponse {
 export interface UserResponse {
   id: number;
   username: string;
+  displayName: string;
   email: string;
   role: string;
   createdAt: string;
@@ -37,6 +38,7 @@ export interface LoginRequest {
 
 export interface RegisterRequest {
   username: string;
+  displayName: string;
   email: string;
   password: string;
 }
@@ -74,6 +76,7 @@ export interface ListingResponse {
 export interface ListingCommentResponse {
   id: number;
   authorId: number;
+  authorDisplayName: string;
   seller: boolean;
   body: string;
   createdAt: string;
@@ -85,8 +88,11 @@ export interface ConversationResponse {
   listingId: number | null;
   itemName: string;
   buyerId: number;
+  buyerDisplayName: string;
   sellerId: number;
+  sellerDisplayName: string;
   intermediaryId: number | null;
+  intermediaryDisplayName: string | null;
   intermediaryStatus: 'NONE' | 'REQUESTED' | 'ASSIGNED';
   updatedAt: string;
   lastMessage: string;
@@ -96,6 +102,7 @@ export interface ConversationResponse {
 export interface ChatMessageResponse {
   id: number;
   senderId: number | null;
+  senderDisplayName: string | null;
   senderRole: 'buyer' | 'seller' | 'intermediary' | 'system';
   kind: 'TEXT' | 'SYSTEM';
   body: string;
