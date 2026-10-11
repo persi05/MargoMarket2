@@ -57,6 +57,10 @@ public class TextModerationService {
         return masker().apply(text);
     }
 
+    public boolean containsBlockedWord(String text) {
+        return !text.equals(mask(text));
+    }
+
     public UnaryOperator<String> masker() {
         List<Pattern> patterns = repository.findByEnabledTrueOrderByTermAsc().stream()
                 .map(word -> {

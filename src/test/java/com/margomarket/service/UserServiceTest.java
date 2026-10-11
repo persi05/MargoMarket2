@@ -56,6 +56,9 @@ class UserServiceTest {
     @Mock
     private JavaMailSender mailSender;
 
+    @Mock
+    private TextModerationService moderation;
+
     @InjectMocks
     private UserService userService;
 
@@ -127,6 +130,17 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.registerUser(request))
                 .isInstanceOf(IllegalArgumentException.class);
         verifyNoInteractions(userRepository, roleRepository, mailSender);
+    }
+
+    @Test
+    void registerUserRejectsBlockedDisplayNameBeforeSavingOrSendingEmail() {
+        when(moderation.containsBlockedWord("Zły Pseudonim")).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.registerUser(
+                new RegisterRequest("alice", "Zły Pseudonim", "alice@example.com", "secret123")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("niedozwolone słowo");
+        verifyNoInteractions(userRepository, mailSender);
     }
 
     @Test
@@ -247,6 +261,22 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.changeDisplayName(1L, new ChangeDisplayNameRequest(" a ", "secret")))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThat(user.getDisplayName()).isEqualTo("Alice");
+    }
+
+    @Test
+    void changeDisplayNameRejectsBlockedWordWithoutChangingExistingName() {
+        User user = user(1L, "user");
+        user.setDisplayName("Alice");
+        user.setPassword("hash");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("secret", "hash")).thenReturn(true);
+        when(moderation.containsBlockedWord("Zły Pseudonim")).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.changeDisplayName(1L,
+                new ChangeDisplayNameRequest("Zły Pseudonim", "secret")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("niedozwolone słowo");
         assertThat(user.getDisplayName()).isEqualTo("Alice");
     }
 
