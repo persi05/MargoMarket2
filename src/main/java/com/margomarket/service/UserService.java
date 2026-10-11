@@ -1,6 +1,8 @@
 package com.margomarket.service;
 
 import com.margomarket.dto.RegisterRequest;
+import com.margomarket.dto.ChangeDisplayNameRequest;
+import com.margomarket.dto.ChangePasswordRequest;
 import com.margomarket.dto.VerifyEmailRequest;
 import com.margomarket.dto.UserStats;
 import com.margomarket.exception.EmailAlreadyUsedException;
@@ -86,6 +88,38 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
+    public User changeDisplayName(Long userId, ChangeDisplayNameRequest request) {
+        User user = getById(userId);
+        requireCurrentPassword(user, request.currentPassword());
+        user.setDisplayName(normalizeDisplayName(request.displayName()));
+        return user;
+    }
+
+    private String normalizeDisplayName(String value) {
+        String displayName = value.trim().replaceAll("\\s+", " ");
+        if (!displayName.matches("[\\p{L}\\p{N}_. -]{3,32}")) {
+            throw new IllegalArgumentException("Pseudonim musi mieć 3–32 znaki: litery, cyfry, spacje, _, . lub -");
+        }
+        return displayName;
+    }
+
+    @Transactional
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        User user = getById(userId);
+        requireCurrentPassword(user, request.currentPassword());
+        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Nowe hasło musi różnić się od obecnego");
+        }
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+    }
+
+    private void requireCurrentPassword(User user, String currentPassword) {
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Obecne hasło jest nieprawidłowe");
+        }
+    }
+
+    @Transactional
     public User registerUser(RegisterRequest request) {
         String email = request.email().trim().toLowerCase(Locale.ROOT);
         String username = request.username().trim().toLowerCase(Locale.ROOT);
@@ -118,6 +152,7 @@ public class UserService implements UserDetailsService {
 
         if (user == null) user = new User();
         user.setUsername(username);
+        user.setDisplayName(normalizeDisplayName(request.displayName()));
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(role);

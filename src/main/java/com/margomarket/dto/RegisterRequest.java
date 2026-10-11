@@ -11,6 +11,10 @@ RegisterRequest(
         @Pattern(regexp = "[a-zA-Z0-9_.-]{3,32}", message = "Nazwa musi mieć 3–32 znaki: litery, cyfry, _, . lub -")
         String username,
 
+        @NotBlank(message = "Pseudonim jest wymagany")
+        @Pattern(regexp = "[\\p{L}\\p{N}_. -]{3,32}", message = "Pseudonim musi mieć 3–32 znaki: litery, cyfry, spacje, _, . lub -")
+        String displayName,
+
         @NotBlank(message = "E-mail jest wymagany")
         @Email(regexp = "^[^\\s@]+@(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,63}$",
                 message = "Podaj pełny adres e-mail z domeną")

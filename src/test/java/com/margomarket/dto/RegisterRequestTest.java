@@ -12,14 +12,21 @@ class RegisterRequestTest {
 
     @Test
     void rejectsEmailWithoutTopLevelDomain() {
-        var violations = validator.validate(new RegisterRequest("gracz", "patryk@interia", "haslo123"));
+        var violations = validator.validate(new RegisterRequest("gracz", "Gracz", "patryk@interia", "haslo123"));
         assertThat(violations).anySatisfy(violation ->
                 assertThat(violation.getPropertyPath().toString()).isEqualTo("email"));
     }
 
     @Test
     void acceptsCompleteEmailWithSubdomain() {
-        assertThat(validator.validate(new RegisterRequest("gracz", "patryk+test@poczta.example.com", "haslo123")))
+        assertThat(validator.validate(new RegisterRequest("gracz", "Gracz", "patryk+test@poczta.example.com", "haslo123")))
                 .isEmpty();
+    }
+
+    @Test
+    void rejectsMissingDisplayName() {
+        var violations = validator.validate(new RegisterRequest("gracz", "", "patryk@example.com", "haslo123"));
+        assertThat(violations).anySatisfy(violation ->
+                assertThat(violation.getPropertyPath().toString()).isEqualTo("displayName"));
     }
 }

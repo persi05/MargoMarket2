@@ -3,6 +3,7 @@ package com.margomarket.repository;
 import com.margomarket.model.ConversationMessage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface ConversationMessageRepository extends JpaRepository<ConversationMessage, Long> {
+    @EntityGraph(attributePaths = {"sender"})
     Page<ConversationMessage> findByConversationIdOrderByIdDesc(Long conversationId, Pageable pageable);
 
     Optional<ConversationMessage> findFirstByConversationIdOrderByIdDesc(Long conversationId);
