@@ -58,6 +58,15 @@ class TextModerationServiceTest {
     }
 
     @Test
+    void detectsBlockedWordsInDisplayNamesUsingChatRules() {
+        rules(word("kurw", MatchMode.PREFIX), word("dupa", MatchMode.EXACT));
+        assertThat(service.containsBlockedWord("Kurwa Gracz")).isTrue();
+        assertThat(service.containsBlockedWord("Dupa_Gracz")).isFalse();
+        assertThat(service.containsBlockedWord("Dupa-Gracz")).isTrue();
+        assertThat(service.containsBlockedWord("Zwykły Gracz")).isFalse();
+    }
+
+    @Test
     void savesNormalizedTermAndEnabledState() {
         when(repository.saveAndFlush(any())).thenAnswer(invocation -> invocation.getArgument(0));
         var word = service.save(null, new BlockedWordRequest("  ŻÓŁĆ   słowo  ", MatchMode.EXACT, false));

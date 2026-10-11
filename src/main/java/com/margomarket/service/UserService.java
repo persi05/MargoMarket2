@@ -43,6 +43,7 @@ public class UserService implements UserDetailsService {
     private final ListingRepository listingRepository;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
+    private final TextModerationService moderation;
     private static final SecureRandom RANDOM = new SecureRandom();
 
     @Value("${app.mail.from}")
@@ -100,6 +101,9 @@ public class UserService implements UserDetailsService {
         if (!displayName.matches("[\\p{L}\\p{N}_. -]{3,32}")) {
             throw new IllegalArgumentException("Pseudonim musi mieć 3–32 znaki: litery, cyfry, spacje, _, . lub -");
         }
+        if (moderation.containsBlockedWord(displayName)) {
+            throw new IllegalArgumentException("Pseudonim zawiera niedozwolone słowo");
+        }
         return displayName;
     }
 
@@ -123,6 +127,7 @@ public class UserService implements UserDetailsService {
     public User registerUser(RegisterRequest request) {
         String email = request.email().trim().toLowerCase(Locale.ROOT);
         String username = request.username().trim().toLowerCase(Locale.ROOT);
+        String displayName = normalizeDisplayName(request.displayName());
         String domain = email.substring(email.lastIndexOf('@') + 1);
         Set<String> blocked = Set.copyOf(Arrays.stream(blockedDomains.split(","))
                 .map(value -> value.trim().toLowerCase(Locale.ROOT)).filter(value -> !value.isEmpty()).toList());
@@ -152,7 +157,7 @@ public class UserService implements UserDetailsService {
 
         if (user == null) user = new User();
         user.setUsername(username);
-        user.setDisplayName(normalizeDisplayName(request.displayName()));
+        user.setDisplayName(displayName);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(role);
