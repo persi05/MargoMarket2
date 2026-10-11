@@ -40,11 +40,18 @@ export class AuthService {
 
   refreshMe(): Observable<UserResponse> {
     return this.http.get<UserResponse>(`${environment.apiUrl}/auth/me`).pipe(
-      tap((user) => {
-        localStorage.setItem(this.userKey, JSON.stringify(user));
-        this.userSubject.next(user);
-      })
+      tap((user) => this.storeUser(user))
     );
+  }
+
+  changeDisplayName(request: { displayName: string; currentPassword: string }): Observable<UserResponse> {
+    return this.http.put<UserResponse>(`${environment.apiUrl}/auth/me/display-name`, request).pipe(
+      tap((user) => this.storeUser(user))
+    );
+  }
+
+  changePassword(request: { currentPassword: string; newPassword: string }): Observable<void> {
+    return this.http.put<void>(`${environment.apiUrl}/auth/me/password`, request);
   }
 
   logout(): void {
@@ -56,8 +63,12 @@ export class AuthService {
 
   private storeSession(response: LoginResponse): void {
     localStorage.setItem(this.tokenKey, response.accessToken);
-    localStorage.setItem(this.userKey, JSON.stringify(response.user));
-    this.userSubject.next(response.user);
+    this.storeUser(response.user);
+  }
+
+  private storeUser(user: UserResponse): void {
+    localStorage.setItem(this.userKey, JSON.stringify(user));
+    this.userSubject.next(user);
   }
 
   private readUser(): UserResponse | null {

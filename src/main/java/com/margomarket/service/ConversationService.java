@@ -208,8 +208,11 @@ public class ConversationService {
                 conversation.getListing() == null ? null : conversation.getListing().getId(),
                 conversation.getItemName(),
                 conversation.getBuyer().getId(),
+                conversation.getBuyer().getDisplayName(),
                 conversation.getSeller().getId(),
+                conversation.getSeller().getDisplayName(),
                 conversation.getIntermediary() == null ? null : conversation.getIntermediary().getId(),
+                conversation.getIntermediary() == null ? null : conversation.getIntermediary().getDisplayName(),
                 conversation.getIntermediaryStatus(), conversation.getUpdatedAt(),
                 lastMessage, participant ? unreadCount(conversation, viewer) : 0
         );
@@ -220,7 +223,8 @@ public class ConversationService {
         String role = senderId == null ? "system"
                 : senderId.equals(conversation.getBuyer().getId()) ? "buyer"
                 : senderId.equals(conversation.getSeller().getId()) ? "seller" : "intermediary";
-        return new ChatMessageResponse(message.getId(), senderId, role,
+        return new ChatMessageResponse(message.getId(), senderId,
+                message.getSender() == null ? null : message.getSender().getDisplayName(), role,
                 message.getKind(), message.getBody(), message.getCreatedAt());
     }
 }

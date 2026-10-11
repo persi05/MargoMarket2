@@ -85,6 +85,7 @@ public class ListingCommentService {
         return new ListingCommentResponse(
                 comment.getId(),
                 comment.getAuthor().getId(),
+                comment.getAuthor().getDisplayName(),
                 sellerId.equals(comment.getAuthor().getId()),
                 masker.apply(comment.getBody()),
                 comment.getCreatedAt(),

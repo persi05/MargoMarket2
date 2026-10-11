@@ -26,7 +26,10 @@
 
   @if (user$ | async; as user) {
     <div class="session">
-      <span>{{ user.username }}</span>
+      <a class="profile-link" routerLink="/profile" routerLinkActive="active" aria-label="Otwórz profil">
+        <span class="profile-avatar" aria-hidden="true">{{ initial(user.displayName || user.username) }}</span>
+        <span class="profile-name">{{ user.displayName || user.username }}</span>
+      </a>
       <button type="button" class="ghost-button" (click)="logout()">Wyloguj</button>
     </div>
   } @else {

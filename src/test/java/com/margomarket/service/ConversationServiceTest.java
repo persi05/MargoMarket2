@@ -66,9 +66,25 @@ class ConversationServiceTest {
         var response = service.requestIntermediary(7L, buyer);
 
         assertThat(response.intermediaryStatus()).isEqualTo("REQUESTED");
+        assertThat(response.buyerDisplayName()).isEqualTo("Gracz1");
+        assertThat(response.sellerDisplayName()).isEqualTo("Gracz2");
         assertThat(conversation.getBuyerLastReadId()).isEqualTo(20L);
         assertThatThrownBy(() -> service.requestIntermediary(7L, buyer))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void messageResponseContainsSenderDisplayName() {
+        User buyer = user(1L, "user");
+        User seller = user(2L, "user");
+        when(conversations.findDetailedById(7L)).thenReturn(Optional.of(conversation(buyer, seller)));
+        when(moderation.masker()).thenReturn(java.util.function.UnaryOperator.identity());
+        when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
+
+        var response = service.send(7L, "Cześć", seller);
+
+        assertThat(response.senderDisplayName()).isEqualTo("Gracz2");
+        assertThat(response.senderRole()).isEqualTo("seller");
     }
 
     @Test
@@ -107,6 +123,7 @@ class ConversationServiceTest {
         User user = new User();
         user.setId(id);
         user.setEmail("user" + id + "@example.com");
+        user.setDisplayName("Gracz" + id);
         user.setRole(new Role(roleName));
         return user;
     }

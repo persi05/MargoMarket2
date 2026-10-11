@@ -1,0 +1,52 @@
+<section class="profile-page">
+  <div class="profile-heading">
+    <div class="avatar" aria-hidden="true">{{ initial }}</div>
+    <div>
+      <p class="eyebrow">Twoje konto</p>
+      <h1>Profil</h1>
+      <p class="intro">Zarządzaj pseudonimem i hasłem.</p>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+    <form [formGroup]="displayNameForm" (ngSubmit)="saveDisplayName()">
+      <h2>Pseudonim</h2>
+      <p>Zmiana pseudonimu <span style="color: red;">nie zmienia loginu</span>.</p>
+      <label for="profile-display-name">Nowy pseudonim</label>
+      <input id="profile-display-name" type="text" formControlName="displayName" autocomplete="nickname" maxlength="32" [attr.aria-invalid]="displayNameForm.controls.displayName.touched && displayNameForm.controls.displayName.invalid">
+      <span class="field-error" [class.is-hidden]="!(displayNameForm.controls.displayName.touched && displayNameForm.controls.displayName.invalid)">3–32 znaki: litery, cyfry, spacje, _, . lub -.</span>
+      <label for="display-name-password">Obecne hasło</label>
+      <input id="display-name-password" type="password" formControlName="currentPassword" autocomplete="current-password" [attr.aria-invalid]="displayNameForm.controls.currentPassword.touched && displayNameForm.controls.currentPassword.invalid">
+      <span class="field-error" [class.is-hidden]="!(displayNameForm.controls.currentPassword.touched && displayNameForm.controls.currentPassword.invalid)">Podaj obecne hasło.</span>
+      <div class="form-feedback" aria-live="polite">
+        @if (displayNameNotice) { <p class="notice" role="status">{{ displayNameNotice }}</p> }
+        @if (displayNameError) { <p class="error" role="alert">{{ displayNameError }}</p> }
+      </div>
+      <button type="submit" [disabled]="displayNameSaving">{{ displayNameSaving ? 'Zapisywanie...' : 'Zmień pseudonim' }}</button>
+    </form>
+
+    <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+      <h2>Hasło</h2>
+      <p>Nowe hasło musi mieć od 6 do 72 znaków.</p>
+      <label for="current-password">Obecne hasło</label>
+      <input id="current-password" type="password" formControlName="currentPassword" autocomplete="current-password" [attr.aria-invalid]="passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.invalid">
+      <span class="field-error" [class.is-hidden]="!(passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.invalid)">Podaj obecne hasło.</span>
+      <label for="new-password">Nowe hasło</label>
+      <input id="new-password" type="password" formControlName="newPassword" autocomplete="new-password" [attr.aria-invalid]="passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.invalid">
+      <span class="field-error" [class.is-hidden]="!(passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.invalid)">Hasło musi mieć od 6 do 72 znaków.</span>
+      <label for="confirm-password">Potwierdź nowe hasło</label>
+      <input id="confirm-password" type="password" formControlName="confirmPassword" autocomplete="new-password" [attr.aria-invalid]="passwordForm.controls.confirmPassword.touched && passwordForm.controls.confirmPassword.invalid">
+      <span class="field-error" [class.is-hidden]="!(passwordForm.controls.confirmPassword.touched && passwordForm.controls.confirmPassword.invalid)">Potwierdź hasło; oba pola muszą być takie same.</span>
+      <div class="form-feedback" aria-live="polite">
+        @if (passwordNotice) { <p class="notice" role="status">{{ passwordNotice }}</p> }
+        @if (passwordError) { <p class="error" role="alert">{{ passwordError }}</p> }
+      </div>
+      <button type="submit" [disabled]="passwordSaving">{{ passwordSaving ? 'Zapisywanie...' : 'Zmień hasło' }}</button>
+    </form>
+  </div>
+
+  <div class="account-email">
+    <div><span>Login</span><strong>{{ user?.username }}</strong><small>Używany do logowania, pozostaje bez zmian.</small></div>
+    <div><span>Adres e-mail</span><strong>{{ user?.email }}</strong><small>Adres konta pozostaje bez zmian.</small></div>
+  </div>
+</section>

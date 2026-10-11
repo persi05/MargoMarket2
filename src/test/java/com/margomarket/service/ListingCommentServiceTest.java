@@ -59,6 +59,7 @@ class ListingCommentServiceTest {
         ListingCommentResponse response = commentService.addComment(12L, "  Czy aktualne?  ", seller);
 
         assertThat(response.id()).isEqualTo(18L);
+        assertThat(response.authorDisplayName()).isEqualTo("Gracz4");
         assertThat(response.body()).isEqualTo("Czy aktualne?");
         assertThat(response.seller()).isTrue();
         assertThat(response.canDelete()).isTrue();
@@ -79,6 +80,7 @@ class ListingCommentServiceTest {
         var result = commentService.getComments(12L, 1, null);
 
         assertThat(result.getContent().getFirst().body()).isEqualTo("******** słowo");
+        assertThat(result.getContent().getFirst().authorDisplayName()).isEqualTo("Gracz5");
         assertThat(comment.getBody()).isEqualTo("zakazane słowo");
         assertThat(result.getContent().getFirst().canDelete()).isFalse();
     }
@@ -210,6 +212,7 @@ class ListingCommentServiceTest {
     private static User user(Long id) {
         User user = new User();
         user.setId(id);
+        user.setDisplayName("Gracz" + id);
         user.setRole(new Role("user"));
         return user;
     }

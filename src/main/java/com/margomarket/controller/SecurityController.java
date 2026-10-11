@@ -1,6 +1,8 @@
 package com.margomarket.controller;
 
 import com.margomarket.dto.LoginRequest;
+import com.margomarket.dto.ChangeDisplayNameRequest;
+import com.margomarket.dto.ChangePasswordRequest;
 import com.margomarket.dto.LoginResponse;
 import com.margomarket.dto.RegisterRequest;
 import com.margomarket.dto.VerifyEmailRequest;
@@ -17,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -62,5 +65,18 @@ public class SecurityController {
     @GetMapping("/me")
     public UserResponse currentUser(@AuthenticationPrincipal User user) {
         return userMapper.toResponse(user);
+    }
+
+    @PutMapping("/me/display-name")
+    public UserResponse changeDisplayName(@AuthenticationPrincipal User user,
+                                          @Valid @RequestBody ChangeDisplayNameRequest request) {
+        return userMapper.toResponse(userService.changeDisplayName(user.getId(), request));
+    }
+
+    @PutMapping("/me/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword(@AuthenticationPrincipal User user,
+                               @Valid @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(user.getId(), request);
     }
 }

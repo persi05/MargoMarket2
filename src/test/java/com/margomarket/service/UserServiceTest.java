@@ -1,6 +1,8 @@
 package com.margomarket.service;
 
 import com.margomarket.dto.RegisterRequest;
+import com.margomarket.dto.ChangeDisplayNameRequest;
+import com.margomarket.dto.ChangePasswordRequest;
 import com.margomarket.dto.VerifyEmailRequest;
 import com.margomarket.dto.UserStats;
 import com.margomarket.exception.EmailAlreadyUsedException;
@@ -70,7 +72,7 @@ class UserServiceTest {
     void registerUserNormalizesEmailEncodesPasswordAndAssignsUserRole() {
         ReflectionTestUtils.setField(userService, "codeExpirationMinutes", 3);
         Role role = new Role("user");
-        RegisterRequest request = new RegisterRequest("Alice", "  TEST@Example.COM  ", "secret123");
+        RegisterRequest request = new RegisterRequest("Alice", "Alicja", "  TEST@Example.COM  ", "secret123");
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(roleRepository.findByName("user")).thenReturn(Optional.of(role));
@@ -81,6 +83,7 @@ class UserServiceTest {
 
         assertThat(registered.getEmail()).isEqualTo("test@example.com");
         assertThat(registered.getUsername()).isEqualTo("alice");
+        assertThat(registered.getDisplayName()).isEqualTo("Alicja");
         assertThat(registered.isEmailVerified()).isFalse();
         assertThat(registered.getVerificationExpiresAt())
                 .isBetween(java.time.LocalDateTime.now().plusMinutes(2), java.time.LocalDateTime.now().plusMinutes(4));
@@ -92,7 +95,7 @@ class UserServiceTest {
 
     @Test
     void registerUserThrowsWhenEmailAlreadyExists() {
-        RegisterRequest request = new RegisterRequest("alice", "test@example.com", "secret123");
+        RegisterRequest request = new RegisterRequest("alice", "Alicja", "test@example.com", "secret123");
         User existing = new User();
         existing.setEmailVerified(true);
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(existing));
@@ -106,7 +109,7 @@ class UserServiceTest {
 
     @Test
     void registerUserThrowsWhenDefaultRoleIsMissing() {
-        RegisterRequest request = new RegisterRequest("alice", "test@example.com", "secret123");
+        RegisterRequest request = new RegisterRequest("alice", "Alicja", "test@example.com", "secret123");
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(roleRepository.findByName("user")).thenReturn(Optional.empty());
@@ -120,7 +123,7 @@ class UserServiceTest {
 
     @Test
     void registerUserRejectsDisposableDomainAndSubdomain() {
-        RegisterRequest request = new RegisterRequest("alice", "a@sub.mailinator.com", "secret123");
+        RegisterRequest request = new RegisterRequest("alice", "Alicja", "a@sub.mailinator.com", "secret123");
         assertThatThrownBy(() -> userService.registerUser(request))
                 .isInstanceOf(IllegalArgumentException.class);
         verifyNoInteractions(userRepository, roleRepository, mailSender);
@@ -135,7 +138,7 @@ class UserServiceTest {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(pending));
 
         assertThatThrownBy(() -> userService.registerUser(
-                new RegisterRequest("alice", "test@example.com", "secret123")))
+                new RegisterRequest("alice", "Alicja", "test@example.com", "secret123")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Nowy kod można wysłać za");
         verifyNoInteractions(mailSender);
@@ -143,7 +146,7 @@ class UserServiceTest {
 
     @Test
     void registerUserReleasesExpiredPendingUsernameBeforeCheckingAvailability() {
-        RegisterRequest request = new RegisterRequest("alice", "new@example.com", "secret123");
+        RegisterRequest request = new RegisterRequest("alice", "Alicja", "new@example.com", "secret123");
         AtomicBoolean usernameReserved = new AtomicBoolean(true);
         org.mockito.Mockito.doAnswer(invocation -> {
             usernameReserved.set(false);
@@ -201,6 +204,75 @@ class UserServiceTest {
         assertThat(userService.verifyEmail(new VerifyEmailRequest("a@example.com", "123456"))).isTrue();
         assertThat(pending.isEmailVerified()).isTrue();
         assertThat(pending.getVerificationCodeHash()).isNull();
+    }
+
+    @Test
+    void changeDisplayNameRequiresCurrentPassword() {
+        User user = user(1L, "user");
+        user.setUsername("alice");
+        user.setDisplayName("Alice");
+        user.setPassword("hash");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> userService.changeDisplayName(1L, new ChangeDisplayNameRequest("Bob", "wrong")))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(user.getUsername()).isEqualTo("alice");
+        assertThat(user.getDisplayName()).isEqualTo("Alice");
+    }
+
+    @Test
+    void changeDisplayNameKeepsLoginAndEmail() {
+        User user = user(1L, "user");
+        user.setUsername("alice");
+        user.setDisplayName("Alice");
+        user.setEmail("alice@example.com");
+        user.setPassword("hash");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("secret", "hash")).thenReturn(true);
+
+        User updated = userService.changeDisplayName(1L, new ChangeDisplayNameRequest("  Bob  ", "secret"));
+
+        assertThat(updated.getDisplayName()).isEqualTo("Bob");
+        assertThat(updated.getUsername()).isEqualTo("alice");
+        assertThat(updated.getEmail()).isEqualTo("alice@example.com");
+    }
+
+    @Test
+    void changeDisplayNameRejectsTooShortNameAfterTrimming() {
+        User user = user(1L, "user");
+        user.setDisplayName("Alice");
+        user.setPassword("hash");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("secret", "hash")).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.changeDisplayName(1L, new ChangeDisplayNameRequest(" a ", "secret")))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(user.getDisplayName()).isEqualTo("Alice");
+    }
+
+    @Test
+    void changePasswordRequiresCurrentPassword() {
+        User user = user(1L, "user");
+        user.setPassword("old-hash");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> userService.changePassword(1L, new ChangePasswordRequest("wrong", "newsecret")))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(user.getPassword()).isEqualTo("old-hash");
+        verify(passwordEncoder, never()).encode(any());
+    }
+
+    @Test
+    void changePasswordStoresEncodedNewPassword() {
+        User user = user(1L, "user");
+        user.setPassword("old-hash");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("oldsecret", "old-hash")).thenReturn(true);
+        when(passwordEncoder.encode("newsecret")).thenReturn("new-hash");
+
+        userService.changePassword(1L, new ChangePasswordRequest("oldsecret", "newsecret"));
+
+        assertThat(user.getPassword()).isEqualTo("new-hash");
     }
 
     @Test

@@ -29,6 +29,9 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true, length = 255)
     private String username;
 
+    @Column(name = "display_name", nullable = false, length = 32)
+    private String displayName;
+
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified = true;
 

@@ -30,6 +30,7 @@ export class AuthPageComponent {
       ? { passwordMismatch: true } : null;
   protected readonly form = this.fb.nonNullable.group({
     username: [this.pending?.username ?? '', [Validators.required]],
+    displayName: [this.pending?.displayName ?? ''],
     email: [this.pending?.email ?? ''],
     password: ['', [Validators.required]],
     confirmPassword: [''],
@@ -44,11 +45,11 @@ export class AuthPageComponent {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.loading = true;
     this.error = '';
-    const { username, email, password, code } = this.form.getRawValue();
+    const { username, displayName, email, password, code } = this.form.getRawValue();
     if (this.mode === 'register') {
-      this.authService.register({ username, email, password }).pipe(finalize(() => this.loading = false)).subscribe({
+      this.authService.register({ username, displayName, email, password }).pipe(finalize(() => this.loading = false)).subscribe({
         next: () => {
-          this.rememberPendingRegistration(username, email);
+          this.rememberPendingRegistration(username, displayName, email);
           this.form.controls.code.reset();
           this.switchMode('verify');
         },
@@ -81,7 +82,7 @@ export class AuthPageComponent {
         void this.router.navigateByUrl(returnUrl?.startsWith('/') && !returnUrl.startsWith('//')
           ? returnUrl : '/');
       },
-      error: () => this.error = 'Nie udało się zalogować. Sprawdź nazwę użytkownika i hasło.'
+      error: () => this.error = 'Nie udało się zalogować. Sprawdź login i hasło.'
     });
   }
 
@@ -102,14 +103,14 @@ export class AuthPageComponent {
 
   resend(): void {
     if (this.loading) return;
-    const { username, email, password } = this.form.getRawValue();
-    if (!username || !email || !password) {
+    const { username, displayName, email, password } = this.form.getRawValue();
+    if (!username || !displayName || !email || !password) {
       this.switchMode('register');
       this.error = 'Aby otrzymać nowy kod, wypełnij ponownie formularz rejestracji.';
       return;
     }
     this.loading = true;
-    this.authService.register({ username, email, password }).pipe(finalize(() => this.loading = false)).subscribe({
+    this.authService.register({ username, displayName, email, password }).pipe(finalize(() => this.loading = false)).subscribe({
       next: () => { this.error = ''; this.notice = 'Wysłaliśmy nowy kod. Poprzedni kod już nie działa.'; },
       error: (response: HttpErrorResponse) => this.showResendError(response)
     });
@@ -130,6 +131,8 @@ export class AuthPageComponent {
     this.form.controls.username.setValidators(this.mode === 'register'
       ? [Validators.required, Validators.pattern(/^[a-zA-Z0-9_.-]{3,32}$/)]
       : this.mode === 'login' ? [Validators.required] : []);
+    this.form.controls.displayName.setValidators(this.mode === 'register'
+      ? [Validators.required, Validators.pattern(/^[\p{L}\p{N}_. -]{3,32}$/u)] : []);
     this.form.controls.email.setValidators(this.mode === 'login'
       ? [] : [Validators.required, Validators.email, Validators.pattern(EMAIL_ADDRESS_PATTERN)]);
     this.form.controls.password.setValidators(this.mode === 'register'
@@ -148,21 +151,21 @@ export class AuthPageComponent {
     return mode === 'register' ? 'register' : 'login';
   }
 
-  private readPendingRegistration(): { username: string; email: string } | null {
+  private readPendingRegistration(): { username: string; displayName: string; email: string } | null {
     try {
       const raw = sessionStorage.getItem(this.pendingKey);
       if (!raw) return null;
-      const pending = JSON.parse(raw) as { username?: string; email?: string };
+      const pending = JSON.parse(raw) as { username?: string; displayName?: string; email?: string };
       return typeof pending.username === 'string' && typeof pending.email === 'string'
-        ? { username: pending.username, email: pending.email } : null;
+        ? { username: pending.username, displayName: pending.displayName || pending.username, email: pending.email } : null;
     } catch {
       return null;
     }
   }
 
-  private rememberPendingRegistration(username: string, email: string): void {
+  private rememberPendingRegistration(username: string, displayName: string, email: string): void {
     try {
-      sessionStorage.setItem(this.pendingKey, JSON.stringify({ username, email }));
+      sessionStorage.setItem(this.pendingKey, JSON.stringify({ username, displayName, email }));
     } catch {
       // Weryfikacja działa dalej w otwartej karcie, nawet bez pamięci przeglądarki.
     }

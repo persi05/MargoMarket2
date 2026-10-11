@@ -26,6 +26,12 @@ export const routes: Routes = [
     title: 'Moje ogłoszenia | MargoMarket'
   },
   {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/profile/profile-page.component').then((m) => m.ProfilePageComponent),
+    title: 'Profil | MargoMarket'
+  },
+  {
     path: 'favorites',
     canActivate: [authGuard],
     loadComponent: () => import('./features/dashboard/dashboard-page.component').then((m) => m.DashboardPageComponent),
