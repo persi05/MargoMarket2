@@ -98,9 +98,9 @@ export interface ConversationResponse {
   lastMessage: string;
   unreadCount: number;
   closedAt: string | null;
-    contactRequestStatus: 'NONE' | 'PENDING' | 'ACCEPTED' | 'REJECTED';
-    contactRequesterId: number | null;
-    contactRequestAllowed: boolean;
+  contactRequestStatus: 'NONE' | 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  contactRequesterId: number | null;
+  contactRequestAllowed: boolean;
 }
 
 export type ConversationReportReason = 'SCAM' | 'FRAUD';

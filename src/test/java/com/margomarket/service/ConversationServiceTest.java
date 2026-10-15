@@ -9,14 +9,13 @@ import com.margomarket.model.Role;
 import com.margomarket.model.User;
 import com.margomarket.repository.ConversationMessageRepository;
 import com.margomarket.repository.ConversationRepository;
-import com.margomarket.repository.ConversationReportRepository;
 import com.margomarket.repository.ListingRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -34,12 +33,19 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ConversationServiceTest {
     @Mock ConversationRepository conversations;
-    @Mock ConversationReportRepository reports;
     @Mock ConversationMessageRepository messages;
     @Mock ListingRepository listings;
     @Mock ListingService listingService;
     @Mock TextModerationService moderation;
-    @InjectMocks ConversationService service;
+    private ConversationService service;
+    private ConversationExchangeService exchangeService;
+
+    @BeforeEach
+    void setUp() {
+        ConversationAccess access = new ConversationAccess(conversations, messages);
+        service = new ConversationService(conversations, messages, listings, moderation, access);
+        exchangeService = new ConversationExchangeService(conversations, listingService, access);
+    }
 
     @Test
     void unrelatedUserCannotReadOrSendPrivateMessages() {
@@ -65,19 +71,29 @@ class ConversationServiceTest {
     }
 
     @Test
+    void listingConversationLookupIsScopedToBuyer() {
+        User buyer = user(1L, "user");
+        Conversation conversation = conversation(buyer, user(2L, "user"));
+        when(conversations.findByListingAndBuyer(15L, 1L)).thenReturn(Optional.of(conversation));
+
+        assertThat(service.forListing(15L, buyer)).isPresent();
+        verify(conversations).findByListingAndBuyer(15L, 1L);
+    }
+
+    @Test
     void participantCanRequestIntermediaryOnlyOnce() {
         User buyer = user(1L, "user");
         Conversation conversation = conversation(buyer, user(2L, "user"));
         when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
         when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
 
-        var response = service.requestIntermediary(7L, buyer);
+        var response = exchangeService.requestIntermediary(7L, buyer);
 
         assertThat(response.intermediaryStatus()).isEqualTo("REQUESTED");
         assertThat(response.buyerDisplayName()).isEqualTo("Gracz1");
         assertThat(response.sellerDisplayName()).isEqualTo("Gracz2");
         assertThat(conversation.getBuyerLastReadId()).isEqualTo(20L);
-        assertThatThrownBy(() -> service.requestIntermediary(7L, buyer))
+        assertThatThrownBy(() -> exchangeService.requestIntermediary(7L, buyer))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -140,10 +156,10 @@ class ConversationServiceTest {
         when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
         when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
 
-        assertThatThrownBy(() -> service.joinAsIntermediary(7L, user(3L, "user")))
+        assertThatThrownBy(() -> exchangeService.joinAsIntermediary(7L, user(3L, "user")))
                 .isInstanceOf(ForbiddenOperationException.class);
         User admin = user(4L, "admin");
-        var response = service.joinAsIntermediary(7L, admin);
+        var response = exchangeService.joinAsIntermediary(7L, admin);
         assertThat(response.intermediaryStatus()).isEqualTo("ASSIGNED");
         assertThat(response.intermediaryId()).isEqualTo(4L);
         assertThat(conversation.getIntermediaryLastReadId()).isEqualTo(20L);
@@ -157,7 +173,7 @@ class ConversationServiceTest {
         when(conversations.findDetailedById(7L)).thenReturn(Optional.of(conversation));
         when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
 
-        var closed = service.close(7L, buyer, false);
+        var closed = exchangeService.close(7L, buyer, false);
 
         assertThat(closed.closedAt()).isNotNull();
         assertThatThrownBy(() -> service.send(7L, "Jeszcze wiadomość", buyer))
@@ -181,7 +197,7 @@ class ConversationServiceTest {
         when(conversations.findDetailedById(7L)).thenReturn(Optional.of(conversation));
         when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
 
-        assertThat(service.close(7L, admin, false).closedAt()).isNotNull();
+        assertThat(exchangeService.close(7L, admin, false).closedAt()).isNotNull();
         assertThat(service.get(7L, admin).closedAt()).isNotNull();
         verify(listingService).markAsSold(15L, admin);
     }
@@ -196,9 +212,9 @@ class ConversationServiceTest {
         conversation.setIntermediaryStatus("ASSIGNED");
         when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
 
-        assertThatThrownBy(() -> service.close(7L, buyer, false))
+        assertThatThrownBy(() -> exchangeService.close(7L, buyer, false))
                 .isInstanceOf(ForbiddenOperationException.class);
-        assertThatThrownBy(() -> service.close(7L, seller, true))
+        assertThatThrownBy(() -> exchangeService.close(7L, seller, true))
                 .isInstanceOf(ForbiddenOperationException.class);
         assertThat(conversation.getClosedAt()).isNull();
         verify(listingService, never()).markAsSold(any(), any());
@@ -214,7 +230,7 @@ class ConversationServiceTest {
         when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
         when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
 
-        assertThat(service.close(7L, seller, true).closedAt()).isNotNull();
+        assertThat(exchangeService.close(7L, seller, true).closedAt()).isNotNull();
         verify(listingService).markAsSold(15L, seller);
     }
 
@@ -224,7 +240,7 @@ class ConversationServiceTest {
         Conversation conversation = conversation(buyer, user(2L, "user"));
         when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
 
-        assertThatThrownBy(() -> service.close(7L, buyer, true))
+        assertThatThrownBy(() -> exchangeService.close(7L, buyer, true))
                 .isInstanceOf(ForbiddenOperationException.class);
         assertThat(conversation.getClosedAt()).isNull();
         verify(listingService, never()).markAsSold(any(), any());
@@ -247,9 +263,9 @@ class ConversationServiceTest {
         finished.setClosedAt(LocalDateTime.now());
         when(conversations.findIntermediaryExchanges(3L)).thenReturn(List.of(finished, active, requested));
 
-        assertThat(service.intermediaryExchanges(admin)).extracting(response -> response.id())
+        assertThat(exchangeService.intermediaryExchanges(admin)).extracting(response -> response.id())
                 .containsExactly(1L, 2L, 3L);
-        assertThatThrownBy(() -> service.intermediaryExchanges(user(8L, "user")))
+        assertThatThrownBy(() -> exchangeService.intermediaryExchanges(user(8L, "user")))
                 .isInstanceOf(ForbiddenOperationException.class);
     }
 
@@ -269,52 +285,6 @@ class ConversationServiceTest {
         assertThatThrownBy(() -> service.adminChat(7L, user(4L, "user")))
                 .isInstanceOf(ForbiddenOperationException.class);
         assertThatThrownBy(() -> service.adminChatMessages(7L, 1, user(4L, "user")))
-                .isInstanceOf(ForbiddenOperationException.class);
-    }
-
-    @Test
-    void outsiderCannotReportPrivateConversation() {
-        Conversation conversation = conversation(user(1L, "user"), user(2L, "user"));
-        when(conversations.findDetailedById(7L)).thenReturn(Optional.of(conversation));
-
-        assertThatThrownBy(() -> service.report(7L, "SCAM", "", user(3L, "user")))
-                .isInstanceOf(ForbiddenOperationException.class);
-        verify(reports, never()).save(any());
-    }
-
-    @Test
-    void duplicateReportIsRejected() {
-        User buyer = user(1L, "user");
-        when(conversations.findDetailedById(7L)).thenReturn(Optional.of(conversation(buyer, user(2L, "user"))));
-        when(reports.existsByConversationIdAndReporterId(7L, 1L)).thenReturn(true);
-
-        assertThatThrownBy(() -> service.report(7L, "SCAM", "", buyer))
-                .isInstanceOf(IllegalArgumentException.class);
-        verify(reports, never()).save(any());
-    }
-
-    @Test
-    void reportIdentifiesOtherConversationParticipant() {
-        User buyer = user(1L, "user");
-        when(conversations.findDetailedById(7L)).thenReturn(Optional.of(conversation(buyer, user(2L, "user"))));
-        when(moderation.masker()).thenReturn(text -> text.replace("sytuacji", "********"));
-        when(reports.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-        var report = service.report(7L, "FRAUD", "Opis sytuacji", buyer);
-
-        assertThat(report.reporterDisplayName()).isEqualTo("Gracz1");
-        assertThat(report.reportedUserDisplayName()).isEqualTo("Gracz2");
-        assertThat(report.reason()).isEqualTo("FRAUD");
-        assertThat(report.details()).isEqualTo("Opis ********");
-    }
-
-    @Test
-    void onlyAdminCanListReportsAndReadReportedMessages() {
-        User ordinaryUser = user(1L, "user");
-
-        assertThatThrownBy(() -> service.reports(ordinaryUser))
-                .isInstanceOf(ForbiddenOperationException.class);
-        assertThatThrownBy(() -> service.reportMessages(5L, ordinaryUser))
                 .isInstanceOf(ForbiddenOperationException.class);
     }
 
@@ -343,14 +313,14 @@ class ConversationServiceTest {
         when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
         when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
 
-        var requested = service.requestContact(7L, buyer);
+        var requested = exchangeService.requestContact(7L, buyer);
         assertThat(requested.contactRequestStatus()).isEqualTo("PENDING");
         assertThat(requested.contactRequesterId()).isEqualTo(1L);
         assertThat(conversation.getClosedAt()).isNotNull();
-        assertThatThrownBy(() -> service.respondToContact(7L, buyer, true))
+        assertThatThrownBy(() -> exchangeService.respondToContact(7L, buyer, true))
                 .isInstanceOf(ForbiddenOperationException.class);
 
-        var accepted = service.respondToContact(7L, seller, true);
+        var accepted = exchangeService.respondToContact(7L, seller, true);
         assertThat(accepted.contactRequestStatus()).isEqualTo("ACCEPTED");
         assertThat(accepted.closedAt()).isNull();
         assertThat(conversation.getSellerLastReadId()).isEqualTo(20L);
@@ -365,12 +335,12 @@ class ConversationServiceTest {
         when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
         when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
 
-        service.requestContact(7L, buyer);
-        var rejected = service.respondToContact(7L, seller, false);
+        exchangeService.requestContact(7L, buyer);
+        var rejected = exchangeService.respondToContact(7L, seller, false);
 
         assertThat(rejected.contactRequestStatus()).isEqualTo("REJECTED");
         assertThat(rejected.closedAt()).isNotNull();
-        assertThatThrownBy(() -> service.requestContact(7L, buyer))
+        assertThatThrownBy(() -> exchangeService.requestContact(7L, buyer))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -381,9 +351,9 @@ class ConversationServiceTest {
         when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
         User outsider = user(3L, "user");
 
-        assertThatThrownBy(() -> service.requestContact(7L, outsider))
+        assertThatThrownBy(() -> exchangeService.requestContact(7L, outsider))
                 .isInstanceOf(ForbiddenOperationException.class);
-        assertThatThrownBy(() -> service.respondToContact(7L, outsider, true))
+        assertThatThrownBy(() -> exchangeService.respondToContact(7L, outsider, true))
                 .isInstanceOf(ForbiddenOperationException.class);
         verify(messages, never()).save(any());
     }
@@ -401,8 +371,8 @@ class ConversationServiceTest {
         when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
         when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
 
-        service.close(7L, seller, false);
-        var request = service.requestContact(7L, buyer);
+        exchangeService.close(7L, seller, false);
+        var request = exchangeService.requestContact(7L, buyer);
 
         assertThat(request.contactRequestStatus()).isEqualTo("PENDING");
         assertThat(request.contactRequestAllowed()).isTrue();
@@ -422,7 +392,7 @@ class ConversationServiceTest {
         when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
 
         assertThat(conversation.getContactRequestStatus()).isEqualTo("NONE");
-        assertThatThrownBy(() -> service.requestContact(7L, buyer))
+        assertThatThrownBy(() -> exchangeService.requestContact(7L, buyer))
                 .isInstanceOf(IllegalArgumentException.class);
         verify(messages, never()).save(any());
     }

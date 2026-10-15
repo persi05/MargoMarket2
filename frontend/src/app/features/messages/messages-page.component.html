@@ -25,11 +25,11 @@
       }
       @if (loadingInbox) {
         <p class="inbox-empty">Wczytywanie rozmów...</p>
-      } @else if (!visibleConversations.length) {
+      } @else if (!conversations.length) {
         <p class="inbox-empty">{{ adminAll ? 'Brak chatów.' : currentUser?.role === 'admin' && inboxTab === 'exchanges' ? 'Nie uczestniczysz jeszcze w żadnej wymianie jako pośrednik.' : 'Nie masz jeszcze rozmów. Otwórz ogłoszenie i napisz do sprzedającego.' }}</p>
       }
       <div class="conversation-list">
-        @for (conversation of visibleConversations; track conversation.id) {
+        @for (conversation of conversations; track conversation.id) {
           <a class="conversation-link" [class.selected]="selectedId === conversation.id" [routerLink]="adminAll ? null : ['/messages', conversation.id]" (click)="adminAll ? selectAdminConversation(conversation.id) : null">
             <span class="conversation-avatar" aria-hidden="true">{{ conversation.itemName.charAt(0) }}</span>
             <span class="conversation-copy">
@@ -193,33 +193,12 @@
   </div>
 
   @if (reportOpen && selected) {
-    <div class="report-overlay" (click)="onReportBackdropClick($event)">
-      <section #reportDialog class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="report-title" aria-describedby="report-description">
-        <button type="button" class="report-close" aria-label="Zamknij zgłoszenie" (click)="closeReport()">×</button>
-        <h2 id="report-title">Zgłoś użytkownika</h2>
-        <p id="report-description">Zgłaszasz użytkownika <strong>{{ reportTargetName }}</strong>. Wybierz powód zgłoszenia.</p>
-        <form class="report-form" (ngSubmit)="submitReport()">
-          <fieldset>
-            <legend>Powód zgłoszenia</legend>
-            <label class="report-option">
-              <input type="radio" name="reportReason" value="SCAM" [(ngModel)]="reportReason">
-              <span><strong>Podejrzenie scamu</strong><small>Coś w zachowaniu użytkownika budzi Twoje podejrzenia.</small></span>
-            </label>
-            <label class="report-option">
-              <input type="radio" name="reportReason" value="FRAUD" [(ngModel)]="reportReason">
-              <span><strong>Oszustwo</strong><small>Użytkownik oszukał Cię podczas wymiany.</small></span>
-            </label>
-          </fieldset>
-          <label for="report-details">Dodatkowy opis <span>(opcjonalnie)</span></label>
-          <textarea id="report-details" name="reportDetails" [(ngModel)]="reportDetails" maxlength="1000" rows="3" placeholder="Opisz sytuację, żeby ułatwić administratorowi ocenę"></textarea>
-          @if (reportNotice) { <p class="report-error" role="alert">{{ reportNotice }}</p> }
-          <div class="report-dialog-actions">
-            <button type="button" class="report-cancel" (click)="closeReport()">Anuluj</button>
-            <button type="submit" class="report-submit" [disabled]="reportBusy || !reportReason">{{ reportBusy ? 'Wysyłanie...' : 'Wyślij zgłoszenie' }}</button>
-          </div>
-        </form>
-      </section>
-    </div>
+    <mm-conversation-report-dialog
+      [targetName]="reportTargetName"
+      [busy]="reportBusy"
+      [error]="reportNotice"
+      (cancel)="closeReport()"
+      (submitReport)="submitReport($event)" />
   }
   @if (closeOpen && selected) {
     <div class="report-overlay" (click)="onCloseBackdropClick($event)">

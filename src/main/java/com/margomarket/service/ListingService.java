@@ -7,19 +7,15 @@ import com.margomarket.exception.ForbiddenOperationException;
 import com.margomarket.exception.NotFoundException;
 import com.margomarket.model.Currency;
 import com.margomarket.model.Item;
-import com.margomarket.model.ItemType;
 import com.margomarket.model.Listing;
 import com.margomarket.model.ListingStatus;
-import com.margomarket.model.Rarity;
 import com.margomarket.model.Server;
 import com.margomarket.model.User;
 import com.margomarket.repository.CurrencyRepository;
 import com.margomarket.repository.FavoriteRepository;
 import com.margomarket.repository.ItemRepository;
-import com.margomarket.repository.ItemTypeRepository;
 import com.margomarket.repository.ListingRepository;
 import com.margomarket.repository.ListingStatusRepository;
-import com.margomarket.repository.RarityRepository;
 import com.margomarket.repository.ServerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -45,9 +41,7 @@ public class ListingService {
     private final ListingRepository listingRepository;
     private final ListingStatusRepository listingStatusRepository;
     private final ServerRepository serverRepository;
-    private final ItemTypeRepository itemTypeRepository;
     private final ItemRepository itemRepository;
-    private final RarityRepository rarityRepository;
     private final CurrencyRepository currencyRepository;
     private final FavoriteRepository favoriteRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -192,11 +186,6 @@ public class ListingService {
                 .orElseThrow(() -> new NotFoundException("Serwer nie istnieje"));
     }
 
-    private ItemType getItemType(Long id) {
-        return itemTypeRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Typ przedmiotu nie istnieje"));
-    }
-
     private Item getItem(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Przedmiot nie istnieje"));
@@ -216,11 +205,6 @@ public class ListingService {
 
     private boolean canBindItem(Item item) {
         return !java.util.Set.of("Konsumpcyjne", "Waluta").contains(item.getItemType().getName());
-    }
-
-    private Rarity getRarity(Long id) {
-        return rarityRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Rzadkość nie istnieje"));
     }
 
     private Currency getCurrency(Long id) {

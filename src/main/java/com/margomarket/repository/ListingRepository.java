@@ -15,6 +15,16 @@ import java.util.Optional;
 
 public interface ListingRepository extends JpaRepository<Listing, Long> {
 
+    @Query(value = """
+        SELECT COUNT(*),
+               COUNT(*) FILTER (WHERE status.name = 'active'),
+               COUNT(*) FILTER (WHERE status.name = 'sold')
+        FROM listings listing
+        JOIN listing_statuses status ON status.id = listing.status_id
+        WHERE listing.user_id = :userId
+        """, nativeQuery = true)
+    List<Object[]> countUserListingsByStatus(@Param("userId") Long userId);
+
     @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
     @Query("""
         SELECT l

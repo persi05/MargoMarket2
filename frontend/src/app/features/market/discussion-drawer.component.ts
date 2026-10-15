@@ -66,7 +66,9 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
         this.sendNotice = '';
         this.loadPostingStatus();
       });
-    this.refreshTimer = setInterval(() => this.refreshLatest(), 12000);
+    this.refreshTimer = setInterval(() => {
+      if (!document.hidden) this.refreshLatest();
+    }, 12000);
     this.countdownTimer = setInterval(() => this.updateCountdown(), 1000);
     setTimeout(() => this.closeButton?.nativeElement.focus());
   }
@@ -87,7 +89,10 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
   @HostListener('window:pageshow')
   @HostListener('document:visibilitychange')
   protected syncPostingStatus(): void {
-    if (document.visibilityState === 'visible') this.loadPostingStatus();
+    if (document.visibilityState === 'visible') {
+      this.loadPostingStatus();
+      this.refreshLatest();
+    }
   }
 
   protected get priceLabel(): string {

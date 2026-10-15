@@ -2,7 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { catchError, of, switchMap, timer } from 'rxjs';
+import { catchError, filter, fromEvent, merge, of, switchMap, timer } from 'rxjs';
 
 import { AuthService } from './core/services/auth.service';
 import { ConversationService } from './core/services/conversation.service';
@@ -23,7 +23,8 @@ export class AppComponent {
 
   constructor() {
     this.user$.pipe(
-      switchMap(user => user ? timer(0, 15000).pipe(
+      switchMap(user => user ? merge(timer(0, 15000), fromEvent(document, 'visibilitychange')).pipe(
+        filter(() => !document.hidden),
         switchMap(() => this.conversations.unreadCount().pipe(
           catchError(() => of({ count: this.unreadMessages }))
         ))
