@@ -54,6 +54,16 @@ public class Conversation {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "closed_at")
+    private LocalDateTime closedAt;
+
+    @Column(name = "contact_request_status", nullable = false, length = 20)
+    private String contactRequestStatus = "NONE";
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contact_requester_id")
+    private User contactRequester;
+
     @PrePersist
     private void onCreate() {
         createdAt = LocalDateTime.now();
