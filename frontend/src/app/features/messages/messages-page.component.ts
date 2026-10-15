@@ -10,11 +10,12 @@ import { AuthService } from '../../core/services/auth.service';
 import { ConversationService } from '../../core/services/conversation.service';
 import { ListingService } from '../../core/services/listing.service';
 import { formatListingPrice } from '../../core/utils/price-format';
+import { ConversationReportDialogComponent } from './conversation-report-dialog.component';
 
 @Component({
   selector: 'mm-messages-page',
   standalone: true,
-  imports: [DatePipe, FormsModule, RouterLink],
+  imports: [DatePipe, FormsModule, RouterLink, ConversationReportDialogComponent],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.css'
 })
@@ -22,7 +23,6 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   @Input() adminAll = false;
   @Input() adminConversationId: number | null = null;
   @ViewChild('messageList') private messageList?: ElementRef<HTMLElement>;
-  @ViewChild('reportDialog') private reportDialog?: ElementRef<HTMLElement>;
   @ViewChild('reportTrigger') private reportTrigger?: ElementRef<HTMLButtonElement>;
   @ViewChild('closeDialog') private closeDialog?: ElementRef<HTMLElement>;
   @ViewChild('closeTrigger') private closeTrigger?: ElementRef<HTMLButtonElement>;
@@ -64,8 +64,6 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   protected contactNotice = '';
   protected reportBusy = false;
   protected reportOpen = false;
-  protected reportReason: ConversationReportReason | '' = '';
-  protected reportDetails = '';
   protected reportNotice = '';
   protected hasMore = false;
   protected nextOlderPage = 2;
@@ -102,9 +100,17 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
       });
     }
     this.refreshTimer = setInterval(() => {
+      if (document.hidden) return;
       this.loadInbox(true);
       if (this.selectedId) this.refreshMessages(this.selectedId);
     }, 12000);
+  }
+
+  @HostListener('document:visibilitychange')
+  protected refreshWhenVisible(): void {
+    if (document.hidden) return;
+    this.loadInbox(true);
+    if (this.selectedId) this.refreshMessages(this.selectedId);
   }
 
   ngOnDestroy(): void {
@@ -130,10 +136,6 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
       return user.role === 'admin' && user.id === conversation.intermediaryId;
     }
     return user.id === conversation.buyerId || user.id === conversation.sellerId;
-  }
-
-  protected get visibleConversations(): ConversationResponse[] {
-    return this.conversations;
   }
 
   protected showMoreConversations(): void {
@@ -185,21 +187,14 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   }
 
   protected openReport(): void {
-    this.reportReason = '';
-    this.reportDetails = '';
     this.reportNotice = '';
     this.reportOpen = true;
-    setTimeout(() => this.reportDialog?.nativeElement.querySelector<HTMLInputElement>('input[type="radio"]')?.focus());
   }
 
   protected closeReport(): void {
     this.reportOpen = false;
     this.reportNotice = '';
     setTimeout(() => this.reportTrigger?.nativeElement.focus());
-  }
-
-  protected onReportBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) this.closeReport();
   }
 
   protected send(): void {
@@ -356,12 +351,11 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     this.refreshMessages(conversationId);
   }
 
-  protected submitReport(): void {
-    const reason = this.reportReason;
-    if (!this.selected || this.reportBusy || (reason !== 'SCAM' && reason !== 'FRAUD')) return;
+  protected submitReport(report: { reason: ConversationReportReason; details: string }): void {
+    if (!this.selected || this.reportBusy) return;
     this.reportBusy = true;
     this.reportNotice = '';
-    this.conversationsService.report(this.selected.id, reason, this.reportDetails.trim())
+    this.conversationsService.report(this.selected.id, report.reason, report.details)
       .pipe(finalize(() => this.reportBusy = false)).subscribe({
         next: () => {
           this.closeReport();
@@ -403,11 +397,9 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   }
 
   private loadNewListing(listingId: number): void {
-    this.conversationsService.list().subscribe({
-      next: conversations => {
-        if (this.newListingId !== listingId || !this.currentUser) return;
-        const existing = conversations.find(conversation =>
-          conversation.listingId === listingId && conversation.buyerId === this.currentUser?.id);
+    this.conversationsService.forListing(listingId).subscribe({
+      next: existing => {
+        if (this.newListingId !== listingId) return;
         if (existing) void this.router.navigate(['/messages', existing.id], { replaceUrl: true });
       },
       error: () => { }

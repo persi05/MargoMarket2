@@ -1,0 +1,27 @@
+<div class="report-overlay" (click)="onBackdropClick($event)">
+  <section class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="report-title" aria-describedby="report-description">
+    <button type="button" class="report-close" aria-label="Zamknij zgłoszenie" (click)="cancel.emit()">×</button>
+    <h2 id="report-title">Zgłoś użytkownika</h2>
+    <p id="report-description">Zgłaszasz użytkownika <strong>{{ targetName }}</strong>. Wybierz powód zgłoszenia.</p>
+    <form class="report-form" (ngSubmit)="submit()">
+      <fieldset>
+        <legend>Powód zgłoszenia</legend>
+        <label class="report-option">
+          <input #firstReason type="radio" name="reportReason" value="SCAM" [(ngModel)]="reason">
+          <span><strong>Podejrzenie scamu</strong><small>Coś w zachowaniu użytkownika budzi Twoje podejrzenia.</small></span>
+        </label>
+        <label class="report-option">
+          <input type="radio" name="reportReason" value="FRAUD" [(ngModel)]="reason">
+          <span><strong>Oszustwo</strong><small>Użytkownik oszukał Cię podczas wymiany.</small></span>
+        </label>
+      </fieldset>
+      <label for="report-details">Dodatkowy opis <span>(opcjonalnie)</span></label>
+      <textarea id="report-details" name="reportDetails" [(ngModel)]="details" maxlength="1000" rows="3" placeholder="Opisz sytuację, żeby ułatwić administratorowi ocenę"></textarea>
+      @if (error) { <p class="report-error" role="alert">{{ error }}</p> }
+      <div class="report-dialog-actions">
+        <button type="button" class="report-cancel" (click)="cancel.emit()">Anuluj</button>
+        <button type="submit" class="report-submit" [disabled]="busy || !reason">{{ busy ? 'Wysyłanie...' : 'Wyślij zgłoszenie' }}</button>
+      </div>
+    </form>
+  </section>
+</div>

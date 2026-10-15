@@ -10,18 +10,14 @@ export class ConversationService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/conversations`;
 
-  list(): Observable<ConversationResponse[]> {
-    return this.http.get<ConversationResponse[]>(this.baseUrl);
+  forListing(listingId: number): Observable<ConversationResponse | null> {
+    return this.http.get<ConversationResponse | null>(`${this.baseUrl}/by-listing/${listingId}`);
   }
 
   inbox(limit = 10, scope: 'ALL' | 'LISTINGS' | 'EXCHANGES' = 'ALL'): Observable<PageResponse<ConversationResponse>> {
     return this.http.get<PageResponse<ConversationResponse>>(`${this.baseUrl}/inbox`, {
       params: new HttpParams().set('limit', limit).set('scope', scope)
     });
-  }
-
-  adminChats(): Observable<ConversationResponse[]> {
-    return this.http.get<ConversationResponse[]>(`${this.baseUrl}/admin/chats`);
   }
 
   adminChatsPage(limit = 10): Observable<PageResponse<ConversationResponse>> {
@@ -64,10 +60,6 @@ export class ConversationService {
 
   requestIntermediary(id: number): Observable<ConversationResponse> {
     return this.http.post<ConversationResponse>(`${this.baseUrl}/${id}/intermediary-request`, {});
-  }
-
-  intermediaryRequests(): Observable<ConversationResponse[]> {
-    return this.http.get<ConversationResponse[]>(`${this.baseUrl}/intermediary-requests`);
   }
 
   intermediaryExchanges(): Observable<ConversationResponse[]> {

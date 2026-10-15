@@ -17,10 +17,8 @@ import com.margomarket.model.User;
 import com.margomarket.repository.CurrencyRepository;
 import com.margomarket.repository.FavoriteRepository;
 import com.margomarket.repository.ItemRepository;
-import com.margomarket.repository.ItemTypeRepository;
 import com.margomarket.repository.ListingRepository;
 import com.margomarket.repository.ListingStatusRepository;
-import com.margomarket.repository.RarityRepository;
 import com.margomarket.repository.ServerRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,13 +55,7 @@ class ListingServiceTest {
     private ServerRepository serverRepository;
 
     @Mock
-    private ItemTypeRepository itemTypeRepository;
-
-    @Mock
     private ItemRepository itemRepository;
-
-    @Mock
-    private RarityRepository rarityRepository;
 
     @Mock
     private CurrencyRepository currencyRepository;

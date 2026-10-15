@@ -11,9 +11,12 @@ import com.margomarket.dto.StartConversationRequest;
 import com.margomarket.mapper.PageMapper;
 import com.margomarket.model.User;
 import com.margomarket.service.ConversationService;
+import com.margomarket.service.ConversationReportService;
+import com.margomarket.service.ConversationExchangeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +28,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ConversationController {
     private final ConversationService service;
+    private final ConversationReportService reportService;
+    private final ConversationExchangeService exchangeService;
     private final PageMapper pageMapper;
 
     @GetMapping
@@ -67,27 +72,27 @@ public class ConversationController {
 
     @GetMapping("/intermediary-requests")
     public List<ConversationResponse> intermediaryRequests(@AuthenticationPrincipal User user) {
-        return service.intermediaryRequests(user);
+        return exchangeService.intermediaryRequests(user);
     }
 
     @GetMapping("/intermediary-exchanges")
     public List<ConversationResponse> intermediaryExchanges(@AuthenticationPrincipal User user) {
-        return service.intermediaryExchanges(user);
+        return exchangeService.intermediaryExchanges(user);
     }
 
     @GetMapping("/reports")
     public List<ConversationReportResponse> reports(@AuthenticationPrincipal User user) {
-        return service.reports(user);
+        return reportService.reports(user);
     }
 
     @GetMapping("/reports/{id}/messages")
     public List<ChatMessageResponse> reportMessages(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        return service.reportMessages(id, user);
+        return reportService.reportMessages(id, user);
     }
 
     @PostMapping("/reports/{id}/review")
     public ConversationReportResponse reviewReport(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        return service.reviewReport(id, user);
+        return reportService.reviewReport(id, user);
     }
 
     @PostMapping
@@ -100,6 +105,14 @@ public class ConversationController {
     @GetMapping("/{id}")
     public ConversationResponse get(@PathVariable Long id, @AuthenticationPrincipal User user) {
         return service.get(id, user);
+    }
+
+    @GetMapping("/by-listing/{listingId}")
+    public ResponseEntity<ConversationResponse> forListing(@PathVariable Long listingId,
+            @AuthenticationPrincipal User user) {
+        return service.forListing(listingId, user)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @GetMapping("/{id}/messages")
@@ -119,40 +132,40 @@ public class ConversationController {
 
     @PostMapping("/{id}/intermediary-request")
     public ConversationResponse requestIntermediary(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        return service.requestIntermediary(id, user);
+        return exchangeService.requestIntermediary(id, user);
     }
 
     @PostMapping("/{id}/join-as-intermediary")
     public ConversationResponse joinAsIntermediary(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        return service.joinAsIntermediary(id, user);
+        return exchangeService.joinAsIntermediary(id, user);
     }
 
     @PostMapping("/{id}/close")
     public ConversationResponse close(@PathVariable Long id,
                                       @RequestBody(required = false) CloseConversationRequest request,
                                       @AuthenticationPrincipal User user) {
-        return service.close(id, user, request != null && request.markSold());
+        return exchangeService.close(id, user, request != null && request.markSold());
     }
 
     @PostMapping("/{id}/contact-request")
     public ConversationResponse requestContact(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        return service.requestContact(id, user);
+        return exchangeService.requestContact(id, user);
     }
 
     @PostMapping("/{id}/contact-request/accept")
     public ConversationResponse acceptContact(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        return service.respondToContact(id, user, true);
+        return exchangeService.respondToContact(id, user, true);
     }
 
     @PostMapping("/{id}/contact-request/reject")
     public ConversationResponse rejectContact(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        return service.respondToContact(id, user, false);
+        return exchangeService.respondToContact(id, user, false);
     }
 
     @PostMapping("/{id}/reports")
     @ResponseStatus(HttpStatus.CREATED)
     public ConversationReportResponse report(@PathVariable Long id,
             @Valid @RequestBody ConversationReportRequest request, @AuthenticationPrincipal User user) {
-        return service.report(id, request.reason(), request.details(), user);
+        return reportService.report(id, request.reason(), request.details(), user);
     }
 }

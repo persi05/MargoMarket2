@@ -308,13 +308,9 @@ class UserServiceTest {
     @Test
     void getUserStatsCountsTotalActiveAndSoldListings() {
         User user = user(1L, "user");
-        Listing active = listingWithStatus("active");
-        Listing sold = listingWithStatus("sold");
-        Listing inactive = listingWithStatus("inactive");
-
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(listingRepository.findByUserSortedByStatusAndCreatedAtDesc(user))
-                .thenReturn(List.of(active, sold, inactive));
+        when(listingRepository.countUserListingsByStatus(1L))
+                .thenReturn(java.util.Collections.singletonList(new Object[] {3L, 1L, 1L}));
 
         UserStats stats = userService.getUserStats(1L);
 
