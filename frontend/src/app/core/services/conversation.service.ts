@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { ChatMessageResponse, ConversationResponse, PageResponse } from '../models/api.models';
+import { ChatMessageResponse, ConversationReportReason, ConversationReportResponse, ConversationResponse, PageResponse } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class ConversationService {
@@ -12,6 +12,32 @@ export class ConversationService {
 
   list(): Observable<ConversationResponse[]> {
     return this.http.get<ConversationResponse[]>(this.baseUrl);
+  }
+
+  inbox(limit = 10, scope: 'ALL' | 'LISTINGS' | 'EXCHANGES' = 'ALL'): Observable<PageResponse<ConversationResponse>> {
+    return this.http.get<PageResponse<ConversationResponse>>(`${this.baseUrl}/inbox`, {
+      params: new HttpParams().set('limit', limit).set('scope', scope)
+    });
+  }
+
+  adminChats(): Observable<ConversationResponse[]> {
+    return this.http.get<ConversationResponse[]>(`${this.baseUrl}/admin/chats`);
+  }
+
+  adminChatsPage(limit = 10): Observable<PageResponse<ConversationResponse>> {
+    return this.http.get<PageResponse<ConversationResponse>>(`${this.baseUrl}/admin/chats/page`, {
+      params: new HttpParams().set('limit', limit)
+    });
+  }
+
+  adminChat(id: number): Observable<ConversationResponse> {
+    return this.http.get<ConversationResponse>(`${this.baseUrl}/admin/chats/${id}`);
+  }
+
+  adminChatMessages(id: number, page = 1): Observable<PageResponse<ChatMessageResponse>> {
+    return this.http.get<PageResponse<ChatMessageResponse>>(`${this.baseUrl}/admin/chats/${id}/messages`, {
+      params: new HttpParams().set('page', page)
+    });
   }
 
   unreadCount(): Observable<{ count: number }> {
@@ -44,7 +70,41 @@ export class ConversationService {
     return this.http.get<ConversationResponse[]>(`${this.baseUrl}/intermediary-requests`);
   }
 
+  intermediaryExchanges(): Observable<ConversationResponse[]> {
+    return this.http.get<ConversationResponse[]>(`${this.baseUrl}/intermediary-exchanges`);
+  }
+
   joinAsIntermediary(id: number): Observable<ConversationResponse> {
     return this.http.post<ConversationResponse>(`${this.baseUrl}/${id}/join-as-intermediary`, {});
+  }
+
+  close(id: number, markSold = false): Observable<ConversationResponse> {
+    return this.http.post<ConversationResponse>(`${this.baseUrl}/${id}/close`, { markSold });
+  }
+
+  requestContact(id: number): Observable<ConversationResponse> {
+    return this.http.post<ConversationResponse>(`${this.baseUrl}/${id}/contact-request`, {});
+  }
+
+  respondToContact(id: number, accept: boolean): Observable<ConversationResponse> {
+    return this.http.post<ConversationResponse>(
+      `${this.baseUrl}/${id}/contact-request/${accept ? 'accept' : 'reject'}`, {}
+    );
+  }
+
+  report(id: number, reason: ConversationReportReason, details: string): Observable<ConversationReportResponse> {
+    return this.http.post<ConversationReportResponse>(`${this.baseUrl}/${id}/reports`, { reason, details });
+  }
+
+  reports(): Observable<ConversationReportResponse[]> {
+    return this.http.get<ConversationReportResponse[]>(`${this.baseUrl}/reports`);
+  }
+
+  reportMessages(id: number): Observable<ChatMessageResponse[]> {
+    return this.http.get<ChatMessageResponse[]>(`${this.baseUrl}/reports/${id}/messages`);
+  }
+
+  reviewReport(id: number): Observable<ConversationReportResponse> {
+    return this.http.post<ConversationReportResponse>(`${this.baseUrl}/reports/${id}/review`, {});
   }
 }

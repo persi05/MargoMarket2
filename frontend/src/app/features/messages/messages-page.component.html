@@ -1,11 +1,11 @@
-<section class="messages-page">
+<section class="messages-page" [class.admin-chats]="adminAll">
+  @if (!adminAll) {
   <header class="page-heading">
     <div>
-      <p class="eyebrow">MargoMarket</p>
       <h1>Wiadomości</h1>
-      <p>Rozmawiaj prywatnie o ogłoszeniach i wracaj do ustaleń w jednym miejscu.</p>
     </div>
   </header>
+  }
 
   @if (error) {
     <p class="page-error" role="alert">{{ error }}</p>
@@ -14,20 +14,27 @@
   <div class="messages-layout">
     <aside class="inbox" aria-label="Lista rozmów">
       <div class="inbox-title">
-        <h2>Twoje rozmowy</h2>
-        <span>{{ conversations.length }}</span>
+        <h2>{{ adminAll ? 'Wszystkie chaty' : 'Twoje rozmowy' }}</h2>
+        <span>{{ inboxTotal }}</span>
       </div>
+      @if (!adminAll && currentUser?.role === 'admin') {
+        <div class="inbox-tabs" aria-label="Widok rozmów">
+          <button type="button" [class.active]="inboxTab === 'listings'" (click)="changeInboxTab('listings')">Ogłoszenia</button>
+          <button type="button" [class.active]="inboxTab === 'exchanges'" (click)="changeInboxTab('exchanges')">Wymiany</button>
+        </div>
+      }
       @if (loadingInbox) {
         <p class="inbox-empty">Wczytywanie rozmów...</p>
-      } @else if (!conversations.length) {
-        <p class="inbox-empty">Nie masz jeszcze rozmów. Otwórz ogłoszenie i napisz do sprzedającego.</p>
+      } @else if (!visibleConversations.length) {
+        <p class="inbox-empty">{{ adminAll ? 'Brak chatów.' : currentUser?.role === 'admin' && inboxTab === 'exchanges' ? 'Nie uczestniczysz jeszcze w żadnej wymianie jako pośrednik.' : 'Nie masz jeszcze rozmów. Otwórz ogłoszenie i napisz do sprzedającego.' }}</p>
       }
       <div class="conversation-list">
-        @for (conversation of conversations; track conversation.id) {
-          <a class="conversation-link" [class.selected]="selectedId === conversation.id" [routerLink]="['/messages', conversation.id]">
+        @for (conversation of visibleConversations; track conversation.id) {
+          <a class="conversation-link" [class.selected]="selectedId === conversation.id" [routerLink]="adminAll ? null : ['/messages', conversation.id]" (click)="adminAll ? selectAdminConversation(conversation.id) : null">
             <span class="conversation-avatar" aria-hidden="true">{{ conversation.itemName.charAt(0) }}</span>
             <span class="conversation-copy">
               <strong>{{ conversation.itemName }}</strong>
+              @if (conversation.closedAt) { <small class="finished-label">Zakończona</small> }
               <small>{{ otherParticipant(conversation) }}</small>
               <span>{{ conversation.lastMessage }}</span>
             </span>
@@ -36,20 +43,11 @@
             }
           </a>
         }
+        @if (inboxHasMore) {
+          <button type="button" class="show-more-conversations" [disabled]="inboxRequestPending" (click)="showMoreConversations()">{{ inboxRequestPending ? 'Wczytywanie...' : 'Pokaż więcej rozmów' }}</button>
+        }
       </div>
 
-      @if (isAdmin && intermediaryRequests.length) {
-        <div class="requests">
-          <h2>Prośby o pośrednika</h2>
-          @for (request of intermediaryRequests; track request.id) {
-            <div class="request-card">
-              <strong>{{ request.itemName }}</strong>
-              <span>Kupujący i sprzedający czekają na pomoc.</span>
-              <button type="button" [disabled]="intermediaryBusy" (click)="joinAsIntermediary(request)">Dołącz jako pośrednik</button>
-            </div>
-          }
-        </div>
-      }
     </aside>
 
     <div class="chat-panel">
@@ -62,28 +60,47 @@
             <small>{{ priceLabel(listing) }} · {{ listing.server.name }}</small>
           </div>
         </header>
+
         <div class="new-conversation">
           <h3>Napisz o szczegóły lub zaproponuj cenę</h3>
         </div>
         <form class="composer" (ngSubmit)="send()">
           <label for="new-message">Twoja wiadomość</label>
-          <textarea id="new-message" name="draft" [(ngModel)]="draft" maxlength="2000" rows="4" placeholder="Cześć, czy oferta jest nadal aktualna?" (keydown)="onComposerKeydown($event)"></textarea>
+          <div class="composer-field">
+            <textarea id="new-message" name="draft" [(ngModel)]="draft" maxlength="2000" rows="2" placeholder="Cześć, czy oferta jest nadal aktualna?" (keydown)="onComposerKeydown($event)"></textarea>
+            <button type="submit" class="send-button" [disabled]="!canSend" [attr.aria-label]="sending ? 'Wysyłanie wiadomości' : 'Wyślij wiadomość'" title="Wyślij wiadomość">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>
+            </button>
+          </div>
           @if (sendError) { <p class="send-error" role="alert">{{ sendError }}</p> }
-          <div class="composer-actions"><span>Enter wysyła · Shift+Enter dodaje nową linię</span><button type="submit" [disabled]="!canSend">{{ sending ? 'Wysyłanie...' : 'Wyślij wiadomość' }}</button></div>
         </form>
       } @else if (selected; as conversation) {
         <header class="chat-heading">
           <span class="chat-avatar" aria-hidden="true">{{ conversation.itemName.charAt(0) }}</span>
-          <div>
+          <div class="chat-heading-copy">
             <p>{{ otherParticipant(conversation) }}</p>
             <h2>{{ conversation.itemName }}</h2>
-            @if (conversation.listingId) {
-              <small>Ogłoszenie #{{ conversation.listingId }}</small>
-            } @else {
-              <small>Ogłoszenie zostało usunięte</small>
-            }
           </div>
+          @if (!adminAll && (currentUser?.id === conversation.buyerId || currentUser?.id === conversation.sellerId)) {
+            <button #reportTrigger type="button" class="report-trigger" (click)="openReport()">Zgłoś użytkownika</button>
+          } @else if (adminAll) {
+            <span class="admin-readonly">Podgląd admina</span>
+          }
         </header>
+
+        @if (!adminAll && !conversation.closedAt) {
+        <div class="conversation-actions">
+          @if (canCloseExchange) {
+            @if (conversation.contactRequestStatus === 'ACCEPTED') {
+              <span>Prośba o kontakt została zaakceptowana.</span>
+            }
+            <button #closeTrigger type="button" [disabled]="closeBusy" (click)="openClose()">Zakończ wymianę</button>
+          } @else if (conversation.intermediaryId && (currentUser?.id === conversation.buyerId || currentUser?.id === conversation.sellerId)) {
+            <span>Wymianę może zakończyć tylko pośrednik.</span>
+          }
+        </div>
+        }
+        @if (reportNotice && !reportOpen) { <p class="report-notice" role="status">{{ reportNotice }}</p> }
 
         <div class="message-list" #messageList aria-label="Wiadomości w rozmowie">
           @if (loadingMessages) {
@@ -105,6 +122,7 @@
           }
         </div>
 
+        @if (!adminAll && !conversation.closedAt) {
         <div class="intermediary-panel">
           <div>
             <strong>Pośrednik przy wymianie</strong>
@@ -119,12 +137,51 @@
           }
         </div>
 
+        }
+
+        @if (!adminAll && !conversation.closedAt) {
         <form class="composer" (ngSubmit)="send()">
           <label for="reply-message">Odpowiedz</label>
-          <textarea id="reply-message" name="draft" [(ngModel)]="draft" maxlength="2000" rows="3" placeholder="Napisz wiadomość..." (keydown)="onComposerKeydown($event)"></textarea>
+          <div class="composer-field">
+            <textarea id="reply-message" name="draft" [(ngModel)]="draft" maxlength="2000" rows="2" placeholder="Napisz wiadomość..." (keydown)="onComposerKeydown($event)"></textarea>
+            <button type="submit" class="send-button" [disabled]="!canSend" [attr.aria-label]="sending ? 'Wysyłanie wiadomości' : 'Wyślij wiadomość'" title="Wyślij wiadomość">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>
+            </button>
+          </div>
           @if (sendError) { <p class="send-error" role="alert">{{ sendError }}</p> }
-          <div class="composer-actions"><span>Enter wysyła · Shift+Enter dodaje nową linię</span><button type="submit" [disabled]="!canSend">{{ sending ? 'Wysyłanie...' : 'Wyślij' }}</button></div>
         </form>
+        }
+
+        @if (!adminAll && conversation.closedAt) {
+          <div class="contact-panel">
+            <div class="contact-panel-copy">
+              <strong>Wymiana zakończona</strong>
+              <small>{{ conversation.closedAt | date: 'dd.MM.yyyy HH:mm' }}</small>
+              @if (currentUser?.id === conversation.buyerId || currentUser?.id === conversation.sellerId) {
+                @if (conversation.contactRequestStatus === 'PENDING') {
+                  <p>{{ conversation.contactRequesterId === currentUser?.id ? 'Prośba o kontakt wysłana. Czekasz na odpowiedź.' : 'Druga osoba prosi o ponowny kontakt.' }}</p>
+                } @else if (conversation.contactRequestStatus === 'REJECTED') {
+                  <p>Prośba o kontakt została odrzucona.</p>
+                } @else if (!conversation.contactRequestAllowed) {
+                  <p>Przedmiot został sprzedany.</p>
+                } @else {
+                  <p>Możesz poprosić drugą osobę o ponowne otwarcie rozmowy.</p>
+                }
+              }
+            </div>
+            @if (currentUser?.id === conversation.buyerId || currentUser?.id === conversation.sellerId) {
+              @if (conversation.contactRequestStatus === 'NONE' && conversation.contactRequestAllowed) {
+                <button type="button" [disabled]="contactBusy" (click)="requestContact()">{{ contactBusy ? 'Wysyłanie...' : 'Poproś o kontakt' }}</button>
+              } @else if (conversation.contactRequestStatus === 'PENDING' && conversation.contactRequesterId !== currentUser?.id) {
+                <div class="contact-panel-actions">
+                  <button type="button" [disabled]="contactBusy" (click)="respondToContact(false)">Odrzuć</button>
+                  <button type="button" [disabled]="contactBusy" (click)="respondToContact(true)">Akceptuj</button>
+                </div>
+              }
+            }
+            @if (contactNotice) { <p class="contact-notice" role="alert">{{ contactNotice }}</p> }
+          </div>
+        }
       } @else {
         <div class="chat-placeholder">
           <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5 8 8 0 0 1-3.2-.7L4 20l1.6-4.5A7.5 7.5 0 1 1 20 11.5Z"/></svg>
@@ -134,4 +191,60 @@
       }
     </div>
   </div>
+
+  @if (reportOpen && selected) {
+    <div class="report-overlay" (click)="onReportBackdropClick($event)">
+      <section #reportDialog class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="report-title" aria-describedby="report-description">
+        <button type="button" class="report-close" aria-label="Zamknij zgłoszenie" (click)="closeReport()">×</button>
+        <h2 id="report-title">Zgłoś użytkownika</h2>
+        <p id="report-description">Zgłaszasz użytkownika <strong>{{ reportTargetName }}</strong>. Wybierz powód zgłoszenia.</p>
+        <form class="report-form" (ngSubmit)="submitReport()">
+          <fieldset>
+            <legend>Powód zgłoszenia</legend>
+            <label class="report-option">
+              <input type="radio" name="reportReason" value="SCAM" [(ngModel)]="reportReason">
+              <span><strong>Podejrzenie scamu</strong><small>Coś w zachowaniu użytkownika budzi Twoje podejrzenia.</small></span>
+            </label>
+            <label class="report-option">
+              <input type="radio" name="reportReason" value="FRAUD" [(ngModel)]="reportReason">
+              <span><strong>Oszustwo</strong><small>Użytkownik oszukał Cię podczas wymiany.</small></span>
+            </label>
+          </fieldset>
+          <label for="report-details">Dodatkowy opis <span>(opcjonalnie)</span></label>
+          <textarea id="report-details" name="reportDetails" [(ngModel)]="reportDetails" maxlength="1000" rows="3" placeholder="Opisz sytuację, żeby ułatwić administratorowi ocenę"></textarea>
+          @if (reportNotice) { <p class="report-error" role="alert">{{ reportNotice }}</p> }
+          <div class="report-dialog-actions">
+            <button type="button" class="report-cancel" (click)="closeReport()">Anuluj</button>
+            <button type="submit" class="report-submit" [disabled]="reportBusy || !reportReason">{{ reportBusy ? 'Wysyłanie...' : 'Wyślij zgłoszenie' }}</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+  @if (closeOpen && selected) {
+    <div class="report-overlay" (click)="onCloseBackdropClick($event)">
+      <section #closeDialog class="report-dialog close-dialog" role="dialog" aria-modal="true" aria-labelledby="close-title" aria-describedby="close-description">
+        <button type="button" class="report-close" aria-label="Zamknij okno" [disabled]="closeBusy" (click)="dismissClose()">×</button>
+        @if (closeStep === 'confirm') {
+          <h2 id="close-title">Zakończyć wymianę?</h2>
+          <p id="close-description">Rozmowa pozostanie dostępna dla jej uczestników.</p>
+          @if (currentUser?.role === 'admin' && currentUser?.id === selected.intermediaryId && selected.listingId) {
+            <p>Ogłoszenie zostanie oznaczone jako sprzedane.</p>
+          }
+          <div class="report-dialog-actions">
+            <button type="button" class="report-cancel" [disabled]="closeBusy" (click)="dismissClose()">Nie</button>
+            <button type="button" class="close-yes" [disabled]="closeBusy" (click)="confirmClose()">Tak, zakończ</button>
+          </div>
+        } @else {
+          <h2 id="close-title">Czy udało Ci się sprzedać przedmiot?</h2>
+          <p id="close-description">Jeśli tak, ogłoszenie zostanie oznaczone jako sprzedane.</p>
+          <div class="report-dialog-actions">
+            <button type="button" class="report-cancel" [disabled]="closeBusy" (click)="finishClose(false)">Nie</button>
+            <button type="button" class="close-yes" [disabled]="closeBusy" (click)="finishClose(true)">Tak, sprzedano</button>
+          </div>
+        }
+        @if (closeNotice) { <p class="report-error" role="alert">{{ closeNotice }}</p> }
+      </section>
+    </div>
+  }
 </section>

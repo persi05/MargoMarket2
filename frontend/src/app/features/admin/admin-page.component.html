@@ -23,15 +23,18 @@
   </div>
 
   <div class="tabs">
-    <button type="button" [class.active]="activeTab === 'listings'" (click)="activeTab = 'listings'">
+    <button type="button" [class.active]="activeTab === 'listings'" (click)="selectTab('listings')">
       Ogłoszenia
     </button>
-    <button type="button" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">
+    <button type="button" [class.active]="activeTab === 'users'" (click)="selectTab('users')">
       Użytkownicy
     </button>
-    <button type="button" [class.active]="activeTab === 'moderation'" (click)="activeTab = 'moderation'">
+    <button type="button" [class.active]="activeTab === 'moderation'" (click)="selectTab('moderation')">
       Zakazane słowa
     </button>
+    <button type="button" [class.active]="activeTab === 'reports'" (click)="selectTab('reports')">Zgłoszenia rozmów</button>
+    <button type="button" [class.active]="activeTab === 'chats'" (click)="selectTab('chats')">Chaty</button>
+    <button type="button" [class.active]="activeTab === 'intermediary'" (click)="selectTab('intermediary')">Wymiany</button>
   </div>
 
   @if (notice) {
@@ -144,6 +147,69 @@
       } @else {
         <div class="empty">Brak użytkowników.</div>
       }
+    }
+  } @else if (activeTab === 'reports') {
+    <div class="section-head"><h2>Zgłoszenia rozmów</h2><button type="button" class="secondary" (click)="loadReports()">Odśwież</button></div>
+    @if (loadingReports) {
+      <div class="empty">Wczytywanie zgłoszeń...</div>
+    } @else if (!reports.length) {
+      <div class="empty">Brak zgłoszeń.</div>
+    } @else {
+      <div class="admin-queue">
+        @for (report of reports; track report.id) {
+          <article class="admin-queue-card">
+            <div class="queue-heading"><strong>{{ report.itemName }}</strong><span class="role">{{ report.status === 'OPEN' ? 'Nowe' : 'Sprawdzone' }}</span></div>
+            <p><strong>{{ reasonLabel(report.reason) }}</strong> · {{ report.createdAt | date: 'dd.MM.yyyy HH:mm' }}</p>
+            <p>Zgłasza: {{ report.reporterDisplayName }} · Zgłoszony użytkownik: {{ report.reportedUserDisplayName }}</p>
+            @if (report.details) { <p class="report-details">{{ report.details }}</p> }
+            <div class="queue-actions">
+              <button type="button" class="secondary" (click)="showReportMessages(report)">{{ selectedReportId === report.id ? 'Ukryj ostatnie wiadomości' : 'Pokaż ostatnie wiadomości' }}</button>
+              <button type="button" class="secondary" (click)="goToReportChat(report)">Idź do chatu</button>
+              @if (report.status === 'OPEN') {
+                <button type="button" [disabled]="reportBusy" (click)="reviewReport(report)">Oznacz jako sprawdzone</button>
+              }
+            </div>
+            @if (selectedReportId === report.id) {
+              <div class="report-messages">
+                @for (message of reportMessages; track message.id) {
+                  <p><strong>{{ message.senderDisplayName || 'System' }}:</strong> {{ message.body }}</p>
+                } @empty {
+                  <p>Brak wiadomości lub trwa wczytywanie.</p>
+                }
+              </div>
+            }
+          </article>
+        }
+      </div>
+    }
+  } @else if (activeTab === 'chats') {
+    <mm-messages-page [adminAll]="true" [adminConversationId]="selectedAdminChatId" />
+  } @else if (activeTab === 'intermediary') {
+    <div class="section-head"><h2>Wymiany</h2><button type="button" class="secondary" (click)="loadIntermediaryRequests()">Odśwież</button></div>
+    @if (loadingRequests) {
+      <div class="empty">Wczytywanie wymian...</div>
+    } @else if (!intermediaryRequests.length) {
+      <div class="empty">Brak wymian.</div>
+    } @else {
+      <div class="admin-queue">
+        @for (request of intermediaryRequests; track request.id) {
+          <article class="admin-queue-card">
+            <div class="queue-heading"><strong>{{ request.itemName }}</strong><span class="role">{{ request.closedAt ? 'Zakończona' : request.intermediaryStatus === 'REQUESTED' ? 'Prośba o pośrednika' : 'W toku' }}</span></div>
+            <p>{{ request.updatedAt | date: 'dd.MM.yyyy HH:mm' }}</p>
+            <p>Kupujący: {{ request.buyerDisplayName }} · Sprzedający: {{ request.sellerDisplayName }}</p>
+            <div class="queue-actions">
+              @if (request.intermediaryStatus === 'REQUESTED') {
+                <button type="button" [disabled]="intermediaryBusy" (click)="joinAsIntermediary(request)">Dołącz jako pośrednik</button>
+              } @else {
+                <a class="button secondary" [routerLink]="['/messages', request.id]">Otwórz rozmowę</a>
+                @if (!request.closedAt) {
+                  <button type="button" [disabled]="closingExchangeId !== null" (click)="closeExchange(request)">Zakończ wymianę</button>
+                }
+              }
+            </div>
+          </article>
+        }
+      </div>
     }
   } @else {
     <mm-moderation-panel />

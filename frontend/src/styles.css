@@ -351,3 +351,224 @@ a:not(.brand):hover {
 @media (prefers-reduced-motion: reduce) {
   .market-shell .skeleton-block { animation: none; }
 }
+.messages-page .inbox-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 9px;
+  border-bottom: 1px solid var(--color-border);
+}
+.messages-page .inbox-tabs button {
+  flex: 1;
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+.messages-page .inbox-tabs button.active {
+  border-color: var(--color-primary);
+  background: rgba(168, 201, 138, .13);
+  color: var(--color-primary);
+}
+.messages-page .conversation-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+.messages-page .conversation-actions span {
+  margin-right: auto;
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+.messages-page .conversation-actions button {
+  border-color: var(--color-border);
+  background: var(--color-input-dark);
+  color: var(--color-text-main);
+}
+.messages-page .report-notice {
+  margin: 0;
+  padding: 8px 20px;
+  color: var(--color-primary);
+  font-size: 12px;
+}
+.messages-page.admin-chats {
+  width: 100%;
+  padding: 0;
+}
+.messages-page.admin-chats .messages-layout {
+  height: min(70dvh, 760px);
+}
+.messages-page.admin-chats:has(.page-error) .messages-layout {
+  height: min(65dvh, 700px);
+}
+.messages-page .admin-readonly {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+@media (max-width: 800px) {
+  .messages-page.admin-chats .messages-layout,
+  .messages-page.admin-chats:has(.page-error) .messages-layout {
+    height: auto;
+  }
+}
+
+.messages-page .report-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: 20px;
+  background: rgba(8, 9, 8, .74);
+  backdrop-filter: blur(4px);
+}
+.messages-page .report-dialog {
+  position: relative;
+  width: min(100%, 480px);
+  border: 1px solid #806c58;
+  border-radius: 16px;
+  padding: 28px;
+  background: #26211d;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+}
+.messages-page .report-dialog h2 {
+  margin: 0 36px 8px 0;
+  color: #f5eadb;
+  font-size: 23px;
+}
+.messages-page .report-dialog > p {
+  margin: 0 0 22px;
+  color: #c4b6a6;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.messages-page .report-dialog > p strong {
+  color: #f6e4c9;
+}
+.messages-page .report-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background: transparent;
+  color: #cbbcaf;
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1;
+}
+.messages-page .report-close:hover {
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+}
+.messages-page .report-form {
+  display: grid;
+  gap: 11px;
+}
+.messages-page .report-form fieldset {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  margin: 0 0 8px;
+  border: 0;
+  padding: 0;
+}
+.messages-page .report-form legend, .messages-page .report-form > label {
+  margin-bottom: 7px;
+  color: #e9dac4;
+  font-size: 13px;
+  font-weight: 800;
+}
+.messages-page .report-form > label span {
+  color: #a99c8c;
+  font-weight: 400;
+}
+.messages-page .report-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid #665849;
+  border-radius: 10px;
+  padding: 12px;
+  background: #302922;
+  cursor: pointer;
+}
+.messages-page .report-option:has(input:checked) {
+  border-color: var(--color-primary);
+  background: rgba(168, 201, 138, .1);
+}
+.messages-page .report-option input {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  margin: 3px 0 0;
+  accent-color: var(--color-primary);
+}
+.messages-page .report-option span {
+  display: grid;
+  gap: 3px;
+}
+.messages-page .report-option strong {
+  color: #f5eadb;
+  font-size: 14px;
+}
+.messages-page .report-option small {
+  color: #b9ab99;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.messages-page .report-form textarea {
+  width: 100%;
+  min-height: 82px;
+  resize: vertical;
+  border: 1px solid #665849;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #1d1916;
+  color: #f5eadb;
+  font: inherit;
+  font-size: 13px;
+}
+.messages-page .report-form textarea:focus {
+  outline: 2px solid rgba(168, 201, 138, .45);
+}
+.messages-page .report-error {
+  margin: 0;
+  color: #ffc7bd;
+  font-size: 12px;
+}
+.messages-page .close-dialog > .report-error {
+  margin-top: 12px;
+  color: #ffc7bd;
+}
+.messages-page .report-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+.messages-page .report-dialog-actions button {
+  padding: 10px 15px;
+  font-size: 13px;
+}
+.messages-page .report-dialog-actions .report-cancel {
+  border-color: #665849;
+  background: #3a322b;
+  color: #f1e5d6;
+}
+@media (max-width: 560px) {
+  .messages-page .report-dialog {
+    padding: 22px 18px;
+  }
+}
