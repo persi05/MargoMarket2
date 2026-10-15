@@ -15,6 +15,10 @@ public record ConversationResponse(
         String intermediaryStatus,
         LocalDateTime updatedAt,
         String lastMessage,
-        long unreadCount
+        long unreadCount,
+        LocalDateTime closedAt,
+        String contactRequestStatus,
+        Long contactRequesterId,
+        boolean contactRequestAllowed
 ) {
 }

@@ -24,4 +24,18 @@ public interface ConversationMessageRepository extends JpaRepository<Conversatio
     long countUnread(@Param("conversationId") Long conversationId,
                      @Param("lastReadId") Long lastReadId,
                      @Param("userId") Long userId);
+
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM conversations c
+        JOIN conversation_messages m ON m.conversation_id = c.id
+        WHERE (c.buyer_id = :userId OR c.seller_id = :userId OR c.intermediary_id = :userId)
+          AND m.id > CASE
+              WHEN c.buyer_id = :userId THEN c.buyer_last_read_id
+              WHEN c.seller_id = :userId THEN c.seller_last_read_id
+              ELSE c.intermediary_last_read_id
+          END
+          AND (m.sender_id IS NULL OR m.sender_id <> :userId)
+        """, nativeQuery = true)
+    long countUnreadForUser(@Param("userId") Long userId);
 }

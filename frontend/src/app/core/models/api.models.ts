@@ -97,6 +97,27 @@ export interface ConversationResponse {
   updatedAt: string;
   lastMessage: string;
   unreadCount: number;
+  closedAt: string | null;
+    contactRequestStatus: 'NONE' | 'PENDING' | 'ACCEPTED' | 'REJECTED';
+    contactRequesterId: number | null;
+    contactRequestAllowed: boolean;
+}
+
+export type ConversationReportReason = 'SCAM' | 'FRAUD';
+
+export interface ConversationReportResponse {
+  id: number;
+  conversationId: number;
+  itemName: string;
+  buyerDisplayName: string;
+  sellerDisplayName: string;
+  reporterDisplayName: string;
+  reportedUserDisplayName: string;
+  reason: ConversationReportReason;
+  details: string | null;
+  status: 'OPEN' | 'REVIEWED';
+  createdAt: string;
+  reviewedAt: string | null;
 }
 
 export interface ChatMessageResponse {

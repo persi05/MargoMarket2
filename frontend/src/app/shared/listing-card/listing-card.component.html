@@ -80,7 +80,7 @@
     @if (showSoldAt) {
       <div>
         <dt>Sprzedano</dt>
-        <dd>{{ listing.soldAt ? (listing.soldAt | date: 'dd.MM.yyyy HH:mm') : '—' }}</dd>
+        <dd>{{ listing.soldAt ? (listing.soldAt | date: 'dd.MM.yyyy HH:mm') : '-' }}</dd>
       </div>
     }
   </dl>

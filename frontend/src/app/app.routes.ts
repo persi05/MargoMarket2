@@ -1,6 +1,18 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlMatcher, UrlMatchResult, UrlSegment } from '@angular/router';
 
 import { authGuard } from './core/services/auth.guard';
+
+const messagesMatcher: UrlMatcher = (segments: UrlSegment[]): UrlMatchResult | null => {
+  if (segments[0]?.path !== 'messages') return null;
+  if (segments.length === 1) return { consumed: segments };
+  if (segments.length === 2 && segments[1].path !== 'new') {
+    return { consumed: segments, posParams: { conversationId: segments[1] } };
+  }
+  if (segments.length === 3 && segments[1].path === 'new') {
+    return { consumed: segments, posParams: { listingId: segments[2] } };
+  }
+  return null;
+};
 
 export const routes: Routes = [
   {
@@ -38,22 +50,11 @@ export const routes: Routes = [
     title: 'Obserwowane | MargoMarket'
   },
   {
-    path: 'messages',
+    matcher: messagesMatcher,
     canActivate: [authGuard],
     loadComponent: () => import('./features/messages/messages-page.component').then((m) => m.MessagesPageComponent),
-    title: 'Wiadomości | MargoMarket'
-  },
-  {
-    path: 'messages/new/:listingId',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/messages/messages-page.component').then((m) => m.MessagesPageComponent),
-    title: 'Napisz do sprzedającego | MargoMarket'
-  },
-  {
-    path: 'messages/:conversationId',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/messages/messages-page.component').then((m) => m.MessagesPageComponent),
-    title: 'Rozmowa | MargoMarket'
+    title: route => route.paramMap.has('listingId') ? 'Napisz do sprzedającego | MargoMarket'
+      : route.paramMap.has('conversationId') ? 'Rozmowa | MargoMarket' : 'Wiadomości | MargoMarket'
   },
   {
     path: 'notifications',

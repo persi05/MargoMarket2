@@ -172,7 +172,7 @@ public class UserService implements UserDetailsService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(mailFrom);
         message.setTo(email);
-        message.setSubject("MargoMarket — kod potwierdzający");
+        message.setSubject("MargoMarket - kod potwierdzający");
         message.setText("Twój kod potwierdzający: " + code + "\nKod jest ważny przez "
                 + codeExpirationMinutes + " minut. Jeśli nie zakładasz konta, zignoruj tę wiadomość.");
         mailSender.send(message);
