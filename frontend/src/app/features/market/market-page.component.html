@@ -224,9 +224,9 @@
                             }
                             <span>Wymagany poziom: {{ listing.level }}</span>
                             <span class="tooltip-separator"></span>
-                            <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel(listing)" [compact]="true" /></span>
+                            <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel(listing)" [compact]="true" [showLoginLink]="false" /></span>
                             <span>Serwer: {{ listing.server.name }}</span>
-                            <span>Kontakt: <mm-private-detail [value]="listing.contact" /></span>
+                            <span>Kontakt: <mm-private-detail [value]="listing.contact" [showLoginLink]="false" /></span>
                           </span>
                           }
                       </span>
@@ -322,9 +322,9 @@
     }
     <span>Wymagany poziom: {{ listing.level }}</span>
     <span class="tooltip-separator"></span>
-    <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel(listing)" [compact]="true" /></span>
+    <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel(listing)" [compact]="true" [showLoginLink]="false" /></span>
     <span>Serwer: {{ listing.server.name }}</span>
-    <span>Kontakt: <mm-private-detail [value]="listing.contact" /></span>
+    <span>Kontakt: <mm-private-detail [value]="listing.contact" [showLoginLink]="false" /></span>
   </div>
 }
 
