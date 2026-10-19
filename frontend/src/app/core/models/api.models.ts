@@ -180,6 +180,11 @@ export interface UserStats {
   soldListings: number;
 }
 
+export interface AdminUserRowResponse {
+  user: UserResponse;
+  stats: UserStats;
+}
+
 export interface NotificationResponse {
   id: number;
   type: string;

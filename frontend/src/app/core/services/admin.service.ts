@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { BlockedWord, BlockedWordRequest, ListingFilter, ListingResponse, PageResponse, UserResponse, UserStats } from '../models/api.models';
+import { AdminUserRowResponse, BlockedWord, BlockedWordRequest, ListingFilter, ListingResponse, PageResponse } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -32,14 +32,10 @@ export class AdminService {
     });
   }
 
-  users(page = 1): Observable<PageResponse<UserResponse>> {
-    return this.http.get<PageResponse<UserResponse>>(`${this.baseUrl}/users`, {
+  users(page = 1): Observable<PageResponse<AdminUserRowResponse>> {
+    return this.http.get<PageResponse<AdminUserRowResponse>>(`${this.baseUrl}/users`, {
       params: new HttpParams().set('page', page)
     });
-  }
-
-  userStats(id: number): Observable<UserStats> {
-    return this.http.get<UserStats>(`${this.baseUrl}/users/${id}/stats`);
   }
 
   deleteUser(id: number): Observable<void> {

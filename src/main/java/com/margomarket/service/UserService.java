@@ -16,7 +16,6 @@ import com.margomarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,6 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.Arrays;
 import java.time.LocalDateTime;
@@ -82,8 +84,7 @@ public class UserService implements UserDetailsService {
     }
 
     public Page<User> getAllUsers(int page) {
-        return userRepository.findAll(PageRequest.of(Math.max(0, page - 1), 20,
-                Sort.by(Sort.Direction.DESC, "id")));
+        return userRepository.findAllByOrderByIdDesc(PageRequest.of(Math.max(0, page - 1), 20));
     }
 
     public User getById(Long id) {
@@ -214,6 +215,20 @@ public class UserService implements UserDetailsService {
                 ((Number) counts[1]).longValue(),
                 ((Number) counts[2]).longValue()
         );
+    }
+
+    public Map<Long, UserStats> getUserStatsForUsers(List<Long> userIds) {
+        if (userIds.isEmpty()) return Map.of();
+
+        return listingRepository.countUserListingsByStatusForUsers(userIds).stream()
+                .collect(Collectors.toMap(
+                        counts -> ((Number) counts[0]).longValue(),
+                        counts -> new UserStats(
+                                ((Number) counts[1]).longValue(),
+                                ((Number) counts[2]).longValue(),
+                                ((Number) counts[3]).longValue()
+                        )
+                ));
     }
 
     @Transactional
