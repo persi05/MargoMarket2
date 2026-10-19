@@ -5,7 +5,7 @@
       <h1>Twoje powiadomienia</h1>
     </div>
 
-    @if (notifications.length) {
+    @if (pageData?.totalElements) {
       <div class="summary">
         <span>Nieprzeczytane</span>
         <strong>{{ unreadCount }}</strong>
@@ -35,6 +35,9 @@
         </article>
       }
     </div>
+    @if (pageData; as page) {
+      <mm-pagination [page]="page" [loading]="loading" (pageChange)="changePage($event)" />
+    }
   } @else {
     <div class="empty">Brak powiadomień.</div>
   }

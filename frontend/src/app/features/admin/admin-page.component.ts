@@ -2,7 +2,7 @@ import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { BehaviorSubject, combineLatest, finalize, forkJoin, of, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, finalize, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
 
 import { ChatMessageResponse, ConversationReportResponse, ConversationResponse, ListingResponse, PageResponse, UserResponse, UserStats } from '../../core/models/api.models';
 import { AdminService } from '../../core/services/admin.service';
@@ -10,13 +10,14 @@ import { ConversationService } from '../../core/services/conversation.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ListingService } from '../../core/services/listing.service';
 import { ListingCardComponent } from '../../shared/listing-card/listing-card.component';
+import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { MessagesPageComponent } from '../messages/messages-page.component';
 import { ModerationPanelComponent } from './moderation-panel.component';
 
 @Component({
   selector: 'mm-admin-page',
   standalone: true,
-  imports: [AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, MessagesPageComponent, ModerationPanelComponent],
+  imports: [AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
   templateUrl: './admin-page.component.html',
   styleUrl: './admin-page.component.css'
 })
@@ -28,11 +29,17 @@ export class AdminPageComponent {
   protected readonly dictionaries$ = inject(DictionaryService).getAll();
   private readonly pageSubject = new BehaviorSubject(1);
   private readonly usersReloadSubject = new BehaviorSubject(0);
+  private readonly usersPageSubject = new BehaviorSubject(1);
 
   protected activeTab: 'listings' | 'users' | 'moderation' | 'reports' | 'intermediary' | 'chats' = 'listings';
   protected selectedAdminChatId: number | null = null;
   protected reports: ConversationReportResponse[] = [];
+  protected reportsPageData: PageResponse<ConversationReportResponse> | null = null;
+  protected reportsPage = 1;
   protected intermediaryRequests: ConversationResponse[] = [];
+  protected exchangesPageData: PageResponse<ConversationResponse> | null = null;
+  protected exchangesPage = 1;
+  protected usersPageData: PageResponse<UserResponse> | null = null;
   protected selectedReportId: number | null = null;
   protected reportMessages: ChatMessageResponse[] = [];
   protected loadingReports = false;
@@ -53,7 +60,6 @@ export class AdminPageComponent {
   protected readonly listings$ = combineLatest([this.pageSubject]).pipe(
     tap(() => {
       this.loadingListings = true;
-      this.notice = '';
     }),
     switchMap(([page]) => this.adminService.listings({ ...this.filters.getRawValue(), page }).pipe(
       finalize(() => {
@@ -63,21 +69,23 @@ export class AdminPageComponent {
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
-  protected readonly users$ = this.usersReloadSubject.pipe(
+  protected readonly users$ = combineLatest([this.usersReloadSubject, this.usersPageSubject]).pipe(
     tap(() => {
       this.loadingUsers = true;
-      this.notice = '';
     }),
-    switchMap(() => this.adminService.users().pipe(
-      switchMap((users) => {
-        if (!users.length) {
+    switchMap(([, pageNumber]) => this.adminService.users(pageNumber).pipe(
+      switchMap((page) => {
+        if (page.totalElements > 0 && pageNumber > page.totalPages) {
+          this.usersPageSubject.next(page.totalPages);
+          return of([]);
+        }
+        this.usersPageData = page;
+        if (!page.content.length) {
           return of([]);
         }
 
-        return forkJoin(users.map((user) =>
-          this.adminService.userStats(user.id).pipe(
-            switchMap((stats) => of({ user, stats }))
-          )
+        return forkJoin(page.content.map((user) =>
+          this.adminService.userStats(user.id).pipe(map((stats) => ({ user, stats })))
         ));
       }),
       finalize(() => {
@@ -104,18 +112,40 @@ export class AdminPageComponent {
 
   protected loadReports(): void {
     this.loadingReports = true;
-    this.conversationsService.reports().pipe(finalize(() => this.loadingReports = false)).subscribe({
-      next: reports => this.reports = reports,
+    this.conversationsService.reports(this.reportsPage).pipe(finalize(() => this.loadingReports = false)).subscribe({
+      next: page => {
+        this.reportsPageData = page;
+        this.reports = page.content;
+      },
       error: () => this.notice = 'Nie udało się wczytać zgłoszeń.'
     });
   }
 
   protected loadIntermediaryRequests(): void {
     this.loadingRequests = true;
-    this.conversationsService.intermediaryExchanges().pipe(finalize(() => this.loadingRequests = false)).subscribe({
-      next: requests => this.intermediaryRequests = requests,
+    this.conversationsService.intermediaryExchanges(this.exchangesPage).pipe(finalize(() => this.loadingRequests = false)).subscribe({
+      next: page => {
+        this.exchangesPageData = page;
+        this.intermediaryRequests = page.content;
+      },
       error: () => this.notice = 'Nie udało się wczytać wymian.'
     });
+  }
+
+  protected changeUsersPage(page: number): void {
+    this.usersPageSubject.next(page);
+  }
+
+  protected changeReportsPage(page: number): void {
+    this.reportsPage = page;
+    this.selectedReportId = null;
+    this.reportMessages = [];
+    this.loadReports();
+  }
+
+  protected changeExchangesPage(page: number): void {
+    this.exchangesPage = page;
+    this.loadIntermediaryRequests();
   }
 
   protected showReportMessages(report: ConversationReportResponse): void {
@@ -182,21 +212,13 @@ export class AdminPageComponent {
     this.pageSubject.next(1);
   }
 
+  protected changeListingsPage(page: number): void {
+    this.pageSubject.next(page);
+  }
+
   resetFilters(): void {
     this.filters.reset();
     this.applyFilters();
-  }
-
-  nextPage(page: PageResponse<ListingResponse>): void {
-    if (!page.last) {
-      this.pageSubject.next(page.page + 1);
-    }
-  }
-
-  previousPage(page: PageResponse<ListingResponse>): void {
-    if (!page.first) {
-      this.pageSubject.next(page.page - 1);
-    }
   }
 
   markAsSold(listing: ListingResponse): void {

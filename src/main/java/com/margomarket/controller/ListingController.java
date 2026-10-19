@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -49,10 +50,9 @@ public class ListingController {
     }
 
     @GetMapping("/mine")
-    public List<ListingResponse> mine(@AuthenticationPrincipal User user) {
-        return listingService.getUserListings(user).stream()
-                .map(listingMapper::toResponse)
-                .toList();
+    public PageResponse<ListingResponse> mine(@RequestParam(defaultValue = "1") int page,
+                                               @AuthenticationPrincipal User user) {
+        return pageMapper.toResponse(listingService.getUserListings(user, page), listingMapper::toResponse);
     }
 
     @PostMapping
@@ -76,10 +76,14 @@ public class ListingController {
     }
 
     @GetMapping("/favorites")
-    public List<ListingResponse> favorites(@AuthenticationPrincipal User user) {
-        return favoriteService.getUserFavoriteListings(user).stream()
-                .map(listingMapper::toResponse)
-                .toList();
+    public PageResponse<ListingResponse> favorites(@RequestParam(defaultValue = "1") int page,
+                                                    @AuthenticationPrincipal User user) {
+        return pageMapper.toResponse(favoriteService.getUserFavoriteListings(user, page), listingMapper::toResponse);
+    }
+
+    @GetMapping("/favorites/ids")
+    public List<Long> favoriteIds(@RequestParam List<Long> listingIds, @AuthenticationPrincipal User user) {
+        return favoriteService.getUserFavoriteIds(user, listingIds);
     }
 
     @PostMapping("/{id}/favorite")

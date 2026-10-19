@@ -100,8 +100,9 @@ public class ListingService {
                 .orElseThrow(() -> new NotFoundException("Ogłoszenie nie istnieje"));
     }
 
-    public List<Listing> getUserListings(User user) {
-        return listingRepository.findByUserSortedByStatusAndCreatedAtDesc(user);
+    public Page<Listing> getUserListings(User user, int page) {
+        return listingRepository.findByUserSortedByStatusAndCreatedAtDesc(
+                user, PageRequest.of(Math.max(0, page - 1), 20));
     }
 
     @Transactional

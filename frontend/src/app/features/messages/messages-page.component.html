@@ -43,10 +43,13 @@
             }
           </a>
         }
-        @if (inboxHasMore) {
+        @if (!adminAll && inboxHasMore) {
           <button type="button" class="show-more-conversations" [disabled]="inboxRequestPending" (click)="showMoreConversations()">{{ inboxRequestPending ? 'Wczytywanie...' : 'Pokaż więcej rozmów' }}</button>
         }
       </div>
+      @if (adminAll && adminInboxPageData; as page) {
+        <mm-pagination [page]="page" [loading]="inboxRequestPending" (pageChange)="changeAdminInboxPage($event)" />
+      }
 
     </aside>
 

@@ -54,9 +54,9 @@ public class ConversationService {
                 .toList();
     }
 
-    public Page<ConversationResponse> adminChatsPage(User admin, int limit) {
+    public Page<ConversationResponse> adminChatsPage(User admin, int page, int limit) {
         access.requireAdmin(admin);
-        return conversations.findAllDetailedPage(PageRequest.of(0, Math.max(1, limit)))
+        return conversations.findAllDetailedPage(PageRequest.of(Math.max(0, page - 1), Math.clamp(limit, 1, 50)))
                 .map(conversation -> access.toResponse(conversation, admin));
     }
 

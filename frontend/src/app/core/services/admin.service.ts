@@ -10,8 +10,10 @@ export class AdminService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/admin`;
 
-  blockedWords(): Observable<BlockedWord[]> {
-    return this.http.get<BlockedWord[]>(`${this.baseUrl}/blocked-words`);
+  blockedWords(page = 1, search = ''): Observable<PageResponse<BlockedWord>> {
+    return this.http.get<PageResponse<BlockedWord>>(`${this.baseUrl}/blocked-words`, {
+      params: new HttpParams().set('page', page).set('search', search)
+    });
   }
 
   saveBlockedWord(word: BlockedWordRequest, id?: number): Observable<BlockedWord> {
@@ -30,8 +32,10 @@ export class AdminService {
     });
   }
 
-  users(): Observable<UserResponse[]> {
-    return this.http.get<UserResponse[]>(`${this.baseUrl}/users`);
+  users(page = 1): Observable<PageResponse<UserResponse>> {
+    return this.http.get<PageResponse<UserResponse>>(`${this.baseUrl}/users`, {
+      params: new HttpParams().set('page', page)
+    });
   }
 
   userStats(id: number): Observable<UserStats> {

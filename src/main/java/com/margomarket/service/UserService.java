@@ -14,6 +14,9 @@ import com.margomarket.repository.ListingRepository;
 import com.margomarket.repository.RoleRepository;
 import com.margomarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,7 +28,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.Arrays;
@@ -79,8 +81,9 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new NotFoundException("Użytkownik nie istnieje"));
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public Page<User> getAllUsers(int page) {
+        return userRepository.findAll(PageRequest.of(Math.max(0, page - 1), 20,
+                Sort.by(Sort.Direction.DESC, "id")));
     }
 
     public User getById(Long id) {

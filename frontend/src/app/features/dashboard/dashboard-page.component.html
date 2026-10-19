@@ -25,6 +25,15 @@
           />
         }
       </div>
+      @if (pageData; as page) {
+        @if (!page.last) {
+          <div class="load-more">
+            <button type="button" [disabled]="loadingMore" (click)="loadMore()">
+              {{ loadingMore ? 'Ładowanie...' : 'Pokaż więcej' }}
+            </button>
+          </div>
+        }
+      }
     } @else {
       <div class="empty">Nie masz jeszcze ogłoszeń.</div>
     }
@@ -39,6 +48,15 @@
           />
         }
       </div>
+      @if (pageData; as page) {
+        @if (!page.last) {
+          <div class="load-more">
+            <button type="button" [disabled]="loadingMore" (click)="loadMore()">
+              {{ loadingMore ? 'Ładowanie...' : 'Pokaż więcej' }}
+            </button>
+          </div>
+        }
+      }
     } @else {
       <div class="empty">Nie obserwujesz jeszcze żadnych ofert.</div>
     }

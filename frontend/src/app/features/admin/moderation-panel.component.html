@@ -32,9 +32,9 @@
   @if (error) { <p class="error" role="alert">{{ error }}</p> }
   @if (notice) { <p class="notice" role="status">{{ notice }}</p> }
   <div class="list-head">
-    <span>{{ words.length }} wpisów</span>
+    <span>{{ pageData?.totalElements ?? 0 }} wpisów</span>
     <label>Szukaj na liście
-      <input type="search" [value]="search" (input)="search = $any($event.target).value" placeholder="Szukaj słowa">
+      <input type="search" [value]="search" (input)="onSearch($any($event.target).value)" placeholder="Szukaj słowa">
     </label>
     <button type="button" [disabled]="busy || loading" (click)="load()">Odśwież</button>
   </div>
@@ -45,7 +45,7 @@
       <table>
         <thead><tr><th>Słowo / fraza</th><th>Dopasowanie</th><th>Status</th><th>Akcje</th></tr></thead>
         <tbody>
-          @for (word of filteredWords; track word.id) {
+          @for (word of words; track word.id) {
             <tr>
               <td>{{ word.term }}</td>
               <td>{{ word.matchMode === 'EXACT' ? 'Całe słowo / fraza' : 'Początek słowa' }}</td>
@@ -62,5 +62,8 @@
         </tbody>
       </table>
     </div>
+    @if (pageData; as page) {
+      <mm-pagination [page]="page" [loading]="loading" (pageChange)="changePage($event)" />
+    }
   }
 </section>

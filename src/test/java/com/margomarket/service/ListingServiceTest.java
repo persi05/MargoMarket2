@@ -291,11 +291,12 @@ class ListingServiceTest {
         Listing active = listing(owner, status("active"));
         Listing sold = listing(owner, status("sold"));
 
-        when(listingRepository.findByUserSortedByStatusAndCreatedAtDesc(owner)).thenReturn(List.of(active, sold));
+        when(listingRepository.findByUserSortedByStatusAndCreatedAtDesc(eq(owner), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(active, sold)));
 
-        List<Listing> listings = listingService.getUserListings(owner);
+        Page<Listing> listings = listingService.getUserListings(owner, 1);
 
-        assertThat(listings).containsExactly(active, sold);
+        assertThat(listings.getContent()).containsExactly(active, sold);
     }
 
     @Test

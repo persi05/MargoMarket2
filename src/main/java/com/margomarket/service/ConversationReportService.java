@@ -13,6 +13,7 @@ import com.margomarket.repository.ConversationReportRepository;
 import com.margomarket.repository.ConversationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +61,12 @@ public class ConversationReportService {
     public List<ConversationReportResponse> reports(User admin) {
         requireAdmin(admin);
         return reports.findAllByOrderByCreatedAtDesc().stream().map(this::toResponse).toList();
+    }
+
+    public Page<ConversationReportResponse> reportsPage(User admin, int page) {
+        requireAdmin(admin);
+        return reports.findAllByOrderByCreatedAtDescIdDesc(
+                PageRequest.of(Math.max(0, page - 1), 20)).map(this::toResponse);
     }
 
     @Transactional

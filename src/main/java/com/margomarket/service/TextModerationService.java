@@ -6,6 +6,8 @@ import com.margomarket.model.BlockedWord;
 import com.margomarket.repository.BlockedWordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
@@ -22,6 +24,11 @@ public class TextModerationService {
 
     public List<BlockedWord> list() {
         return repository.findAllByOrderByTermAsc();
+    }
+
+    public Page<BlockedWord> listPage(String search, int page) {
+        return repository.searchPage(search == null ? "" : search,
+                PageRequest.of(Math.max(0, page - 1), 20));
     }
 
     @Transactional

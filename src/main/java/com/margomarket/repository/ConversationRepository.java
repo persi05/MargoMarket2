@@ -73,4 +73,21 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
         ORDER BY c.updatedAt DESC, c.id DESC
         """)
     List<Conversation> findIntermediaryExchanges(@Param("adminId") Long adminId);
+
+    @EntityGraph(attributePaths = {"buyer", "seller", "intermediary", "listing", "listing.status"})
+    @Query(value = """
+        SELECT c FROM Conversation c
+        WHERE (c.intermediaryStatus = 'REQUESTED' AND c.closedAt IS NULL)
+           OR c.intermediary.id = :adminId
+        ORDER BY CASE
+            WHEN c.closedAt IS NULL AND c.intermediaryStatus = 'REQUESTED' THEN 0
+            WHEN c.closedAt IS NULL THEN 1
+            ELSE 2 END,
+            c.updatedAt DESC, c.id DESC
+        """, countQuery = """
+        SELECT COUNT(c) FROM Conversation c
+        WHERE (c.intermediaryStatus = 'REQUESTED' AND c.closedAt IS NULL)
+           OR c.intermediary.id = :adminId
+        """)
+    Page<Conversation> findIntermediaryExchangesPage(@Param("adminId") Long adminId, Pageable pageable);
 }

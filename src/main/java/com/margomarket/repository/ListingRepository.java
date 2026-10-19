@@ -26,7 +26,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     List<Object[]> countUserListingsByStatus(@Param("userId") Long userId);
 
     @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
-    @Query("""
+    @Query(value = """
         SELECT l
         FROM Listing l
         WHERE l.user = :user
@@ -36,9 +36,10 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
             WHEN l.status.name = 'sold' THEN 1
             ELSE 2
           END,
-          l.createdAt DESC
-        """)
-    List<Listing> findByUserSortedByStatusAndCreatedAtDesc(@Param("user") User user);
+          l.createdAt DESC,
+          l.id DESC
+        """, countQuery = "SELECT COUNT(l) FROM Listing l WHERE l.user = :user")
+    Page<Listing> findByUserSortedByStatusAndCreatedAtDesc(@Param("user") User user, Pageable pageable);
 
     @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
     @Query("SELECT l FROM Listing l WHERE l.id = :id")

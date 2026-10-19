@@ -1,0 +1,7 @@
+@if (page.totalPages > 1) {
+  <nav class="pagination" aria-label="Strony wyników">
+    <button type="button" [disabled]="page.first || loading" (click)="pageChange.emit(page.page - 1)">Poprzednia</button>
+    <span>Strona {{ page.page }} z {{ page.totalPages }}</span>
+    <button type="button" [disabled]="page.last || loading" (click)="pageChange.emit(page.page + 1)">Następna</button>
+  </nav>
+}

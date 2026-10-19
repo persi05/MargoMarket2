@@ -54,9 +54,10 @@ public class ConversationController {
     }
 
     @GetMapping("/admin/chats/page")
-    public PageResponse<ConversationResponse> adminChatsPage(@RequestParam(defaultValue = "10") int limit,
+    public PageResponse<ConversationResponse> adminChatsPage(@RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit,
             @AuthenticationPrincipal User user) {
-        return pageMapper.toResponse(service.adminChatsPage(user, limit), conversation -> conversation);
+        return pageMapper.toResponse(service.adminChatsPage(user, page, limit), conversation -> conversation);
     }
 
     @GetMapping("/admin/chats/{id}")
@@ -76,13 +77,15 @@ public class ConversationController {
     }
 
     @GetMapping("/intermediary-exchanges")
-    public List<ConversationResponse> intermediaryExchanges(@AuthenticationPrincipal User user) {
-        return exchangeService.intermediaryExchanges(user);
+    public PageResponse<ConversationResponse> intermediaryExchanges(@RequestParam(defaultValue = "1") int page,
+            @AuthenticationPrincipal User user) {
+        return pageMapper.toResponse(exchangeService.intermediaryExchangesPage(user, page), conversation -> conversation);
     }
 
     @GetMapping("/reports")
-    public List<ConversationReportResponse> reports(@AuthenticationPrincipal User user) {
-        return reportService.reports(user);
+    public PageResponse<ConversationReportResponse> reports(@RequestParam(defaultValue = "1") int page,
+            @AuthenticationPrincipal User user) {
+        return pageMapper.toResponse(reportService.reportsPage(user, page), report -> report);
     }
 
     @GetMapping("/reports/{id}/messages")

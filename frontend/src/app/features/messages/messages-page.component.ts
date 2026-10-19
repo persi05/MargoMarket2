@@ -5,17 +5,18 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
-import { ChatMessageResponse, ConversationReportReason, ConversationResponse, ListingResponse, UserResponse } from '../../core/models/api.models';
+import { ChatMessageResponse, ConversationReportReason, ConversationResponse, ListingResponse, PageResponse, UserResponse } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 import { ConversationService } from '../../core/services/conversation.service';
 import { ListingService } from '../../core/services/listing.service';
 import { formatListingPrice } from '../../core/utils/price-format';
+import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { ConversationReportDialogComponent } from './conversation-report-dialog.component';
 
 @Component({
   selector: 'mm-messages-page',
   standalone: true,
-  imports: [DatePipe, FormsModule, RouterLink, ConversationReportDialogComponent],
+  imports: [DatePipe, FormsModule, RouterLink, ConversationReportDialogComponent, PaginationComponent],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.css'
 })
@@ -45,6 +46,8 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   protected visibleInboxCount = 10;
   protected inboxTotal = 0;
   protected inboxHasMore = false;
+  protected adminInboxPage = 1;
+  protected adminInboxPageData: PageResponse<ConversationResponse> | null = null;
   protected selected: ConversationResponse | null = null;
   protected selectedId: number | null = null;
   protected newListing: ListingResponse | null = null;
@@ -142,6 +145,12 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     if (this.inboxRequestPending || !this.inboxHasMore) return;
     this.visibleInboxCount += 10;
     this.loadInbox(true);
+  }
+
+  protected changeAdminInboxPage(page: number): void {
+    if (!this.adminAll || this.inboxRequestPending || page < 1 || page === this.adminInboxPage) return;
+    this.adminInboxPage = page;
+    this.loadInbox();
   }
 
   protected changeInboxTab(tab: 'listings' | 'exchanges'): void {
@@ -371,7 +380,7 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     this.inboxRequestPending = true;
     const scope = this.currentUser?.role === 'admin'
       ? this.inboxTab === 'exchanges' ? 'EXCHANGES' : 'LISTINGS' : 'ALL';
-    (this.adminAll ? this.conversationsService.adminChatsPage(this.visibleInboxCount)
+    (this.adminAll ? this.conversationsService.adminChatsPage(this.adminInboxPage)
       : this.conversationsService.inbox(this.visibleInboxCount, scope)).subscribe({
       next: page => {
         if (requestVersion !== this.inboxRequestVersion) return;
@@ -380,6 +389,7 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
         this.conversations = page.content;
         this.inboxTotal = page.totalElements;
         this.inboxHasMore = !page.last;
+        if (this.adminAll) this.adminInboxPageData = page;
         this.loadingInbox = false;
         if (this.error === 'Nie udało się wczytać rozmów.') this.error = '';
         if (this.selectedId) {

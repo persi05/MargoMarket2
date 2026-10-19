@@ -2,6 +2,8 @@ package com.margomarket.controller;
 
 import com.margomarket.dto.BlockedWordRequest;
 import com.margomarket.model.BlockedWord;
+import com.margomarket.dto.PageResponse;
+import com.margomarket.mapper.PageMapper;
 import com.margomarket.service.TextModerationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +17,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ModerationController {
     private final TextModerationService moderation;
+    private final PageMapper pageMapper;
 
     @GetMapping
-    public List<BlockedWord> list() { return moderation.list(); }
+    public PageResponse<BlockedWord> list(@RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "") String search) {
+        return pageMapper.toResponse(moderation.listPage(search, page), word -> word);
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
