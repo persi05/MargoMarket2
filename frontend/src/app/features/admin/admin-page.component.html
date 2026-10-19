@@ -17,7 +17,7 @@
     @if (users$ | async; as users) {
       <div class="stat">
         <span>Użytkownicy</span>
-        <strong>{{ users.length | number }}</strong>
+        <strong>{{ (usersPageData?.totalElements ?? 0) | number }}</strong>
       </div>
     }
   </div>
@@ -84,10 +84,6 @@
           <p>{{ page.totalElements }} wyników, strona {{ page.page }} z {{ page.totalPages || 1 }}</p>
         </div>
 
-        <div class="pager">
-          <button type="button" [disabled]="page.first" (click)="previousPage(page)">Poprzednia</button>
-          <button type="button" [disabled]="page.last" (click)="nextPage(page)">Następna</button>
-        </div>
       </div>
 
       @if (loadingListings) {
@@ -108,6 +104,7 @@
       } @else {
         <div class="empty">Brak ogłoszeń dla wybranych filtrów.</div>
       }
+      <mm-pagination [page]="page" [loading]="loadingListings" (pageChange)="changeListingsPage($event)" />
     }
   } @else if (activeTab === 'users') {
     @if (users$ | async; as users) {
@@ -144,6 +141,9 @@
             </tbody>
           </table>
         </div>
+        @if (usersPageData; as page) {
+          <mm-pagination [page]="page" [loading]="loadingUsers" (pageChange)="changeUsersPage($event)" />
+        }
       } @else {
         <div class="empty">Brak użytkowników.</div>
       }
@@ -181,6 +181,9 @@
           </article>
         }
       </div>
+      @if (reportsPageData; as page) {
+        <mm-pagination [page]="page" [loading]="loadingReports" (pageChange)="changeReportsPage($event)" />
+      }
     }
   } @else if (activeTab === 'chats') {
     <mm-messages-page [adminAll]="true" [adminConversationId]="selectedAdminChatId" />
@@ -210,6 +213,9 @@
           </article>
         }
       </div>
+      @if (exchangesPageData; as page) {
+        <mm-pagination [page]="page" [loading]="loadingRequests" (pageChange)="changeExchangesPage($event)" />
+      }
     }
   } @else {
     <mm-moderation-panel />

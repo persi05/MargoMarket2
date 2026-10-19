@@ -4,14 +4,15 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
-import { NotificationResponse } from '../../core/models/api.models';
+import { NotificationResponse, PageResponse } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { PaginationComponent } from '../../shared/pagination/pagination.component';
 
 @Component({
   selector: 'mm-notifications-page',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, PaginationComponent],
   templateUrl: './notifications-page.component.html',
   styleUrl: './notifications-page.component.css'
 })
@@ -21,15 +22,14 @@ export class NotificationsPageComponent {
   private readonly router = inject(Router);
 
   protected notifications: NotificationResponse[] = [];
+  protected pageData: PageResponse<NotificationResponse> | null = null;
+  protected currentPage = 1;
+  protected unreadCount = 0;
   protected loading = true;
   protected notice = '';
 
   constructor() {
     this.loadNotifications();
-  }
-
-  protected get unreadCount(): number {
-    return this.notifications.filter((notification) => !notification.read).length;
   }
 
   protected markAsRead(notification: NotificationResponse): void {
@@ -40,6 +40,7 @@ export class NotificationsPageComponent {
     this.notificationService.markAsRead(notification.id).subscribe({
       next: (updated) => {
         this.notifications = this.notifications.map((item) => (item.id === updated.id ? updated : item));
+        if (updated.read) this.unreadCount = Math.max(0, this.unreadCount - 1);
       },
       error: (error: HttpErrorResponse) => {
         this.notice = this.errorMessage(error, 'Nie udało się oznaczyć powiadomienia jako przeczytanego.');
@@ -47,17 +48,28 @@ export class NotificationsPageComponent {
     });
   }
 
+  protected changePage(page: number): void {
+    if (this.loading || page < 1 || page === this.currentPage) return;
+    this.currentPage = page;
+    this.loadNotifications();
+  }
+
   private loadNotifications(): void {
     this.loading = true;
     this.notice = '';
 
-    this.notificationService.mine()
+    this.notificationService.unreadCount().subscribe({
+      next: result => this.unreadCount = result.count
+    });
+
+    this.notificationService.mine(this.currentPage)
       .pipe(finalize(() => {
         this.loading = false;
       }))
       .subscribe({
-        next: (notifications) => {
-          this.notifications = notifications;
+        next: (page) => {
+          this.pageData = page;
+          this.notifications = page.content;
         },
         error: (error: HttpErrorResponse) => {
           this.notice = this.errorMessage(error, 'Nie udało się pobrać powiadomień.');

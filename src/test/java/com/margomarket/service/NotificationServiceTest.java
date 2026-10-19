@@ -12,6 +12,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +22,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,11 +45,12 @@ class NotificationServiceTest {
         UserNotification first = new UserNotification(user, "LISTING_SOLD", "first");
         UserNotification second = new UserNotification(user, "LISTING_SOLD", "second");
 
-        when(notificationRepository.findByUserOrderByCreatedAtDesc(user)).thenReturn(List.of(first, second));
+        when(notificationRepository.findByUserOrderByCreatedAtDescIdDesc(eq(user), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(first, second)));
 
-        List<UserNotification> notifications = notificationService.getUserNotifications(user);
+        Page<UserNotification> notifications = notificationService.getUserNotifications(user, 1);
 
-        assertThat(notifications).containsExactly(first, second);
+        assertThat(notifications.getContent()).containsExactly(first, second);
     }
 
     @Test

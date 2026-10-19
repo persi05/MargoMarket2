@@ -1,9 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize } from 'rxjs';
 
-import { ListingResponse } from '../../core/models/api.models';
+import { ListingResponse, PageResponse } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 import { ListingService } from '../../core/services/listing.service';
 import { ListingCardComponent } from '../../shared/listing-card/listing-card.component';
@@ -22,8 +22,11 @@ export class DashboardPageComponent {
 
   protected mine: ListingResponse[] = [];
   protected favorites: ListingResponse[] = [];
+  protected pageData: PageResponse<ListingResponse> | null = null;
+  protected currentPage = 1;
   protected activeTab: 'mine' | 'favorites' = 'mine';
   protected loading = true;
+  protected loadingMore = false;
   protected notice = '';
 
   protected get isFavoritesPage(): boolean {
@@ -44,22 +47,46 @@ export class DashboardPageComponent {
   }
 
   reload(): void {
+    this.currentPage = 1;
     this.loading = true;
-    this.notice = '';
 
-    forkJoin({
-      mine: this.listingService.mine(),
-      favorites: this.listingService.favorites()
-    }).pipe(finalize(() => {
+    const request = this.isFavoritesPage
+      ? this.listingService.favorites(this.currentPage)
+      : this.listingService.mine(this.currentPage);
+    request.pipe(finalize(() => {
       this.loading = false;
     })).subscribe({
-      next: ({ mine, favorites }) => {
-        this.mine = this.sortUserListings(mine);
-        this.favorites = favorites.filter((listing) => listing.status === 'active');
+      next: (page) => {
+        this.pageData = page;
+        if (this.isFavoritesPage) this.favorites = page.content;
+        else this.mine = page.content;
       },
       error: (response: unknown) => {
         this.handleLoadError(response);
       }
+    });
+  }
+
+  protected loadMore(): void {
+    if (this.loading || this.loadingMore || !this.pageData || this.pageData.last) return;
+
+    this.loadingMore = true;
+    const request = this.isFavoritesPage
+      ? this.listingService.favorites(this.pageData.page + 1)
+      : this.listingService.mine(this.pageData.page + 1);
+    request.pipe(
+      finalize(() => this.loadingMore = false)
+    ).subscribe({
+      next: (page) => {
+        const loaded = this.isFavoritesPage ? this.favorites : this.mine;
+        const loadedIds = new Set(loaded.map((listing) => listing.id));
+        const listings = [...loaded, ...page.content.filter((listing) => !loadedIds.has(listing.id))];
+        if (this.isFavoritesPage) this.favorites = listings;
+        else this.mine = listings;
+        this.currentPage = page.page;
+        this.pageData = page;
+      },
+      error: (response: unknown) => this.handleLoadError(response)
     });
   }
 
@@ -90,7 +117,7 @@ export class DashboardPageComponent {
   removeFavorite(listing: ListingResponse): void {
     this.listingService.removeFavorite(listing.id).subscribe({
       next: () => {
-        this.favorites = this.favorites.filter((item) => item.id !== listing.id);
+        this.reload();
       }
     });
   }
@@ -106,21 +133,4 @@ export class DashboardPageComponent {
     this.notice = 'Nie udało się pobrać panelu. Sprawdź, czy backend działa i spróbuj odświeżyć stronę.';
   }
 
-  private sortUserListings(listings: ListingResponse[]): ListingResponse[] {
-    const statusOrder: Record<string, number> = {
-      active: 0,
-      sold: 1
-    };
-
-    return [...listings].sort((left, right) => {
-      const leftOrder = statusOrder[left.status] ?? 2;
-      const rightOrder = statusOrder[right.status] ?? 2;
-
-      if (leftOrder !== rightOrder) {
-        return leftOrder - rightOrder;
-      }
-
-      return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
-    });
-  }
 }

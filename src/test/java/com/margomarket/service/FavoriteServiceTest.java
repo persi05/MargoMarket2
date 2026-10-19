@@ -12,6 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,12 +45,12 @@ class FavoriteServiceTest {
         Listing first = listing("active");
         Listing second = listing("active");
 
-        when(favoriteRepository.findByUserWithDetails(user))
-                .thenReturn(List.of(new ListingFavorite(user, first), new ListingFavorite(user, second)));
+        when(favoriteRepository.findByUserWithDetails(eq(user), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(new ListingFavorite(user, first), new ListingFavorite(user, second))));
 
-        List<Listing> favorites = favoriteService.getUserFavoriteListings(user);
+        Page<Listing> favorites = favoriteService.getUserFavoriteListings(user, 1);
 
-        assertThat(favorites).containsExactly(first, second);
+        assertThat(favorites.getContent()).containsExactly(first, second);
     }
 
     @Test

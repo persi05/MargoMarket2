@@ -24,12 +24,21 @@ export class ListingService {
     return this.http.post<ListingResponse>(this.baseUrl, request);
   }
 
-  mine(): Observable<ListingResponse[]> {
-    return this.http.get<ListingResponse[]>(`${this.baseUrl}/mine`);
+  mine(page = 1): Observable<PageResponse<ListingResponse>> {
+    return this.http.get<PageResponse<ListingResponse>>(`${this.baseUrl}/mine`, {
+      params: new HttpParams().set('page', page)
+    });
   }
 
-  favorites(): Observable<ListingResponse[]> {
-    return this.http.get<ListingResponse[]>(`${this.baseUrl}/favorites`);
+  favorites(page = 1): Observable<PageResponse<ListingResponse>> {
+    return this.http.get<PageResponse<ListingResponse>>(`${this.baseUrl}/favorites`, {
+      params: new HttpParams().set('page', page)
+    });
+  }
+
+  favoriteIds(listingIds: number[]): Observable<number[]> {
+    const params = listingIds.reduce((result, id) => result.append('listingIds', id), new HttpParams());
+    return this.http.get<number[]>(`${this.baseUrl}/favorites/ids`, { params });
   }
 
   addFavorite(id: number): Observable<void> {

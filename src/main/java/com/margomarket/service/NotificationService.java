@@ -7,6 +7,8 @@ import com.margomarket.model.UserNotification;
 import com.margomarket.repository.NotificationRepository;
 import com.margomarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +25,9 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
 
-    public List<UserNotification> getUserNotifications(User user) {
-        return notificationRepository.findByUserOrderByCreatedAtDesc(user);
+    public Page<UserNotification> getUserNotifications(User user, int page) {
+        return notificationRepository.findByUserOrderByCreatedAtDescIdDesc(user,
+                PageRequest.of(Math.max(0, page - 1), 20));
     }
 
     public long countUnread(User user) {

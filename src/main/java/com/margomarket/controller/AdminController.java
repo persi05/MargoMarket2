@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -41,10 +42,8 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public List<UserResponse> users() {
-        return userService.getAllUsers().stream()
-                .map(userMapper::toResponse)
-                .toList();
+    public PageResponse<UserResponse> users(@RequestParam(defaultValue = "1") int page) {
+        return pageMapper.toResponse(userService.getAllUsers(page), userMapper::toResponse);
     }
 
     @GetMapping("/users/{id}")

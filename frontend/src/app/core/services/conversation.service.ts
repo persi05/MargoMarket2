@@ -20,9 +20,9 @@ export class ConversationService {
     });
   }
 
-  adminChatsPage(limit = 10): Observable<PageResponse<ConversationResponse>> {
+  adminChatsPage(page = 1, limit = 10): Observable<PageResponse<ConversationResponse>> {
     return this.http.get<PageResponse<ConversationResponse>>(`${this.baseUrl}/admin/chats/page`, {
-      params: new HttpParams().set('limit', limit)
+      params: new HttpParams().set('page', page).set('limit', limit)
     });
   }
 
@@ -62,8 +62,10 @@ export class ConversationService {
     return this.http.post<ConversationResponse>(`${this.baseUrl}/${id}/intermediary-request`, {});
   }
 
-  intermediaryExchanges(): Observable<ConversationResponse[]> {
-    return this.http.get<ConversationResponse[]>(`${this.baseUrl}/intermediary-exchanges`);
+  intermediaryExchanges(page = 1): Observable<PageResponse<ConversationResponse>> {
+    return this.http.get<PageResponse<ConversationResponse>>(`${this.baseUrl}/intermediary-exchanges`, {
+      params: new HttpParams().set('page', page)
+    });
   }
 
   joinAsIntermediary(id: number): Observable<ConversationResponse> {
@@ -88,8 +90,10 @@ export class ConversationService {
     return this.http.post<ConversationReportResponse>(`${this.baseUrl}/${id}/reports`, { reason, details });
   }
 
-  reports(): Observable<ConversationReportResponse[]> {
-    return this.http.get<ConversationReportResponse[]>(`${this.baseUrl}/reports`);
+  reports(page = 1): Observable<PageResponse<ConversationReportResponse>> {
+    return this.http.get<PageResponse<ConversationReportResponse>>(`${this.baseUrl}/reports`, {
+      params: new HttpParams().set('page', page)
+    });
   }
 
   reportMessages(id: number): Observable<ChatMessageResponse[]> {

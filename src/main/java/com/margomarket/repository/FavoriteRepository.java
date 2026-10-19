@@ -1,6 +1,8 @@
 package com.margomarket.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +19,7 @@ public interface FavoriteRepository extends JpaRepository<ListingFavorite, Long>
 
     Optional<ListingFavorite> findByUserAndListing(User user, Listing listing);
 
-    @Query("""
+    @Query(value = """
         SELECT f FROM ListingFavorite f
         JOIN FETCH f.listing l
         JOIN FETCH l.user
@@ -28,16 +30,20 @@ public interface FavoriteRepository extends JpaRepository<ListingFavorite, Long>
         JOIN FETCH l.status
         WHERE f.user = :user
           AND l.status.name = 'active'
-        ORDER BY f.createdAt DESC
+        ORDER BY f.createdAt DESC, f.id DESC
+        """, countQuery = """
+        SELECT COUNT(f) FROM ListingFavorite f
+        WHERE f.user = :user AND f.listing.status.name = 'active'
         """)
-    List<ListingFavorite> findByUserWithDetails(@Param("user") User user);
+    Page<ListingFavorite> findByUserWithDetails(@Param("user") User user, Pageable pageable);
 
     @Query("""
         SELECT f.listing.id FROM ListingFavorite f
         WHERE f.user = :user
           AND f.listing.status.name = 'active'
+          AND f.listing.id IN :listingIds
         """)
-    List<Long> findFavoriteIdsByUser(@Param("user") User user);
+    List<Long> findFavoriteIdsByUser(@Param("user") User user, @Param("listingIds") List<Long> listingIds);
 
     @Query("""
         SELECT f.user.id FROM ListingFavorite f

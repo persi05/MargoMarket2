@@ -2,7 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, ElementRef, HostListener, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { BehaviorSubject, catchError, combineLatest, debounceTime, distinctUntilChanged, finalize, of, shareReplay, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, debounceTime, distinctUntilChanged, finalize, of, shareReplay, switchMap, tap } from 'rxjs';
 
 import { ListingResponse, LookupResponse, PageResponse } from '../../core/models/api.models';
 import { ItemDescriptionPipe } from '../../core/pipes/item-description.pipe';
@@ -47,6 +47,7 @@ export class MarketPageComponent {
   protected notice = '';
   protected readonly skeletonRows = [1, 2, 3, 4, 5, 6];
   protected readonly favoriteIds = new Set<number>();
+  private favoriteRequestVersion = 0;
   protected readonly favoriteBusyIds = new Set<number>();
   protected readonly brokenListingImageIds = new Set<number>();
   protected activeDiscussionListing: ListingResponse | null = null;
@@ -82,6 +83,9 @@ export class MarketPageComponent {
           this.loadError = 'Nie udało się pobrać ogłoszeń. Spróbuj ponownie.';
           return of(null);
         }),
+        tap(result => {
+          if (result) this.reloadFavorites(result.content.map(listing => listing.id));
+        }),
         finalize(() => {
           this.loading = false;
         })
@@ -98,7 +102,6 @@ export class MarketPageComponent {
       this.pageSubject.next(1);
     });
 
-    this.reloadFavorites();
   }
 
   protected startFilterDrag(event: PointerEvent): void {
@@ -454,16 +457,23 @@ export class MarketPageComponent {
     return hasEnhancementLevel(listing.itemType.name, listing.itemName) ? `+${listing.enhancementLevel}` : '-';
   }
 
-  private reloadFavorites(): void {
+  private reloadFavorites(listingIds: number[]): void {
+    const requestVersion = ++this.favoriteRequestVersion;
     if (!this.authService.isLoggedIn) {
       this.favoriteIds.clear();
       return;
     }
 
-    this.listingService.favorites().subscribe({
-      next: (listings) => {
+    if (!listingIds.length) {
+      this.favoriteIds.clear();
+      return;
+    }
+
+    this.listingService.favoriteIds(listingIds).subscribe({
+      next: (ids) => {
+        if (requestVersion !== this.favoriteRequestVersion) return;
         this.favoriteIds.clear();
-        listings.forEach((listing) => this.favoriteIds.add(listing.id));
+        ids.forEach((id) => this.favoriteIds.add(id));
       }
     });
   }

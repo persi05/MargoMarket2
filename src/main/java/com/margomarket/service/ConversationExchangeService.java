@@ -9,6 +9,8 @@ import com.margomarket.model.User;
 import com.margomarket.repository.ConversationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -58,6 +60,13 @@ public class ConversationExchangeService {
                         .thenComparing(Conversation::getId, Comparator.reverseOrder()))
                 .map(conversation -> access.toResponse(conversation, admin))
                 .toList();
+    }
+
+    public Page<ConversationResponse> intermediaryExchangesPage(User admin, int page) {
+        access.requireAdmin(admin);
+        return conversations.findIntermediaryExchangesPage(admin.getId(),
+                PageRequest.of(Math.max(0, page - 1), 20))
+                .map(conversation -> access.toResponse(conversation, admin));
     }
 
     private int exchangeGroup(Conversation conversation) {
