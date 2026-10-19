@@ -9,9 +9,11 @@ import { Router, RouterLink } from '@angular/router';
     @if (value !== null) {
       {{ value }}
     } @else {
-      <span class="placeholder">
+      <span class="placeholder" [attr.aria-label]="showLoginLink ? null : 'Dostępne po zalogowaniu'">
         <span class="masked" aria-hidden="true">{{ compact ? '••••••••' : '•••••••••••' }}</span>
-        <a routerLink="/auth" [queryParams]="{ returnUrl: router.url }">Zaloguj się</a>
+        @if (showLoginLink) {
+          <a routerLink="/auth" [queryParams]="{ returnUrl: router.url }">Zaloguj się</a>
+        }
       </span>
     }
   `,
@@ -51,5 +53,6 @@ import { Router, RouterLink } from '@angular/router';
 export class PrivateDetailComponent {
   @Input() value: string | null = null;
   @Input() compact = false;
+  @Input() showLoginLink = true;
   protected readonly router = inject(Router);
 }
