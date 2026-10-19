@@ -7,6 +7,7 @@ import { finalize } from 'rxjs';
 
 import { ChatMessageResponse, ConversationReportReason, ConversationResponse, ListingResponse, PageResponse, UserResponse } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
+import { ChatRealtimeService } from '../../core/services/chat-realtime.service';
 import { ConversationService } from '../../core/services/conversation.service';
 import { ListingService } from '../../core/services/listing.service';
 import { formatListingPrice } from '../../core/utils/price-format';
@@ -32,6 +33,7 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly conversationsService = inject(ConversationService);
+  private readonly realtime = inject(ChatRealtimeService);
   private readonly listingsService = inject(ListingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly changeDetector = inject(ChangeDetectorRef);
@@ -102,11 +104,22 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
         if (!this.inboxLoaded && !this.inboxRequestPending) this.loadInbox();
       });
     }
+    this.realtime.events$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(event => {
+      if (event.kind === 'disconnected') return;
+      if (event.kind === 'connected'
+          || (this.adminAll && event.kind === 'admin')
+          || (!this.adminAll && event.kind === 'personal')) {
+        this.loadInbox(true);
+        if (this.selectedId && (event.kind === 'connected' || event.conversationId === this.selectedId)) {
+          this.refreshMessages(this.selectedId);
+        }
+      }
+    });
     this.refreshTimer = setInterval(() => {
-      if (document.hidden) return;
+      if (document.hidden || this.realtime.connected) return;
       this.loadInbox(true);
       if (this.selectedId) this.refreshMessages(this.selectedId);
-    }, 12000);
+    }, 30000);
   }
 
   @HostListener('document:visibilitychange')
@@ -394,7 +407,10 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
         if (this.error === 'Nie udało się wczytać rozmów.') this.error = '';
         if (this.selectedId) {
           const updated = page.content.find(conversation => conversation.id === this.selectedId);
-          if (updated) this.selected = updated;
+          if (updated) {
+            this.selected = updated;
+            if (!this.adminAll) updated.unreadCount = 0;
+          }
         }
       },
       error: () => {
@@ -449,7 +465,10 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
             this.nextOlderPage = 2;
             this.loadingMessages = false;
             const inboxConversation = this.conversations.find(item => item.id === conversationId);
-            if (inboxConversation && !this.adminAll) inboxConversation.unreadCount = 0;
+            if (!this.adminAll) {
+              if (inboxConversation) inboxConversation.unreadCount = 0;
+              this.realtime.notifyRead();
+            }
             this.changeDetector.detectChanges();
             this.scrollToBottom();
           },
@@ -470,13 +489,23 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     if (this.loadingMessages || this.loadingOlder) return;
     const container = this.messageList?.nativeElement;
     const nearBottom = !container || container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+    const newestVisibleId = this.messages.at(-1)?.id ?? 0;
     (this.adminAll ? this.conversationsService.adminChatMessages(conversationId)
       : this.conversationsService.messages(conversationId)).subscribe({
       next: page => {
-        if (this.selectedId !== conversationId) return;
+        if (this.destroyRef.destroyed || this.selectedId !== conversationId) return;
+        const receivedNewMessage = page.content.some(message => message.id > newestVisibleId);
         this.mergeMessages(page.content);
         if (this.nextOlderPage === 2) this.hasMore = !page.last;
-        if (nearBottom) this.scrollToBottom();
+        if (!this.adminAll) {
+          const inboxConversation = this.conversations.find(item => item.id === conversationId);
+          if (inboxConversation) inboxConversation.unreadCount = 0;
+          this.realtime.notifyRead();
+        }
+        if (receivedNewMessage || nearBottom) {
+          this.changeDetector.detectChanges();
+          this.scrollToBottom();
+        }
       },
       error: () => { }
     });

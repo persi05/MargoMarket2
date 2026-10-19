@@ -5,6 +5,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { catchError, filter, fromEvent, merge, of, switchMap, timer } from 'rxjs';
 
 import { AuthService } from './core/services/auth.service';
+import { ChatRealtimeService } from './core/services/chat-realtime.service';
 import { ConversationService } from './core/services/conversation.service';
 
 @Component({
@@ -18,17 +19,31 @@ export class AppComponent {
   protected readonly authService = inject(AuthService);
   protected readonly user$ = this.authService.user$;
   private readonly conversations = inject(ConversationService);
+  private readonly realtime = inject(ChatRealtimeService);
   private readonly destroyRef = inject(DestroyRef);
   protected unreadMessages = 0;
 
   constructor() {
     this.user$.pipe(
-      switchMap(user => user ? merge(timer(0, 15000), fromEvent(document, 'visibilitychange')).pipe(
-        filter(() => !document.hidden),
-        switchMap(() => this.conversations.unreadCount().pipe(
-          catchError(() => of({ count: this.unreadMessages }))
-        ))
-      ) : of({ count: 0 })),
+      switchMap(user => {
+        if (!user) {
+          this.realtime.disconnect();
+          return of({ count: 0 });
+        }
+        this.realtime.connect(user.role === 'admin');
+        return merge(
+          of(null),
+          fromEvent(document, 'visibilitychange'),
+          this.realtime.events$.pipe(filter(event => event.kind === 'connected'
+            || event.kind === 'personal' || event.kind === 'read')),
+          timer(30000, 30000).pipe(filter(() => !this.realtime.connected))
+        ).pipe(
+          filter(() => !document.hidden),
+          switchMap(() => this.conversations.unreadCount().pipe(
+            catchError(() => of({ count: this.unreadMessages }))
+          ))
+        );
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(result => this.unreadMessages = result.count);
   }

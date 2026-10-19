@@ -63,6 +63,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/ws/conversations").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/listings/mine", "/api/listings/favorites").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/*", "/api/dictionaries", "/api/items").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/listings/*/comments").permitAll()

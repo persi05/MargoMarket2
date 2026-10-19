@@ -17,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,32 +31,19 @@ public class ConversationService {
     private final ListingRepository listings;
     private final TextModerationService moderation;
     private final ConversationAccess access;
-
-    public List<ConversationResponse> list(User viewer) {
-        return conversations.findVisibleTo(viewer.getId()).stream()
-                .map(conversation -> access.toResponse(conversation, viewer))
-                .toList();
-    }
+    private final ConversationRealtimePublisher realtimePublisher;
 
     public Page<ConversationResponse> inbox(User viewer, int limit, String scope) {
         String selectedScope = viewer.isAdmin() && Set.of("LISTINGS", "EXCHANGES").contains(scope)
                 ? scope : "ALL";
-        return conversations.findVisiblePage(viewer.getId(), selectedScope,
-                PageRequest.of(0, Math.max(1, limit)))
-                .map(conversation -> access.toResponse(conversation, viewer));
-    }
-
-    public List<ConversationResponse> adminChats(User admin) {
-        access.requireAdmin(admin);
-        return conversations.findAllDetailedOrderByUpdatedAtDesc().stream()
-                .map(conversation -> access.toResponse(conversation, admin))
-                .toList();
+        return access.toPage(conversations.findVisiblePage(viewer.getId(), selectedScope,
+                PageRequest.of(0, Math.max(1, limit))), viewer);
     }
 
     public Page<ConversationResponse> adminChatsPage(User admin, int page, int limit) {
         access.requireAdmin(admin);
-        return conversations.findAllDetailedPage(PageRequest.of(Math.max(0, page - 1), Math.clamp(limit, 1, 50)))
-                .map(conversation -> access.toResponse(conversation, admin));
+        return access.toPage(conversations.findAllDetailedPage(
+                PageRequest.of(Math.max(0, page - 1), Math.clamp(limit, 1, 50))), admin);
     }
 
     public ConversationResponse adminChat(Long id, User admin) {
@@ -148,6 +134,7 @@ public class ConversationService {
         message.setBody(moderation.masker().apply(trimmed));
         message = messages.save(message);
         conversation.setUpdatedAt(message.getCreatedAt());
+        realtimePublisher.changed(conversation);
         return message;
     }
 }
