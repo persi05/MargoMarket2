@@ -2,9 +2,9 @@ import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { BehaviorSubject, combineLatest, finalize, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, finalize, of, shareReplay, switchMap, tap } from 'rxjs';
 
-import { ChatMessageResponse, ConversationReportResponse, ConversationResponse, ListingResponse, PageResponse, UserResponse, UserStats } from '../../core/models/api.models';
+import { AdminUserRowResponse, ChatMessageResponse, ConversationReportResponse, ConversationResponse, ListingResponse, PageResponse, UserResponse } from '../../core/models/api.models';
 import { AdminService } from '../../core/services/admin.service';
 import { ConversationService } from '../../core/services/conversation.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
@@ -39,7 +39,7 @@ export class AdminPageComponent {
   protected intermediaryRequests: ConversationResponse[] = [];
   protected exchangesPageData: PageResponse<ConversationResponse> | null = null;
   protected exchangesPage = 1;
-  protected usersPageData: PageResponse<UserResponse> | null = null;
+  protected usersPageData: PageResponse<AdminUserRowResponse> | null = null;
   protected selectedReportId: number | null = null;
   protected reportMessages: ChatMessageResponse[] = [];
   protected loadingReports = false;
@@ -80,13 +80,7 @@ export class AdminPageComponent {
           return of([]);
         }
         this.usersPageData = page;
-        if (!page.content.length) {
-          return of([]);
-        }
-
-        return forkJoin(page.content.map((user) =>
-          this.adminService.userStats(user.id).pipe(map((stats) => ({ user, stats })))
-        ));
+        return of(page.content);
       }),
       finalize(() => {
         this.loadingUsers = false;
@@ -276,9 +270,4 @@ export class AdminPageComponent {
 
     return role;
   }
-}
-
-interface UserWithStats {
-  user: UserResponse;
-  stats: UserStats;
 }

@@ -25,6 +25,18 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
         """, nativeQuery = true)
     List<Object[]> countUserListingsByStatus(@Param("userId") Long userId);
 
+    @Query(value = """
+        SELECT listing.user_id,
+               COUNT(*),
+               COUNT(*) FILTER (WHERE status.name = 'active'),
+               COUNT(*) FILTER (WHERE status.name = 'sold')
+        FROM listings listing
+        JOIN listing_statuses status ON status.id = listing.status_id
+        WHERE listing.user_id IN (:userIds)
+        GROUP BY listing.user_id
+        """, nativeQuery = true)
+    List<Object[]> countUserListingsByStatusForUsers(@Param("userIds") List<Long> userIds);
+
     @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
     @Query(value = """
         SELECT l

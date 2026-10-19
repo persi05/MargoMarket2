@@ -14,8 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,33 +43,10 @@ public class ConversationExchangeService {
         return access.toResponse(conversation, requester);
     }
 
-    public List<ConversationResponse> intermediaryRequests(User admin) {
-        access.requireAdmin(admin);
-        return conversations.findIntermediaryRequests().stream()
-                .map(conversation -> access.toResponse(conversation, admin))
-                .toList();
-    }
-
-    public List<ConversationResponse> intermediaryExchanges(User admin) {
-        access.requireAdmin(admin);
-        return conversations.findIntermediaryExchanges(admin.getId()).stream()
-                .sorted(Comparator.comparingInt(this::exchangeGroup)
-                        .thenComparing(Conversation::getUpdatedAt, Comparator.reverseOrder())
-                        .thenComparing(Conversation::getId, Comparator.reverseOrder()))
-                .map(conversation -> access.toResponse(conversation, admin))
-                .toList();
-    }
-
     public Page<ConversationResponse> intermediaryExchangesPage(User admin, int page) {
         access.requireAdmin(admin);
-        return conversations.findIntermediaryExchangesPage(admin.getId(),
-                PageRequest.of(Math.max(0, page - 1), 20))
-                .map(conversation -> access.toResponse(conversation, admin));
-    }
-
-    private int exchangeGroup(Conversation conversation) {
-        if (conversation.getClosedAt() != null) return 2;
-        return "REQUESTED".equals(conversation.getIntermediaryStatus()) ? 0 : 1;
+        return access.toPage(conversations.findIntermediaryExchangesPage(admin.getId(),
+                PageRequest.of(Math.max(0, page - 1), 20)), admin);
     }
 
     @Transactional

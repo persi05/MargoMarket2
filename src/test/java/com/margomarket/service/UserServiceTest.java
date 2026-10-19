@@ -320,6 +320,24 @@ class UserServiceTest {
     }
 
     @Test
+    void getUserStatsForUsersUsesOneGroupedQueryForThePage() {
+        List<Long> userIds = List.of(1L, 2L, 3L);
+        when(listingRepository.countUserListingsByStatusForUsers(userIds))
+                .thenReturn(List.<Object[]>of(
+                        new Object[] {1L, 4L, 2L, 1L},
+                        new Object[] {3L, 1L, 1L, 0L}
+                ));
+
+        var stats = userService.getUserStatsForUsers(userIds);
+
+        assertThat(stats).containsOnlyKeys(1L, 3L);
+        assertThat(stats.get(1L).getTotalListings()).isEqualTo(4);
+        assertThat(stats.get(1L).getActiveListings()).isEqualTo(2);
+        assertThat(stats.get(3L).getSoldListings()).isZero();
+        verify(listingRepository).countUserListingsByStatusForUsers(userIds);
+    }
+
+    @Test
     void deleteUserRejectsDeletingOwnAccount() {
         User admin = user(1L, "admin");
 

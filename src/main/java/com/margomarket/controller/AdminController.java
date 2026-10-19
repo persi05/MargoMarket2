@@ -2,6 +2,7 @@ package com.margomarket.controller;
 
 import com.margomarket.dto.ListingFilter;
 import com.margomarket.dto.ListingResponse;
+import com.margomarket.dto.AdminUserRowResponse;
 import com.margomarket.dto.PageResponse;
 import com.margomarket.dto.UserResponse;
 import com.margomarket.dto.UserStats;
@@ -12,6 +13,7 @@ import com.margomarket.model.User;
 import com.margomarket.service.ListingService;
 import com.margomarket.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -42,8 +44,13 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public PageResponse<UserResponse> users(@RequestParam(defaultValue = "1") int page) {
-        return pageMapper.toResponse(userService.getAllUsers(page), userMapper::toResponse);
+    public PageResponse<AdminUserRowResponse> users(@RequestParam(defaultValue = "1") int page) {
+        Page<User> users = userService.getAllUsers(page);
+        Map<Long, UserStats> stats = userService.getUserStatsForUsers(
+                users.getContent().stream().map(User::getId).toList());
+        return pageMapper.toResponse(users, user -> new AdminUserRowResponse(
+                userMapper.toResponse(user),
+                stats.getOrDefault(user.getId(), new UserStats(0, 0, 0))));
     }
 
     @GetMapping("/users/{id}")

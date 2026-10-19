@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,13 +38,14 @@ class ConversationServiceTest {
     @Mock ListingRepository listings;
     @Mock ListingService listingService;
     @Mock TextModerationService moderation;
+    @Mock ConversationRealtimePublisher realtimePublisher;
     private ConversationService service;
     private ConversationExchangeService exchangeService;
 
     @BeforeEach
     void setUp() {
-        ConversationAccess access = new ConversationAccess(conversations, messages);
-        service = new ConversationService(conversations, messages, listings, moderation, access);
+        ConversationAccess access = new ConversationAccess(conversations, messages, realtimePublisher);
+        service = new ConversationService(conversations, messages, listings, moderation, access, realtimePublisher);
         exchangeService = new ConversationExchangeService(conversations, listingService, access);
     }
 
@@ -130,12 +132,39 @@ class ConversationServiceTest {
         PageRequest firstTen = PageRequest.of(0, 10);
         when(conversations.findVisiblePage(1L, "ALL", firstTen))
                 .thenReturn(new PageImpl<>(List.of(conversation), firstTen, 25));
+        when(messages.findLatestBodies(List.of(7L))).thenReturn(List.of());
+        when(messages.countUnreadForConversations(List.of(7L), 1L)).thenReturn(List.of());
 
         var page = service.inbox(buyer, 10, "EXCHANGES");
 
         assertThat(page.getTotalElements()).isEqualTo(25);
         assertThat(page.getContent()).extracting(response -> response.id()).containsExactly(7L);
         verify(conversations).findVisiblePage(1L, "ALL", firstTen);
+    }
+
+    @Test
+    void inboxLoadsLatestMessagesAndUnreadCountsInBatches() {
+        User buyer = user(1L, "user");
+        Conversation first = conversation(buyer, user(2L, "user"));
+        Conversation second = conversation(buyer, user(3L, "user"));
+        second.setId(8L);
+        PageRequest firstTen = PageRequest.of(0, 10);
+        when(conversations.findVisiblePage(1L, "ALL", firstTen))
+                .thenReturn(new PageImpl<>(List.of(first, second), firstTen, 2));
+        when(messages.findLatestBodies(List.of(7L, 8L)))
+                .thenReturn(List.<Object[]>of(new Object[] {7L, "Pierwsza"}, new Object[] {8L, "Druga"}));
+        when(messages.countUnreadForConversations(List.of(7L, 8L), 1L))
+                .thenReturn(List.<Object[]>of(new Object[] {8L, 2L}));
+
+        var rows = service.inbox(buyer, 10, "ALL").getContent();
+
+        assertThat(rows).extracting(response -> response.lastMessage())
+                .containsExactly("Pierwsza", "Druga");
+        assertThat(rows).extracting(response -> response.unreadCount())
+                .containsExactly(0L, 2L);
+        verify(messages).findLatestBodies(List.of(7L, 8L));
+        verify(messages).countUnreadForConversations(List.of(7L, 8L), 1L);
+        verify(messages, never()).findFirstByConversationIdOrderByIdDesc(any());
     }
 
     @Test
@@ -146,7 +175,7 @@ class ConversationServiceTest {
         assertThat(service.unreadCount(buyer)).isEqualTo(4L);
 
         verify(messages).countUnreadForUser(1L);
-        verify(conversations, never()).findVisibleTo(any());
+        verifyNoInteractions(conversations);
     }
 
     @Test
@@ -179,8 +208,13 @@ class ConversationServiceTest {
         assertThatThrownBy(() -> service.send(7L, "Jeszcze wiadomość", buyer))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThat(service.get(7L, buyer).closedAt()).isNotNull();
-        when(conversations.findVisibleTo(1L)).thenReturn(List.of(conversation));
-        assertThat(service.list(buyer)).extracting(response -> response.id()).containsExactly(7L);
+        PageRequest firstTen = PageRequest.of(0, 10);
+        when(conversations.findVisiblePage(1L, "ALL", firstTen))
+                .thenReturn(new PageImpl<>(List.of(conversation), firstTen, 1));
+        when(messages.findLatestBodies(List.of(7L))).thenReturn(List.of());
+        when(messages.countUnreadForConversations(List.of(7L), 1L)).thenReturn(List.of());
+        assertThat(service.inbox(buyer, 10, "ALL").getContent())
+                .extracting(response -> response.id()).containsExactly(7L);
         verify(listingService, never()).markAsSold(any(), any());
     }
 
@@ -247,7 +281,7 @@ class ConversationServiceTest {
     }
 
     @Test
-    void adminExchangeListOrdersRequestsThenActiveThenFinished() {
+    void adminExchangePageContainsRequestsActiveAndFinished() {
         User admin = user(3L, "admin");
         Conversation requested = conversation(user(1L, "user"), user(2L, "user"));
         requested.setId(1L);
@@ -261,11 +295,16 @@ class ConversationServiceTest {
         finished.setIntermediary(admin);
         finished.setIntermediaryStatus("ASSIGNED");
         finished.setClosedAt(LocalDateTime.now());
-        when(conversations.findIntermediaryExchanges(3L)).thenReturn(List.of(finished, active, requested));
+        PageRequest firstPage = PageRequest.of(0, 20);
+        when(conversations.findIntermediaryExchangesPage(3L, firstPage))
+                .thenReturn(new PageImpl<>(List.of(requested, active, finished), firstPage, 3));
+        when(messages.findLatestBodies(List.of(1L, 2L, 3L))).thenReturn(List.of());
+        when(messages.countUnreadForConversations(List.of(2L, 3L), 3L)).thenReturn(List.of());
 
-        assertThat(exchangeService.intermediaryExchanges(admin)).extracting(response -> response.id())
+        assertThat(exchangeService.intermediaryExchangesPage(admin, 1).getContent())
+                .extracting(response -> response.id())
                 .containsExactly(1L, 2L, 3L);
-        assertThatThrownBy(() -> exchangeService.intermediaryExchanges(user(8L, "user")))
+        assertThatThrownBy(() -> exchangeService.intermediaryExchangesPage(user(8L, "user"), 1))
                 .isInstanceOf(ForbiddenOperationException.class);
     }
 
@@ -273,14 +312,18 @@ class ConversationServiceTest {
     void adminCanSeeChatsWithoutJoiningThem() {
         User admin = user(3L, "admin");
         Conversation conversation = conversation(user(1L, "user"), user(2L, "user"));
-        when(conversations.findAllDetailedOrderByUpdatedAtDesc()).thenReturn(List.of(conversation));
+        PageRequest firstPage = PageRequest.of(0, 10);
+        when(conversations.findAllDetailedPage(firstPage))
+                .thenReturn(new PageImpl<>(List.of(conversation), firstPage, 1));
+        when(messages.findLatestBodies(List.of(7L))).thenReturn(List.of());
         when(conversations.findDetailedById(7L)).thenReturn(Optional.of(conversation));
 
-        assertThat(service.adminChats(admin)).extracting(response -> response.id()).containsExactly(7L);
+        assertThat(service.adminChatsPage(admin, 1, 10).getContent())
+                .extracting(response -> response.id()).containsExactly(7L);
         assertThat(service.adminChat(7L, admin).id()).isEqualTo(7L);
         assertThatThrownBy(() -> service.get(7L, admin))
                 .isInstanceOf(ForbiddenOperationException.class);
-        assertThatThrownBy(() -> service.adminChats(user(4L, "user")))
+        assertThatThrownBy(() -> service.adminChatsPage(user(4L, "user"), 1, 10))
                 .isInstanceOf(ForbiddenOperationException.class);
         assertThatThrownBy(() -> service.adminChat(7L, user(4L, "user")))
                 .isInstanceOf(ForbiddenOperationException.class);

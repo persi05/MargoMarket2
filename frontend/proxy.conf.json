@@ -4,5 +4,11 @@
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
+  },
+  "/ws": {
+    "target": "http://localhost:8080",
+    "ws": true,
+    "secure": false,
+    "changeOrigin": true
   }
 }

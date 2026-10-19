@@ -32,11 +32,6 @@ public class ConversationController {
     private final ConversationExchangeService exchangeService;
     private final PageMapper pageMapper;
 
-    @GetMapping
-    public List<ConversationResponse> list(@AuthenticationPrincipal User user) {
-        return service.list(user);
-    }
-
     @GetMapping("/inbox")
     public PageResponse<ConversationResponse> inbox(@RequestParam(defaultValue = "10") int limit,
             @RequestParam(defaultValue = "ALL") String scope, @AuthenticationPrincipal User user) {
@@ -46,11 +41,6 @@ public class ConversationController {
     @GetMapping("/unread-count")
     public Map<String, Long> unreadCount(@AuthenticationPrincipal User user) {
         return Map.of("count", service.unreadCount(user));
-    }
-
-    @GetMapping("/admin/chats")
-    public List<ConversationResponse> adminChats(@AuthenticationPrincipal User user) {
-        return service.adminChats(user);
     }
 
     @GetMapping("/admin/chats/page")
@@ -69,11 +59,6 @@ public class ConversationController {
     public PageResponse<ChatMessageResponse> adminChatMessages(@PathVariable Long id,
             @RequestParam(defaultValue = "1") int page, @AuthenticationPrincipal User user) {
         return pageMapper.toResponse(service.adminChatMessages(id, page, user), message -> message);
-    }
-
-    @GetMapping("/intermediary-requests")
-    public List<ConversationResponse> intermediaryRequests(@AuthenticationPrincipal User user) {
-        return exchangeService.intermediaryRequests(user);
     }
 
     @GetMapping("/intermediary-exchanges")
