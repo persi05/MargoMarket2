@@ -28,11 +28,14 @@ class ListingMapperTest {
         assertThat(publicResponse.sellerEmail()).isNull();
         assertThat(privateResponse.price()).isEqualTo(1500);
         assertThat(privateResponse.contact()).isEqualTo("Sprzedawca#123");
-        assertThat(privateResponse.sellerEmail()).isEqualTo("seller@example.com");
+        assertThat(privateResponse.sellerEmail()).isNull();
+        assertThat(publicResponse.sellerDisplayName()).isEqualTo("Gracz 7");
     }
 
     private Listing listing() {
         User seller = new User();
+        seller.setId(7L);
+        seller.setDisplayName("seller@example.com");
         seller.setEmail("seller@example.com");
 
         ListingStatus status = new ListingStatus();

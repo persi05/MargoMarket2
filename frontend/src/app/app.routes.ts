@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/services/auth.guard';
 
 export const routes: Routes = [
+  { path: 'u/:id/:slug', loadComponent: () => import('./features/public-profile/public-profile-page.component').then(m => m.PublicProfilePageComponent), title: 'Profil gracza | MargoMarket' },
   {
     path: '',
     loadComponent: () => import('./features/market/market-page.component').then((m) => m.MarketPageComponent),

@@ -12,12 +12,13 @@ import { ListingService } from '../../core/services/listing.service';
 import { ListingCardComponent } from '../../shared/listing-card/listing-card.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { MessagesPageComponent } from '../messages/messages-page.component';
+import { ExchangeConfirmationsComponent } from './exchange-confirmations.component';
 import { ModerationPanelComponent } from './moderation-panel.component';
 
 @Component({
   selector: 'mm-admin-page',
   standalone: true,
-  imports: [AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
+  imports: [ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
   templateUrl: './admin-page.component.html',
   styleUrl: './admin-page.component.css'
 })

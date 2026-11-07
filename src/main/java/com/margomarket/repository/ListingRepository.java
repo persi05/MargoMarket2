@@ -14,6 +14,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ListingRepository extends JpaRepository<Listing, Long> {
+    @Query(value="SELECT EXISTS (SELECT 1 FROM exchange_confirmations WHERE listing_id = :id)", nativeQuery=true)
+    boolean hasExchangeConfirmation(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    @Query("SELECT l FROM Listing l WHERE l.user.id = :id AND l.status.name = 'active' ORDER BY l.createdAt DESC, l.id DESC")
+    Page<Listing> findPublicActive(@Param("id") Long id, Pageable pageable);
+
 
     @Query(value = """
         SELECT COUNT(*),

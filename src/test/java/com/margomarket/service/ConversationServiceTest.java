@@ -233,7 +233,7 @@ class ConversationServiceTest {
 
         assertThat(exchangeService.close(7L, admin, false).closedAt()).isNotNull();
         assertThat(service.get(7L, admin).closedAt()).isNotNull();
-        verify(listingService).markAsSold(15L, admin);
+        verify(listingService, never()).markAsSold(any(), any());
     }
 
     @Test

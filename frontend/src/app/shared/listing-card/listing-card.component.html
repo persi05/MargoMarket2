@@ -71,7 +71,7 @@
     </div>
     <div>
       <dt>Sprzedający</dt>
-      <dd><mm-private-detail [value]="listing.sellerEmail" /></dd>
+      <dd><a [routerLink]="['/u', listing.sellerId, 'profil']"><span aria-hidden="true">{{ listing.sellerDisplayName.charAt(0) }} </span>{{ listing.sellerDisplayName }}</a></dd>
     </div>
     <div>
       <dt>Dodano</dt>
