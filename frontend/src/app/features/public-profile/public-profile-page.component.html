@@ -1,0 +1,11 @@
+<section class="public-profile" aria-live="polite">
+@if (loading) { <p>Ładowanie profilu…</p> }
+@if (error) { <p role="alert">{{ error }}</p><a routerLink="/">Wróć do ogłoszeń</a> }
+@if (profile; as p) {
+<header><span class="avatar" aria-hidden="true">{{ p.displayName.charAt(0) }}</span><div><h1>{{ p.displayName }}</h1><p>W serwisie od {{ p.createdAt | date:'dd.MM.yyyy' }}</p></div></header>
+<section class="confirmed"><h2>Wymiany potwierdzone przez administratora: {{ p.confirmedPurchases + p.confirmedSales }}</h2><p>Zakupy: {{ p.confirmedPurchases }} · Sprzedaże: {{ p.confirmedSales }}</p><p>Uwzględniamy wyłącznie jawne potwierdzenia zarejestrowane od uruchomienia tej funkcji. Historia wymian nie gwarantuje bezpieczeństwa kolejnych transakcji.</p></section>
+<dl><div><dt>Aktywne ogłoszenia</dt><dd>{{ p.activeListings }}</dd></div><div><dt>Ogłoszenia oznaczone jako sprzedane</dt><dd>{{ p.soldListings }}</dd></div></dl><p>Sam status „sprzedane” nie oznacza potwierdzenia wykonanej transakcji.</p>
+<h2>Aktualne ogłoszenia</h2>
+@if (listings; as result) { <div class="offers">@for (listing of result.content; track listing.id) {<div><mm-listing-card [listing]="listing" /><a [routerLink]="['/messages/new', listing.id]">Napisz do sprzedającego</a></div>} @empty {<p>Brak aktywnych ogłoszeń.</p>}</div><nav aria-label="Strony ogłoszeń"><button [disabled]="result.first || loading" (click)="page(result.page-1)">Poprzednia</button><span>Strona {{ result.page }}</span><button [disabled]="result.last || loading" (click)="page(result.page+1)">Następna</button></nav>}
+}
+</section>

@@ -10,6 +10,8 @@ export class ConversationService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/conversations`;
 
+  confirmExchange(id:number): Observable<ConversationResponse> { return this.http.post<ConversationResponse>(this.baseUrl+'/'+id+'/exchange-confirmation', {}); }
+
   forListing(listingId: number): Observable<ConversationResponse | null> {
     return this.http.get<ConversationResponse | null>(`${this.baseUrl}/by-listing/${listingId}`);
   }

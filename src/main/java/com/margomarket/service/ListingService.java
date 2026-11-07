@@ -153,7 +153,11 @@ public class ListingService {
             throw new IllegalArgumentException("Można usunąć tylko aktywne ogłoszenie");
         }
         favoriteRepository.deleteByListingId(listing.getId());
-        listingRepository.delete(listing);
+        if (listingRepository.hasExchangeConfirmation(id)) {
+            listing.setStatus(getStatus("archived"));
+        } else {
+            listingRepository.delete(listing);
+        }
     }
 
     private void applyRequest(Listing listing, ListingRequest request) {

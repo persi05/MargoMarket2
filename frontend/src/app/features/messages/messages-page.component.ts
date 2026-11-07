@@ -327,6 +327,11 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     this.finishClose(false);
   }
 
+  protected confirmExchange(): void {
+    if (!this.selected || this.closeBusy) return;
+    this.closeBusy=true;
+    this.conversationsService.confirmExchange(this.selected.id).pipe(finalize(()=>this.closeBusy=false)).subscribe({next:c=>{this.selected=c;this.loadInbox(true);this.refreshMessages(c.id)},error:e=>this.closeNotice=e.error?.message || 'Nie udało się potwierdzić wymiany.'});
+  }
   protected finishClose(markSold: boolean): void {
     if (!this.canCloseExchange || !this.selected || this.closeBusy) return;
     this.closeBusy = true;

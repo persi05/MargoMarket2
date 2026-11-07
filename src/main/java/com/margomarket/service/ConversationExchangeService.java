@@ -91,7 +91,7 @@ public class ConversationExchangeService {
                 && !requester.getId().equals(conversation.getSeller().getId())) {
             throw new ForbiddenOperationException("Tylko sprzedający może oznaczyć ogłoszenie jako sprzedane.");
         }
-        if ((closedByIntermediary || markSold) && conversation.getListing() != null) {
+        if (markSold && conversation.getListing() != null) {
             listingService.markAsSold(conversation.getListing().getId(), requester);
         }
         conversation.setClosedAt(LocalDateTime.now());

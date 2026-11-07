@@ -1,5 +1,40 @@
 # MargoMarket
 
+## Publiczne profile i potwierdzenia wymian
+
+Profile są dostępne pod `/u/{id}/profil`. Pokazują aktywne ogłoszenia,
+statusy sprzedaży i osobno wymiany jawnie potwierdzone przez przypisanego
+administratora. Historyczne zamknięcia rozmów nie są importowane jako potwierdzenia.
+Potwierdzenie nie gwarantuje bezpieczeństwa kolejnych transakcji.
+
+Przypisany pośrednik potwierdza wykonaną wymianę przyciskiem w rozmowie.
+Zwykłe zamknięcie rozmowy nie potwierdza wymiany i nie oznacza automatycznie
+sprzedaży. Potwierdzenia można przeglądać i unieważniać z uzasadnieniem w panelu
+administracyjnym. Rejestr ma unikalne powiązania z rozmową i ogłoszeniem.
+Usunięcie potwierdzonego ogłoszenia przez administratora archiwizuje je.
+
+Publiczne odpowiedzi nie udostępniają e-maila sprzedawcy. Historyczne pseudonimy
+zawierające `@` zastępuje nazwa `Gracz {id}`. Ceny i kontakt nadal wymagają logowania.
+Awatary pozostają inicjałami; nie dodano przesyłania zdjęć ani ocen użytkowników.
+
+Migracja V26 wykonuje się przy starcie aplikacji przez Flyway. Przed publicznym
+wdrożeniem należy zatwierdzić zasady retencji rejestru i audytu oraz informacje
+o publicznych profilach w polityce prywatności.
+
+Weryfikacja (z katalogu repozytorium):
+
+```powershell
+.\mvnw.cmd test
+docker build -f scripts/Dockerfile.profile-tests -t margomarket-public-profile-tests .
+powershell -File scripts/test-profile-migration.ps1
+npm.cmd --prefix frontend test -- --watch=false
+npm.cmd --prefix frontend run build
+node scripts/test-discussion-posting-clock.mjs
+```
+
+Test migracji uruchamia jednorazowy PostgreSQL i nie łączy się z bazą aplikacji.
+Obraz testowy backendu wymaga Dockera; lokalne Maven wymaga Java 21.
+
 MargoMarket to aplikacja marketplace z backendem Spring Boot, frontendem Angular i bazą PostgreSQL. Backend udostępnia REST API pod `/api`, a frontend w trybie developerskim korzysta z proxy do `http://localhost:8080`.
 
 

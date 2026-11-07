@@ -21,6 +21,7 @@ public record ListingResponse(
         String status,
         Long sellerId,
         String sellerEmail,
+        String sellerDisplayName,
         LocalDateTime createdAt,
         LocalDateTime soldAt
 ) {

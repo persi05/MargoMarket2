@@ -93,6 +93,8 @@
 
         @if (!adminAll && !conversation.closedAt) {
         <div class="conversation-actions">
+          @if (currentUser?.role === 'admin' && currentUser?.id === conversation.intermediaryId && conversation.listingId) {<button type="button" [disabled]="closeBusy" (click)="confirmExchange()">Potwierdź wykonaną wymianę</button>}
+          @if (closeNotice) {<p role="alert">{{ closeNotice }}</p>}
           @if (canCloseExchange) {
             @if (conversation.contactRequestStatus === 'ACCEPTED') {
               <span>Prośba o kontakt została zaakceptowana.</span>
@@ -211,7 +213,7 @@
           <h2 id="close-title">Zakończyć wymianę?</h2>
           <p id="close-description">Rozmowa pozostanie dostępna dla jej uczestników.</p>
           @if (currentUser?.role === 'admin' && currentUser?.id === selected.intermediaryId && selected.listingId) {
-            <p>Ogłoszenie zostanie oznaczone jako sprzedane.</p>
+            <p>Samo zamknięcie rozmowy nie potwierdza wykonania wymiany.</p>
           }
           <div class="report-dialog-actions">
             <button type="button" class="report-cancel" [disabled]="closeBusy" (click)="dismissClose()">Nie</button>
