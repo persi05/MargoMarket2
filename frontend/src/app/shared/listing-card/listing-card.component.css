@@ -304,3 +304,5 @@ button.danger {
     flex-direction: column;
   }
 }
+
+.gold-listing{border-left:3px solid var(--color-primary)}.gold-listing header,.gold-listing footer{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.gold-listing a{color:var(--color-primary)}.gold-listing p{white-space:pre-wrap;overflow-wrap:anywhere}.gold-listing strong{font-size:1.4rem;color:var(--color-primary)}

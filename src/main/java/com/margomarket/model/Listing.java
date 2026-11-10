@@ -19,6 +19,23 @@ public class Listing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Version
+    private long version;
+    @Column(name="listing_kind", nullable=false, length=10)
+    private String listingKind = "ITEM";
+    @Column(name="gold_amount")
+    private Long goldAmount;
+    @Column(name="price_minor")
+    private Long priceMinor;
+    @Column(name="gold_rate_mode", length=20)
+    private String goldRateMode;
+    @Column(name="rate_gold_units")
+    private Long rateGoldUnits;
+    @Column(name="rate_price_minor")
+    private Long ratePriceMinor;
+    @Column(length=2000)
+    private String description;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -32,10 +49,10 @@ public class Listing {
     private Item item;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "item_type_id", nullable = false)
+    @JoinColumn(name = "item_type_id")
     private ItemType itemType;
 
-    @Column(nullable = false)
+    @Column
     private Integer level;
 
     @Column(name = "enhancement_level", nullable = false)
@@ -45,10 +62,10 @@ public class Listing {
     private boolean bound = false;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "rarity_id", nullable = false)
+    @JoinColumn(name = "rarity_id")
     private Rarity rarity;
 
-    @Column(nullable = false)
+    @Column
     private Integer price;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -86,6 +103,7 @@ public class Listing {
     }
 
     public String getFormattedPrice() {
+        if ("GOLD".equals(listingKind)) return java.math.BigDecimal.valueOf(priceMinor, 2).toPlainString() + " PLN";
         NumberFormat fmt = NumberFormat.getIntegerInstance(new Locale("pl", "PL"));
         String formatted = fmt.format(price).replace('\u00a0', ' ');
         if ("w grze".equals(currency.getName())) {

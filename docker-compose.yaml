@@ -8,6 +8,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      GOLD_LISTINGS_ENABLED: ${GOLD_LISTINGS_ENABLED:-false}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?required}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:?required}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?required}

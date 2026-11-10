@@ -10,6 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ChatRealtimeService } from '../../core/services/chat-realtime.service';
 import { ConversationService } from '../../core/services/conversation.service';
 import { ListingService } from '../../core/services/listing.service';
+import { formatPln } from '../../core/utils/gold-format';
 import { formatListingPrice } from '../../core/utils/price-format';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { ConversationReportDialogComponent } from './conversation-report-dialog.component';
@@ -199,7 +200,7 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   }
 
   protected priceLabel(listing: ListingResponse): string {
-    return formatListingPrice(listing.price, listing.currency.name);
+    return listing.listingKind==='GOLD'?formatPln(listing.priceMinor):formatListingPrice(listing.price, listing.currency.name);
   }
 
   protected get reportTargetName(): string {

@@ -8,6 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommentPostingStatus, ListingCommentResponse, ListingResponse } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 import { ListingCommentService } from '../../core/services/listing-comment.service';
+import { formatPln } from '../../core/utils/gold-format';
 import { formatListingPrice } from '../../core/utils/price-format';
 import { PrivateDetailComponent } from '../../shared/private-detail/private-detail.component';
 import { DiscussionPostingClock, formatMuteDeadline } from './discussion-posting-clock';
@@ -96,7 +97,7 @@ export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   protected get priceLabel(): string {
-    return formatListingPrice(this.listing.price, this.listing.currency.name);
+    return this.listing.listingKind==='GOLD'?formatPln(this.listing.priceMinor):formatListingPrice(this.listing.price, this.listing.currency.name);
   }
 
   protected get canSend(): boolean {

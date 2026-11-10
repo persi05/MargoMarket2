@@ -591,3 +591,5 @@ tbody tr:hover .item-name {
     transform: none;
   }
 }
+
+.market-tabs{display:flex;gap:24px;padding:16px 24px}.market-tabs a{color:var(--color-primary)}.market-tabs [aria-current]{font-weight:800;border-bottom:2px solid var(--color-primary)}

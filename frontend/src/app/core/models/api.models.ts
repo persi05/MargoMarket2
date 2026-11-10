@@ -50,29 +50,40 @@ export interface LoginResponse {
   user: UserResponse;
 }
 
-export interface ListingResponse {
+interface ListingCommon {
   id: number;
   itemId: number | null;
   itemName: string;
   iconUrl: string | null;
   itemDescription: string | null;
   itemStats: string | null;
-  itemType: LookupResponse;
-  level: number;
+  itemType: LookupResponse | null;
+  level: number | null;
   enhancementLevel: number;
   bound: boolean;
-  rarity: LookupResponse;
+  rarity: LookupResponse | null;
   price: number | null;
   currency: LookupResponse;
   server: LookupResponse;
   contact: string | null;
   status: string;
+  listingKind: 'ITEM' | 'GOLD';
+  goldAmount: number | null;
+  priceMinor: number | null;
+  goldRateMode: 'M_PER_PLN' | 'PLN_PER_G' | 'PACKAGE' | null;
+  rateGoldUnits: number | null;
+  ratePriceMinor: number | null;
+  description: string | null;
   sellerId: number;
   sellerEmail: string | null;
   sellerDisplayName: string;
   createdAt: string;
   soldAt: string | null;
 }
+
+export interface ItemListingResponse extends ListingCommon { listingKind:'ITEM'; itemType:LookupResponse; rarity:LookupResponse; level:number; goldAmount:null; priceMinor:null; }
+export interface GoldListingResponse extends ListingCommon { listingKind:'GOLD'; itemType:null; rarity:null; level:null; price:null; goldAmount:number; }
+export type ListingResponse = ItemListingResponse | GoldListingResponse;
 
 export interface ListingCommentResponse {
   id: number;

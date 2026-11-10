@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, ElementRef, HostListener, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
+import { DestroyRef, Component, ElementRef, HostListener, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BehaviorSubject, catchError, combineLatest, debounceTime, distinctUntilChanged, finalize, of, shareReplay, switchMap, tap } from 'rxjs';
@@ -75,6 +75,7 @@ export class MarketPageComponent {
 
   protected readonly listings$ = combineLatest([this.pageSubject]).pipe(
     switchMap(([page]) => {
+      this.listingService.marketState['ITEM']={filter:{...this.filters.getRawValue()},page};
       this.loading = true;
       this.loadError = '';
       this.notice = '';
@@ -95,6 +96,12 @@ export class MarketPageComponent {
   );
 
   constructor() {
+    const state=this.listingService.marketState['ITEM'];
+    if(state){this.filters.patchValue(state.filter);this.pageSubject.next(state.page);}
+    const timer=setInterval(()=>{if(!document.hidden)this.pageSubject.next(this.pageSubject.value)},30000);
+    const authSub=this.authService.user$.subscribe(()=>this.pageSubject.next(this.pageSubject.value));
+    inject(DestroyRef).onDestroy(()=>{clearInterval(timer);authSub.unsubscribe()});
+
     this.filters.controls.search.valueChanges.pipe(
       debounceTime(250),
       distinctUntilChanged()
@@ -103,6 +110,9 @@ export class MarketPageComponent {
     });
 
   }
+
+  @HostListener('document:visibilitychange')
+  protected refreshVisible():void {if(!document.hidden)this.pageSubject.next(this.pageSubject.value);}
 
   protected startFilterDrag(event: PointerEvent): void {
     if (!event.isPrimary || event.button !== 0 || window.innerWidth <= 920
@@ -404,7 +414,7 @@ export class MarketPageComponent {
   }
 
   protected rarityClass(listing: ListingResponse): string {
-    const rarity = this.normalizeRarity(listing.rarity.name);
+    const rarity = this.normalizeRarity((listing.rarity?.name ?? ''));
 
     if (rarity.includes('legendarn')) {
       return 'rarity-legendary';
@@ -454,7 +464,7 @@ export class MarketPageComponent {
   }
 
   protected enhancementLabel(listing: ListingResponse): string {
-    return hasEnhancementLevel(listing.itemType.name, listing.itemName) ? `+${listing.enhancementLevel}` : '-';
+    return hasEnhancementLevel((listing.itemType?.name ?? ''), listing.itemName) ? `+${listing.enhancementLevel}` : '-';
   }
 
   private reloadFavorites(listingIds: number[]): void {

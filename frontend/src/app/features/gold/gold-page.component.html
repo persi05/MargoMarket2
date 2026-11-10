@@ -1,0 +1,95 @@
+<section class="gold-market">
+  <nav class="tabs" aria-label="Rodzaje ofert">
+    <a routerLink="/">Przedmioty</a><a routerLink="/gold" aria-current="page">Złoto</a>
+  </nav>
+  <header>
+    <div>
+      <h1>Złoto Margonem</h1>
+      <p>
+        Oferty całych pakietów złota. Kontakt i uzgodnienie wymiany odbywają się bezpośrednio ze
+        sprzedawcą.
+      </p>
+    </div>
+    @if (enabled) {
+      <a routerLink="/gold/new">Wystaw złoto</a>
+    } @else {
+      <span>Wystawianie złota nie zostało jeszcze uruchomione.</span>
+    }
+  </header>
+  @if (!auth.isLoggedIn) {
+    <p><a routerLink="/auth">Zaloguj si?</a>, aby zobaczy? kursy i ceny oraz filtrowa? po cenie.</p>
+  }
+  <form (ngSubmit)="load()" class="filters">
+    <label
+      >Świat<select name="world" [(ngModel)]="filters.serverId">
+        <option value="">Wszystkie światy</option>
+        @for (w of worlds; track w.id) {
+          <option [value]="w.id">{{ w.name }}</option>
+        }
+      </select></label
+    ><label
+      >Szukaj w opisach<input name="search" [(ngModel)]="filters.search" maxlength="200" /></label
+    ><label
+      >Ilość od (m)<input
+        name="minAmount"
+        [(ngModel)]="filters.minAmount"
+        inputmode="decimal" /></label
+    ><label
+      >Ilość do (m)<input
+        name="maxAmount"
+        [(ngModel)]="filters.maxAmount"
+        inputmode="decimal" /></label
+    ><label
+      >Cena od (PLN)<input
+        [disabled]="!auth.isLoggedIn"
+        name="minPrice"
+        [(ngModel)]="filters.minPrice"
+        inputmode="decimal" /></label
+    ><label
+      >Cena do (PLN)<input
+        [disabled]="!auth.isLoggedIn"
+        name="maxPrice"
+        [(ngModel)]="filters.maxPrice"
+        inputmode="decimal" /></label
+    ><label
+      >Sortowanie<select name="sort" [(ngModel)]="filters.sort">
+        <option value="newest">Najnowsze</option>
+        <option [disabled]="!auth.isLoggedIn" value="priceAsc">Cena rosnąco</option>
+        <option [disabled]="!auth.isLoggedIn" value="priceDesc">Cena malejąco</option>
+        <option value="amountAsc">Ilość rosnąco</option>
+        <option value="amountDesc">Ilość malejąco</option>
+      </select></label
+    ><button>Filtruj</button><button type="button" (click)="refresh()">Odśwież</button>
+  </form>
+  @if (error) {
+    <p role="alert">{{ error }}</p>
+  }
+  @if (loading) {
+    <p>Ładowanie ofert…</p>
+  }
+  @if (result; as r) {
+    <div class="offers">
+      @for (l of r.content; track l.id) {
+        <div>
+          <mm-listing-card
+            [listing]="l"
+            [showFavorite]="auth.isLoggedIn"
+            [isFavorite]="favoriteIds.has(l.id)"
+            [favoriteBusy]="favoriteBusy.has(l.id)"
+            (favorite)="toggleFavorite($event)"
+          /><button (click)="discussion = l">Dyskusja</button>
+        </div>
+      } @empty {
+        <p>Brak ofert spełniających wybrane warunki.</p>
+      }
+    </div>
+    <nav aria-label="Strony ofert">
+      <button [disabled]="loading || r.first" (click)="load(r.page - 1)">Poprzednia</button
+      ><span>Strona {{ r.page }}</span
+      ><button [disabled]="loading || r.last" (click)="load(r.page + 1)">Następna</button>
+    </nav>
+  }
+  @if (discussion; as l) {
+    <mm-discussion-drawer [listing]="l" (closed)="discussion = null" />
+  }
+</section>

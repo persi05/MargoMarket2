@@ -23,8 +23,8 @@ public interface FavoriteRepository extends JpaRepository<ListingFavorite, Long>
         SELECT f FROM ListingFavorite f
         JOIN FETCH f.listing l
         JOIN FETCH l.user
-        JOIN FETCH l.itemType
-        JOIN FETCH l.rarity
+        LEFT JOIN FETCH l.itemType
+        LEFT JOIN FETCH l.rarity
         JOIN FETCH l.currency
         JOIN FETCH l.server
         JOIN FETCH l.status

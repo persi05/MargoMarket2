@@ -23,11 +23,11 @@ public class ListingMapper {
                 listing.getItem() == null ? null : listing.getItem().getIconUrl(),
                 listing.getItem() == null ? null : listing.getItem().getDescription(),
                 listing.getItem() == null ? null : listing.getItem().getStats(),
-                lookupMapper.toResponse(listing.getItemType()),
+                listing.getItemType() == null ? null : lookupMapper.toResponse(listing.getItemType()),
                 listing.getLevel(),
                 listing.getEnhancementLevel(),
                 listing.isBound(),
-                lookupMapper.toResponse(listing.getRarity()),
+                listing.getRarity() == null ? null : lookupMapper.toResponse(listing.getRarity()),
                 showPrivateDetails ? listing.getPrice() : null,
                 lookupMapper.toResponse(listing.getCurrency()),
                 lookupMapper.toResponse(listing.getServer()),
@@ -37,6 +37,13 @@ public class ListingMapper {
                 null,
                 com.margomarket.service.PublicNames.name(listing.getUser()),
                 listing.getCreatedAt(),
+                listing.getListingKind(),
+                listing.getGoldAmount(),
+                showPrivateDetails ? listing.getPriceMinor() : null,
+                listing.getGoldRateMode(),
+                showPrivateDetails ? listing.getRateGoldUnits() : null,
+                showPrivateDetails ? listing.getRatePriceMinor() : null,
+                listing.getDescription(),
                 listing.getSoldAt()
         );
     }

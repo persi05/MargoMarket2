@@ -13,7 +13,11 @@ import com.margomarket.model.User;
 import java.util.List;
 import java.util.Optional;
 
-public interface ListingRepository extends JpaRepository<Listing, Long> {
+public interface ListingRepository extends JpaRepository<Listing, Long>, org.springframework.data.jpa.repository.JpaSpecificationExecutor<Listing> {
+    @Override
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    Page<Listing> findAll(org.springframework.data.jpa.domain.Specification<Listing> specification, Pageable pageable);
+
     @Query(value="SELECT EXISTS (SELECT 1 FROM exchange_confirmations WHERE listing_id = :id)", nativeQuery=true)
     boolean hasExchangeConfirmation(@Param("id") Long id);
 
