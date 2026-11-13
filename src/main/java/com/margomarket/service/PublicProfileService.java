@@ -26,7 +26,8 @@ public class PublicProfileService {
   Object[] counts=listings.countUserListingsByStatus(id).get(0);
   Long purchases=jdbc.queryForObject("SELECT count(*) FROM exchange_confirmations WHERE buyer_id=? AND revoked_at IS NULL",Long.class,id);
   Long sales=jdbc.queryForObject("SELECT count(*) FROM exchange_confirmations WHERE seller_id=? AND revoked_at IS NULL",Long.class,id);
-  return new PublicProfileResponse(id,PublicNames.name(user),user.getCreatedAt(),((Number)counts[1]).longValue(),((Number)counts[2]).longValue(),purchases,sales);
+  return new PublicProfileResponse(id,PublicNames.name(user),user.getCreatedAt(),((Number)counts[1]).longValue(),((Number)counts[2]).longValue(),purchases,sales,
+   jdbc.queryForObject("SELECT count(*) FROM auctions a JOIN listings l ON l.id=a.id WHERE l.user_id=? AND a.status IN ('ENDED_WITH_WINNER','ENDED_NO_BIDS')",Long.class,id));
  }
  public PageResponse<ListingResponse> listings(Long id,int page,User viewer) {
   publicUser(id);

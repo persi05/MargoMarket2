@@ -1,0 +1,28 @@
+<section class="auction-page">
+  <nav class="tabs" aria-label="Rodzaje ofert"><a routerLink="/">Przedmioty</a><a routerLink="/gold">Złoto</a><a routerLink="/auctions" aria-current="page">Licytacje</a></nav>
+  <header><div><h1>Licytacje przedmiotów</h1><p>Wybierz przedmiot i złóż ofertę w walucie ustalonej przez sprzedawcę.</p></div>
+    @if (enabled) { <a class="action" routerLink="/new" [queryParams]="{mode:'auction'}">Wystaw na licytację</a> }
+    @else { <p>Nowe licytacje nie zostały jeszcze uruchomione.</p> }
+  </header>
+  <p class="rules">Licytowanie jest bezpłatne. Serwis nie weryfikuje posiadania środków ani nie realizuje płatności. Wygrana wymaga osobnego uzgodnienia wymiany.</p>
+  <form class="filters" (ngSubmit)="load()">
+    <label>Przedmiot<input name="search" [(ngModel)]="filters.search" maxlength="200"></label>
+    <label>Świat<select name="server" [(ngModel)]="filters.serverId"><option value="">Wszystkie</option>@for (w of worlds; track w.id) {<option [value]="w.id">{{w.name}}</option>}</select></label>
+    <label>Waluta<select name="currency" [(ngModel)]="filters.currency"><option value="">Wszystkie</option><option value="PLN">PLN</option><option value="GOLD">Złoto Margonem</option></select></label>
+    <label>Widok<select name="scope" [(ngModel)]="filters.scope"><option value="ACTIVE">Trwające</option><option value="ENDED">Zakończone</option>@if (auth.isLoggedIn) {<option value="SELLING">Moje wystawione</option><option value="BIDDING">Moje licytowane</option>}@if (admin) {<option value="ADMIN">Wszystkie (moderacja)</option>}</select></label>
+    <button [disabled]="loading">Filtruj</button><button type="button" (click)="load(result?.page ?? 1)">Odśwież</button>
+  </form>
+  @if (error) {<p role="alert">{{error}}</p>}
+  @if (!result && loading) {<p>Ładowanie licytacji…</p>}
+  <div class="auction-list">
+    @for (a of result?.content; track a.id) {
+      <article class="auction-row">
+        <div class="item-icon">@if (a.listing.iconUrl) {<img [src]="a.listing.iconUrl" alt="" loading="lazy">}</div>
+        <div class="item-info"><h2><a [routerLink]="['/auctions',a.id]">{{a.listing.itemName}}</a></h2><p>{{a.listing.server.name}} · {{a.listing.rarity?.name}} · poz. {{a.listing.level}}</p><a class="seller-link" [routerLink]="['/u',a.listing.sellerId,'profil']">{{a.listing.sellerDisplayName}}</a></div>
+        <div class="price"><span>{{a.bidCount ? 'Najwyższa oferta' : 'Cena wywoławcza'}}</span><strong><mm-private-detail [value]="(a.highestAmount ?? a.startingAmount) === null ? null : amount(a.highestAmount ?? a.startingAmount,a.currency)" [compact]="true" /></strong><span>{{a.bidCount}} ofert</span></div>
+        <div class="deadline"><span>{{status(a.status)}}</span>@if (a.status === 'ACTIVE') {<span>{{remaining(a)}}</span>}<time [dateTime]="a.endsAt">{{a.endsAt | date:'dd.MM.yyyy HH:mm:ss'}}</time>@if (a.fulfillmentStatus) {<span>{{status(a.fulfillmentStatus)}}</span>}<a [routerLink]="['/auctions',a.id]">Otwórz licytację</a></div>
+      </article>
+    } @empty { @if (!loading) {<p>Brak licytacji spełniających wybrane warunki.</p>} }
+  </div>
+  @if (result; as r) {<nav aria-label="Strony licytacji"><button [disabled]="loading || r.first" (click)="load(r.page-1)">Poprzednia</button><span>Strona {{r.page}}</span><button [disabled]="loading || r.last" (click)="load(r.page+1)">Następna</button></nav>}
+</section>

@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { catchError, filter, fromEvent, merge, of, switchMap, timer } from 'rxjs';
@@ -16,6 +16,7 @@ import { ConversationService } from './core/services/conversation.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  @ViewChild('accountMenu') private accountMenu?: ElementRef<HTMLDetailsElement>;
   protected readonly authService = inject(AuthService);
   protected readonly user$ = this.authService.user$;
   private readonly conversations = inject(ConversationService);
@@ -49,7 +50,25 @@ export class AppComponent {
   }
 
   logout(): void {
+    this.closeAccountMenu();
     this.authService.logout();
+  }
+
+  protected closeAccountMenu(): void {
+    if (this.accountMenu) this.accountMenu.nativeElement.open = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  protected dismissAccountMenu(event: MouseEvent): void {
+    if (event.target instanceof Node && !this.accountMenu?.nativeElement.contains(event.target)) this.closeAccountMenu();
+  }
+
+  @HostListener('document:keydown.escape')
+  protected escapeAccountMenu(): void {
+    const menu = this.accountMenu?.nativeElement;
+    if (!menu?.open) return;
+    menu.open = false;
+    menu.querySelector('summary')?.focus();
   }
 
   initial(username: string): string {

@@ -49,7 +49,8 @@ class ConversationStompAuthInterceptor implements ChannelInterceptor {
             String destination = accessor.getDestination();
             boolean personal = "/user/queue/conversation-events".equals(destination);
             boolean admin = user.isAdmin() && "/topic/admin-conversations".equals(destination);
-            if (!personal && !admin) throw new MessagingException("Subscription not allowed");
+            boolean auction = destination != null && destination.matches("/topic/auctions/[1-9][0-9]{0,18}");
+            if (!personal && !admin && !auction) throw new MessagingException("Subscription not allowed");
         } else if (accessor.getCommand() == StompCommand.SEND) {
             throw new MessagingException("Client messages are not allowed");
         }

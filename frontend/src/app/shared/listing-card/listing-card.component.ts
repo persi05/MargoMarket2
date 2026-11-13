@@ -1,6 +1,6 @@
 import { ListingService } from '../../core/services/listing.service';
 import { formatGold, formatPln, formatGoldRate } from '../../core/utils/gold-format';
-import { DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -10,15 +10,17 @@ import { formatListingPrice } from '../../core/utils/price-format';
 import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
 import { hasEnhancementLevel } from '../../core/utils/item-types';
 import { PrivateDetailComponent } from '../private-detail/private-detail.component';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'mm-listing-card',
   standalone: true,
-  imports: [DatePipe, RouterLink, ItemDescriptionPipe, PrivateDetailComponent],
+  imports: [AsyncPipe, DatePipe, RouterLink, ItemDescriptionPipe, PrivateDetailComponent],
   templateUrl: './listing-card.component.html',
   styleUrl: './listing-card.component.css'
 })
 export class ListingCardComponent {
+  protected readonly viewer$ = inject(AuthService).user$;
   private readonly listings=inject(ListingService);
   protected goldBusy=false;protected goldError='';
   protected get goldLabel(){return formatGold(this.listing.goldAmount!);}
@@ -29,6 +31,7 @@ export class ListingCardComponent {
   @Input({ required: true }) listing!: ListingResponse;
   @Input() showFavorite = false;
   @Input() showOwnerActions = false;
+  @Input() showMessageAction = false;
   @Input() favoriteMode = false;
   @Input() isFavorite = false;
   @Input() favoriteBusy = false;

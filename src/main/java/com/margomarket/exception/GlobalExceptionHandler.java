@@ -14,6 +14,16 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler({org.springframework.http.converter.HttpMessageNotReadableException.class,
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ApiError> unreadableRequest(Exception exception) {
+        return ResponseEntity.badRequest().body(ApiError.of(400,"Bad Request","Nieprawidłowe dane żądania. Sprawdź kwoty, walutę i daty."));
+    }
+    @ExceptionHandler(AuctionRateLimitException.class)
+    public ResponseEntity<java.util.Map<String,Object>> auctionRateLimit(AuctionRateLimitException ex) {
+        return ResponseEntity.status(429).header("Retry-After",String.valueOf(ex.retryAfterSeconds))
+                .body(java.util.Map.of("status",429,"message",ex.getMessage(),"retryAfterSeconds",ex.retryAfterSeconds));
+    }
 
     @ExceptionHandler(CommentMutedException.class)
     public ResponseEntity<java.util.Map<String, Object>> muted(CommentMutedException exception) {

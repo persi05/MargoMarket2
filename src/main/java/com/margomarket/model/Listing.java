@@ -21,6 +21,8 @@ public class Listing {
     private Long id;
     @Version
     private long version;
+    @Column(name = "sale_mode", nullable = false, length = 10)
+    private String saleMode = "FIXED";
     @Column(name="listing_kind", nullable=false, length=10)
     private String listingKind = "ITEM";
     @Column(name="gold_amount")

@@ -31,7 +31,7 @@ class ListingSoldNotificationListenerTest {
         private String itemName;
 
         private RecordingNotificationService() {
-            super(nullRepository(), nullRepository());
+            super(nullRepository(), nullRepository(), null);
         }
 
         @Override

@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { NotificationResponse, PageResponse } from '../../core/models/api.models';
@@ -12,7 +12,7 @@ import { PaginationComponent } from '../../shared/pagination/pagination.componen
 @Component({
   selector: 'mm-notifications-page',
   standalone: true,
-  imports: [DatePipe, PaginationComponent],
+  imports: [DatePipe, PaginationComponent, RouterLink],
   templateUrl: './notifications-page.component.html',
   styleUrl: './notifications-page.component.css'
 })

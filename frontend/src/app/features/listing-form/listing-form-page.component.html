@@ -1,11 +1,26 @@
 <section class="page">
   <header>
     <p class="eyebrow">Nowa oferta</p>
-    <h1>Dodaj przedmiot na giełdę</h1>
+    <h1>{{ auctionMode ? (auctionEditId ? 'Edytuj licytację' : 'Wystaw przedmiot na licytację') : 'Dodaj przedmiot na giełdę' }}</h1>
+    @if (!auctionEditId) {
+      <div class="sale-mode" role="group" aria-label="Sposób sprzedaży">
+        <button type="button" [attr.aria-pressed]="!auctionMode" (click)="auctionMode = false">Zwykła sprzedaż</button>
+        <button type="button" [attr.aria-pressed]="auctionMode" [disabled]="!auctionsEnabled" (click)="auctionMode = true">Licytacja</button>
+      </div>
+      @if (!auctionsEnabled) {<p>Nowe licytacje nie zostały jeszcze uruchomione.</p>}
+    }
   </header>
 
   @if (dictionaries$ | async; as dictionaries) {
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @if (auctionMode) {
+        <div class="wide"><p>Ustal cenę wywoławczą w PLN lub złocie Margonem i wybierz termin zakończenia. Licytacja może trwać od 1 godziny do maksymalnie 7 dni.</p>
+          <label>Koniec licytacji (czas lokalny)<input type="datetime-local" [value]="auctionEnd" [max]="auctionMaxEnd" (input)="auctionEnd = $any($event.target).value" required></label>
+          <label>Opis aukcji<textarea maxlength="2000" [value]="auctionDescription" (input)="auctionDescription = $any($event.target).value" rows="3"></textarea></label>
+          <p>Oferta przyjęta w ostatnich 2 minutach przedłuża licytację. Po pierwszej ofercie dane aukcji nie mogą być zmieniane przez sprzedawcę.</p>
+          @if (!plnAuctionsEnabled) {<p>Licytacje w PLN nie zostały jeszcze uruchomione.</p>}
+        </div>
+      }
       <div class="section-heading wide">
         <span>1</span>
         <div>
@@ -203,7 +218,7 @@
         </button>
       </div>
 
-      <button type="submit" [disabled]="loading">{{ loading ? 'Dodawanie...' : 'Dodaj ogłoszenie' }}</button>
+      <button type="submit" [disabled]="loading || (auctionMode && !auctionsEnabled)">{{ loading ? 'Zapisywanie…' : auctionMode ? (auctionEditId ? 'Zapisz licytację' : 'Wystaw na licytację') : 'Dodaj ogłoszenie' }}</button>
       }
 
     </form>

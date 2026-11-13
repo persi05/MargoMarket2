@@ -3,6 +3,9 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/services/auth.guard';
 
 export const routes: Routes = [
+  {path:'auctions',loadComponent:()=>import('./features/auctions/auctions-page.component').then(m=>m.AuctionsPageComponent),title:'Licytacje | MargoMarket'},
+  {path:'auctions/edit/:id',canActivate:[authGuard],loadComponent:()=>import('./features/listing-form/listing-form-page.component').then(m=>m.ListingFormPageComponent),title:'Edytuj licytację | MargoMarket'},
+  {path:'auctions/:id',loadComponent:()=>import('./features/auctions/auction-detail.component').then(m=>m.AuctionDetailComponent),title:'Licytacja | MargoMarket'},
   {path:'gold',loadComponent:()=>import('./features/gold/gold-page.component').then(m=>m.GoldPageComponent),title:'Złoto | MargoMarket'},
   {path:'gold/new',canActivate:[authGuard],loadComponent:()=>import('./features/gold/gold-form.component').then(m=>m.GoldFormComponent),title:'Wystaw złoto | MargoMarket'},
   {path:'gold/edit/:id',canActivate:[authGuard],loadComponent:()=>import('./features/gold/gold-form.component').then(m=>m.GoldFormComponent),title:'Edytuj złoto | MargoMarket'},

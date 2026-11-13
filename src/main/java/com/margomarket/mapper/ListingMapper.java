@@ -28,7 +28,7 @@ public class ListingMapper {
                 listing.getEnhancementLevel(),
                 listing.isBound(),
                 listing.getRarity() == null ? null : lookupMapper.toResponse(listing.getRarity()),
-                showPrivateDetails ? listing.getPrice() : null,
+                showPrivateDetails && !"AUCTION".equals(listing.getSaleMode()) ? listing.getPrice() : null,
                 lookupMapper.toResponse(listing.getCurrency()),
                 lookupMapper.toResponse(listing.getServer()),
                 showPrivateDetails ? listing.getContact() : null,
@@ -44,7 +44,8 @@ public class ListingMapper {
                 showPrivateDetails ? listing.getRateGoldUnits() : null,
                 showPrivateDetails ? listing.getRatePriceMinor() : null,
                 listing.getDescription(),
-                listing.getSoldAt()
+                listing.getSoldAt(),
+                listing.getSaleMode()
         );
     }
 }

@@ -8,7 +8,7 @@ import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
 class ExchangeConfirmationServiceTest {
  JdbcTemplate jdbc=mock(JdbcTemplate.class);ConversationRepository conversations=mock(ConversationRepository.class);ConversationAccess access=mock(ConversationAccess.class);ListingService listings=mock(ListingService.class);ConversationExchangeService exchanges=mock(ConversationExchangeService.class);
- ExchangeConfirmationService service=new ExchangeConfirmationService(jdbc,conversations,access,listings,exchanges);
+ ExchangeConfirmationService service=new ExchangeConfirmationService(jdbc,conversations,access,listings,exchanges,mock(AuctionListingPolicy.class));
  @Test void rejectsNonAdminBeforeAccessingRecords(){User u=new User();doThrow(new ForbiddenOperationException("Forbidden")).when(access).requireAdmin(u);assertThatThrownBy(()->service.confirm(1L,u)).isInstanceOf(ForbiddenOperationException.class);verifyNoInteractions(jdbc,conversations,listings,exchanges);}
  @Test void requiresReasonForRevocation(){assertThatThrownBy(()->service.revoke(1L,new User()," ")).isInstanceOf(IllegalArgumentException.class);verifyNoInteractions(jdbc);}
 

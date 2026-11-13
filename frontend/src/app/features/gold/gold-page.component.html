@@ -1,7 +1,7 @@
 <section class="gold-market">
   <nav class="tabs" aria-label="Rodzaje ofert">
     <a routerLink="/">Przedmioty</a><a routerLink="/gold" aria-current="page">Złoto</a>
-  </nav>
+  <a routerLink="/auctions">Licytacje</a></nav>
   <header>
     <div>
       <h1>Złoto Margonem</h1>
@@ -87,7 +87,7 @@
       <button [disabled]="loading || r.first" (click)="load(r.page - 1)">Poprzednia</button
       ><span>Strona {{ r.page }}</span
       ><button [disabled]="loading || r.last" (click)="load(r.page + 1)">Następna</button>
-    </nav>
+    <a routerLink="/auctions">Licytacje</a></nav>
   }
   @if (discussion; as l) {
     <mm-discussion-drawer [listing]="l" (closed)="discussion = null" />

@@ -24,6 +24,11 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbc;
+
+    public void auction(long userId,long auctionId,String type,String message,String eventKey) {
+        jdbc.update("INSERT INTO notifications(user_id,type,message,is_read,created_at,auction_id,event_key) VALUES (?,?,?,false,clock_timestamp(),?,?) ON CONFLICT(event_key) DO NOTHING",userId,type,message,auctionId,eventKey+":"+userId);
+    }
 
     public Page<UserNotification> getUserNotifications(User user, int page) {
         return notificationRepository.findByUserOrderByCreatedAtDescIdDesc(user,

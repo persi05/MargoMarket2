@@ -14,6 +14,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ListingRepository extends JpaRepository<Listing, Long>, org.springframework.data.jpa.repository.JpaSpecificationExecutor<Listing> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT l FROM Listing l WHERE l.id=:id")
+    Optional<Listing> findLockedById(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    @Query("SELECT l FROM Listing l WHERE l.id IN :ids")
+    List<Listing> findDetailedByIds(@Param("ids") List<Long> ids);
     @Override
     @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
     Page<Listing> findAll(org.springframework.data.jpa.domain.Specification<Listing> specification, Pageable pageable);
@@ -72,7 +79,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long>, org.spr
     @Query("""
         SELECT l
         FROM Listing l
-        WHERE l.status.name = 'active'
+        WHERE l.status.name = 'active' AND l.saleMode = 'FIXED'
           AND LOWER(l.itemName) LIKE LOWER(CONCAT('%', :search, '%'))
           AND (:serverId IS NULL OR l.server.id = :serverId)
           AND (:itemTypeId IS NULL OR l.itemType.id = :itemTypeId)
@@ -98,7 +105,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long>, org.spr
     @Query("""
         SELECT l
         FROM Listing l
-        WHERE l.status.name = 'active'
+        WHERE l.status.name = 'active' AND l.saleMode = 'FIXED'
           AND (:serverId IS NULL OR l.server.id = :serverId)
           AND (:itemTypeId IS NULL OR l.itemType.id = :itemTypeId)
           AND (:rarityId IS NULL OR l.rarity.id = :rarityId)
@@ -154,7 +161,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long>, org.spr
 
     @Query("""
         SELECT COUNT(l) FROM Listing l
-        WHERE l.status.name = 'active'
+        WHERE l.status.name = 'active' AND l.saleMode = 'FIXED'
           AND LOWER(l.itemName) LIKE LOWER(CONCAT('%', :search, '%'))
           AND (:serverId IS NULL OR l.server.id = :serverId)
           AND (:itemTypeId IS NULL OR l.itemType.id = :itemTypeId)
@@ -174,7 +181,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long>, org.spr
 
     @Query("""
         SELECT COUNT(l) FROM Listing l
-        WHERE l.status.name = 'active'
+        WHERE l.status.name = 'active' AND l.saleMode = 'FIXED'
           AND (:serverId IS NULL OR l.server.id = :serverId)
           AND (:itemTypeId IS NULL OR l.itemType.id = :itemTypeId)
           AND (:rarityId IS NULL OR l.rarity.id = :rarityId)

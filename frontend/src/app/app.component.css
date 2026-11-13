@@ -110,17 +110,15 @@
   content: '';
 }
 
-.session {
+.account-menu {
+  position: relative;
   justify-self: end;
-  display: flex;
-  align-items: center;
-  gap: 12px;
   min-width: 0;
   color: var(--color-text-muted);
   font-size: 14px;
 }
 
-.profile-link {
+.account-trigger {
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -128,10 +126,47 @@
   color: var(--color-text-main);
   font-weight: 800;
   text-decoration: none;
+  padding: 6px 10px 6px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  background: var(--color-card-dark);
+  cursor: pointer;
+  list-style: none;
 }
 
-.profile-link.active,
-.profile-link:hover { color: var(--color-primary); }
+.account-trigger::-webkit-details-marker { display: none; }
+.account-trigger:hover,
+.account-menu[open] .account-trigger { border-color: var(--color-primary); }
+.account-chevron { flex: 0 0 auto; transition: transform 150ms ease; }
+.account-menu[open] .account-chevron { transform: rotate(180deg); }
+.account-options {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  display: grid;
+  width: 220px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-card-dark);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+}
+.account-options a,
+.account-options button {
+  display: block;
+  padding: 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-main);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
+}
+.account-options a:hover,
+.account-options button:hover { background: var(--color-input-dark); transform: none; }
+.account-options button { color: #f4a49a; border-top: 1px solid var(--color-border); }
 
 .profile-avatar {
   display: grid;
@@ -147,7 +182,7 @@
   font-weight: 800;
 }
 
-.session .profile-name {
+.account-trigger .profile-name {
   overflow: hidden;
   max-width: 140px;
   text-overflow: ellipsis;
@@ -180,22 +215,22 @@ main {
 
 @media (max-width: 920px) {
   .topbar {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 14px;
   }
 
   .nav,
-  .session,
   .primary-link {
     justify-self: stretch;
   }
 
   .nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
     flex-wrap: wrap;
     gap: 14px;
   }
 
-  .session {
-    justify-content: space-between;
-  }
+  .account-menu, .primary-link { grid-column: 2; grid-row: 1; justify-self: end; }
+  .account-trigger .profile-name { max-width: 110px; }
 }
