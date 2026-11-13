@@ -6,5 +6,6 @@ import com.margomarket.model.Currency;
 import java.util.List;
 
 public interface CurrencyRepository extends JpaRepository<Currency, Long> {
+    java.util.Optional<Currency> findByNameIgnoreCase(String name);
     List<Currency> findAllByOrderByIdAsc();
 }

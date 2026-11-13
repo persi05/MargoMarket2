@@ -3,6 +3,9 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/services/auth.guard';
 
 export const routes: Routes = [
+  {path:'gold',loadComponent:()=>import('./features/gold/gold-page.component').then(m=>m.GoldPageComponent),title:'Złoto | MargoMarket'},
+  {path:'gold/new',canActivate:[authGuard],loadComponent:()=>import('./features/gold/gold-form.component').then(m=>m.GoldFormComponent),title:'Wystaw złoto | MargoMarket'},
+  {path:'gold/edit/:id',canActivate:[authGuard],loadComponent:()=>import('./features/gold/gold-form.component').then(m=>m.GoldFormComponent),title:'Edytuj złoto | MargoMarket'},
   { path: 'u/:id/:slug', loadComponent: () => import('./features/public-profile/public-profile-page.component').then(m => m.PublicProfilePageComponent), title: 'Profil gracza | MargoMarket' },
   {
     path: '',

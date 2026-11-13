@@ -40,6 +40,11 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of(409, "Conflict", "Nie można zapisać wpisu. Sprawdź, czy już istnieje."));
     }
 
+    @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
+    public ResponseEntity<ApiError> concurrentChange(org.springframework.dao.OptimisticLockingFailureException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of(409,"Conflict","Ogłoszenie zostało zmienione. Odśwież dane i spróbuj ponownie."));
+    }
+
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiError> notFound(NotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

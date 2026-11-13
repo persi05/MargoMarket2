@@ -23,6 +23,13 @@ public record ListingResponse(
         String sellerEmail,
         String sellerDisplayName,
         LocalDateTime createdAt,
+        String listingKind,
+        Long goldAmount,
+        Long priceMinor,
+        String goldRateMode,
+        Long rateGoldUnits,
+        Long ratePriceMinor,
+        String description,
         LocalDateTime soldAt
 ) {
 }

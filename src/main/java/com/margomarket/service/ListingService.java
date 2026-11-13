@@ -95,6 +95,10 @@ public class ListingService {
         );
     }
 
+    public java.util.List<com.margomarket.dto.PrivateListingDetails> getPrivateDetails(List<Long> ids) {
+        return listingRepository.findAllById(ids).stream().map(l -> new com.margomarket.dto.PrivateListingDetails(l.getId(),l.getPrice(),l.getPriceMinor(),l.getGoldAmount(),l.getGoldRateMode(),l.getRateGoldUnits(),l.getRatePriceMinor(),l.getContact(),l.getStatus().getName())).toList();
+    }
+
     public Listing getListing(Long id) {
         return listingRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new NotFoundException("Ogłoszenie nie istnieje"));
@@ -121,6 +125,7 @@ public class ListingService {
         if (listing.isSold()) {
             throw new IllegalArgumentException("Nie można edytować sprzedanego ogłoszenia");
         }
+        if (!"ITEM".equals(listing.getListingKind())) throw new IllegalArgumentException("Użyj formularza złota");
         applyRequest(listing, request);
         return listing;
     }
@@ -132,6 +137,7 @@ public class ListingService {
         if (listing.isSold()) {
             return listing;
         }
+        if ("GOLD".equals(listing.getListingKind()) && !listing.isActive()) throw new IllegalArgumentException("Oferta z?ota nie jest aktywna");
         listing.setStatus(getStatus("sold"));
         listing.setSoldAt(LocalDateTime.now());
         List<Long> observerIds = favoriteRepository.findUserIdsByListingId(listing.getId());

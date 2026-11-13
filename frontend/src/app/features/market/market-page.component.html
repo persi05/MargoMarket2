@@ -1,3 +1,4 @@
+<nav class="market-tabs" aria-label="Rodzaje ofert"><a routerLink="/" aria-current="page">Przedmioty</a><a routerLink="/gold">Złoto</a></nav>
 <section class="market-shell">
   <aside class="filter-dock">
     <div class="filters" #filterPanel [class.is-dragging]="filterDragging" [class.has-custom-position]="filterPosition !== null" [style.left.px]="filterPosition?.x" [style.top.px]="filterPosition?.y" (pointermove)="moveFilter($event)" (pointerup)="stopFilterDrag($event)" (pointercancel)="stopFilterDrag($event)" (lostpointercapture)="stopFilterDrag($event)">
@@ -199,7 +200,7 @@
                               </span>
                               <span>
                                 <strong>{{ listing.itemName }}</strong>
-                                <span class="tooltip-muted">Typ: {{ listing.itemType.name }}</span>
+                                <span class="tooltip-muted">Typ: {{ listing.itemType?.name }}</span>
                               </span>
                               <span class="preview-actions">
                                 <button type="button" class="preview-pin" aria-label="Przypnij podgląd przedmiotu" title="Przypnij podgląd" (click)="pinPreview(listing, $event)">
@@ -207,7 +208,7 @@
                                 </button>
                               </span>
                             </span>
-                            <span class="tooltip-rarity">{{ listing.rarity.name }}</span>
+                            <span class="tooltip-rarity">{{ listing.rarity?.name }}</span>
                             <span>Ulepszenie: {{ enhancementLabel(listing) }}</span>
                             <span>Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
                             @for (stat of statLines(listing); track stat.label) {
@@ -298,7 +299,7 @@
           <span class="item-placeholder">{{ listing.itemName.charAt(0) }}</span>
         }
       </span>
-      <span><strong>{{ listing.itemName }}</strong><span class="tooltip-muted">Typ: {{ listing.itemType.name }}</span></span>
+      <span><strong>{{ listing.itemName }}</strong><span class="tooltip-muted">Typ: {{ listing.itemType?.name }}</span></span>
       <span class="preview-actions">
         <button type="button" class="preview-tool" aria-label="Przesuń podgląd przedmiotu" title="Przeciągnij podgląd" (keydown)="movePreviewWithKeyboard(listing.id, $event)">
           <svg viewBox="0 0 16 20" width="16" height="20" aria-hidden="true" focusable="false"><circle cx="5" cy="4" r="1.6"/><circle cx="11" cy="4" r="1.6"/><circle cx="5" cy="10" r="1.6"/><circle cx="11" cy="10" r="1.6"/><circle cx="5" cy="16" r="1.6"/><circle cx="11" cy="16" r="1.6"/></svg>
@@ -306,7 +307,7 @@
         <button type="button" class="preview-tool preview-close" aria-label="Odepnij podgląd przedmiotu" title="Odepnij podgląd" (click)="unpinPreview(listing.id)">×</button>
       </span>
     </span>
-    <span class="tooltip-rarity">{{ listing.rarity.name }}</span>
+    <span class="tooltip-rarity">{{ listing.rarity?.name }}</span>
     <span>Ulepszenie: {{ enhancementLabel(listing) }}</span>
     <span>Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
     @for (stat of statLines(listing); track stat.label) {

@@ -1,0 +1,75 @@
+<section class="gold-market">
+  <a routerLink="/gold">Wróć do ofert złota</a>
+  <h1>{{ editing ? 'Edytuj ofertę złota' : 'Wystaw złoto Margonem' }}</h1>
+  <p>
+    Sprzedajesz cały pakiet. Podaj kurs, a cenę całego pakietu obliczymy automatycznie. Serwis nie
+    przechowuje pieniędzy ani nie gwarantuje realizacji transakcji.
+  </p>
+  @if (!enabled && !editing) {
+    <p>Wystawianie złota nie zostało jeszcze uruchomione.</p>
+  }
+  @if (error) {
+    <p role="alert">{{ error }}</p>
+  }
+  <form class="filters" (ngSubmit)="submit()">
+    <label
+      >Świat<select
+        required
+        name="world"
+        [(ngModel)]="form.serverId"
+        (ngModelChange)="worldChanged()"
+      >
+        <option value="">Wybierz świat</option>
+        @for (w of worlds; track w.id) {
+          <option [value]="w.id">{{ w.name }}</option>
+        }
+      </select></label
+    ><label
+      >Ilość w m<input required name="amount" [(ngModel)]="form.amount" inputmode="decimal" /><span
+        aria-live="polite"
+        >{{ preview }}</span
+      ></label
+    ><label
+      >Sposób podania kursu<select
+        name="rateMode"
+        [(ngModel)]="form.rateMode"
+        (ngModelChange)="form.rate = ''"
+      >
+        <option value="M_PER_PLN">Ile m za 1 PLN</option>
+        <option value="PLN_PER_G">Ile PLN za 1g</option>
+      </select></label
+    ><label
+      >{{ form.rateMode === 'M_PER_PLN' ? '1 PLN = ile m?' : '1g = ile PLN?'
+      }}<input
+        required
+        name="rate"
+        [(ngModel)]="form.rate"
+        inputmode="decimal"
+        [placeholder]="form.rateMode === 'M_PER_PLN' ? 'np. 13' : 'np. 23'"
+    /></label>
+    <div aria-live="polite">
+      <strong>Cena całego pakietu: {{ totalLabel }}</strong>
+      <p>
+        Zaokrąglamy do pełnego grosza (0,5 grosza w górę). Na Syberii, Pandorze i Unii domyślnie
+        podajesz cenę 1g.
+      </p>
+    </div>
+    <label
+      >Opis (opcjonalny)<textarea
+        name="description"
+        [(ngModel)]="form.description"
+        maxlength="2000"
+      ></textarea></label
+    ><label
+      >Kontakt zewnętrzny (opcjonalny)<input
+        name="contact"
+        [(ngModel)]="form.contact"
+        maxlength="50"
+      /><span
+        >Widoczny dla zalogowanych. Czat strony jest dostępny bez podawania kontaktu.</span
+      ></label
+    ><button [disabled]="busy || (!enabled && !editing)">
+      {{ busy ? 'Zapisywanie…' : 'Zapisz ofertę' }}
+    </button>
+  </form>
+</section>

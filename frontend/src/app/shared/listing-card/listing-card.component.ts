@@ -1,5 +1,7 @@
+import { ListingService } from '../../core/services/listing.service';
+import { formatGold, formatPln, formatGoldRate } from '../../core/utils/gold-format';
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { ListingResponse } from '../../core/models/api.models';
@@ -17,6 +19,13 @@ import { PrivateDetailComponent } from '../private-detail/private-detail.compone
   styleUrl: './listing-card.component.css'
 })
 export class ListingCardComponent {
+  private readonly listings=inject(ListingService);
+  protected goldBusy=false;protected goldError='';
+  protected get goldLabel(){return formatGold(this.listing.goldAmount!);}
+  protected get goldRate(){return formatGoldRate(this.listing.goldRateMode,this.listing.rateGoldUnits,this.listing.ratePriceMinor);}
+  protected get goldPrice(){return formatPln(this.listing.priceMinor);}
+  protected withdrawGold(){if(this.goldBusy)return;this.goldBusy=true;this.listings.withdraw(this.listing.id).subscribe({next:l=>{this.listing=l;this.goldBusy=false},error:()=>{this.goldError='Nie udało się zakończyć oferty.';this.goldBusy=false}});}
+
   @Input({ required: true }) listing!: ListingResponse;
   @Input() showFavorite = false;
   @Input() showOwnerActions = false;
@@ -42,6 +51,8 @@ export class ListingCardComponent {
   }
 
   protected get statusLabel(): string {
+    if (this.listing.status === 'withdrawn') return 'Zakończone bez sprzedaży';
+    if (this.listing.status === 'archived') return 'Zarchiwizowane';
     if (this.isActive) {
       return 'Aktywne';
     }
@@ -74,7 +85,7 @@ export class ListingCardComponent {
   }
 
   protected get enhancementLabel(): string {
-    return hasEnhancementLevel(this.listing.itemType.name, this.listing.itemName) ? `+${this.listing.enhancementLevel}` : '-';
+    return hasEnhancementLevel((this.listing.itemType?.name ?? ''), this.listing.itemName) ? `+${this.listing.enhancementLevel}` : '-';
   }
 
   protected get requiredProfessions(): string | null {
@@ -94,7 +105,7 @@ export class ListingCardComponent {
   }
 
   private get rarityKey(): string {
-    const rarity = this.normalize(this.listing.rarity.name);
+    const rarity = this.normalize((this.listing.rarity?.name ?? ''));
 
     if (rarity.includes('legendarn')) {
       return 'legendary';

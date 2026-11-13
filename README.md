@@ -1,5 +1,50 @@
 # MargoMarket
 
+## Oferty złota Margonem
+
+Zakładka `/gold` korzysta ze wspólnych ogłoszeń, rozmów, dyskusji,
+obserwowanych i potwierdzeń wymian. Formularze: `/gold/new` oraz
+`/gold/edit/{id}`. Oferta dotyczy całego pakietu; nie obsługuje częściowej sprzedaży.
+
+Wpisywana ilość jest wyrażona w `m`, do sześciu miejsc po przecinku.
+`1500m` jest prezentowane jako `1,5g`. Baza przechowuje całkowite jednostki
+złota (`BIGINT`, maksymalnie 9 000 000 000 000 000), a nową cenę PLN w groszach
+(1–100 000 000). Jednostki dotychczasowych cen przedmiotów nie zmieniają się.
+
+Cenę pakietu wylicza backend z ilości i kursu. Formularz przyjmuje
+`1 PLN = … m`, a na Syberii, Pandorze i Unii domyślnie `1g = … PLN`.
+Sposób podania kursu można zmienić ręcznie. Przykłady: 260m przy 13m/PLN
+kosztuje 20 PLN; 1,5g przy 23 PLN/g kosztuje 34,50 PLN.
+Kwoty zaokrąglane są do grosza, z połową grosza w górę. Kurs jest zapisywany
+jako para całkowitych wartości złota i groszy, bez typów zmiennoprzecinkowych.
+Żądanie zawiera `rateMode` (`M_PER_PLN` lub `PLN_PER_G`), `rateGoldUnits`
+i `ratePriceMinor`. Dla pierwszego trybu cena kursu musi wynosić 100 groszy,
+a dla drugiego ilość kursu musi wynosić 1 000 000 000 jednostek złota.
+`priceMinor` w odpowiedzi jest ceną całego pakietu wyliczoną przez serwer.
+V28 dodaje kursy po V27; starym ofertom zachowuje dokładną cenę pakietu,
+bez wymyślania historycznego kursu. Przy ich edycji trzeba wybrać nowy kurs.
+
+Wystawianie nowych ofert złota jest domyślnie wyłączone. Dopiero po osobnej
+decyzji o uruchomieniu należy ustawić `GOLD_LISTINGS_ENABLED=true` i ponownie
+uruchomić backend. Flaga blokuje tworzenie również przez API. Edycja i zakończenie
+już istniejących ofert pozostają możliwe. Serwis nie obsługuje płatności.
+
+API złota: `GET/POST /api/listings/gold`, `PUT /api/listings/{id}/gold`,
+`POST /api/listings/{id}/withdraw`. Lista obsługuje świat, opis, zakres ilości
+i ceny oraz sortowanie `newest`, `priceAsc`, `priceDesc`, `amountAsc`, `amountDesc`.
+
+Cache Angulara przechowuje wyłącznie publiczne strony wyników w pamięci,
+przez 30 sekund, maksymalnie 20 wpisów. Rodzaj oferty, filtry i strona mają
+oddzielne klucze. Ceny i kontakt są uzupełniane osobnym uwierzytelnionym żądaniem
+`GET /api/listings/private-details?ids=...` i nie są zapisywane w cache.
+Mutacje unieważniają cache, a powrót do widocznej karty odświeża dane.
+
+Test pełnego łańcucha migracji i ograniczeń złota w jednorazowej bazie:
+
+```powershell
+powershell -File scripts/test-gold-migration.ps1
+```
+
 ## Publiczne profile i potwierdzenia wymian
 
 Profile są dostępne pod `/u/{id}/profil`. Pokazują aktywne ogłoszenia,

@@ -267,7 +267,7 @@ class ListingServiceTest {
                 .isInstanceOf(IllegalArgumentException.class);
 
         verify(favoriteRepository, never()).deleteByListingId(any());
-        verify(listingRepository, never()).delete(any());
+        verify(listingRepository, never()).delete(any(Listing.class));
     }
 
     @Test

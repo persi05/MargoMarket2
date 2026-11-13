@@ -1,0 +1,64 @@
+.gold-market {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 20px;
+}
+.tabs,
+header,
+nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+header {
+  justify-content: space-between;
+}
+h1 {
+  margin-bottom: 8px;
+}
+p {
+  color: var(--color-text-muted);
+  max-width: 70ch;
+  line-height: 1.6;
+}
+a {
+  color: var(--color-primary);
+}
+[aria-current] {
+  font-weight: 800;
+  border-bottom: 2px solid var(--color-primary);
+}
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px 0;
+  margin: 20px 0;
+  border-block: 1px solid var(--color-border);
+}
+label {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  min-width: 150px;
+}
+.offers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 20px;
+}
+nav {
+  margin: 20px 0;
+}
+button {
+  align-self: end;
+}
+@media (max-width: 600px) {
+  .gold-market {
+    padding: 12px;
+  }
+  .filters label {
+    min-width: calc(50% - 16px);
+  }
+}

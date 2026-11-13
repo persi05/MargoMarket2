@@ -39,9 +39,15 @@ public class ListingController {
 
     @GetMapping
     public PageResponse<ListingResponse> search(@ModelAttribute ListingFilter filter,
-                                                @AuthenticationPrincipal User user) {
+                                                @AuthenticationPrincipal User user, @RequestParam(defaultValue="false") boolean publicOnly) {
         return pageMapper.toResponse(listingService.searchActiveListings(filter),
-                listing -> listingMapper.toResponse(listing, user != null));
+                listing -> listingMapper.toResponse(listing, !publicOnly && user != null));
+    }
+
+    @GetMapping("/private-details")
+    public List<com.margomarket.dto.PrivateListingDetails> details(@RequestParam List<Long> ids,@AuthenticationPrincipal User user) {
+        if(ids.size()>50) throw new IllegalArgumentException("Maksymalnie 50 ofert");
+        return listingService.getPrivateDetails(ids);
     }
 
     @GetMapping("/{id}")
