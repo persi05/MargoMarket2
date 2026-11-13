@@ -31,6 +31,9 @@ export class MarketPageComponent {
   protected readonly authService = inject(AuthService);
   protected readonly dictionaries$ = inject(DictionaryService).getAll();
   private readonly pageSubject = new BehaviorSubject(1);
+  private lastLoaded = 0;
+  private backgroundRefresh = false;
+  private requestInFlight = false;
 
   protected readonly filters = this.fb.nonNullable.group({
     search: [''],
@@ -76,7 +79,9 @@ export class MarketPageComponent {
   protected readonly listings$ = combineLatest([this.pageSubject]).pipe(
     switchMap(([page]) => {
       this.listingService.marketState['ITEM']={filter:{...this.filters.getRawValue()},page};
-      this.loading = true;
+      this.loading = !this.backgroundRefresh;
+      this.backgroundRefresh = false;
+      this.requestInFlight = true;
       this.loadError = '';
       this.notice = '';
       return this.listingService.search({ ...this.filters.getRawValue(), page }).pipe(
@@ -85,10 +90,14 @@ export class MarketPageComponent {
           return of(null);
         }),
         tap(result => {
-          if (result) this.reloadFavorites(result.content.map(listing => listing.id));
+          if (result) {
+            this.lastLoaded = Date.now();
+            this.reloadFavorites(result.content.map(listing => listing.id));
+          }
         }),
         finalize(() => {
           this.loading = false;
+          this.requestInFlight = false;
         })
       );
     }),
@@ -98,8 +107,13 @@ export class MarketPageComponent {
   constructor() {
     const state=this.listingService.marketState['ITEM'];
     if(state){this.filters.patchValue(state.filter);this.pageSubject.next(state.page);}
-    const timer=setInterval(()=>{if(!document.hidden)this.pageSubject.next(this.pageSubject.value)},30000);
-    const authSub=this.authService.user$.subscribe(()=>this.pageSubject.next(this.pageSubject.value));
+    const timer = setInterval(() => this.refreshVisible(), 60000);
+    const authSub = this.authService.user$.subscribe(() => {
+      this.pinnedListings = [];
+      this.activeDiscussionListing = null;
+      this.backgroundRefresh = false;
+      this.pageSubject.next(this.pageSubject.value);
+    });
     inject(DestroyRef).onDestroy(()=>{clearInterval(timer);authSub.unsubscribe()});
 
     this.filters.controls.search.valueChanges.pipe(
@@ -112,7 +126,11 @@ export class MarketPageComponent {
   }
 
   @HostListener('document:visibilitychange')
-  protected refreshVisible():void {if(!document.hidden)this.pageSubject.next(this.pageSubject.value);}
+  protected refreshVisible(): void {
+    if (document.hidden || this.requestInFlight || Date.now() - this.lastLoaded < 30000) return;
+    this.backgroundRefresh = true;
+    this.pageSubject.next(this.pageSubject.value);
+  }
 
   protected startFilterDrag(event: PointerEvent): void {
     if (!event.isPrimary || event.button !== 0 || window.innerWidth <= 920

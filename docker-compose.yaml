@@ -8,6 +8,8 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      ITEM_AUCTIONS_ENABLED: ${ITEM_AUCTIONS_ENABLED:-false}
+      PLN_AUCTIONS_ENABLED: ${PLN_AUCTIONS_ENABLED:-false}
       GOLD_LISTINGS_ENABLED: ${GOLD_LISTINGS_ENABLED:-false}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?required}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:?required}

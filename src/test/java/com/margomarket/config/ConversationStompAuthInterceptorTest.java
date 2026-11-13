@@ -71,6 +71,18 @@ class ConversationStompAuthInterceptorTest {
         return accessor;
     }
 
+    @Test
+    void auctionEventsRequireAuthenticationAndExactNumericDestination() {
+        var interceptor = new ConversationStompAuthInterceptor(jwtService, userService);
+        assertThat(interceptor.preSend(message(subscription(user("user"),"/topic/auctions/42")),null)).isNotNull();
+        for(String destination: java.util.List.of("/topic/auctions/*","/topic/auctions/42/private","/topic/auctions/0","/topic/other/42")) {
+            assertThatThrownBy(()->interceptor.preSend(message(subscription(user("user"),destination)),null)).isInstanceOf(MessagingException.class);
+        }
+        var anonymous=StompHeaderAccessor.create(StompCommand.SUBSCRIBE);
+        anonymous.setDestination("/topic/auctions/42");
+        assertThatThrownBy(()->interceptor.preSend(message(anonymous),null)).isInstanceOf(MessagingException.class);
+    }
+
     private Message<byte[]> message(StompHeaderAccessor accessor) {
         accessor.setLeaveMutable(true);
         return MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());

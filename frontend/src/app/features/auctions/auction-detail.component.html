@@ -1,0 +1,56 @@
+<section class="auction-page">
+  <nav><a routerLink="/auctions">Wszystkie licytacje</a><button (click)="refresh()" [disabled]="loading">Odśwież</button></nav>
+  @if (error) {<p role="alert">{{error}}</p>}
+  @if (notice) {<p role="status">{{notice}}</p>}
+  @if (auction; as a) {
+    <header><div><h1>{{a.listing.itemName}}</h1><p>{{a.listing.server.name}} · {{a.listing.rarity?.name}} · poziom {{a.listing.level}} · ulepszenie +{{a.listing.enhancementLevel}} · {{a.listing.bound ? 'Związany' : 'Niezwiązany'}}</p><a class="seller-link" [routerLink]="['/u',a.listing.sellerId,'profil']">{{a.listing.sellerDisplayName}}</a></div><span>{{status(a.status)}}</span></header>
+    <div class="detail-grid"><div>
+      <p>{{a.listing.description || 'Sprzedający nie dodał opisu.'}}</p>
+      <p class="rules">Licytowanie jest bezpłatne. Serwis nie weryfikuje posiadania środków ani nie realizuje płatności. Wygrana wymaga osobnego uzgodnienia wymiany.</p>
+      <p>Pierwsza oferta od ceny wywoławczej. Kolejne podbicie wynosi co najmniej 1% bieżącej ceny, minimum 1 PLN lub 1m złota. Oferta złożona w ostatnich 2 minutach wydłuża aukcję do 2 minut od jej przyjęcia.</p>
+      <p>Możesz licytować po weryfikacji e-maila i 24 godzinach od rejestracji. Lider nie przebija własnej oferty. Limit: {{attemptsPerMinute}} prób na minutę i co najmniej {{attemptSpacingSeconds}} s między próbami w jednej aukcji.</p>
+      <button (click)="discussion = true">Dyskusja o przedmiocie</button>
+      @if (a.owner && a.status === 'ACTIVE' && a.bidCount === 0 && !expired) { <a [routerLink]="['/auctions/edit',a.id]">Edytuj aukcję</a> }
+      @if ((a.owner || a.winner || admin) && a.fulfillmentStatus) {
+        <h2>Realizacja wymiany</h2><p>{{status(a.fulfillmentStatus)}}</p>
+        @if (a.winnerDisplayName) {<p>Zwycięzca: <a [routerLink]="['/u',a.winnerId,'profil']">{{a.winnerDisplayName}}</a></p>}
+        @if (a.contactReminder) {<p>Minęło 48 godzin bez rozpoczęcia kontaktu. Rozpocznij rozmowę lub zgłoś problem do rozpatrzenia.</p>}
+        <div class="actions">
+          @if (a.fulfillmentStatus !== 'CANCELLED' && a.fulfillmentStatus !== 'DISPUTED') {<button [disabled]="busy" (click)="start()">{{a.conversationId ? 'Otwórz rozmowę' : 'Uzgodnij wymianę'}}</button>}
+          @if (a.owner && a.fulfillmentStatus === 'IN_PROGRESS') {<button [disabled]="busy" (click)="action('DECLARE_COMPLETED')">Zadeklaruj wykonanie wymiany</button>}
+          @if (a.fulfillmentStatus !== 'ADMIN_CONFIRMED' && a.fulfillmentStatus !== 'CANCELLED' && a.fulfillmentStatus !== 'DISPUTED') {<button [disabled]="busy || !reason.trim()" (click)="action('DISPUTE')">Zgłoś problem z realizacją</button>}
+          @if (admin && a.fulfillmentStatus !== 'ADMIN_CONFIRMED') {<button [disabled]="busy || !reason.trim()" (click)="action('CANCEL')">Anuluj realizację</button>}
+          @if (admin && (a.fulfillmentStatus === 'DISPUTED' || a.fulfillmentStatus === 'CANCELLED')) {<button [disabled]="busy || !reason.trim()" (click)="action('RESUME')">Wznów realizację</button>}
+        </div><p>Zwycięstwo i deklaracja sprzedawcy nie zwiększają reputacji potwierdzonych wymian. Pośrednika zaprosisz w rozmowie.</p>
+      }
+    </div><aside class="bid-panel" aria-label="Stan licytacji">
+      <span>{{a.bidCount ? 'Najwyższa ważna oferta' : 'Cena wywoławcza'}}</span><strong><mm-private-detail [value]="(a.highestAmount ?? a.startingAmount) === null ? null : amount(a.highestAmount ?? a.startingAmount,a.currency)" [compact]="true" /></strong>
+      <p>Cena wywoławcza: <mm-private-detail [value]="a.startingAmount === null ? null : amount(a.startingAmount,a.currency)" [compact]="true" /></p>
+      <p>Koniec: <time [dateTime]="a.endsAt">{{a.endsAt | date:'dd.MM.yyyy HH:mm:ss'}}</time></p>
+      @if (a.status === 'ACTIVE') {<div class="countdown">{{remaining}}</div>}
+      @if (a.endsAt !== a.originalEndsAt) {<p>Aukcja została przedłużona po ofercie lub zmianie terminu przed rozpoczęciem licytowania.</p>}
+      @if (expired && a.status === 'ACTIVE') {<p>Termin minął. Trwa ustalanie wyniku przez serwer.</p>}
+      @if (a.leading) {<p>Twoja oferta prowadzi.</p>}
+      @if (a.status === 'ACTIVE' && !expired && !a.owner && !a.leading) {
+        @if (!auth.isLoggedIn) {<a routerLink="/auth">Zaloguj się, aby licytować</a>}
+        @else if (enabled && (a.currency !== 'PLN' || plnEnabled) && a.nextMinimumBid !== null) {
+          <p>Minimum następnej oferty: {{amount(a.nextMinimumBid,a.currency)}}</p>
+          <form (ngSubmit)="bid()"><label>Twoja oferta ({{a.currency === 'PLN' ? 'PLN' : 'm złota'}})<input name="bid" [(ngModel)]="input" inputmode="decimal" maxlength="32" required [disabled]="busy"></label><button [disabled]="busy">Złóż ofertę</button></form>
+        } @else {<p>Przyjmowanie ofert jest obecnie niedostępne.</p>}
+      }
+    </aside></div>
+    <h2>Historia ofert</h2>
+    <table class="history"><thead><tr><th>Licytujący</th><th>Oferta</th><th>Czas przyjęcia</th>@if (admin) {<th>Moderacja</th>}</tr></thead><tbody>
+      @for (b of history?.content; track b.id) {<tr [class.invalid]="b.invalidated"><td>{{b.bidder}}{{b.own ? ' (Ty)' : ''}}{{b.invalidated ? ' — unieważniona' : ''}}</td><td><mm-private-detail [value]="b.amount === null ? null : amount(b.amount,b.currency)" [compact]="true" /></td><td>{{b.acceptedAt | date:'dd.MM HH:mm:ss'}}</td>@if (admin) {<td><span>Konto {{b.userId}}</span>@if (!b.invalidated) {<button [disabled]="busy || !reason.trim()" (click)="invalidate(b.id)">Unieważnij</button>}</td>}</tr>}
+      @empty {<tr><td colspan="4">Brak ofert.</td></tr>}
+    </tbody></table>
+    @if (history; as h) {<nav aria-label="Strony historii"><button [disabled]="loading || h.first" (click)="refresh(h.page-1)">Poprzednia</button><span>Strona {{h.page}}</span><button [disabled]="loading || h.last" (click)="refresh(h.page+1)">Następna</button></nav>}
+    @if (auth.isLoggedIn) {
+      <label class="reason">Uzasadnienie zgłoszenia lub zmiany<textarea name="reason" [(ngModel)]="reason" maxlength="1000" rows="3"></textarea></label>
+      <div class="actions"><button [disabled]="busy || !reason.trim()" (click)="report()">Zgłoś podejrzaną aukcję</button>
+        @if (a.status === 'ACTIVE' && (admin || (a.owner && a.bidCount === 0))) {<button [disabled]="busy || !reason.trim()" (click)="cancel()">Anuluj aukcję</button>}
+      </div>
+    }
+    @if (discussion) {<mm-discussion-drawer [listing]="a.listing" (closed)="discussion = false" />}
+  } @else if (loading) {<p>Ładowanie licytacji…</p>}
+</section>

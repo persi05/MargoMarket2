@@ -26,6 +26,7 @@
           <div>
             <span class="type">{{ notification.type === 'LISTING_SOLD' ? 'Sprzedaż ogłoszenia' : 'Powiadomienie' }}</span>
             <p>{{ notification.message }}</p>
+            @if (notification.auctionId) { <a [routerLink]="['/auctions', notification.auctionId]">Otwórz licytację</a> }
             <time [dateTime]="notification.createdAt">{{ notification.createdAt | date: 'dd.MM.yyyy HH:mm' }}</time>
           </div>
 

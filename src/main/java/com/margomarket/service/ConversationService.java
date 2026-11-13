@@ -32,6 +32,7 @@ public class ConversationService {
     private final TextModerationService moderation;
     private final ConversationAccess access;
     private final ConversationRealtimePublisher realtimePublisher;
+    private final AuctionListingPolicy auctionPolicy;
 
     public Page<ConversationResponse> inbox(User viewer, int limit, String scope) {
         String selectedScope = viewer.isAdmin() && Set.of("LISTINGS", "EXCHANGES").contains(scope)
@@ -76,14 +77,15 @@ public class ConversationService {
 
     @Transactional
     public ConversationResponse start(Long listingId, String body, User buyer) {
-        Listing listing = listings.findByIdWithDetails(listingId)
+        Listing listing = listings.findLockedById(listingId)
                 .orElseThrow(() -> new NotFoundException("Ogłoszenie nie istnieje"));
         if (listing.getUser().getId().equals(buyer.getId())) {
             throw new IllegalArgumentException("Nie możesz napisać do siebie w sprawie własnego ogłoszenia.");
         }
+        auctionPolicy.requireBuyer(listing, buyer.getId());
         Conversation conversation = conversations.findByListingAndBuyer(listingId, buyer.getId()).orElse(null);
         if (conversation == null) {
-            if (!listing.isActive()) {
+            if (!listing.isActive() && !"AUCTION".equals(listing.getSaleMode())) {
                 throw new IllegalArgumentException("To ogłoszenie nie jest już aktywne.");
             }
             conversation = new Conversation();

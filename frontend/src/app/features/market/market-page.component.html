@@ -1,4 +1,4 @@
-<nav class="market-tabs" aria-label="Rodzaje ofert"><a routerLink="/" aria-current="page">Przedmioty</a><a routerLink="/gold">Złoto</a></nav>
+<nav class="market-tabs" aria-label="Rodzaje ofert"><a routerLink="/" aria-current="page">Przedmioty</a><a routerLink="/gold">Złoto</a><a routerLink="/auctions">Licytacje</a></nav>
 <section class="market-shell">
   <aside class="filter-dock">
     <div class="filters" #filterPanel [class.is-dragging]="filterDragging" [class.has-custom-position]="filterPosition !== null" [style.left.px]="filterPosition?.x" [style.top.px]="filterPosition?.y" (pointermove)="moveFilter($event)" (pointerup)="stopFilterDrag($event)" (pointercancel)="stopFilterDrag($event)" (lostpointercapture)="stopFilterDrag($event)">
@@ -134,7 +134,7 @@
                 <th class="level-col" scope="col">Poziom</th>
                 <th class="enhancement-col" scope="col">Ulepszenie</th>
                 <th class="price-col" scope="col">Cena</th>
-                <th class="contact-col" scope="col">Kontakt</th>
+                <th class="contact-col" scope="col">Sprzedający</th>
                 <th class="server-col" scope="col">Serwer</th>
                 <th class="discussion-col" scope="col">Dyskusja</th>
               </tr>
@@ -227,7 +227,7 @@
                             <span class="tooltip-separator"></span>
                             <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel(listing)" [compact]="true" [showLoginLink]="false" /></span>
                             <span>Serwer: {{ listing.server.name }}</span>
-                            <span>Kontakt: <mm-private-detail [value]="listing.contact" [showLoginLink]="false" /></span>
+                            <span>Sprzedający: <a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a></span>
                           </span>
                           }
                       </span>
@@ -240,8 +240,7 @@
                     <td class="enhancement-col"><span class="upgrade">{{ enhancementLabel(listing) }}</span></td>
                     <td class="price-col"><span class="price"><mm-private-detail [value]="listing.price === null ? null : priceLabel(listing)" [compact]="true" /></span></td>
                     <td class="contact-col">
-                      <a [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a>
-                      <span class="contact"><mm-private-detail [value]="listing.contact" /></span>
+                      <a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a>
                       @if (authService.isLoggedIn && (authService.user$ | async)?.id !== listing.sellerId) {
                         <a class="contact-chat" [routerLink]="['/messages/new', listing.id]" [attr.aria-label]="'Napisz do sprzedającego: ' + listing.itemName">
                           Napisz wiadomość
@@ -326,7 +325,7 @@
     <span class="tooltip-separator"></span>
     <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel(listing)" [compact]="true" [showLoginLink]="false" /></span>
     <span>Serwer: {{ listing.server.name }}</span>
-    <span>Kontakt: <mm-private-detail [value]="listing.contact" [showLoginLink]="false" /></span>
+    <span>Sprzedający: <a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a></span>
   </div>
 }
 

@@ -39,13 +39,14 @@ class ConversationServiceTest {
     @Mock ListingService listingService;
     @Mock TextModerationService moderation;
     @Mock ConversationRealtimePublisher realtimePublisher;
+    @Mock AuctionListingPolicy auctionPolicy;
     private ConversationService service;
     private ConversationExchangeService exchangeService;
 
     @BeforeEach
     void setUp() {
         ConversationAccess access = new ConversationAccess(conversations, messages, realtimePublisher);
-        service = new ConversationService(conversations, messages, listings, moderation, access, realtimePublisher);
+        service = new ConversationService(conversations, messages, listings, moderation, access, realtimePublisher, auctionPolicy);
         exchangeService = new ConversationExchangeService(conversations, listingService, access);
     }
 
@@ -65,7 +66,7 @@ class ConversationServiceTest {
         User seller = user(2L, "user");
         Listing listing = new Listing();
         listing.setUser(seller);
-        when(listings.findByIdWithDetails(15L)).thenReturn(Optional.of(listing));
+        when(listings.findLockedById(15L)).thenReturn(Optional.of(listing));
 
         assertThatThrownBy(() -> service.start(15L, "Cześć", seller))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -339,7 +340,7 @@ class ConversationServiceTest {
         listing.setUser(seller);
         Conversation conversation = conversation(buyer, seller);
         conversation.setClosedAt(LocalDateTime.now());
-        when(listings.findByIdWithDetails(15L)).thenReturn(Optional.of(listing));
+        when(listings.findLockedById(15L)).thenReturn(Optional.of(listing));
         when(conversations.findByListingAndBuyer(15L, 1L)).thenReturn(Optional.of(conversation));
 
         assertThatThrownBy(() -> service.start(15L, "Nowa wiadomość", buyer))

@@ -37,6 +37,8 @@ public class UserNotification {
 
     @Column(nullable = false, length = 500)
     private String message;
+    @Column(name = "auction_id")
+    private Long auctionId;
 
     @Column(name = "is_read", nullable = false)
     private boolean read;

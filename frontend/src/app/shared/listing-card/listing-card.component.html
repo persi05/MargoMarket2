@@ -1,13 +1,16 @@
-@if (listing.listingKind === 'GOLD') {
-<article class="listing gold-listing"><header><h3>{{ goldLabel }}</h3><span>{{ listing.server.name }}</span></header><strong>{{ goldPrice }}</strong><p>{{ goldRate }}</p><p>{{ listing.description }}</p><p><a [routerLink]="['/u',listing.sellerId,'profil']">{{ listing.sellerDisplayName.charAt(0) }} · {{ listing.sellerDisplayName }}</a></p><p>{{ listing.createdAt | date:'dd.MM.yyyy HH:mm' }} · {{ statusLabel }}</p><p><mm-private-detail [value]="listing.contact" /></p><footer>
+@let ownListing = (viewer$ | async)?.id === listing.sellerId;
+@if (listing.saleMode === 'AUCTION') {
+<article class="listing"><h3>{{ listing.itemName }}</h3><p>{{ listing.server.name }} · Licytacja</p><a [routerLink]="['/auctions',listing.id]">Otwórz licytację</a><p>Sprzedający: <a class="seller-link" [routerLink]="['/u',listing.sellerId,'profil']">{{ listing.sellerDisplayName }}</a></p></article>
+} @else if (listing.listingKind === 'GOLD') {
+<article class="listing gold-listing"><header><h3>{{ goldLabel }}</h3><span>{{ listing.server.name }}</span></header><strong><mm-private-detail [value]="listing.priceMinor === null ? null : goldPrice" [compact]="true" /></strong><p>{{ listing.ratePriceMinor === null ? '' : goldRate }}</p><p>{{ listing.description }}</p><p>Sprzedający: <a class="seller-link" [routerLink]="['/u',listing.sellerId,'profil']">{{ listing.sellerDisplayName }}</a></p><p>{{ listing.createdAt | date:'dd.MM.yyyy HH:mm' }} · {{ statusLabel }}</p><footer>
 @if (showOwnerActions && isActive) {<a [routerLink]="['/gold/edit',listing.id]">Edytuj</a><button (click)="sold.emit(listing)">Oznacz jako sprzedane</button><button [disabled]="goldBusy" (click)="withdrawGold()">Zakończ bez sprzedaży</button>}
 @if (showOwnerActions && canDelete) {<button (click)="deleteListing.emit(listing)">Usuń</button>}
-@if (!showOwnerActions) {<a [routerLink]="['/messages/new',listing.id]">Napisz do sprzedającego</a>}
+@if (!showOwnerActions && !ownListing) {<a class="message-seller" [routerLink]="['/messages/new',listing.id]">{{ showMessageAction ? 'Napisz wiadomość' : 'Napisz do sprzedającego' }}</a>}
 @if (showFavorite && !favoriteMode) {<button [disabled]="favoriteBusy" (click)="favorite.emit(listing)">{{isFavorite?'Przestań obserwować':'Obserwuj'}}</button>}
 @if (favoriteMode) {<button (click)="removeFavorite.emit(listing)">Przestań obserwować</button>}
 </footer>@if (goldError) {<p role="alert">{{ goldError }}</p>}</article>
 } @else {
-<article class="listing" [class.owner-listing]="showOwnerActions" [class.favorite-listing]="favoriteMode" [class.admin-listing]="showSoldAt">
+<article class="listing" [class.owner-listing]="showOwnerActions" [class.profile-listing]="showMessageAction" [class.favorite-listing]="favoriteMode" [class.admin-listing]="showSoldAt">
   <div class="listing-head">
     <div
       class="item-frame"
@@ -55,7 +58,7 @@
         <span class="tooltip-separator"></span>
         <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel" [compact]="true" /></span>
         <span>Serwer: {{ listing.server.name }}</span>
-        <span>Kontakt: <mm-private-detail [value]="listing.contact" /></span>
+        <span>Sprzedający: <a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a></span>
       </div>
     </div>
 
@@ -70,17 +73,13 @@
     <span>Lvl: {{ listing.level }}</span>
     <span>Ulepszenie: {{ enhancementLabel }}</span>
     <span>Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
-    <span>{{ favoriteMode || (showOwnerActions && !showSoldAt) ? 'Świat: ' : '' }}{{ listing.server.name }}</span>
+    <span [title]="'Świat: ' + listing.server.name">{{ favoriteMode || (showOwnerActions && !showSoldAt) ? 'Świat: ' : '' }}{{ listing.server.name }}</span>
   </div>
 
   <dl>
     <div>
-      <dt>Kontakt</dt>
-      <dd><mm-private-detail [value]="listing.contact" /></dd>
-    </div>
-    <div>
       <dt>Sprzedający</dt>
-      <dd><a [routerLink]="['/u', listing.sellerId, 'profil']"><span aria-hidden="true">{{ listing.sellerDisplayName.charAt(0) }} </span>{{ listing.sellerDisplayName }}</a></dd>
+      <dd><a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a></dd>
     </div>
     <div>
       <dt>Dodano</dt>
@@ -100,6 +99,9 @@
     }
 
     <div class="actions">
+      @if (showMessageAction && !favoriteMode && !ownListing) {
+        <a class="message-seller" [routerLink]="['/messages/new', listing.id]">Napisz wiadomość</a>
+      }
       @if (showFavorite && !favoriteMode) {
         <button
           type="button"
@@ -114,7 +116,9 @@
         </button>
       }
       @if (favoriteMode) {
-        <a class="message-seller" [routerLink]="['/messages/new', listing.id]">Napisz do sprzedającego</a>
+        @if (!ownListing) {
+          <a class="message-seller" [routerLink]="['/messages/new', listing.id]">Napisz do sprzedającego</a>
+        }
         <button type="button" class="favorite is-favorite" (click)="removeFavorite.emit(listing)">
           <span aria-hidden="true">★</span>
           Przestań obserwować

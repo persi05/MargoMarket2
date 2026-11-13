@@ -30,6 +30,7 @@ public record ListingResponse(
         Long rateGoldUnits,
         Long ratePriceMinor,
         String description,
-        LocalDateTime soldAt
+        LocalDateTime soldAt,
+        String saleMode
 ) {
 }

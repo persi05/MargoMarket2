@@ -1,10 +1,11 @@
 import { Injectable, NgZone, inject } from '@angular/core';
-import { Client, IMessage } from '@stomp/stompjs';
+import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { Subject } from 'rxjs';
 
 import { AuthService } from './auth.service';
 
 export type ChatRealtimeEvent =
+  | { kind: 'auction'; auctionId: number }
   | { kind: 'connected' }
   | { kind: 'disconnected' }
   | { kind: 'read' }
@@ -18,6 +19,26 @@ export class ChatRealtimeService {
   private client: Client | null = null;
   private currentToken: string | null = null;
   private admin = false;
+  private auctionId: number | null = null;
+  private auctionSubscription: StompSubscription | null = null;
+
+  watchAuction(id: number): void {
+    this.stopAuction();
+    this.auctionId = id;
+    this.subscribeAuction();
+  }
+  stopAuction(): void {
+    if (this.client?.connected) this.auctionSubscription?.unsubscribe();
+    this.auctionSubscription = null;
+    this.auctionId = null;
+  }
+  private subscribeAuction(): void {
+    const id = this.auctionId;
+    if (!this.client?.connected || !id) return;
+    this.auctionSubscription = this.client.subscribe(`/topic/auctions/${id}`, () => {
+      this.zone.run(() => this.eventsSubject.next({kind:'auction',auctionId:id}));
+    });
+  }
 
   readonly events$ = this.eventsSubject.asObservable();
   connected = false;
@@ -44,6 +65,7 @@ export class ChatRealtimeService {
         if (this.client !== client) return;
         client.subscribe('/user/queue/conversation-events', message => this.receive(message, 'personal'));
         if (admin) client.subscribe('/topic/admin-conversations', message => this.receive(message, 'admin'));
+        this.subscribeAuction();
         this.zone.run(() => {
           this.connected = true;
           this.eventsSubject.next({ kind: 'connected' });

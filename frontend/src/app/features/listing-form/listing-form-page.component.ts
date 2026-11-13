@@ -2,7 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, combineLatest, debounceTime, finalize, of, startWith, switchMap } from 'rxjs';
 
 import { ApiError, DictionariesResponse, ItemResponse, LookupResponse } from '../../core/models/api.models';
@@ -13,6 +13,8 @@ import { ListingService } from '../../core/services/listing.service';
 import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
 import { canBindItem, hasEnhancementLevel, marketItemTypes } from '../../core/utils/item-types';
 import { parseListingPrice } from '../../core/utils/price-format';
+import { AuctionService } from '../../core/services/auction.service';
+import { goldMillionsInput, parseGoldMillions, parsePln } from '../../core/utils/gold-format';
 
 @Component({
   selector: 'mm-listing-form-page',
@@ -27,6 +29,19 @@ export class ListingFormPageComponent {
   private readonly itemService = inject(ItemService);
   private readonly router = inject(Router);
   private readonly dictionaryService = inject(DictionaryService);
+  private readonly auctions = inject(AuctionService);
+  private readonly route = inject(ActivatedRoute);
+  protected auctionMode = this.route.snapshot.queryParamMap.get('mode') === 'auction' || this.route.snapshot.paramMap.has('id');
+  protected auctionEditId = Number(this.route.snapshot.paramMap.get('id')) || null;
+  protected auctionsEnabled = false;
+  protected plnAuctionsEnabled = false;
+  protected auctionEnd = new Date(Date.now() + 24 * 3600_000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  protected auctionDescription = '';
+
+  protected get auctionMaxEnd(): string {
+    const end = new Date(Date.now() + 7 * 24 * 3600_000);
+    return new Date(end.getTime() - end.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  }
 
   protected readonly dictionaries$ = this.dictionaryService.getAll();
   protected dictionaries: DictionariesResponse | null = null;
@@ -76,6 +91,21 @@ export class ListingFormPageComponent {
   );
 
   constructor() {
+    this.auctions.config().subscribe(c => { this.auctionsEnabled = c.enabled; this.plnAuctionsEnabled = c.plnEnabled; });
+    if (this.auctionEditId) this.auctions.get(this.auctionEditId).subscribe({
+      next: a => {
+        if (!a.owner || a.bidCount || a.status !== 'ACTIVE') { this.error = 'Tej aukcji nie można edytować.'; return; }
+        const l = a.listing;
+        if (l.listingKind !== 'ITEM' || !l.itemId) return;
+        this.selectedItem = {id:l.itemId,externalId:0,name:l.itemName,iconUrl:l.iconUrl ?? '',level:l.level,itemType:l.itemType,rarity:l.rarity,description:l.itemDescription,stats:l.itemStats};
+        this.form.patchValue({itemId:l.itemId,itemName:l.itemName,itemTypeId:l.itemType.id,rarityId:l.rarity.id,level:l.level,
+          enhancementLevel:l.enhancementLevel,bound:l.bound,serverId:l.server.id,currencyId:l.currency.id,contact:l.contact || 'Czat MargoMarket',
+          price: a.startingAmount === null ? '' : (a.currency === 'PLN' ? (a.startingAmount / 100).toFixed(2) : goldMillionsInput(a.startingAmount))});
+        this.auctionDescription = l.description || '';
+        const end = new Date(a.endsAt);
+        this.auctionEnd = new Date(end.getTime()-end.getTimezoneOffset()*60000).toISOString().slice(0,16);
+      }, error: () => this.error = 'Nie udało się pobrać aukcji do edycji.'
+    });
     this.dictionaries$.subscribe((dictionaries) => {
       this.dictionaries = dictionaries;
     });
@@ -152,6 +182,28 @@ export class ListingFormPageComponent {
     this.loading = true;
 
     const raw = this.form.getRawValue();
+    if (this.auctionMode) {
+      const currency = this.isGoldCurrencySelected() ? 'GOLD' as const : 'PLN' as const;
+      const startingAmount = currency === 'GOLD' ? parseGoldMillions(raw.price) : parsePln(raw.price);
+      const end = new Date(this.auctionEnd);
+      if (startingAmount === null || !Number.isFinite(end.getTime())) {
+        this.error = 'Wpisz poprawną cenę wywoławczą i termin zakończenia.'; this.loading = false; return;
+      }
+      const duration = end.getTime() - Date.now();
+      if (duration < 3600_000 || duration > 7 * 24 * 3600_000) {
+        this.error = 'Wybierz termin zakończenia od 1 godziny do maksymalnie 7 dni od teraz.';
+        this.loading = false;
+        return;
+      }
+      const request = {itemId:raw.itemId, serverId:raw.serverId, enhancementLevel:raw.enhancementLevel, bound:raw.bound,
+        currency, startingAmount, endsAt:end.toISOString(), description:this.auctionDescription, contact:raw.contact};
+      (this.auctionEditId ? this.auctions.update(this.auctionEditId,request) : this.auctions.create(request))
+        .pipe(finalize(() => this.loading = false)).subscribe({
+          next: a => void this.router.navigate(['/auctions',a.id]),
+          error: e => this.applyServerErrors(e)
+        });
+      return;
+    }
     const currencyName = this.selectedCurrencyName();
     const price = currencyName ? parseListingPrice(raw.price, currencyName) : null;
     if (price === null || price > 2_000_000_000) {
@@ -235,6 +287,7 @@ export class ListingFormPageComponent {
   }
 
   pricePlaceholder(): string {
+    if (this.auctionMode) return this.isGoldCurrencySelected() ? 'Kwota w m, np. 1500' : 'PLN, np. 25,50';
     return this.isGoldCurrencySelected() ? 'Np. 500m albo 2g' : 'Wpisz cenę';
   }
 

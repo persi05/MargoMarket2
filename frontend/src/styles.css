@@ -53,6 +53,30 @@ mm-root {
   display: block;
 }
 
+a.seller-link {
+  display: inline-block;
+  max-width: 100%;
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transform-origin: left center;
+  transition: transform 150ms ease, color 150ms ease;
+}
+
+a.seller-link:not(.brand):hover,
+a.seller-link:focus-visible {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transform: scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a.seller-link { transition: none; }
+  a.seller-link:not(.brand):hover, a.seller-link:focus-visible { transform: none; }
+}
+
 @supports (animation-timeline: scroll()) {
   body::before {
     animation: trade-map-drift 1s linear both;

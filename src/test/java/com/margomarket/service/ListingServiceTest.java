@@ -66,6 +66,8 @@ class ListingServiceTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @Mock private AuctionListingPolicy auctionPolicy;
+
     @InjectMocks
     private ListingService listingService;
 
@@ -164,7 +166,7 @@ class ListingServiceTest {
         User stranger = user(2L, "user");
         Listing listing = listing(owner, status("active"));
 
-        when(listingRepository.findByIdWithDetails(10L)).thenReturn(Optional.of(listing));
+        when(listingRepository.findLockedById(10L)).thenReturn(Optional.of(listing));
 
         assertThatThrownBy(() -> listingService.updateListing(10L, request("Miecz", "kontakt"), stranger))
                 .isInstanceOf(ForbiddenOperationException.class);
@@ -175,7 +177,7 @@ class ListingServiceTest {
         User owner = user(1L, "user");
         Listing listing = listing(owner, status("sold"));
 
-        when(listingRepository.findByIdWithDetails(10L)).thenReturn(Optional.of(listing));
+        when(listingRepository.findLockedById(10L)).thenReturn(Optional.of(listing));
 
         assertThatThrownBy(() -> listingService.updateListing(10L, request("Miecz", "kontakt"), owner))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -188,7 +190,7 @@ class ListingServiceTest {
         Listing listing = listing(owner, status("active"));
         ListingRequest request = request("  Zbroja  ", "  mail@example.com  ");
 
-        when(listingRepository.findByIdWithDetails(10L)).thenReturn(Optional.of(listing));
+        when(listingRepository.findLockedById(10L)).thenReturn(Optional.of(listing));
         mockLookups(server(1L), itemType(2L), rarity(3L), currency(4L));
 
         Listing updated = listingService.updateListing(10L, request, admin);
@@ -210,7 +212,7 @@ class ListingServiceTest {
         listing.setItemName("Smoczy miecz");
         ListingStatus soldStatus = status("sold");
 
-        when(listingRepository.findByIdWithDetails(10L)).thenReturn(Optional.of(listing));
+        when(listingRepository.findLockedById(10L)).thenReturn(Optional.of(listing));
         when(listingStatusRepository.findByName("sold")).thenReturn(Optional.of(soldStatus));
         when(favoriteRepository.findUserIdsByListingId(10L)).thenReturn(List.of(2L, 3L));
 
@@ -233,7 +235,7 @@ class ListingServiceTest {
         User owner = user(1L, "user");
         Listing listing = listing(owner, status("sold"));
 
-        when(listingRepository.findByIdWithDetails(10L)).thenReturn(Optional.of(listing));
+        when(listingRepository.findLockedById(10L)).thenReturn(Optional.of(listing));
 
         Listing sold = listingService.markAsSold(10L, owner);
 
@@ -248,7 +250,7 @@ class ListingServiceTest {
         Listing listing = listing(owner, status("active"));
         listing.setId(10L);
 
-        when(listingRepository.findByIdWithDetails(10L)).thenReturn(Optional.of(listing));
+        when(listingRepository.findLockedById(10L)).thenReturn(Optional.of(listing));
 
         listingService.deleteListing(10L, owner);
 
@@ -261,7 +263,7 @@ class ListingServiceTest {
         User owner = user(1L, "user");
         Listing listing = listing(owner, status("sold"));
 
-        when(listingRepository.findByIdWithDetails(10L)).thenReturn(Optional.of(listing));
+        when(listingRepository.findLockedById(10L)).thenReturn(Optional.of(listing));
 
         assertThatThrownBy(() -> listingService.deleteListing(10L, owner))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -277,7 +279,7 @@ class ListingServiceTest {
         Listing listing = listing(owner, status("sold"));
         listing.setId(10L);
 
-        when(listingRepository.findByIdWithDetails(10L)).thenReturn(Optional.of(listing));
+        when(listingRepository.findLockedById(10L)).thenReturn(Optional.of(listing));
 
         listingService.deleteListing(10L, admin);
 

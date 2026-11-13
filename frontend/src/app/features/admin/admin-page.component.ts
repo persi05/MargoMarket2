@@ -14,11 +14,12 @@ import { PaginationComponent } from '../../shared/pagination/pagination.componen
 import { MessagesPageComponent } from '../messages/messages-page.component';
 import { ExchangeConfirmationsComponent } from './exchange-confirmations.component';
 import { ModerationPanelComponent } from './moderation-panel.component';
+import { AuctionModerationComponent } from './auction-moderation.component';
 
 @Component({
   selector: 'mm-admin-page',
   standalone: true,
-  imports: [ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
+  imports: [AuctionModerationComponent, ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
   templateUrl: './admin-page.component.html',
   styleUrl: './admin-page.component.css'
 })

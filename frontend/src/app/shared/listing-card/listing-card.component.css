@@ -1,3 +1,5 @@
+:host { display: block; min-width: 0; height: 100%; container-type: inline-size; }
+
 .listing {
   position: relative;
   display: flex;
@@ -145,9 +147,9 @@ footer {
 
 .meta {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   padding-top: 18px;
 }
 
@@ -164,9 +166,23 @@ footer {
 }
 
 .meta span {
+  flex: 0 0 auto;
   padding-inline: 7px;
   font-size: 11px;
   white-space: nowrap;
+}
+
+.meta span:last-child {
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@container (max-width: 370px) {
+  .meta { gap: 4px; }
+  .meta span { padding-inline: 4px; font-size: 10px; }
 }
 
 dl {
@@ -176,6 +192,7 @@ dl {
 }
 
 .owner-listing dl,
+.profile-listing dl,
 .favorite-listing dl {
   margin-bottom: 12px;
 }

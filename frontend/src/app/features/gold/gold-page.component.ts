@@ -20,6 +20,8 @@ export class GoldPageComponent {
   protected readonly auth = inject(AuthService);
   private service = inject(ListingService);
   private version = 0;
+  private lastLoaded = 0;
+  private requestInFlight = false;
   private destroy = inject(DestroyRef);
   protected favoriteIds = new Set<number>();
   protected favoriteBusy = new Set<number>();
@@ -58,17 +60,17 @@ export class GoldPageComponent {
       });
     this.destroy.onDestroy(() => authSub.unsubscribe());
     const timer = setInterval(() => {
-      if (!document.hidden) this.load(this.currentPage);
-    }, 30000);
+      this.visible();
+    }, 60000);
     this.destroy.onDestroy(() => {
       clearInterval(timer);
       this.version++;
     });
   }
   @HostListener('document:visibilitychange') visible() {
-    if (!document.hidden) this.load(this.currentPage);
+    if (!document.hidden && !this.requestInFlight && Date.now() - this.lastLoaded >= 30000) this.load(this.currentPage, true);
   }
-  protected load(page = 1) {
+  protected load(page = 1, background = false) {
     const f = this.filters;
     if (!this.auth.isLoggedIn) {
       f.minPrice = '';
@@ -91,12 +93,15 @@ export class GoldPageComponent {
     this.currentPage = page;
     this.service.marketState['GOLD'] = { filter: { ...f }, page };
     const version = ++this.version;
-    this.loading = true;
+    this.loading = !background;
+    this.requestInFlight = true;
     this.error = '';
     this.service.searchGold(filter).subscribe({
       next: (r) => {
         if (version !== this.version) return;
         this.result = r;
+        this.lastLoaded = Date.now();
+        this.requestInFlight = false;
         this.loading = false;
         if (this.auth.isLoggedIn && r.content.length)
           this.service.favoriteIds(r.content.map((l) => l.id)).subscribe({
@@ -109,6 +114,7 @@ export class GoldPageComponent {
       error: () => {
         if (version !== this.version) return;
         this.result = null;
+        this.requestInFlight = false;
         this.loading = false;
         this.error = 'Nie udało się pobrać ofert złota. Spróbuj ponownie.';
       },

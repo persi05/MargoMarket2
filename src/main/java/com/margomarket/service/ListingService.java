@@ -45,6 +45,7 @@ public class ListingService {
     private final CurrencyRepository currencyRepository;
     private final FavoriteRepository favoriteRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final AuctionListingPolicy auctionPolicy;
 
     public Page<Listing> searchActiveListings(ListingFilter filter) {
         Pageable pageable = PageRequest.of(Math.max(0, filter.getPage() - 1), PAGE_SIZE);
@@ -96,7 +97,7 @@ public class ListingService {
     }
 
     public java.util.List<com.margomarket.dto.PrivateListingDetails> getPrivateDetails(List<Long> ids) {
-        return listingRepository.findAllById(ids).stream().map(l -> new com.margomarket.dto.PrivateListingDetails(l.getId(),l.getPrice(),l.getPriceMinor(),l.getGoldAmount(),l.getGoldRateMode(),l.getRateGoldUnits(),l.getRatePriceMinor(),l.getContact(),l.getStatus().getName())).toList();
+        return listingRepository.findAllById(ids).stream().map(l -> new com.margomarket.dto.PrivateListingDetails(l.getId(),"AUCTION".equals(l.getSaleMode()) ? null : l.getPrice(),l.getPriceMinor(),l.getGoldAmount(),l.getGoldRateMode(),l.getRateGoldUnits(),l.getRatePriceMinor(),l.getContact(),l.getStatus().getName())).toList();
     }
 
     public Listing getListing(Long id) {
@@ -120,8 +121,9 @@ public class ListingService {
 
     @Transactional
     public Listing updateListing(Long id, ListingRequest request, User currentUser) {
-        Listing listing = getListing(id);
+        Listing listing = lockedListing(id);
         requireOwnerOrAdmin(listing, currentUser);
+        auctionPolicy.requireFixed(listing);
         if (listing.isSold()) {
             throw new IllegalArgumentException("Nie można edytować sprzedanego ogłoszenia");
         }
@@ -132,14 +134,16 @@ public class ListingService {
 
     @Transactional
     public Listing markAsSold(Long id, User currentUser) {
-        Listing listing = getListing(id);
+        Listing listing = lockedListing(id);
         requireOwnerOrAdmin(listing, currentUser);
+        auctionPolicy.requireSaleAllowed(listing);
         if (listing.isSold()) {
             return listing;
         }
         if ("GOLD".equals(listing.getListingKind()) && !listing.isActive()) throw new IllegalArgumentException("Oferta z?ota nie jest aktywna");
         listing.setStatus(getStatus("sold"));
         listing.setSoldAt(LocalDateTime.now());
+        auctionPolicy.declaredSold(listing,currentUser.getId());
         List<Long> observerIds = favoriteRepository.findUserIdsByListingId(listing.getId());
         favoriteRepository.deleteByListingId(listing.getId());
         eventPublisher.publishEvent(new ListingSoldEvent(
@@ -153,8 +157,9 @@ public class ListingService {
 
     @Transactional
     public void deleteListing(Long id, User currentUser) {
-        Listing listing = getListing(id);
+        Listing listing = lockedListing(id);
         requireOwnerOrAdmin(listing, currentUser);
+        auctionPolicy.requireFixed(listing);
         if (!currentUser.isAdmin() && !listing.isActive()) {
             throw new IllegalArgumentException("Można usunąć tylko aktywne ogłoszenie");
         }
@@ -166,7 +171,7 @@ public class ListingService {
         }
     }
 
-    private void applyRequest(Listing listing, ListingRequest request) {
+    void applyRequest(Listing listing, ListingRequest request) {
         Item item = getItem(request.itemId());
         listing.setItem(item);
         listing.setItemName(item.getName());
@@ -179,6 +184,10 @@ public class ListingService {
         listing.setCurrency(getCurrency(request.currencyId()));
         listing.setServer(getServer(request.serverId()));
         listing.setContact(request.contact().trim());
+    }
+
+    private Listing lockedListing(Long id) {
+        return listingRepository.findLockedById(id).orElseThrow(() -> new NotFoundException("Ogłoszenie nie istnieje"));
     }
 
     private void requireOwnerOrAdmin(Listing listing, User user) {

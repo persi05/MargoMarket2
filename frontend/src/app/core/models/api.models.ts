@@ -51,6 +51,7 @@ export interface LoginResponse {
 }
 
 interface ListingCommon {
+  saleMode?: 'FIXED' | 'AUCTION';
   id: number;
   itemId: number | null;
   itemName: string;
@@ -198,6 +199,7 @@ export interface AdminUserRowResponse {
 }
 
 export interface NotificationResponse {
+  auctionId?: number | null;
   id: number;
   type: string;
   message: string;

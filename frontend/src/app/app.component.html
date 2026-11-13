@@ -25,14 +25,18 @@
   </nav>
 
   @if (user$ | async; as user) {
-    <div class="session">
-      <a class="profile-link" [routerLink]="['/u', user.id, 'profil']" routerLinkActive="active" aria-label="Otwórz profil">
+    <details class="account-menu" #accountMenu>
+      <summary class="account-trigger" [attr.aria-label]="'Opcje konta: ' + user.displayName">
         <span class="profile-avatar" aria-hidden="true">{{ initial(user.displayName || user.username) }}</span>
         <span class="profile-name">{{ user.displayName || user.username }}</span>
-      </a>
-      <a routerLink="/profile">Ustawienia konta</a>
-      <button type="button" class="ghost-button" (click)="logout()">Wyloguj</button>
-    </div>
+        <svg class="account-chevron" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </summary>
+      <nav class="account-options" aria-label="Opcje konta">
+        <a [routerLink]="['/u', user.id, 'profil']" (click)="closeAccountMenu()">Zobacz profil</a>
+        <a routerLink="/profile" (click)="closeAccountMenu()">Edytuj ustawienia</a>
+        <button type="button" (click)="logout()">Wyloguj</button>
+      </nav>
+    </details>
   } @else {
     <a class="primary-link" routerLink="/auth">Zaloguj</a>
   }

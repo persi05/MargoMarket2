@@ -5,6 +5,8 @@
       <h1>{{ pageTitle }}</h1>
     </div>
     <a routerLink="/new">Stwórz ogłoszenie</a>
+    <a routerLink="/auctions" [queryParams]="{scope:'SELLING'}">Moje licytacje</a>
+    <a routerLink="/auctions" [queryParams]="{scope:'BIDDING'}">Moje złożone oferty</a>
   </header>
 
   @if (notice) {
