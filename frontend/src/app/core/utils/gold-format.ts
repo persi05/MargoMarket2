@@ -7,7 +7,10 @@ export function parseDecimalUnits(input: string, decimals: number, limit: bigint
   const units = BigInt(whole) * 10n ** BigInt(decimals) + BigInt(fraction.padEnd(decimals, '0'));
   return units > 0n && units <= limit ? Number(units) : null;
 }
-export const parseGoldMillions = (input: string) => parseDecimalUnits(input, 6, GOLD_LIMIT);
+export function parseGoldMillions(input: string): number | null {
+  const match = input.trim().toLowerCase().replace(/\s+/g, '').match(/^(\d+(?:[.,]\d+)?)([mg])?$/);
+  return match ? parseDecimalUnits(match[1], match[2] === 'g' ? 9 : 6, GOLD_LIMIT) : null;
+}
 export const parsePln = (input: string) => parseDecimalUnits(input, 2, 100_000_000n);
 function decimal(value: bigint, divisor: bigint, places: number): string {
   const remainder = (value % divisor).toString().padStart(places, '0').replace(/0+$/, '');

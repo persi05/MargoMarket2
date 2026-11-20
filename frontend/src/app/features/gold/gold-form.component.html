@@ -60,14 +60,6 @@
         [(ngModel)]="form.description"
         maxlength="2000"
       ></textarea></label
-    ><label
-      >Kontakt zewnętrzny (opcjonalny)<input
-        name="contact"
-        [(ngModel)]="form.contact"
-        maxlength="50"
-      /><span
-        >Widoczny dla zalogowanych. Czat strony jest dostępny bez podawania kontaktu.</span
-      ></label
     ><button [disabled]="busy || (!enabled && !editing)">
       {{ busy ? 'Zapisywanie…' : 'Zapisz ofertę' }}
     </button>

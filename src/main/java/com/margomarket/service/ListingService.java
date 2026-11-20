@@ -183,7 +183,7 @@ public class ListingService {
         listing.setPrice(request.price());
         listing.setCurrency(getCurrency(request.currencyId()));
         listing.setServer(getServer(request.serverId()));
-        listing.setContact(request.contact().trim());
+        listing.setContact(request.contact() == null ? "" : request.contact().trim());
     }
 
     private Listing lockedListing(Long id) {

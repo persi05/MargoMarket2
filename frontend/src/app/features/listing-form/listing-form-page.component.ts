@@ -69,7 +69,7 @@ export class ListingFormPageComponent {
     price: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(24)]),
     currencyId: this.fb.nonNullable.control(0, [Validators.required, Validators.min(1)]),
     serverId: this.fb.nonNullable.control(0, [Validators.required, Validators.min(1)]),
-    contact: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(50)])
+    contact: this.fb.nonNullable.control('')
   });
 
   protected readonly itemResults$ = combineLatest([
@@ -287,8 +287,8 @@ export class ListingFormPageComponent {
   }
 
   pricePlaceholder(): string {
-    if (this.auctionMode) return this.isGoldCurrencySelected() ? 'Kwota w m, np. 1500' : 'PLN, np. 25,50';
-    return this.isGoldCurrencySelected() ? 'Np. 500m albo 2g' : 'Wpisz cenę';
+    if (this.auctionMode) return this.isGoldCurrencySelected() ? 'Np. 500m lub 2g' : 'Np. 25,50 lub 25.50';
+    return this.isGoldCurrencySelected() ? 'Np. 500m lub 2g' : 'Wpisz cenę';
   }
 
   showCatalogImage(item: ItemResponse): boolean {

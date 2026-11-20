@@ -42,7 +42,6 @@ public record ListingRequest(
         @NotNull(message = "Serwer jest wymagany")
         Long serverId,
 
-        @NotBlank(message = "Kontakt jest wymagany")
         @Size(max = 50, message = "Kontakt moze miec maksymalnie 50 znakow")
         String contact
 ) {
