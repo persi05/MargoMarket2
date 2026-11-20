@@ -606,8 +606,8 @@ a:not(.brand):hover {
 
 .market-heading-actions { display:flex; flex-direction:column; align-items:flex-end; gap:12px; flex-shrink:0; }
 .market-heading-actions .pager { display:flex; gap:10px; margin:0; }
-a.market-create-action { display:inline-block; padding:11px 16px; border:1px solid transparent; border-radius:6px; background:var(--color-primary); color:#182215; font-weight:700; text-decoration:none; text-align:center; white-space:nowrap; }
-a.market-create-action:hover { background:var(--color-primary-hover); }
+.market-heading-actions a.market-create-action { display:inline-block; padding:11px 16px; border:1px solid transparent; border-radius:6px; background:var(--color-primary); color:#182215; font-weight:700; text-decoration:none; text-align:center; white-space:nowrap; }
+.market-heading-actions a.market-create-action:hover { background:var(--color-primary-hover); }
 .market-heading-actions .pager button { padding:10px 14px; border:1px solid var(--color-border); border-radius:5px; background:var(--color-input-dark); color:var(--color-text-main); font:inherit; font-weight:700; cursor:pointer; }
 .market-heading-actions .pager button:disabled { opacity:.45; cursor:not-allowed; }
 @media(max-width:620px) { .market-heading-actions { width:100%; align-items:stretch; } .market-heading-actions .pager { flex-direction:row; } .market-heading-actions .pager button { flex:1; } }

@@ -24,6 +24,7 @@ export interface Auction {
   contactReminder: boolean;
   winnerId: number | null;
   winnerDisplayName: string | null;
+  biddingRestriction?: string | null;
 }
 export interface AuctionBid {
   id: number;

@@ -22,6 +22,7 @@ import { DiscussionPostingClock, formatMuteDeadline } from './discussion-posting
 })
 export class DiscussionDrawerComponent implements OnChanges, OnInit, OnDestroy {
   @Input({ required: true }) listing!: ListingResponse;
+  @Input() auctionPrice: string | null | undefined;
   @Output() closed = new EventEmitter<void>();
   @ViewChild('messages') private messages?: ElementRef<HTMLElement>;
   @ViewChild('closeButton') private closeButton?: ElementRef<HTMLButtonElement>;

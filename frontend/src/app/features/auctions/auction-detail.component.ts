@@ -1,3 +1,4 @@
+import { AuctionItemComponent } from '../../shared/auction-item/auction-item.component';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, HostListener, inject } from '@angular/core';
@@ -16,7 +17,7 @@ import { PrivateDetailComponent } from '../../shared/private-detail/private-deta
 
 @Component({
   selector: 'mm-auction-detail', standalone: true,
-  imports: [RouterLink, FormsModule, DatePipe, DiscussionDrawerComponent, PrivateDetailComponent],
+  imports: [AuctionItemComponent, RouterLink, FormsModule, DatePipe, DiscussionDrawerComponent, PrivateDetailComponent],
   templateUrl: './auction-detail.component.html', styleUrl: './auctions.component.css'
 })
 export class AuctionDetailComponent {
@@ -101,7 +102,7 @@ export class AuctionDetailComponent {
     const a = this.auction;
     if (!a || this.busy) return;
     const value = a.currency === 'PLN' ? parsePln(this.input) : parseGoldMillions(this.input);
-    if (value === null || a.nextMinimumBid === null || value < a.nextMinimumBid) { this.error = 'Wpisz co najmniej minimalną kolejną ofertę.'; return; }
+    if (value === null || a.nextMinimumBid === null || value < a.nextMinimumBid) { this.error = value === null ? 'Wpisz poprawną kwotę, np. 500m lub 2g dla złota albo 25,50 PLN.' : 'Minimalna kolejna oferta: ' + (a.nextMinimumBid === null ? 'osiągnięto limit' : this.amount(a.nextMinimumBid,a.currency)) + '. Podbicie wynosi co najmniej 1%, minimum 1 PLN lub 1m złota.'; return; }
     if (!this.pendingBid || this.pendingBid.amount !== value) this.pendingBid = {amount:value,key:crypto.randomUUID()};
     this.busy = true; this.error = ''; this.notice = '';
     this.service.bid(this.id,value,a.currency,this.pendingBid.key).pipe(takeUntilDestroyed(this.destroy)).subscribe({
