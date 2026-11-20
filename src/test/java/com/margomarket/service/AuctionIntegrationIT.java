@@ -289,4 +289,62 @@ class AuctionIntegrationIT {
                 .content("{\"amount\":1000,\"currency\":\"PLN\",\"idempotencyKey\":\""+UUID.randomUUID()+"\"}"))
                 .andExpect(status().isForbidden());
     }
+    @Test void onlySellerAndAdminsSeeBidderIdentities() throws Exception {
+        long id=create();auctions.bid(id,bid(1000),buyer);auctions.bid(id,bid(1100),other);
+        for(User viewer:List.of(seller,admin)) {
+            var rows=auctions.bids(id,1,viewer).content();
+            assertThat(rows.getFirst().get("userId")).isEqualTo(other.getId());
+            assertThat(rows.getFirst().get("bidder")).isEqualTo(other.getDisplayName());
+            assertThat(rows.getLast().get("bidder")).isEqualTo(buyer.getDisplayName());
+        }
+        for(User viewer:Arrays.asList(buyer,other,null)) {
+            for(var row:auctions.bids(id,1,viewer).content()) {
+                assertThat(row).doesNotContainKey("userId");
+                assertThat(row.get("bidder").toString()).startsWith("Licytujący ");
+            }
+        }
+        mvc.perform(get("/api/auctions/"+id+"/bids")).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].userId").doesNotExist());
+    }
+    @Test void bidReportsRequireSellerOrAdminAndBelongToTheAuction() throws Exception {
+        long id=create();var first=auctions.bid(id,bid(1000),buyer);var second=auctions.bid(id,bid(1100),other);
+        assertThatThrownBy(()->auctions.reportBid(id,first.id(),buyer,"Problem")).isInstanceOf(ForbiddenOperationException.class);
+        mvc.perform(post("/api/auctions/"+id+"/bids/"+first.id()+"/reports").with(user(buyer)).contentType("application/json").content("{\"reason\":\"Problem\"}"))
+            .andExpect(status().isForbidden());
+        long another=create();assertThatThrownBy(()->auctions.reportBid(another,first.id(),seller,"Problem")).isInstanceOf(NotFoundException.class);
+        auctions.reportBid(id,first.id(),seller,"Podejrzana oferta");auctions.reportBid(id,first.id(),seller,"Duplikat");
+        auctions.reportBid(id,second.id(),seller,"Kolejna oferta");auctions.reportBid(id,first.id(),admin,"Zgłoszenie administratora");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM auction_reports WHERE auction_id=?",Long.class,id)).isEqualTo(3);
+        auctions.report(id,buyer,"Problem z aukcją");auctions.report(id,buyer,"Ponowienie");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM auction_reports WHERE auction_id=? AND bid_id IS NULL",Long.class,id)).isEqualTo(1);
+    }
+    @Test void reviewingBidReportCanAtomicallyInvalidateAndResolve() {
+        long id=create();auctions.bid(id,bid(1000),buyer);var top=auctions.bid(id,bid(1100),other);
+        auctions.reportBid(id,top.id(),seller,"Podejrzenie manipulacji");
+        long report=jdbc.queryForObject("SELECT id FROM auction_reports WHERE auction_id=?",Long.class,id);
+        var row=moderation.page("reports",1,"OPEN",admin).content().stream().filter(r->((Number)r.get("id")).longValue()==report).findFirst().orElseThrow();
+        assertThat(row.get("bid_id")).isEqualTo(top.id());assertThat(row.get("bidder_name")).isEqualTo(other.getDisplayName());
+        assertThatThrownBy(()->moderation.reviewReport(report,buyer,"Decyzja",true)).isInstanceOf(ForbiddenOperationException.class);
+        moderation.reviewReport(report,admin,"Potwierdzone nadużycie",true);
+        assertThat(auctions.get(id,seller).highestAmount()).isEqualTo(1000);
+        assertThat(jdbc.queryForObject("SELECT resolved_at IS NOT NULL FROM auction_reports WHERE id=?",Boolean.class,report)).isTrue();
+        assertThat(moderation.page("reports",1,"OPEN",admin).content()).noneMatch(r->((Number)r.get("id")).longValue()==report);
+        assertThatThrownBy(()->moderation.reviewReport(report,admin,"Powtórka",true)).isInstanceOf(NotFoundException.class);
+        auctions.report(id,buyer,"Cała aukcja");
+        long general=jdbc.queryForObject("SELECT id FROM auction_reports WHERE auction_id=? AND bid_id IS NULL",Long.class,id);
+        assertThatThrownBy(()->moderation.reviewReport(general,admin,"Decyzja",true)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(jdbc.queryForObject("SELECT resolved_at IS NULL FROM auction_reports WHERE id=?",Boolean.class,general)).isTrue();
+    }
+    @Test void bidHistoryAndReportsHaveWorkingPageBoundaries() {
+        long id=create();
+        jdbc.update("INSERT INTO auction_bids(auction_id,user_id,amount,currency,accepted_at,idempotency_key) SELECT ?,?,1000+n,'PLN',clock_timestamp(),gen_random_uuid() FROM generate_series(1,31) n",id,buyer.getId());
+        assertThat(auctions.bids(id,1,seller).content()).hasSize(30);
+        var second=auctions.bids(id,2,seller);assertThat(second.content()).hasSize(1);assertThat(second.last()).isTrue();
+        List<Long> bids=jdbc.queryForList("SELECT id FROM auction_bids WHERE auction_id=? ORDER BY id LIMIT 21",Long.class,id);
+        for(long bid:bids)auctions.reportBid(id,bid,seller,"Test stronicowania");
+        var page=moderation.page("reports",1,"ALL",admin);assertThat(page.content()).hasSize(20);assertThat(page.last()).isFalse();
+        var next=moderation.page("reports",2,"ALL",admin);assertThat(next.content()).isNotEmpty();
+        Set<Object> ids=new HashSet<>();page.content().forEach(r->ids.add(r.get("id")));
+        assertThat(next.content()).noneMatch(r->ids.contains(r.get("id")));
+    }
+
 }

@@ -187,19 +187,23 @@ public class AuctionService {
         requireVisible(auctions.get(id),viewer);
         int current=Math.clamp(page,1,1_000_000);
         long total=jdbc.queryForObject("SELECT count(*) FROM auction_bids WHERE auction_id=?",Long.class,id);
+        boolean reveal = viewer != null && (viewer.isAdmin() || listings.getListing(id).getUser().getId().equals(viewer.getId()));
         // Alias is the ordinal of a participant's first bid, scoped to this auction only.
         var rows=jdbc.query("""
             WITH participants AS (SELECT user_id,dense_rank() OVER(ORDER BY min(id)) alias FROM auction_bids WHERE auction_id=? GROUP BY user_id)
-            SELECT b.*,p.alias,i.reason invalidation FROM auction_bids b JOIN participants p ON p.user_id=b.user_id
+            SELECT b.*,p.alias,i.reason invalidation,
+                CASE WHEN u.display_name LIKE '%@%' THEN 'Gracz '||u.id ELSE u.display_name END display_name
+            FROM auction_bids b JOIN participants p ON p.user_id=b.user_id JOIN users u ON u.id=b.user_id
             LEFT JOIN auction_bid_invalidations i ON i.bid_id=b.id WHERE b.auction_id=? ORDER BY b.id DESC LIMIT 30 OFFSET ?
             """,(r,n)-> {
             Map<String,Object> row=new LinkedHashMap<>();
-            row.put("id",r.getLong("id")); row.put("bidder","Licytujący "+r.getLong("alias"));
+            row.put("id",r.getLong("id")); row.put("bidder",reveal ? r.getString("display_name") : "Licytujący "+r.getLong("alias"));
             row.put("own",viewer!=null && viewer.getId().equals(r.getLong("user_id")));
             row.put("amount",viewer==null?null:r.getLong("amount")); row.put("currency",r.getString("currency"));
             row.put("acceptedAt",r.getObject("accepted_at",OffsetDateTime.class).toInstant());
             row.put("invalidated",r.getString("invalidation")!=null);
-            if (viewer!=null && viewer.isAdmin()) { row.put("userId",r.getLong("user_id")); row.put("reason",r.getString("invalidation")); }
+            if (reveal) row.put("userId",r.getLong("user_id"));
+            if (viewer!=null && viewer.isAdmin()) row.put("reason",r.getString("invalidation"));
             return row;
         },id,id,(current-1)*30);
         return new PageResponse<>(rows,current,30,total,(int)((total+29)/30),current==1,current*30L>=total);
@@ -223,7 +227,18 @@ public class AuctionService {
     @Transactional
     public void report(long id,User user,String reason) {
         auctions.get(id);
-        jdbc.update("INSERT INTO auction_reports(auction_id,user_id,reason) VALUES (?,?,?) ON CONFLICT(auction_id,user_id) DO NOTHING",id,user.getId(),reason(reason));
+        jdbc.update("INSERT INTO auction_reports(auction_id,user_id,reason) VALUES (?,?,?) ON CONFLICT DO NOTHING",id,user.getId(),reason(reason));
+    }
+
+    @Transactional
+    public void reportBid(long id,long bidId,User user,String reason) {
+        requireVisible(auctions.get(id),user);
+        Listing listing=listings.getListing(id);
+        if(!user.isAdmin() && !listing.getUser().getId().equals(user.getId()))
+            throw new ForbiddenOperationException("Ofertę może zgłosić sprzedający lub administrator");
+        if(!Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM auction_bids WHERE auction_id=? AND id=?)",Boolean.class,id,bidId)))
+            throw new NotFoundException("Oferta nie istnieje w tej licytacji");
+        jdbc.update("INSERT INTO auction_reports(auction_id,bid_id,user_id,reason) VALUES (?,?,?,?) ON CONFLICT DO NOTHING",id,bidId,user.getId(),reason(reason));
     }
 
     void endListing(long id) {

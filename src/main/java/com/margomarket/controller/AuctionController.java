@@ -38,6 +38,7 @@ public class AuctionController {
     @GetMapping("/{id}/bids") public PageResponse<Map<String,Object>> bids(@PathVariable long id,@RequestParam(defaultValue="1") int page,@AuthenticationPrincipal User user) { return service.bids(id,page,user); }
     @PostMapping("/{id}/bids") public AuctionService.Receipt bid(@PathVariable long id,@Valid @RequestBody PlaceBidRequest r,@AuthenticationPrincipal User user) { return service.bid(id,r,user); }
     @PostMapping("/{id}/cancel") public void cancel(@PathVariable long id,@Valid @RequestBody Reason r,@AuthenticationPrincipal User user) { service.cancel(id,user,r.reason()); }
+    @PostMapping("/{id}/bids/{bidId}/reports") public void reportBid(@PathVariable long id,@PathVariable long bidId,@Valid @RequestBody Reason r,@AuthenticationPrincipal User user) { service.reportBid(id,bidId,user,r.reason()); }
     @PostMapping("/{id}/reports") public void report(@PathVariable long id,@Valid @RequestBody Reason r,@AuthenticationPrincipal User user) { service.report(id,user,r.reason()); }
     @PostMapping("/{id}/fulfillment/start") public Map<String,Long> start(@PathVariable long id,@AuthenticationPrincipal User user) { return Map.of("conversationId",fulfillment.start(id,user)); }
     @PostMapping("/{id}/fulfillment/actions") public void action(@PathVariable long id,@Valid @RequestBody Action r,@AuthenticationPrincipal User user) { fulfillment.action(id,user,r.action(),r.reason()); }
