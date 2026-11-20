@@ -19,6 +19,7 @@ class GoldListingServiceTest {
     ListingStatusRepository statuses = mock(ListingStatusRepository.class);
     FavoriteRepository favorites = mock(FavoriteRepository.class);
     GoldListingService service = new GoldListingService(
+        mock(UserModerationService.class),
         listings,
         servers,
         currencies,

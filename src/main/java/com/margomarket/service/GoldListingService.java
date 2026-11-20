@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class GoldListingService {
 
+    private final UserModerationService userModeration;
     private final ListingRepository listings;
     private final ServerRepository servers;
     private final CurrencyRepository currencies;
@@ -84,6 +85,7 @@ public class GoldListingService {
 
     @Transactional
     public Listing create(GoldListingRequest request, User owner) {
+        userModeration.requireAllowed(owner,ModerationScope.GOLD_LISTINGS);
         if (!enabled) throw new ForbiddenOperationException(
             "Wystawianie złota nie jest jeszcze włączone"
         );
@@ -108,6 +110,7 @@ public class GoldListingService {
 
     @Transactional
     public Listing update(Long id, GoldListingRequest request, User user) {
+        userModeration.requireAllowed(user,ModerationScope.GOLD_LISTINGS);
         Listing l = owned(id, user);
         if (!l.isActive()) throw new IllegalArgumentException("Oferta nie jest aktywna");
         apply(l, request);

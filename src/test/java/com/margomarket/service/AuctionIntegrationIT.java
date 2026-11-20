@@ -33,7 +33,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 @Testcontainers
 class AuctionIntegrationIT {
     @Container
-    private static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:17-alpine")
+    private static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:17-alpine").withTmpFs(java.util.Map.of("/var/lib/postgresql/data","rw")).withStartupTimeout(java.time.Duration.ofMinutes(3))
             .withDatabaseName("auction_test").withUsername("auction_test").withPassword("auction_test");
 
     @DynamicPropertySource
@@ -345,6 +345,14 @@ class AuctionIntegrationIT {
         var next=moderation.page("reports",2,"ALL",admin);assertThat(next.content()).isNotEmpty();
         Set<Object> ids=new HashSet<>();page.content().forEach(r->ids.add(r.get("id")));
         assertThat(next.content()).noneMatch(r->ids.contains(r.get("id")));
+    }
+
+    @Test void adminSummaryReturnsOnlyCountsAndRejectsOtherUsers() throws Exception {
+        mvc.perform(get("/api/admin/stats").with(user(buyer))).andExpect(status().isForbidden());
+        mvc.perform(get("/api/admin/stats").with(user(admin)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.listings").value(jdbc.queryForObject("SELECT count(*) FROM listings",Integer.class)))
+            .andExpect(jsonPath("$.users").value(jdbc.queryForObject("SELECT count(*) FROM users",Integer.class)));
     }
 
 }

@@ -14,6 +14,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class AuctionModerationService {
+    private final UserModerationService userModeration;
     private final AuctionRepository auctions;
     private final AuctionService service;
     private final JdbcTemplate jdbc;
@@ -41,12 +42,14 @@ public class AuctionModerationService {
     public void restrict(long uid,User admin,String reason,String appeal,Instant end) {
         admin(admin);
         if(end==null || !end.isAfter(auctions.now()) || end.isAfter(auctions.now().plusSeconds(365*86400L))) throw new IllegalArgumentException("Podaj termin ograniczenia (maksymalnie rok)");
-        jdbc.update("INSERT INTO auction_user_restrictions(user_id,actor_id,reason,appeal_instructions,expires_at) VALUES (?,?,?,?,?)",uid,admin.getId(),AuctionService.reason(reason),AuctionService.reason(appeal),AuctionService.time(end));
+        userModeration.restrict(uid,Set.of(ModerationScope.BIDDING),AuctionService.reason(reason)+" Odwołanie: "+AuctionService.reason(appeal),new UserModerationService.Term(null,end,false),admin);
     }
     @Transactional
     public void revoke(long id,User admin,String reason) {
         admin(admin);
-        if(jdbc.update("UPDATE auction_user_restrictions SET revoked_at=clock_timestamp(),revoked_by=?,revoke_reason=? WHERE id=? AND revoked_at IS NULL",admin.getId(),AuctionService.reason(reason),id)==0) throw new NotFoundException("Brak aktywnego ograniczenia");
+        var users=jdbc.queryForList("SELECT user_id FROM user_moderation_actions WHERE id=? AND scope='BIDDING'",Long.class,id);
+        if(users.isEmpty()) throw new NotFoundException("Brak ograniczenia licytowania");
+        userModeration.revoke(users.getFirst(),id,reason,admin);
     }
     @Transactional
     public void resolveReport(long id,User admin,String reason) {
@@ -75,9 +78,9 @@ public class AuctionModerationService {
     public PageResponse<Map<String,Object>> page(String kind,int page,String state,User admin) {
         admin(admin);
         if(!Set.of("OPEN","RESOLVED","ALL").contains(state)) throw new IllegalArgumentException("Nieznany widok zgłoszeń");
-        String table=switch(kind) { case "reports"->"auction_reports"; case "restrictions"->"auction_user_restrictions"; case "audit"->"auction_audit"; default->throw new IllegalArgumentException("Nieznany rejestr"); };
+        String table=switch(kind) { case "reports"->"auction_reports"; case "restrictions"->"user_moderation_actions"; case "audit"->"auction_audit"; default->throw new IllegalArgumentException("Nieznany rejestr"); };
         int current=Math.clamp(page,1,1_000_000);
-        String where=!kind.equals("reports") || state.equals("ALL") ? "" : state.equals("OPEN") ? " WHERE r.resolved_at IS NULL" : " WHERE r.resolved_at IS NOT NULL";
+        String where=kind.equals("restrictions") ? " WHERE r.kind='RESTRICTION' AND r.scope='BIDDING'" : !kind.equals("reports") || state.equals("ALL") ? "" : state.equals("OPEN") ? " WHERE r.resolved_at IS NULL" : " WHERE r.resolved_at IS NOT NULL";
         long total=jdbc.queryForObject("SELECT count(*) FROM "+table+" r"+where,Long.class);
         String query=kind.equals("reports") ? """
             SELECT r.*,l.item_name,b.user_id bidder_id,b.amount,b.currency,

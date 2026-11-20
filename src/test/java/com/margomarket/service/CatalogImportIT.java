@@ -23,7 +23,7 @@ import java.util.*;
 @AutoConfigureMockMvc
 @Testcontainers
 class CatalogImportIT {
-    @Container static final PostgreSQLContainer DB = new PostgreSQLContainer("postgres:17-alpine");
+    @Container static final PostgreSQLContainer DB = new PostgreSQLContainer("postgres:17-alpine").withTmpFs(java.util.Map.of("/var/lib/postgresql/data","rw")).withStartupTimeout(java.time.Duration.ofMinutes(3));
 
     @DynamicPropertySource
     static void database(DynamicPropertyRegistry r) {

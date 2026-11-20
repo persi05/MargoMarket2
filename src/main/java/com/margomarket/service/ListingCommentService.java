@@ -24,6 +24,7 @@ public class ListingCommentService {
     private static final int PAGE_SIZE = 30;
     private static final int DELETE_WINDOW_MINUTES = 15;
 
+    private final UserModerationService userModeration;
     private final ListingRepository listingRepository;
     private final ListingCommentRepository commentRepository;
     private final TextModerationService moderation;
@@ -44,6 +45,7 @@ public class ListingCommentService {
 
     @Transactional
     public ListingCommentResponse addComment(Long listingId, String body, User author) {
+        userModeration.requireAllowed(author,ModerationScope.COMMENTS);
         Listing listing = getListing(listingId);
         if (!listing.isActive()) {
             throw new IllegalArgumentException("Dyskusja przy tym ogłoszeniu jest zamknięta.");

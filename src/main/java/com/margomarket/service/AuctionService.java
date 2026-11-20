@@ -19,6 +19,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Transactional(readOnly=true)
 public class AuctionService {
+    private final UserModerationService userModeration;
     private final AuctionRepository auctions;
     private final JdbcTemplate jdbc;
     private final ListingService listings;
@@ -45,7 +46,7 @@ public class AuctionService {
         var now = auctions.now();
         AuctionRules.amount(r.currency(), r.startingAmount());
         AuctionRules.duration(now, r.endsAt());
-        Listing l = listings.createListing(listingRequest(r), user);
+        Listing l = listings.createAuctionListing(listingRequest(r), user);
         l.setSaleMode("AUCTION");
         l.setDescription(r.description());
         listingRepository.saveAndFlush(l);
@@ -57,6 +58,7 @@ public class AuctionService {
 
     @Transactional
     public AuctionResponse update(long id, AuctionRequest r, User user) {
+        userModeration.requireAllowed(user,ModerationScope.AUCTION_LISTINGS);
         requireDescriptionAllowed(r.description());
         State a = auctions.lock(id);
         Listing l = listings.getListing(id);
@@ -155,6 +157,7 @@ public class AuctionService {
 
     @Transactional
     public Receipt bid(long id, PlaceBidRequest r, User user) {
+        userModeration.requireAllowed(user,ModerationScope.BIDDING);
         var prior=receipt(id,user,r.idempotencyKey());
         if (!prior.isEmpty()) return replay(prior.getFirst(),r);
         long wait=limiter.attempt(user.getId(),id);
@@ -166,8 +169,6 @@ public class AuctionService {
         requireEnabled(a.currency());
         if (!user.isEmailVerified() || user.getCreatedAt()==null || user.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant().plusSeconds(24*3600).isAfter(now))
             throw new ForbiddenOperationException("Licytowanie wymaga zweryfikowanego e-maila i konta starszego niż 24 godziny");
-        var restrictions=jdbc.queryForList("SELECT reason,appeal_instructions FROM auction_user_restrictions WHERE user_id=? AND revoked_at IS NULL AND expires_at>clock_timestamp() ORDER BY expires_at DESC LIMIT 1",user.getId());
-        if (!restrictions.isEmpty()) throw new ForbiddenOperationException("Udział ograniczony: "+restrictions.getFirst().get("reason")+". Odwołanie: "+restrictions.getFirst().get("appeal_instructions"));
         Listing l=listings.getListing(id);
         if (l.getUser().getId().equals(user.getId())) throw new ForbiddenOperationException("Nie możesz licytować własnego przedmiotu");
         if (!"ACTIVE".equals(a.status()) || !now.isBefore(a.endsAt())) throw new IllegalArgumentException("Aukcja jest zakończona");

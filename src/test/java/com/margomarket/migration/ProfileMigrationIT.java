@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ProfileMigrationIT extends MigrationTestSupport {
     @Container
-    private static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:17-alpine");
+    private static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:17-alpine").withTmpFs(java.util.Map.of("/var/lib/postgresql/data","rw")).withStartupTimeout(java.time.Duration.ofMinutes(3));
     private long buyerId;
     private long sellerId;
     private long confirmerId;

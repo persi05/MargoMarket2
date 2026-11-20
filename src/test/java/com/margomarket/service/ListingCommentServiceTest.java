@@ -40,6 +40,8 @@ class ListingCommentServiceTest {
     @Mock
     private DiscussionCooldownService cooldown;
 
+    @org.mockito.Mock private UserModerationService userModeration;
+
     @InjectMocks
     private ListingCommentService commentService;
 

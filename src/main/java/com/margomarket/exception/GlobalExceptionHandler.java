@@ -14,6 +14,11 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(UserRestrictedException.class)
+    public ResponseEntity<Map<String,Object>> restricted(UserRestrictedException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.response());
+    }
+
     @ExceptionHandler({org.springframework.http.converter.HttpMessageNotReadableException.class,
             org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class})
     public ResponseEntity<ApiError> unreadableRequest(Exception exception) {
