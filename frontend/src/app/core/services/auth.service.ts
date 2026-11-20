@@ -1,3 +1,4 @@
+import { AccountAccessService } from './account-access.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -8,6 +9,7 @@ import { LoginRequest, LoginResponse, RegisterRequest, UserResponse } from '../m
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly access=inject(AccountAccessService);
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly tokenKey = 'margomarket.accessToken';
@@ -19,6 +21,8 @@ export class AuthService {
   get token(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
+
+  get currentUser(): UserResponse | null { return this.userSubject.value; }
 
   get isLoggedIn(): boolean {
     return Boolean(this.token);
@@ -55,10 +59,11 @@ export class AuthService {
   }
 
   logout(): void {
+    this.access.clear();
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
     this.userSubject.next(null);
-    void this.router.navigate(['/']);
+    void this.router.navigate(['/items']);
   }
 
   private storeSession(response: LoginResponse): void {

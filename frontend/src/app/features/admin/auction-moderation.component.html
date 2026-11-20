@@ -15,7 +15,7 @@
       @if(row.bid_id){<p>Oferta #{{row.bid_id}}: <a [routerLink]="['/u',row.bidder_id,'profil']">{{row.bidder_name}}</a> — <strong>{{amount(row.amount!,row.currency!)}}</strong>@if(row.bid_invalidated){<span> · unieważniona</span>}</p>}
       <p class="queue-reason">{{row.reason}}</p>
       @if(row.resolution){<p>Decyzja: {{row.resolution}}</p>}
-      @if(row.expires_at){<p>Do: {{row.expires_at | date:'dd.MM.yyyy HH:mm'}}. Odwołanie: {{row.appeal_instructions}}</p>}
+      @if(row.expires_at){<p>Do: {{row.expires_at | date:'dd.MM.yyyy HH:mm'}}@if(row.appeal_instructions){. Odwołanie: {{row.appeal_instructions}}}</p>}
       <div class="queue-actions">
         @if(kind === 'reports' && !row.resolved_at){<button type="button" class="mm-button" [disabled]="busy" (click)="open(row,'review')">Rozpatrz zgłoszenie</button>@if(row.bid_id && !row.bid_invalidated){<button type="button" class="mm-button secondary" [disabled]="busy" (click)="open(row,'invalidate')">Unieważnij ofertę i rozpatrz</button>}}
         @if(kind === 'restrictions' && !row.revoked_at){<button type="button" class="mm-button secondary" [disabled]="busy" (click)="open(row,'revoke')">Cofnij ograniczenie</button>}
@@ -23,6 +23,6 @@
     </article>}@empty{@if(!loading){<p class="empty">Brak wpisów w wybranym widoku.</p>}}
   </div>
   @if(result;as page){<mm-pagination [page]="page" [loading]="loading || busy" (pageChange)="load($event)" />}
-  @if(kind === 'restrictions'){<details class="workspace-form"><summary>Dodaj ograniczenie udziału</summary><form (ngSubmit)="restrict()"><label>ID konta<input name="userId" type="number" min="1" [(ngModel)]="userId" required></label><label>Koniec ograniczenia<input name="end" type="datetime-local" [(ngModel)]="end" required></label><label>Uzasadnienie<textarea name="reason" [(ngModel)]="reason" maxlength="1000" required></textarea></label><label>Sposób odwołania<textarea name="appeal" [(ngModel)]="appeal" maxlength="1000" required></textarea></label><button class="mm-button" [disabled]="busy || !reason.trim() || !appeal.trim() || !end || !userId">Zapisz ograniczenie</button></form></details>}
+  @if(kind === 'restrictions'){<div class="workspace-form"><h3>Zarządzanie blokadami</h3><p>Blokady licytowania są częścią moderacji konta. Wejdź na profil użytkownika, aby dodać blokadę, wybrać jej zakres i termin albo wysłać upomnienie.</p><label>ID użytkownika<input type="number" min="1" [(ngModel)]="userId"></label>@if(userId){<a class="mm-button secondary" [routerLink]="['/u',userId,'profil']">Otwórz profil użytkownika</a>}</div>}
   @if(selected;as selection){<mm-conversation-report-dialog [title]="selection.action === 'invalidate' ? 'Unieważnij zgłoszoną ofertę' : selection.action === 'revoke' ? 'Cofnij ograniczenie' : 'Rozpatrz zgłoszenie'" [description]="'Opisz decyzję administratora. Uzasadnienie zostanie zapisane w historii.'" [showReasons]="false" [detailsRequired]="true" submitLabel="Zapisz decyzję" [busy]="busy" [error]="dialogError" (cancel)="selected = null" (submitReport)="decide($event)" />}
 </section>

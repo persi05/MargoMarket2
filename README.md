@@ -79,3 +79,9 @@ Testy migracji są w `src/test/java/com/margomarket/migration`. Maven Failsafe u
 ## CI na GitHubie
 
 Workflow `.github/workflows/ci.yml` uruchamia się przy pushu i pull requeście. Po dodaniu workflowu do domyślnej gałęzi można go też uruchomić ręcznie z zakładki Actions. Backend jest sprawdzany na Javie 21 poleceniem `./mvnw verify`, łącznie z testami migracji i licytacji na tymczasowych bazach PostgreSQL. Frontend jest sprawdzany na Node.js 24 przez `npm ci`, testy Vitest i build Angulara. Raporty testów oraz pliki wynikowe są zachowywane jako artefakty workflowu. CI nie wdraża aplikacji na serwer.
+
+## Moderacja kont użytkowników
+
+Administrator zarządza blokadami i upomnieniami na publicznym profilu użytkownika, w sekcji **Moderacja konta**. Można osobno ograniczyć publikowanie i edycję przedmiotów, złota i licytacji, składanie ofert, wiadomości oraz komentarze. Blokada całego konta odcina dostęp również dla wcześniej wydanych tokenów i otwartych połączeń WebSocket. Okres podaje się jako czas trwania, datę zakończenia albo bezterminowo; ograniczenia czasowe wygasają bez restartu i bez zadania cyklicznego.
+
+Każda decyzja, upomnienie i cofnięcie blokady pozostawia wpis w historii oraz powiadomienie dla użytkownika. Podczas pełnej blokady użytkownik widzi powód i termin na osobnym ekranie. API administracyjne jest dostępne pod `/api/admin/users/{id}/moderation`, a własny status pod `/api/auth/moderation`. Kody błędów `ACCOUNT_BLOCKED` i `ACTION_RESTRICTED` odróżniają blokadę konta od ograniczenia pojedynczej czynności. Starsze ograniczenia licytowania są przenoszone migracją V32.

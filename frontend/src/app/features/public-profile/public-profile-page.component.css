@@ -36,3 +36,5 @@ a { color: var(--color-primary); }
 @media (max-width: 600px) {
   dl { flex-direction: column; gap: 12px; }
 }
+
+mm-user-moderation { display:block; margin-top:36px; padding-top:28px; border-top:1px solid var(--color-border); }

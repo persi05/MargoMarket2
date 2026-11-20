@@ -24,7 +24,7 @@
       @for (notification of notifications; track notification.id) {
         <article class="notification" [class.unread]="!notification.read">
           <div>
-            <span class="type">{{ notification.type === 'LISTING_SOLD' ? 'Sprzedaż ogłoszenia' : 'Powiadomienie' }}</span>
+            <span class="type">{{ notification.type === 'LISTING_SOLD' ? 'Sprzedaż ogłoszenia' : notification.type === 'ACCOUNT_WARNING' ? 'Upomnienie od administracji' : notification.type === 'ACCOUNT_RESTRICTION' ? 'Blokada czynności' : notification.type === 'ACCOUNT_RESTRICTION_REVOKED' ? 'Cofnięcie blokady' : 'Powiadomienie' }}</span>
             <p>{{ notification.message }}</p>
             @if (notification.auctionId) { <a [routerLink]="['/auctions', notification.auctionId]">Otwórz licytację</a> }
             <time [dateTime]="notification.createdAt">{{ notification.createdAt | date: 'dd.MM.yyyy HH:mm' }}</time>

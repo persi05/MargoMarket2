@@ -1,3 +1,8 @@
+import { HttpClient } from '@angular/common/http';
+import { effect } from '@angular/core';
+import { AccountAccessService, AccountBlock } from './core/services/account-access.service';
+import { AccountBlockedComponent } from './features/account-blocked/account-blocked.component';
+import { environment } from '../environments/environment';
 import { AsyncPipe } from '@angular/common';
 import { Component, DestroyRef, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -11,7 +16,7 @@ import { ConversationService } from './core/services/conversation.service';
 @Component({
   selector: 'mm-root',
   standalone: true,
-  imports: [AsyncPipe, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [AccountBlockedComponent, AsyncPipe, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -22,9 +27,17 @@ export class AppComponent {
   private readonly conversations = inject(ConversationService);
   private readonly realtime = inject(ChatRealtimeService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly accountAccess=inject(AccountAccessService);
+  private readonly http=inject(HttpClient);
   protected unreadMessages = 0;
 
   constructor() {
+    effect(()=>{if(this.accountAccess.block())this.realtime.disconnect();else{const user=this.authService.currentUser;if(user)this.realtime.connect(user.role==='admin');}});
+    this.user$.pipe(switchMap(user=>{
+      this.accountAccess.clear();
+      return user ? merge(of(null),this.realtime.events$.pipe(filter(event=>event.kind==='account-access')),fromEvent(document,'visibilitychange').pipe(filter(()=>!document.hidden))).pipe(switchMap(()=>this.http.get<{accountBlock:AccountBlock|null}>(environment.apiUrl+'/auth/moderation').pipe(catchError(()=>of(null))))) : of(null);
+    }),takeUntilDestroyed(this.destroyRef)).subscribe(status=>{if(status){if(status.accountBlock)this.accountAccess.show(status.accountBlock);else this.accountAccess.clear();}});
+
     this.user$.pipe(
       switchMap(user => {
         if (!user) {
@@ -39,7 +52,7 @@ export class AppComponent {
             || event.kind === 'personal' || event.kind === 'read')),
           timer(30000, 30000).pipe(filter(() => !this.realtime.connected))
         ).pipe(
-          filter(() => !document.hidden),
+          filter(() => !document.hidden && !this.accountAccess.block()),
           switchMap(() => this.conversations.unreadCount().pipe(
             catchError(() => of({ count: this.unreadMessages }))
           ))

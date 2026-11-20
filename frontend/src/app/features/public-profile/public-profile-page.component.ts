@@ -1,3 +1,5 @@
+import { AsyncPipe } from '@angular/common';
+import { UserModerationComponent } from '../admin/user-moderation.component';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -24,11 +26,12 @@ interface Profile {
 @Component({
   selector: 'mm-public-profile-page',
   standalone: true,
-  imports: [DatePipe, RouterLink, ListingCardComponent, PaginationComponent],
+  imports: [AsyncPipe, UserModerationComponent, DatePipe, RouterLink, ListingCardComponent, PaginationComponent],
   templateUrl: './public-profile-page.component.html',
   styleUrl: './public-profile-page.component.css'
 })
 export class PublicProfilePageComponent {
+  protected readonly viewer$=inject(AuthService).user$;
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly destroy = inject(DestroyRef);
