@@ -6,21 +6,12 @@
     </div>
   </header>
 
-  <div class="stats-row">
-    @if (listings$ | async; as page) {
-      <div class="stat">
-        <span>Ogłoszenia</span>
-        <strong>{{ page.totalElements | number }}</strong>
-      </div>
-    }
-
-    @if (users$ | async; as users) {
-      <div class="stat">
-        <span>Użytkownicy</span>
-        <strong>{{ (usersPageData?.totalElements ?? 0) | number }}</strong>
-      </div>
-    }
-  </div>
+  @if (stats$ | async; as stats) {
+    <div class="stats-row">
+      <div class="stat"><span>Ogłoszenia</span><strong>{{stats.listings | number}}</strong></div>
+      <div class="stat"><span>Użytkownicy</span><strong>{{stats.users | number}}</strong></div>
+    </div>
+  }
 
   <nav class="tabs" aria-label="Sekcje administracji">
     <button type="button" [class.active]="activeTab === 'catalog'" (click)="selectTab('catalog')">Katalog przedmiotów</button>

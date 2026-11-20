@@ -29,6 +29,7 @@ export class AdminPageComponent {
   private readonly adminService = inject(AdminService);
   private readonly conversationsService = inject(ConversationService);
   private readonly listingService = inject(ListingService);
+  protected readonly stats$ = this.adminService.stats().pipe(shareReplay({bufferSize:1,refCount:true}));
   protected readonly dictionaries$ = inject(DictionaryService).getAll();
   private readonly pageSubject = new BehaviorSubject(1);
   private readonly usersReloadSubject = new BehaviorSubject(0);

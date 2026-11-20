@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, EMPTY, exhaustMap, finalize, timer } from 'rxjs';
+import { catchError, EMPTY, exhaustMap, filter, finalize, timer } from 'rxjs';
 
 export interface CatalogStatus {
   status: 'IDLE' | 'RUNNING' | 'SUCCEEDED' | 'FAILED';
@@ -58,6 +58,7 @@ export class CatalogAdminComponent implements OnInit {
 
   ngOnInit(): void {
     timer(0, 3000).pipe(
+      filter(() => !this.state() || this.state()?.status === 'RUNNING' || !!this.error()),
       exhaustMap(() => this.http.get<CatalogStatus>(this.url).pipe(
         // Keep polling after a temporary network failure.
         // The last known status remains visible until a fresh response arrives.

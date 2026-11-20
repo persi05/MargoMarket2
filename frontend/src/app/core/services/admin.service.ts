@@ -10,6 +10,10 @@ export class AdminService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/admin`;
 
+  stats(): Observable<{listings:number; users:number}> {
+    return this.http.get<{listings:number; users:number}>(this.baseUrl + '/stats');
+  }
+
   blockedWords(page = 1, search = ''): Observable<PageResponse<BlockedWord>> {
     return this.http.get<PageResponse<BlockedWord>>(`${this.baseUrl}/blocked-words`, {
       params: new HttpParams().set('page', page).set('search', search)

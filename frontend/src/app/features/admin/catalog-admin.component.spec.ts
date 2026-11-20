@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CatalogAdminComponent } from './catalog-admin.component';
 
 describe('catalog admin', () => {
@@ -40,4 +40,20 @@ describe('catalog admin', () => {
     fixture.destroy();
     http.verify();
   });
+  it('polls only while an import is running', async () => {
+    vi.useFakeTimers();
+    const fixture=TestBed.createComponent(CatalogAdminComponent);
+    try {
+      fixture.detectChanges();await vi.advanceTimersByTimeAsync(0);
+      http.expectOne('/api/admin/catalog').flush({status:'IDLE',pages:0});
+      await vi.advanceTimersByTimeAsync(9000);http.expectNone('/api/admin/catalog');
+      (fixture.componentInstance as any).start();
+      http.expectOne('/api/admin/catalog').flush({status:'RUNNING',pages:0});
+      await vi.advanceTimersByTimeAsync(3000);
+      http.expectOne('/api/admin/catalog').flush({status:'SUCCEEDED',pages:23});
+      await vi.advanceTimersByTimeAsync(6000);http.expectNone('/api/admin/catalog');
+      http.verify();
+    } finally {fixture.destroy();vi.useRealTimers();}
+  });
+
 });

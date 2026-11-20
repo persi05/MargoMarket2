@@ -254,9 +254,10 @@ tr:last-child td {
 .admin-queue {
   display: grid;
   gap: 12px;
-  max-width: 900px;
-  max-height: 70dvh;
-  overflow-y: auto;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  overflow: visible;
   align-content: start;
 }
 .admin-queue-card {
