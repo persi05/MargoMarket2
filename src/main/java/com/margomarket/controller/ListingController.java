@@ -36,6 +36,7 @@ public class ListingController {
     private final FavoriteService favoriteService;
     private final ListingMapper listingMapper;
     private final PageMapper pageMapper;
+    private final com.margomarket.service.ListingViewService listingViews;
 
     @GetMapping
     public PageResponse<ListingResponse> search(@ModelAttribute ListingFilter filter,
@@ -58,7 +59,7 @@ public class ListingController {
     @GetMapping("/mine")
     public PageResponse<ListingResponse> mine(@RequestParam(defaultValue = "1") int page,
                                                @AuthenticationPrincipal User user) {
-        return pageMapper.toResponse(listingService.getUserListings(user, page), listingMapper::toResponse);
+        return listingViews.page(listingService.getUserListings(user, page), true);
     }
 
     @PostMapping
@@ -84,7 +85,7 @@ public class ListingController {
     @GetMapping("/favorites")
     public PageResponse<ListingResponse> favorites(@RequestParam(defaultValue = "1") int page,
                                                     @AuthenticationPrincipal User user) {
-        return pageMapper.toResponse(favoriteService.getUserFavoriteListings(user, page), listingMapper::toResponse);
+        return listingViews.page(favoriteService.getUserFavoriteListings(user, page), true);
     }
 
     @GetMapping("/favorites/ids")

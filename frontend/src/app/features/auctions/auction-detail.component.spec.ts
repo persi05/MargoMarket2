@@ -23,6 +23,7 @@ describe('auction bidding', () => {
   function flushState(value=state()) {
     http.expectOne(url).flush(value);
     http.expectOne(`${url}/bids?page=1`).flush({content:[],page:1,first:true,last:true});
+    http.match(request => request.url.endsWith('/listings/favorites/ids')).forEach(request => request.flush([]));
   }
   beforeEach(() => {
     user$=new BehaviorSubject<unknown>({role:'user'});
@@ -49,6 +50,20 @@ describe('auction bidding', () => {
     expect(retry.request.body.idempotencyKey).toBe(key);
     retry.flush({id:9});flushState();
     expect(c.input).toBe('');expect(c.notice).toContain('przyjęta');
+  });
+  it('adds and removes an auction from watched listings', () => {
+    const fixture = TestBed.createComponent(AuctionDetailComponent);
+    const component = fixture.componentInstance as any;
+    flushState(); http.expectOne(`${environment.apiUrl}/auctions/config`).flush({enabled:true,plnEnabled:true});
+    component.toggleWatch(); component.toggleWatch();
+    const add = http.expectOne(`${environment.apiUrl}/listings/7/favorite`);
+    expect(add.request.method).toBe('POST'); add.flush(null);
+    expect(component.watching).toBe(true);
+    component.toggleWatch();
+    const remove = http.expectOne(`${environment.apiUrl}/listings/7/favorite`);
+    expect(remove.request.method).toBe('DELETE'); remove.flush(null);
+    expect(component.watching).toBe(false);
+    fixture.destroy();
   });
   it('hides the bid form for an owner', () => {
     const fixture=TestBed.createComponent(AuctionDetailComponent);

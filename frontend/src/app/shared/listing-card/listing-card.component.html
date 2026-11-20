@@ -1,10 +1,8 @@
 @let ownListing = (viewer$ | async)?.id === listing.sellerId;
-@if (listing.saleMode === 'AUCTION') {
-<article class="listing"><h3>{{ listing.itemName }}</h3><p>{{ listing.server.name }} · Licytacja</p><a [routerLink]="['/auctions',listing.id]">Otwórz licytację</a><p>Sprzedający: <a class="seller-link" [routerLink]="['/u',listing.sellerId,'profil']">{{ listing.sellerDisplayName }}</a></p></article>
-} @else if (listing.listingKind === 'GOLD') {
+@if (listing.listingKind === 'GOLD') {
 <article class="listing gold-listing"><header><h3>{{ goldLabel }}</h3><span>{{ listing.server.name }}</span></header><strong><mm-private-detail [value]="listing.priceMinor === null ? null : goldPrice" [compact]="true" /></strong><p>{{ listing.ratePriceMinor === null ? '' : goldRate }}</p><p>{{ listing.description }}</p><p>Sprzedający: <a class="seller-link" [routerLink]="['/u',listing.sellerId,'profil']">{{ listing.sellerDisplayName }}</a></p><p>{{ listing.createdAt | date:'dd.MM.yyyy HH:mm' }} · {{ statusLabel }}</p><footer>
-@if (showOwnerActions && isActive) {<a [routerLink]="['/gold/edit',listing.id]">Edytuj</a><button (click)="sold.emit(listing)">Oznacz jako sprzedane</button><button [disabled]="goldBusy" (click)="withdrawGold()">Zakończ bez sprzedaży</button>}
-@if (showOwnerActions && canDelete) {<button (click)="deleteListing.emit(listing)">Usuń</button>}
+@if (showOwnerActions && isActive && !isAuction) {<a [routerLink]="['/gold/edit',listing.id]">Edytuj</a><button (click)="sold.emit(listing)">Oznacz jako sprzedane</button><button [disabled]="goldBusy" (click)="withdrawGold()">Zakończ bez sprzedaży</button>}
+@if (showOwnerActions && canDelete && !isAuction) {<button (click)="deleteListing.emit(listing)">Usuń</button>}
 @if (!showOwnerActions && !ownListing) {<a class="message-seller" [routerLink]="['/messages/new',listing.id]">{{ showMessageAction ? 'Napisz wiadomość' : 'Napisz do sprzedającego' }}</a>}
 @if (showFavorite && !favoriteMode) {<button [disabled]="favoriteBusy" (click)="favorite.emit(listing)">{{isFavorite?'Przestań obserwować':'Obserwuj'}}</button>}
 @if (favoriteMode) {<button (click)="removeFavorite.emit(listing)">Przestań obserwować</button>}
@@ -56,7 +54,7 @@
         }
         <span>Wymagany poziom: {{ listing.level }}</span>
         <span class="tooltip-separator"></span>
-        <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel" [compact]="true" /></span>
+        <span>Cena: <mm-private-detail [value]="priceValue" [compact]="true" /></span>
         <span>Serwer: {{ listing.server.name }}</span>
         <span>Sprzedający: <a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a></span>
       </div>
@@ -64,9 +62,9 @@
 
     <div>
       <span class="type">{{ listing.itemType.name }}</span>
-      <h3>{{ listing.itemName }}</h3>
+      <h3>@if (isAuction) {<a [routerLink]="['/auctions',listing.id]">{{ listing.itemName }}</a>} @else { {{ listing.itemName }} }</h3>
     </div>
-    <strong class="price"><mm-private-detail [value]="listing.price === null ? null : priceLabel" [compact]="true" /></strong>
+    <strong class="price">@if (isAuction && listing.auction) {<small>{{listing.auction.bidCount ? 'Najwyższa oferta' : 'Cena wywoławcza'}}</small>}<mm-private-detail [value]="priceValue" [compact]="true" /></strong>
   </div>
 
   <div class="meta">
@@ -85,6 +83,10 @@
       <dt>Dodano</dt>
       <dd>{{ listing.createdAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
     </div>
+    @if (isAuction && listing.auction; as auction) {
+      <div><dt>Liczba ofert</dt><dd>{{auction.bidCount}}</dd></div>
+      <div><dt>Koniec licytacji</dt><dd>{{auction.endsAt | date:'dd.MM.yyyy HH:mm'}}</dd></div>
+    }
     @if (showSoldAt) {
       <div>
         <dt>Sprzedano</dt>
@@ -99,7 +101,8 @@
     }
 
     <div class="actions">
-      @if (showMessageAction && !favoriteMode && !ownListing) {
+      @if (isAuction) {<a class="message-seller" [routerLink]="['/auctions',listing.id]">Otwórz licytację</a>}
+      @if (showMessageAction && !favoriteMode && !ownListing && !isAuction) {
         <a class="message-seller" [routerLink]="['/messages/new', listing.id]">Napisz wiadomość</a>
       }
       @if (showFavorite && !favoriteMode) {
@@ -116,7 +119,7 @@
         </button>
       }
       @if (favoriteMode) {
-        @if (!ownListing) {
+        @if (!ownListing && !isAuction) {
           <a class="message-seller" [routerLink]="['/messages/new', listing.id]">Napisz do sprzedającego</a>
         }
         <button type="button" class="favorite is-favorite" (click)="removeFavorite.emit(listing)">
@@ -124,10 +127,10 @@
           Przestań obserwować
         </button>
       }
-      @if (showOwnerActions && isActive) {
+      @if (showOwnerActions && isActive && !isAuction) {
         <button type="button" (click)="sold.emit(listing)">Oznacz jako sprzedane</button>
       }
-      @if (showOwnerActions && canDelete) {
+      @if (showOwnerActions && canDelete && !isAuction) {
         <button type="button" class="danger" (click)="deleteListing.emit(listing)">Usuń</button>
       }
     </div>

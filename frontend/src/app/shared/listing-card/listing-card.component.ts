@@ -1,4 +1,5 @@
 import { ListingService } from '../../core/services/listing.service';
+import { auctionAmount, auctionStatus } from '../../core/utils/auction-format';
 import { formatGold, formatPln, formatGoldRate } from '../../core/utils/gold-format';
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
@@ -53,7 +54,20 @@ export class ListingCardComponent {
     return this.listing.status === 'sold';
   }
 
+  protected get isAuction(): boolean { return this.listing.saleMode === 'AUCTION'; }
+
+  protected get priceValue(): string | null {
+    if (this.isAuction) {
+      const auction = this.listing.auction;
+      if (!auction) return 'Licytacja';
+      const value = auction.highestAmount ?? auction.startingAmount;
+      return value === null ? null : auctionAmount(value, auction.currency);
+    }
+    return this.listing.price === null ? null : this.priceLabel;
+  }
+
   protected get statusLabel(): string {
+    if (this.isAuction) return this.listing.auction ? auctionStatus(this.listing.auction.status) : 'Licytacja';
     if (this.listing.status === 'withdrawn') return 'Zakończone bez sprzedaży';
     if (this.listing.status === 'archived') return 'Zarchiwizowane';
     if (this.isActive) {

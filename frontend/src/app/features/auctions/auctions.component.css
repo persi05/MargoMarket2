@@ -66,5 +66,11 @@ small { display: block; color: var(--color-text-muted); margin-top: 6px; font-si
 .market-results header > div:not(.market-heading-actions) { text-align:center; }
 .market-results .intro { margin-inline:auto; }
 .auction-table th, .auction-table td { text-align:center; }
-.auction-table th:nth-child(2), .auction-table td:nth-child(2) { text-align:left; }
+.auction-table th:nth-last-child(8), .auction-table td:nth-last-child(8) { text-align:left; }
 .auction-table .price mm-private-detail { align-items:center; }
+
+.favorite-star { padding:4px; border:0; background:transparent; color:var(--color-text-muted); font-size:25px; line-height:1; }
+.favorite-star.is-favorite { color:#facc15; }
+
+.detail-heading > .detail-heading-actions { display:flex; flex:0 0 auto; min-width:0; flex-direction:column; align-items:flex-end; gap:12px; }
+.watch-button { color:var(--color-primary); background:var(--color-input-dark); border-color:var(--color-border); }

@@ -50,7 +50,17 @@ export interface LoginResponse {
   user: UserResponse;
 }
 
+export interface AuctionSummary {
+  currency: 'PLN' | 'GOLD';
+  startingAmount: number | null;
+  highestAmount: number | null;
+  bidCount: number;
+  endsAt: string;
+  status: string;
+}
+
 interface ListingCommon {
+  auction?: AuctionSummary | null;
   saleMode?: 'FIXED' | 'AUCTION';
   id: number;
   itemId: number | null;

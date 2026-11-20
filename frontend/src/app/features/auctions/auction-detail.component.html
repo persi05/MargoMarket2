@@ -3,7 +3,7 @@
   @if (error) {<p role="alert">{{error}}</p>}
   @if (notice) {<p role="status">{{notice}}</p>}
   @if (auction; as a) {
-    <header class="detail-heading"><mm-auction-item [listing]="a.listing" /><div><h1>{{a.listing.itemName}}</h1><p>{{a.listing.server.name}} · {{a.listing.rarity?.name}} · poziom {{a.listing.level}} · ulepszenie +{{a.listing.enhancementLevel}} · {{a.listing.bound ? 'Związany' : 'Niezwiązany'}}</p><a class="seller-link" [routerLink]="['/u',a.listing.sellerId,'profil']">{{a.listing.sellerDisplayName}}</a></div><span>{{status(a.status)}}</span></header>
+    <header class="detail-heading"><mm-auction-item [listing]="a.listing" /><div><h1>{{a.listing.itemName}}</h1><p>{{a.listing.server.name}} · {{a.listing.rarity?.name}} · poziom {{a.listing.level}} · ulepszenie +{{a.listing.enhancementLevel}} · {{a.listing.bound ? 'Związany' : 'Niezwiązany'}}</p><a class="seller-link" [routerLink]="['/u',a.listing.sellerId,'profil']">{{a.listing.sellerDisplayName}}</a></div><div class="detail-heading-actions"><span>{{status(a.status)}}</span>@if (auth.isLoggedIn && a.status === 'ACTIVE') {<button type="button" class="watch-button" [attr.aria-pressed]="watching" [disabled]="watchBusy || (expired && !watching)" (click)="toggleWatch()">{{watching ? '★ Obserwujesz' : '☆ Obserwuj'}}</button>}</div></header>
     <div class="detail-grid"><div>
       <h2>Opis aukcji</h2><p class="auction-description">{{a.listing.description || 'Sprzedający nie dodał opisu.'}}</p>
       <p class="rules">Serwis nie weryfikuje posiadania środków ani nie realizuje płatności. Wygrana wymaga późniejszego uzgodnienia wymiany.</p>

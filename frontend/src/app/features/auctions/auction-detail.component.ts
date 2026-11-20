@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { auditTime, filter, forkJoin, skip } from 'rxjs';
+import { ListingService } from '../../core/services/listing.service';
 import { Auction, AuctionBid, AuctionService } from '../../core/services/auction.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ChatRealtimeService } from '../../core/services/chat-realtime.service';
@@ -22,6 +23,10 @@ import { PrivateDetailComponent } from '../../shared/private-detail/private-deta
 })
 export class AuctionDetailComponent {
   private readonly service = inject(AuctionService);
+  private readonly listings = inject(ListingService);
+  protected watching = false;
+  protected watchBusy = false;
+  private watchSession = 0;
   protected readonly auth = inject(AuthService);
   private readonly socket = inject(ChatRealtimeService);
   private readonly router = inject(Router);
@@ -52,6 +57,7 @@ export class AuctionDetailComponent {
   constructor() {
     this.auth.user$.pipe(takeUntilDestroyed()).subscribe(u => {
       this.admin = u?.role === 'admin';
+      this.watchSession++; this.watching = false; this.watchBusy = false;
       if(u) { this.socket.connect(this.admin); this.socket.watchAuction(this.id); }
       else this.socket.stopAuction();
     });
@@ -88,6 +94,12 @@ export class AuctionDetailComponent {
           this.lastLoaded = Date.now();
           this.serverOffset = Date.parse(auction.serverTime)-Date.now();
           this.tick(); this.loading = false;
+          if (this.auth.isLoggedIn && auction.status === 'ACTIVE') {
+            this.listings.favoriteIds([auction.id]).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+              next: ids => { if (generation === this.generation) this.watching = ids.includes(auction.id); },
+              error: () => { if (generation === this.generation) this.notice = 'Nie udało się wczytać stanu obserwowania.'; }
+            });
+          }
         },
         error: e => { if(generation !== this.generation) return; this.loading = false; this.error = this.message(e); }
       });
@@ -97,6 +109,17 @@ export class AuctionDetailComponent {
     const now = Date.now() + this.serverOffset;
     this.remaining = auctionRemaining(this.auction.endsAt, now);
     this.expired = now >= Date.parse(this.auction.endsAt);
+  }
+  protected toggleWatch() {
+    if (!this.auth.isLoggedIn || this.watchBusy || !this.auction) return;
+    const session = this.watchSession;
+    const remove = this.watching;
+    this.watchBusy = true;
+    (remove ? this.listings.removeFavorite(this.id) : this.listings.addFavorite(this.id))
+      .pipe(takeUntilDestroyed(this.destroy)).subscribe({
+        next: () => { if (session === this.watchSession) { this.watching = !remove; this.watchBusy = false; } },
+        error: () => { if (session === this.watchSession) { this.watchBusy = false; this.error = 'Nie udało się zmienić obserwowanych.'; } }
+      });
   }
   protected bid() {
     const a = this.auction;
