@@ -22,8 +22,10 @@ public class AuctionController {
     @GetMapping("/config") public Map<String,Object> config() { return service.config(); }
     @GetMapping public PageResponse<AuctionResponse> list(@RequestParam(required=false) Long serverId,
             @RequestParam(required=false) String currency,@RequestParam(defaultValue="") String search,
-            @RequestParam(defaultValue="1") int page,@RequestParam(defaultValue="ACTIVE") String scope,@AuthenticationPrincipal User user) {
-        return service.search(serverId,currency,search,page,scope,user);
+            @RequestParam(defaultValue="1") int page,@RequestParam(defaultValue="ACTIVE") String scope,
+            @RequestParam(required=false) Long itemTypeId,@RequestParam(required=false) Boolean bound,
+            @RequestParam(required=false) Integer minLevel,@RequestParam(required=false) Integer maxLevel,@AuthenticationPrincipal User user) {
+        return service.search(serverId,currency,search,page,scope,user,itemTypeId,bound,minLevel,maxLevel);
     }
     @GetMapping("/mine") public PageResponse<AuctionResponse> mine(@RequestParam(defaultValue="1") int page,
             @RequestParam(defaultValue="SELLING") String scope,@AuthenticationPrincipal User user) {

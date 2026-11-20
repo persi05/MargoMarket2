@@ -132,11 +132,33 @@ class AuctionIntegrationTest {
         }
         assertThat(auctions.get(id,buyer).bidCount()).isZero();
     }
+    @Test void descriptionsAreModeratedOnCreateAndUpdate() {
+        jdbc.update("INSERT INTO blocked_words(term,match_mode,enabled) VALUES ('niedozwolonytest','EXACT',true)");
+        try {
+            var bad=new AuctionRequest(item,world,0,false,"PLN",1000L,Instant.now().plusSeconds(86400),"niedozwolonytest",null);
+            assertThatThrownBy(()->auctions.create(bad,seller)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("niedozwolone");
+            long id=create();
+            assertThatThrownBy(()->auctions.update(id,bad,seller)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("niedozwolone");
+        } finally { jdbc.update("DELETE FROM blocked_words WHERE term='niedozwolonytest'"); }
+    }
+    @Test void endedAuctionsDisappearAfterOneDayExceptForAdmins() {
+        long id=create(); expire(id); closing.closeDue();
+        assertThat(auctions.get(id,null).id()).isEqualTo(id);
+        jdbc.update("UPDATE auctions SET created_at=clock_timestamp()-interval '3 days',original_ends_at=clock_timestamp()-interval '2 days',ends_at=clock_timestamp()-interval '2 days' WHERE id=?",id);
+        assertThatThrownBy(()->auctions.get(id,buyer)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(()->auctions.bids(id,1,buyer)).isInstanceOf(NotFoundException.class);
+        assertThat(auctions.get(id,admin).id()).isEqualTo(id);
+        assertThat(auctions.search(null,null,"",1,"ENDED",buyer).content()).noneMatch(a->a.id()==id);
+    }
     @Test void antiSnipingExtendsAndExpiredBidsAreRejected() {
         long id=create();
         jdbc.update("UPDATE auctions SET created_at=clock_timestamp()-interval '2 hours',original_ends_at=clock_timestamp()+interval '1 minute',ends_at=clock_timestamp()+interval '1 minute' WHERE id=?",id);
         var accepted=auctions.bid(id,bid(1000),buyer); var a=auctions.get(id,buyer);
         assertThat(a.endsAt()).isEqualTo(accepted.acceptedAt().plusSeconds(120));
+        var second=auctions.bid(id,bid(1100),other);
+        assertThat(auctions.get(id,buyer).endsAt()).isEqualTo(second.acceptedAt().plusSeconds(120)).isAfterOrEqualTo(a.endsAt());
+        var third=auctions.bid(id,bid(1200),buyer);
+        assertThat(auctions.get(id,buyer).endsAt()).isEqualTo(third.acceptedAt().plusSeconds(120));
         expire(id);
         assertThatThrownBy(()->auctions.bid(id,bid(1100),other)).isInstanceOf(IllegalArgumentException.class);
     }
