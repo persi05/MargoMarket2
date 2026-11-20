@@ -23,7 +23,7 @@ export function formatGold(value: number): string {
     ? decimal(n, 1_000_000_000n, 9) + 'g'
     : n >= 1_000_000n
       ? decimal(n, 1_000_000n, 6) + 'm'
-      : n.toLocaleString('pl-PL') + ' złota';
+      : n.toLocaleString('pl-PL');
 }
 export function goldMillionsInput(value: number): string {
   const n = BigInt(value);

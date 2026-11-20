@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { parseGoldMillions } from './gold-format';
+import { formatGold, parseGoldMillions } from './gold-format';
 describe('auction gold input', () => {
+  it('formats prices without a redundant gold label', () => {
+    expect(formatGold(133)).toBe('133');
+    expect(formatGold(200000000)).toBe('200m');
+    expect(formatGold(2000000000)).toBe('2g');
+  });
   it('accepts decimal separators and gold suffixes without losing precision', () => {
     expect(parseGoldMillions('500m')).toBe(500000000);
     expect(parseGoldMillions('2g')).toBe(2000000000);
