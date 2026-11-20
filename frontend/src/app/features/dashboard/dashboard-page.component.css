@@ -9,7 +9,7 @@
   gap: 24px;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 32px clamp(18px, 4vw, 40px);
+  padding: 16px clamp(18px, 4vw, 40px) 32px;
 }
 
 header {
@@ -17,15 +17,6 @@ header {
   align-items: end;
   justify-content: space-between;
   gap: 22px;
-}
-
-.eyebrow {
-  margin: 0 0 10px;
-  color: var(--color-primary);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 
 h1 {

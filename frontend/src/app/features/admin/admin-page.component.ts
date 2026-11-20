@@ -1,3 +1,4 @@
+import { CatalogAdminComponent } from './catalog-admin.component';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -19,7 +20,7 @@ import { AuctionModerationComponent } from './auction-moderation.component';
 @Component({
   selector: 'mm-admin-page',
   standalone: true,
-  imports: [AuctionModerationComponent, ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
+  imports: [CatalogAdminComponent, AuctionModerationComponent, ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
   templateUrl: './admin-page.component.html',
   styleUrl: './admin-page.component.css'
 })
@@ -28,12 +29,13 @@ export class AdminPageComponent {
   private readonly adminService = inject(AdminService);
   private readonly conversationsService = inject(ConversationService);
   private readonly listingService = inject(ListingService);
+  protected readonly stats$ = this.adminService.stats().pipe(shareReplay({bufferSize:1,refCount:true}));
   protected readonly dictionaries$ = inject(DictionaryService).getAll();
   private readonly pageSubject = new BehaviorSubject(1);
   private readonly usersReloadSubject = new BehaviorSubject(0);
   private readonly usersPageSubject = new BehaviorSubject(1);
 
-  protected activeTab: 'listings' | 'users' | 'moderation' | 'reports' | 'intermediary' | 'chats' = 'listings';
+  protected activeTab: 'listings' | 'users' | 'moderation' | 'reports' | 'intermediary' | 'chats' | 'catalog' | 'confirmations' | 'auctions' = 'listings';
   protected selectedAdminChatId: number | null = null;
   protected reports: ConversationReportResponse[] = [];
   protected reportsPageData: PageResponse<ConversationReportResponse> | null = null;

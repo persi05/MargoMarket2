@@ -1,56 +1,58 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { PageResponse } from '../../core/models/api.models';
+import { auctionAmount } from '../../core/utils/auction-format';
+import { PaginationComponent } from '../../shared/pagination/pagination.component';
+import { ConversationReportDialogComponent } from '../messages/conversation-report-dialog.component';
 
-interface RecordRow { id:number; auction_id?:number; user_id?:number; action?:string; reason:string; created_at:string; expires_at?:string; appeal_instructions?:string; revoked_at?:string; resolved_at?:string; }
-@Component({
-  selector:'mm-auction-moderation', standalone:true, imports:[FormsModule,RouterLink,DatePipe],
-  template: `
-    <details (toggle)="opened($event)"><summary>Moderacja licytacji</summary>
-      <p><a routerLink="/auctions" [queryParams]="{scope:'ADMIN'}">Otwórz licytacje</a>. Oferty unieważnia się w szczegółach aukcji. Zmiany wymagają uzasadnienia i pozostają w audycie.</p>
-      @if (error) {<p role="alert">{{error}}</p>}
-      <label>Rejestr<select [(ngModel)]="kind" (change)="load()"><option value="reports">Zgłoszenia</option><option value="restrictions">Ograniczenia udziału</option><option value="audit">Audyt aukcji</option></select></label>
-      <label>Uzasadnienie decyzji<textarea [(ngModel)]="reason" maxlength="1000" rows="2"></textarea></label>
-      @for (row of result?.content; track row.id) {
-        <article><strong>Wpis {{row.id}}</strong><span>{{row.created_at | date:'dd.MM.yyyy HH:mm'}}</span>
-          @if (row.auction_id) {<a [routerLink]="['/auctions',row.auction_id]">Aukcja {{row.auction_id}}</a>}
-          @if (row.user_id) {<a [routerLink]="['/u',row.user_id,'profil']">Konto {{row.user_id}}</a>}
-          @if (row.action) {<p>{{row.action}}</p>}<p>{{row.reason}}</p>
-          @if (row.expires_at) {<p>Do {{row.expires_at | date:'dd.MM.yyyy HH:mm'}}. Odwołanie: {{row.appeal_instructions}}</p>}
-          @if (kind === 'reports' && !row.resolved_at) {<button [disabled]="busy || !reason.trim()" (click)="decide(row.id,'resolve')">Rozpatrz zgłoszenie</button>}
-          @if (kind === 'restrictions' && !row.revoked_at) {<button [disabled]="busy || !reason.trim()" (click)="decide(row.id,'revoke')">Cofnij ograniczenie</button>}
-        </article>
-      } @empty {<p>Brak wpisów w wybranym rejestrze.</p>}
-      @if (result; as r) {<nav><button [disabled]="busy || r.first" (click)="load(r.page-1)">Poprzednia</button><span>Strona {{r.page}}</span><button [disabled]="busy || r.last" (click)="load(r.page+1)">Następna</button></nav>}
-      <h3>Ogranicz udział konta</h3><p>Podaj udokumentowany powód, termin oraz sposób odwołania.</p>
-      <form (ngSubmit)="restrict()"><label>ID konta<input name="userId" [(ngModel)]="userId" type="number" min="1" required></label><label>Koniec ograniczenia<input name="end" type="datetime-local" [(ngModel)]="end" required></label><label>Ścieżka odwołania<textarea name="appeal" [(ngModel)]="appeal" maxlength="1000" required></textarea></label><button [disabled]="busy || !reason.trim() || !appeal.trim() || !end || !userId">Zapisz ograniczenie</button></form>
-    </details>`,
-  styles:[`details{margin-top:28px;padding:20px;border:1px solid var(--color-border)}summary{cursor:pointer;font-weight:700}label{display:grid;gap:8px;margin:16px 0}article{border-bottom:1px solid var(--color-border);padding:16px 0}article>span,article>a{margin-left:16px}a{color:var(--color-primary)}nav{display:flex;gap:16px;margin:20px 0}textarea,input,select{max-width:600px;background:var(--color-input-dark);color:var(--color-text-main);padding:8px;border:1px solid var(--color-border);font:inherit}`]
-})
-export class AuctionModerationComponent {
+interface RecordRow {
+  id:number; auction_id?:number; user_id?:number; bid_id?:number; bidder_id?:number; item_name?:string;
+  reporter_name?:string; bidder_name?:string; amount?:number; currency?:'PLN'|'GOLD'; bid_invalidated?:boolean;
+  action?:string; reason:string; created_at:string; expires_at?:string; appeal_instructions?:string;
+  revoked_at?:string; resolved_at?:string; resolution?:string;
+}
+@Component({selector:'mm-auction-moderation', standalone:true,
+  imports:[FormsModule,RouterLink,DatePipe,PaginationComponent,ConversationReportDialogComponent],
+  templateUrl:'./auction-moderation.component.html', styleUrl:'./admin-workspace.css'})
+export class AuctionModerationComponent implements OnInit {
   private readonly http=inject(HttpClient);
   private readonly destroy=inject(DestroyRef);
-  private readonly url=`${environment.apiUrl}/admin/auctions`;
-  protected kind='reports'; protected reason=''; protected appeal=''; protected end=''; protected userId:number|null=null;
+  private readonly url=environment.apiUrl+'/admin/auctions';
+  protected kind='reports'; protected state='OPEN'; protected reason=''; protected appeal=''; protected end=''; protected userId:number|null=null;
   protected result:PageResponse<RecordRow>|null=null;
-  protected error=''; protected busy=false;
-  protected opened(event:Event) { if((event.target as HTMLDetailsElement).open && !this.result) this.load(); }
+  protected error='';protected notice='';protected loading=false;protected busy=false;protected dialogError='';
+  protected selected:{row:RecordRow;action:'review'|'invalidate'|'revoke'}|null=null;
+  protected readonly amount=auctionAmount;
+  private generation=0;
+  ngOnInit() {this.load();}
+  protected selectKind(kind:string) {this.kind=kind;this.result=null;this.load();}
   protected load(page=1) {
-    this.http.get<PageResponse<RecordRow>>(`${this.url}/register/${this.kind}`,{params:{page}}).pipe(takeUntilDestroyed(this.destroy)).subscribe({next:r=>this.result=r,error:e=>this.failure(e)});
+    const generation=++this.generation;this.loading=true;this.error='';
+    this.http.get<PageResponse<RecordRow>>(this.url+'/register/'+this.kind,{params:{page,state:this.state}}).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next:r=>{if(generation!==this.generation)return;if(r.totalElements>0 && r.page>r.totalPages){this.load(r.totalPages);return;}this.result=r;this.loading=false;},
+      error:e=>{if(generation!==this.generation)return;this.loading=false;this.failure(e);}
+    });
   }
-  protected decide(id:number,action:string) { this.save(`${this.url}/${this.kind}/${id}/${action}`,{reason:this.reason}); }
+  protected open(row:RecordRow,action:'review'|'invalidate'|'revoke') {this.selected={row,action};this.dialogError='';}
+  protected decide(value:{details:string}) {
+    if(!this.selected || this.busy)return;
+    const {row,action}=this.selected;this.busy=true;this.dialogError='';
+    const request=action==='revoke' ? this.http.post(this.url+'/restrictions/'+row.id+'/revoke',{reason:value.details})
+      : this.http.post(this.url+'/reports/'+row.id+'/review',{reason:value.details,invalidateBid:action==='invalidate'});
+    request.pipe(takeUntilDestroyed(this.destroy)).subscribe({next:()=>{this.busy=false;this.selected=null;this.notice='Decyzja została zapisana.';this.load(this.result?.page ?? 1);},error:(e:HttpErrorResponse)=>{this.busy=false;this.dialogError=e.error?.message ?? 'Nie udało się zapisać decyzji.';}});
+  }
   protected restrict() {
-    const end=new Date(this.end); if(!Number.isFinite(end.getTime())) {this.error='Podaj termin ograniczenia.';return;}
-    this.save(`${this.url}/users/${this.userId}/restrictions`,{reason:this.reason,appealInstructions:this.appeal,expiresAt:end.toISOString()});
+    if(this.busy || !this.userId || !this.reason.trim() || !this.appeal.trim())return;
+    const end=new Date(this.end);if(!Number.isFinite(end.getTime())){this.error='Podaj termin ograniczenia.';return;}
+    this.busy=true;this.error='';
+    this.http.post(this.url+'/users/'+this.userId+'/restrictions',{reason:this.reason,appealInstructions:this.appeal,expiresAt:end.toISOString()}).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next:()=>{this.busy=false;this.reason='';this.appeal='';this.end='';this.userId=null;this.notice='Ograniczenie zostało zapisane.';this.load();},error:e=>{this.busy=false;this.failure(e);}
+    });
   }
-  private save(url:string,body:unknown) {
-    if(this.busy)return;this.busy=true;this.error='';
-    this.http.post(url,body).pipe(takeUntilDestroyed(this.destroy)).subscribe({next:()=>{this.busy=false;this.reason='';this.load();},error:e=>{this.busy=false;this.failure(e);}});
-  }
-  private failure(e:HttpErrorResponse) {this.error=e.error?.message || 'Nie udało się pobrać lub zapisać rejestru.';}
+  private failure(e:HttpErrorResponse) {this.error=e.error?.message ?? 'Nie udało się pobrać lub zapisać danych.';}
 }

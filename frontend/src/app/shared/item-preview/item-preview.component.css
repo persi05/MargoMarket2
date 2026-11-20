@@ -1,0 +1,10 @@
+:host { display:inline-block; }
+.item-frame { width:40px; height:40px; cursor:help; }
+.item-icon { width:34px; height:34px; image-rendering:pixelated; object-fit:contain; }
+.item-tooltip { position:fixed; display:grid; gap:5px; box-sizing:border-box; width:min(340px,calc(100vw - 24px)); max-height:calc(100dvh - 24px); }
+.item-tooltip .description { margin-top:5px; padding-top:9px; border-top:1px solid rgba(168,153,120,.38); color:#d7c9a9; white-space:pre-line; }
+.item-tooltip b { color:inherit; }.item-tooltip b.accent { color:#a9ca88; }
+.item-frame:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
+.preview-title { touch-action:none; }.preview-actions button { box-shadow:none; font-size:18px; font-weight:600; }
+.preview-tool,.preview-pin { display:grid; width:28px; height:28px; padding:0; border:1px solid #806b50; border-radius:5px; background:#39322b; color:#d0c4ab; place-items:center; cursor:pointer; }
+.preview-actions button:focus-visible { outline:2px solid var(--color-primary); }

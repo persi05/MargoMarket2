@@ -80,7 +80,7 @@ export class AuthPageComponent {
       next: () => {
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         void this.router.navigateByUrl(returnUrl?.startsWith('/') && !returnUrl.startsWith('//')
-          ? returnUrl : '/');
+          ? returnUrl : '/items');
       },
       error: () => this.error = 'Nie udało się zalogować. Sprawdź login i hasło.'
     });

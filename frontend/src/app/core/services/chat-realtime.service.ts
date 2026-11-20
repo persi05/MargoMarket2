@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 
 export type ChatRealtimeEvent =
   | { kind: 'auction'; auctionId: number }
+  | { kind: 'account-access' }
   | { kind: 'connected' }
   | { kind: 'disconnected' }
   | { kind: 'read' }
@@ -71,10 +72,11 @@ export class ChatRealtimeService {
           this.eventsSubject.next({ kind: 'connected' });
         });
       },
-      onWebSocketClose: () => {
+      onWebSocketClose: event => {
         if (this.client !== client) return;
         this.zone.run(() => {
           this.connected = false;
+          if(event.reason === 'ACCOUNT_BLOCKED') this.eventsSubject.next({kind:'account-access'});
           this.eventsSubject.next({ kind: 'disconnected' });
         });
       }
@@ -97,7 +99,8 @@ export class ChatRealtimeService {
 
   private receive(message: IMessage, kind: 'personal' | 'admin'): void {
     try {
-      const payload = JSON.parse(message.body) as { conversationId?: number };
+      const payload = JSON.parse(message.body) as { conversationId?: number; kind?: string };
+      if(payload.kind === 'ACCOUNT_CHANGED'){this.zone.run(()=>this.eventsSubject.next({kind:'account-access'}));return;}
       const conversationId = payload.conversationId;
       if (typeof conversationId === 'number') {
         this.zone.run(() => this.eventsSubject.next({ kind, conversationId }));

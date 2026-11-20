@@ -1,3 +1,8 @@
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { PrivateDetailComponent } from '../../shared/private-detail/private-detail.component';
+import { formatGold, formatPln, formatGoldRate } from '../../core/utils/gold-format';
+import { MarketLayoutComponent } from '../../shared/market-layout/market-layout.component';
+import { MarketFilterComponent } from '../../shared/market-layout/market-filter.component';
 import { AuthService } from '../../core/services/auth.service';
 import { skip } from 'rxjs';
 import { Component, inject, HostListener, DestroyRef } from '@angular/core';
@@ -6,17 +11,19 @@ import { RouterLink } from '@angular/router';
 import { ListingService } from '../../core/services/listing.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ListingResponse, LookupResponse, PageResponse } from '../../core/models/api.models';
-import { ListingCardComponent } from '../../shared/listing-card/listing-card.component';
 import { DiscussionDrawerComponent } from '../market/discussion-drawer.component';
 import { parseGoldMillions, parsePln } from '../../core/utils/gold-format';
 @Component({
   selector: 'mm-gold-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, ListingCardComponent, DiscussionDrawerComponent],
+  imports: [AsyncPipe, DatePipe, PrivateDetailComponent, MarketLayoutComponent, MarketFilterComponent, FormsModule, RouterLink, DiscussionDrawerComponent],
   templateUrl: './gold-page.component.html',
   styleUrl: './gold-page.component.css',
 })
 export class GoldPageComponent {
+  protected readonly goldAmount = formatGold;
+  protected readonly goldPrice = formatPln;
+  protected readonly goldRate = formatGoldRate;
   protected readonly auth = inject(AuthService);
   private service = inject(ListingService);
   private version = 0;
@@ -69,6 +76,10 @@ export class GoldPageComponent {
   }
   @HostListener('document:visibilitychange') visible() {
     if (!document.hidden && !this.requestInFlight && Date.now() - this.lastLoaded >= 30000) this.load(this.currentPage, true);
+  }
+  protected resetFilters() {
+    this.filters = {serverId:'',search:'',minAmount:'',maxAmount:'',minPrice:'',maxPrice:'',sort:'newest'};
+    this.load();
   }
   protected load(page = 1, background = false) {
     const f = this.filters;

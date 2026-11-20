@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/services/auth.guard';
 
 export const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'items' },
   {path:'auctions',loadComponent:()=>import('./features/auctions/auctions-page.component').then(m=>m.AuctionsPageComponent),title:'Licytacje | MargoMarket'},
   {path:'auctions/edit/:id',canActivate:[authGuard],loadComponent:()=>import('./features/listing-form/listing-form-page.component').then(m=>m.ListingFormPageComponent),title:'Edytuj licytację | MargoMarket'},
   {path:'auctions/:id',loadComponent:()=>import('./features/auctions/auction-detail.component').then(m=>m.AuctionDetailComponent),title:'Licytacja | MargoMarket'},
@@ -11,7 +12,7 @@ export const routes: Routes = [
   {path:'gold/edit/:id',canActivate:[authGuard],loadComponent:()=>import('./features/gold/gold-form.component').then(m=>m.GoldFormComponent),title:'Edytuj złoto | MargoMarket'},
   { path: 'u/:id/:slug', loadComponent: () => import('./features/public-profile/public-profile-page.component').then(m => m.PublicProfilePageComponent), title: 'Profil gracza | MargoMarket' },
   {
-    path: '',
+    path: 'items',
     loadComponent: () => import('./features/market/market-page.component').then((m) => m.MarketPageComponent),
     title: 'MargoMarket'
   },
@@ -76,6 +77,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: ''
+    redirectTo: 'items'
   }
 ];

@@ -5,7 +5,11 @@ import com.margomarket.exception.*;
 import com.margomarket.model.User;
 import com.margomarket.repository.*;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,8 +30,19 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 @SpringBootTest
 @ActiveProfiles("auction-test")
 @AutoConfigureMockMvc
-@EnabledIfEnvironmentVariable(named="AUCTION_TEST_DATABASE_URL",matches=".+")
-class AuctionIntegrationTest {
+@Testcontainers
+class AuctionIntegrationIT {
+    @Container
+    private static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:17-alpine").withTmpFs(java.util.Map.of("/var/lib/postgresql/data","rw")).withStartupTimeout(java.time.Duration.ofMinutes(3))
+            .withDatabaseName("auction_test").withUsername("auction_test").withPassword("auction_test");
+
+    @DynamicPropertySource
+    static void databaseProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", DATABASE::getJdbcUrl);
+        registry.add("spring.datasource.username", DATABASE::getUsername);
+        registry.add("spring.datasource.password", DATABASE::getPassword);
+    }
+
     @Autowired AuctionService auctions;
     @Autowired AuctionClosingService closing;
     @Autowired AuctionFulfillmentService fulfillment;
@@ -71,6 +86,8 @@ class AuctionIntegrationTest {
     }
 
     @Test void publicResponsesHideAmountsAndPrivateIdentityAndApiRequiresAuthentication() throws Exception {
+        String uniqueName="Miecz testowy "+UUID.randomUUID();
+        jdbc.update("UPDATE items SET name=? WHERE id=?",uniqueName,item);
         long id=create(); auctions.bid(id,bid(1000),buyer);
         var publicView=auctions.get(id,null);
         assertThat(publicView.startingAmount()).isNull(); assertThat(publicView.highestAmount()).isNull();
@@ -80,7 +97,7 @@ class AuctionIntegrationTest {
         mvc.perform(get("/api/auctions/"+id)).andExpect(status().isOk()).andExpect(jsonPath("highestAmount").doesNotExist());
         mvc.perform(post("/api/auctions/"+id+"/bids").contentType("application/json").content("{}" )).andExpect(status().isForbidden());
         mvc.perform(get("/api/admin/auctions/register/audit").with(user(buyer))).andExpect(status().isForbidden());
-        assertThat(auctions.search(null,null,"",1,"ACTIVE",null).content()).extracting(AuctionResponse::id).contains(id);
+        assertThat(auctions.search(null,null,uniqueName,1,"ACTIVE",null).content()).extracting(AuctionResponse::id).contains(id);
     }
     @Test void validatesCurrencyAgeOwnerMinimumAndLeadingBidder() {
         long id=create();
@@ -132,11 +149,39 @@ class AuctionIntegrationTest {
         }
         assertThat(auctions.get(id,buyer).bidCount()).isZero();
     }
+    @Test void descriptionsAreModeratedOnCreateAndUpdate() {
+        jdbc.update("INSERT INTO blocked_words(term,match_mode,enabled) VALUES ('niedozwolonytest','EXACT',true)");
+        try {
+            var bad=new AuctionRequest(item,world,0,false,"PLN",1000L,Instant.now().plusSeconds(86400),"niedozwolonytest",null);
+            assertThatThrownBy(()->auctions.create(bad,seller)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("niedozwolone");
+            long id=create();
+            assertThatThrownBy(()->auctions.update(id,bad,seller)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("niedozwolone");
+        } finally { jdbc.update("DELETE FROM blocked_words WHERE term='niedozwolonytest'"); }
+    }
+    @Test void endedAuctionsDisappearAfterOneDayExceptForAdmins() {
+        long id=create(); expire(id); closing.closeDue();
+        assertThat(auctions.get(id,null).id()).isEqualTo(id);
+        jdbc.update("UPDATE auctions SET created_at=clock_timestamp()-interval '3 days',original_ends_at=clock_timestamp()-interval '2 days',ends_at=clock_timestamp()-interval '2 days' WHERE id=?",id);
+        assertThatThrownBy(()->auctions.get(id,buyer)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(()->auctions.bids(id,1,buyer)).isInstanceOf(NotFoundException.class);
+        assertThat(auctions.get(id,admin).id()).isEqualTo(id);
+        assertThat(auctions.search(null,null,"",1,"ENDED",buyer).content()).noneMatch(a->a.id()==id);
+        long cancelled=create();
+        jdbc.update("UPDATE auctions SET status='CANCELLED' WHERE id=?",cancelled);
+        jdbc.update("INSERT INTO auction_audit(auction_id,action,created_at) VALUES (?,'CANCELLED',clock_timestamp()-interval '2 days')",cancelled);
+        assertThatThrownBy(()->auctions.get(cancelled,buyer)).isInstanceOf(NotFoundException.class);
+        assertThat(auctions.get(cancelled,admin).id()).isEqualTo(cancelled);
+        assertThat(auctions.search(null,null,"",1,"ENDED",buyer).content()).noneMatch(a->a.id()==cancelled);
+    }
     @Test void antiSnipingExtendsAndExpiredBidsAreRejected() {
         long id=create();
         jdbc.update("UPDATE auctions SET created_at=clock_timestamp()-interval '2 hours',original_ends_at=clock_timestamp()+interval '1 minute',ends_at=clock_timestamp()+interval '1 minute' WHERE id=?",id);
         var accepted=auctions.bid(id,bid(1000),buyer); var a=auctions.get(id,buyer);
         assertThat(a.endsAt()).isEqualTo(accepted.acceptedAt().plusSeconds(120));
+        var second=auctions.bid(id,bid(1100),other);
+        assertThat(auctions.get(id,buyer).endsAt()).isEqualTo(second.acceptedAt().plusSeconds(120)).isAfterOrEqualTo(a.endsAt());
+        var third=auctions.bid(id,bid(1200),buyer);
+        assertThat(auctions.get(id,buyer).endsAt()).isEqualTo(third.acceptedAt().plusSeconds(120));
         expire(id);
         assertThatThrownBy(()->auctions.bid(id,bid(1100),other)).isInstanceOf(IllegalArgumentException.class);
     }
@@ -244,4 +289,70 @@ class AuctionIntegrationTest {
                 .content("{\"amount\":1000,\"currency\":\"PLN\",\"idempotencyKey\":\""+UUID.randomUUID()+"\"}"))
                 .andExpect(status().isForbidden());
     }
+    @Test void onlySellerAndAdminsSeeBidderIdentities() throws Exception {
+        long id=create();auctions.bid(id,bid(1000),buyer);auctions.bid(id,bid(1100),other);
+        for(User viewer:List.of(seller,admin)) {
+            var rows=auctions.bids(id,1,viewer).content();
+            assertThat(rows.getFirst().get("userId")).isEqualTo(other.getId());
+            assertThat(rows.getFirst().get("bidder")).isEqualTo(other.getDisplayName());
+            assertThat(rows.getLast().get("bidder")).isEqualTo(buyer.getDisplayName());
+        }
+        for(User viewer:Arrays.asList(buyer,other,null)) {
+            for(var row:auctions.bids(id,1,viewer).content()) {
+                assertThat(row).doesNotContainKey("userId");
+                assertThat(row.get("bidder").toString()).startsWith("Licytujący ");
+            }
+        }
+        mvc.perform(get("/api/auctions/"+id+"/bids")).andExpect(status().isOk()).andExpect(jsonPath("$.content[0].userId").doesNotExist());
+    }
+    @Test void bidReportsRequireSellerOrAdminAndBelongToTheAuction() throws Exception {
+        long id=create();var first=auctions.bid(id,bid(1000),buyer);var second=auctions.bid(id,bid(1100),other);
+        assertThatThrownBy(()->auctions.reportBid(id,first.id(),buyer,"Problem")).isInstanceOf(ForbiddenOperationException.class);
+        mvc.perform(post("/api/auctions/"+id+"/bids/"+first.id()+"/reports").with(user(buyer)).contentType("application/json").content("{\"reason\":\"Problem\"}"))
+            .andExpect(status().isForbidden());
+        long another=create();assertThatThrownBy(()->auctions.reportBid(another,first.id(),seller,"Problem")).isInstanceOf(NotFoundException.class);
+        auctions.reportBid(id,first.id(),seller,"Podejrzana oferta");auctions.reportBid(id,first.id(),seller,"Duplikat");
+        auctions.reportBid(id,second.id(),seller,"Kolejna oferta");auctions.reportBid(id,first.id(),admin,"Zgłoszenie administratora");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM auction_reports WHERE auction_id=?",Long.class,id)).isEqualTo(3);
+        auctions.report(id,buyer,"Problem z aukcją");auctions.report(id,buyer,"Ponowienie");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM auction_reports WHERE auction_id=? AND bid_id IS NULL",Long.class,id)).isEqualTo(1);
+    }
+    @Test void reviewingBidReportCanAtomicallyInvalidateAndResolve() {
+        long id=create();auctions.bid(id,bid(1000),buyer);var top=auctions.bid(id,bid(1100),other);
+        auctions.reportBid(id,top.id(),seller,"Podejrzenie manipulacji");
+        long report=jdbc.queryForObject("SELECT id FROM auction_reports WHERE auction_id=?",Long.class,id);
+        var row=moderation.page("reports",1,"OPEN",admin).content().stream().filter(r->((Number)r.get("id")).longValue()==report).findFirst().orElseThrow();
+        assertThat(row.get("bid_id")).isEqualTo(top.id());assertThat(row.get("bidder_name")).isEqualTo(other.getDisplayName());
+        assertThatThrownBy(()->moderation.reviewReport(report,buyer,"Decyzja",true)).isInstanceOf(ForbiddenOperationException.class);
+        moderation.reviewReport(report,admin,"Potwierdzone nadużycie",true);
+        assertThat(auctions.get(id,seller).highestAmount()).isEqualTo(1000);
+        assertThat(jdbc.queryForObject("SELECT resolved_at IS NOT NULL FROM auction_reports WHERE id=?",Boolean.class,report)).isTrue();
+        assertThat(moderation.page("reports",1,"OPEN",admin).content()).noneMatch(r->((Number)r.get("id")).longValue()==report);
+        assertThatThrownBy(()->moderation.reviewReport(report,admin,"Powtórka",true)).isInstanceOf(NotFoundException.class);
+        auctions.report(id,buyer,"Cała aukcja");
+        long general=jdbc.queryForObject("SELECT id FROM auction_reports WHERE auction_id=? AND bid_id IS NULL",Long.class,id);
+        assertThatThrownBy(()->moderation.reviewReport(general,admin,"Decyzja",true)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(jdbc.queryForObject("SELECT resolved_at IS NULL FROM auction_reports WHERE id=?",Boolean.class,general)).isTrue();
+    }
+    @Test void bidHistoryAndReportsHaveWorkingPageBoundaries() {
+        long id=create();
+        jdbc.update("INSERT INTO auction_bids(auction_id,user_id,amount,currency,accepted_at,idempotency_key) SELECT ?,?,1000+n,'PLN',clock_timestamp(),gen_random_uuid() FROM generate_series(1,31) n",id,buyer.getId());
+        assertThat(auctions.bids(id,1,seller).content()).hasSize(30);
+        var second=auctions.bids(id,2,seller);assertThat(second.content()).hasSize(1);assertThat(second.last()).isTrue();
+        List<Long> bids=jdbc.queryForList("SELECT id FROM auction_bids WHERE auction_id=? ORDER BY id LIMIT 21",Long.class,id);
+        for(long bid:bids)auctions.reportBid(id,bid,seller,"Test stronicowania");
+        var page=moderation.page("reports",1,"ALL",admin);assertThat(page.content()).hasSize(20);assertThat(page.last()).isFalse();
+        var next=moderation.page("reports",2,"ALL",admin);assertThat(next.content()).isNotEmpty();
+        Set<Object> ids=new HashSet<>();page.content().forEach(r->ids.add(r.get("id")));
+        assertThat(next.content()).noneMatch(r->ids.contains(r.get("id")));
+    }
+
+    @Test void adminSummaryReturnsOnlyCountsAndRejectsOtherUsers() throws Exception {
+        mvc.perform(get("/api/admin/stats").with(user(buyer))).andExpect(status().isForbidden());
+        mvc.perform(get("/api/admin/stats").with(user(admin)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.listings").value(jdbc.queryForObject("SELECT count(*) FROM listings",Integer.class)))
+            .andExpect(jsonPath("$.users").value(jdbc.queryForObject("SELECT count(*) FROM users",Integer.class)));
+    }
+
 }

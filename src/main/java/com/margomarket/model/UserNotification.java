@@ -35,7 +35,7 @@ public class UserNotification {
     @Column(nullable = false, length = 50)
     private String type;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
     @Column(name = "auction_id")
     private Long auctionId;

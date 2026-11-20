@@ -14,6 +14,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class AuctionModerationService {
+    private final UserModerationService userModeration;
     private final AuctionRepository auctions;
     private final AuctionService service;
     private final JdbcTemplate jdbc;
@@ -41,25 +42,57 @@ public class AuctionModerationService {
     public void restrict(long uid,User admin,String reason,String appeal,Instant end) {
         admin(admin);
         if(end==null || !end.isAfter(auctions.now()) || end.isAfter(auctions.now().plusSeconds(365*86400L))) throw new IllegalArgumentException("Podaj termin ograniczenia (maksymalnie rok)");
-        jdbc.update("INSERT INTO auction_user_restrictions(user_id,actor_id,reason,appeal_instructions,expires_at) VALUES (?,?,?,?,?)",uid,admin.getId(),AuctionService.reason(reason),AuctionService.reason(appeal),AuctionService.time(end));
+        userModeration.restrict(uid,Set.of(ModerationScope.BIDDING),AuctionService.reason(reason)+" Odwołanie: "+AuctionService.reason(appeal),new UserModerationService.Term(null,end,false),admin);
     }
     @Transactional
     public void revoke(long id,User admin,String reason) {
         admin(admin);
-        if(jdbc.update("UPDATE auction_user_restrictions SET revoked_at=clock_timestamp(),revoked_by=?,revoke_reason=? WHERE id=? AND revoked_at IS NULL",admin.getId(),AuctionService.reason(reason),id)==0) throw new NotFoundException("Brak aktywnego ograniczenia");
+        var users=jdbc.queryForList("SELECT user_id FROM user_moderation_actions WHERE id=? AND scope='BIDDING'",Long.class,id);
+        if(users.isEmpty()) throw new NotFoundException("Brak ograniczenia licytowania");
+        userModeration.revoke(users.getFirst(),id,reason,admin);
     }
     @Transactional
     public void resolveReport(long id,User admin,String reason) {
         admin(admin);
         if(jdbc.update("UPDATE auction_reports SET resolved_at=clock_timestamp(),resolved_by=?,resolution=? WHERE id=? AND resolved_at IS NULL",admin.getId(),AuctionService.reason(reason),id)==0) throw new NotFoundException("Brak otwartego zgłoszenia");
     }
+    @Transactional
+    public void reviewReport(long id,User admin,String reason,boolean invalidateBid) {
+        admin(admin); reason=AuctionService.reason(reason);
+        var reports=jdbc.queryForList("SELECT * FROM auction_reports WHERE id=? AND resolved_at IS NULL FOR UPDATE",id);
+        if(reports.isEmpty()) throw new NotFoundException("Brak otwartego zgłoszenia");
+        var report=reports.getFirst();
+        if(invalidateBid) {
+            if(report.get("bid_id")==null) throw new IllegalArgumentException("Zgłoszenie nie dotyczy konkretnej oferty");
+            invalidate(((Number)report.get("auction_id")).longValue(),((Number)report.get("bid_id")).longValue(),admin,reason);
+        }
+        resolveReport(id,admin,reason);
+    }
+
     @Transactional(readOnly=true)
     public PageResponse<Map<String,Object>> page(String kind,int page,User admin) {
+        return page(kind,page,"ALL",admin);
+    }
+
+    @Transactional(readOnly=true)
+    public PageResponse<Map<String,Object>> page(String kind,int page,String state,User admin) {
         admin(admin);
-        String table=switch(kind) { case "reports"->"auction_reports"; case "restrictions"->"auction_user_restrictions"; case "audit"->"auction_audit"; default->throw new IllegalArgumentException("Nieznany rejestr"); };
+        if(!Set.of("OPEN","RESOLVED","ALL").contains(state)) throw new IllegalArgumentException("Nieznany widok zgłoszeń");
+        String table=switch(kind) { case "reports"->"auction_reports"; case "restrictions"->"user_moderation_actions"; case "audit"->"auction_audit"; default->throw new IllegalArgumentException("Nieznany rejestr"); };
         int current=Math.clamp(page,1,1_000_000);
-        long total=jdbc.queryForObject("SELECT count(*) FROM "+table,Long.class);
-        var rows=jdbc.queryForList("SELECT * FROM "+table+" ORDER BY id DESC LIMIT 20 OFFSET ?",(current-1)*20);
+        String where=kind.equals("restrictions") ? " WHERE r.kind='RESTRICTION' AND r.scope='BIDDING'" : !kind.equals("reports") || state.equals("ALL") ? "" : state.equals("OPEN") ? " WHERE r.resolved_at IS NULL" : " WHERE r.resolved_at IS NOT NULL";
+        long total=jdbc.queryForObject("SELECT count(*) FROM "+table+" r"+where,Long.class);
+        String query=kind.equals("reports") ? """
+            SELECT r.*,l.item_name,b.user_id bidder_id,b.amount,b.currency,
+                CASE WHEN reporter.display_name LIKE '%@%' THEN 'Gracz '||reporter.id ELSE reporter.display_name END reporter_name,
+                CASE WHEN bidder.display_name LIKE '%@%' THEN 'Gracz '||bidder.id ELSE bidder.display_name END bidder_name,
+                (i.bid_id IS NOT NULL) bid_invalidated
+            FROM auction_reports r JOIN listings l ON l.id=r.auction_id JOIN users reporter ON reporter.id=r.user_id
+            LEFT JOIN auction_bids b ON b.id=r.bid_id LEFT JOIN users bidder ON bidder.id=b.user_id
+            LEFT JOIN auction_bid_invalidations i ON i.bid_id=r.bid_id
+            """+where+" ORDER BY r.created_at DESC,r.id DESC LIMIT 20 OFFSET ?"
+            : "SELECT r.* FROM "+table+" r ORDER BY r.id DESC LIMIT 20 OFFSET ?";
+        var rows=jdbc.queryForList(query,(current-1)*20);
         return new PageResponse<>(rows,current,20,total,(int)((total+19)/20),current==1,current*20L>=total);
     }
     private void admin(User user) { if(!user.isAdmin()) throw new ForbiddenOperationException("Brak uprawnień"); }

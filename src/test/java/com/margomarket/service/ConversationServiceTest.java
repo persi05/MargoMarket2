@@ -46,7 +46,7 @@ class ConversationServiceTest {
     @BeforeEach
     void setUp() {
         ConversationAccess access = new ConversationAccess(conversations, messages, realtimePublisher);
-        service = new ConversationService(conversations, messages, listings, moderation, access, realtimePublisher, auctionPolicy);
+        service = new ConversationService(org.mockito.Mockito.mock(UserModerationService.class),conversations, messages, listings, moderation, access, realtimePublisher, auctionPolicy);
         exchangeService = new ConversationExchangeService(conversations, listingService, access);
     }
 

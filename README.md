@@ -50,8 +50,38 @@ Frontend będzie dostępny pod adresem:
 http://localhost:4200
 ```
 
-Uruchomienie skryptu do pobrania przedmiotów z margoworld:
+## Aktualizacja katalogu przedmiotów
+
+Administrator uruchamia aktualizację w panelu administracyjnym: **Katalog przedmiotów → Aktualizuj katalog**. Backend pobiera katalog z MargoWorld w tle i pokazuje status oraz liczbę nowych i zaktualizowanych przedmiotów. Nie ma harmonogramu. Nie jest potrzebny restart ani przebudowa aplikacji; kolejne wyszukiwania korzystają z nowych danych.
+
+Pobieranie i walidacja poprzedzają zapis. Błąd źródła lub importu zachowuje dotychczasowe dane. Import aktualizuje przedmioty po identyfikatorze zewnętrznym, zachowuje ich lokalne ID i powiązania z ogłoszeniami. Brak przedmiotu w źródle nie usuwa go z bazy. Baza blokuje równoczesne aktualizacje; przerwany import można ponowić po 5 minutach bez postępu.
+
+Plik `src/main/resources/data/margoworld-market-items.json` jest wyłącznie katalogiem startowym, wczytywanym jednorazowo. Późniejszy restart nie nadpisuje katalogu z bazy. Skrypt `node scripts/update-margoworld-items.mjs` służy opcjonalnie do odświeżania tego pliku w repozytorium dla nowych instalacji. Na hostingu PostgreSQL musi mieć trwałe dane; lokalny Docker Compose używa wolumenu.
+
+## Testy backendu
+
+Testy jednostkowe (Java 21):
 
 ```powershell
-node scripts\update-margoworld-items.mjs
+.\mvnw.cmd test
 ```
+
+Pełna weryfikacja, w tym testy migracji na PostgreSQL (Java 21 i uruchomiony Docker):
+
+```powershell
+.\mvnw.cmd verify
+```
+
+Testy migracji są w `src/test/java/com/margomarket/migration`. Maven Failsafe uruchamia klasy `*IT` w fazie `verify`. Każda klasa uruchamia własny PostgreSQL przez Testcontainers, wykonuje migracje Flyway i sprawdza ograniczenia bazy. Po testach kontenery są usuwane. Dane aplikacji nie są używane. Wyniki znajdują się w `target/failsafe-reports`.
+
+`AuctionIntegrationIT` także uruchamia własnego PostgreSQL przez Testcontainers i wykonuje się w ramach `verify`. Nie wymaga zmiennych środowiskowych ani ręcznego tworzenia bazy. Testy zegara dyskusji znajdują się obok kodu frontendu i uruchamiają się przez `npm test -- --watch=false`.
+
+## CI na GitHubie
+
+Workflow `.github/workflows/ci.yml` uruchamia się przy pushu i pull requeście. Po dodaniu workflowu do domyślnej gałęzi można go też uruchomić ręcznie z zakładki Actions. Backend jest sprawdzany na Javie 21 poleceniem `./mvnw verify`, łącznie z testami migracji i licytacji na tymczasowych bazach PostgreSQL. Frontend jest sprawdzany na Node.js 24 przez `npm ci`, testy Vitest i build Angulara. Raporty testów oraz pliki wynikowe są zachowywane jako artefakty workflowu. CI nie wdraża aplikacji na serwer.
+
+## Moderacja kont użytkowników
+
+Administrator zarządza blokadami i upomnieniami na publicznym profilu użytkownika, w sekcji **Moderacja konta**. Można osobno ograniczyć publikowanie i edycję przedmiotów, złota i licytacji, składanie ofert, wiadomości oraz komentarze. Blokada całego konta odcina dostęp również dla wcześniej wydanych tokenów i otwartych połączeń WebSocket. Okres podaje się jako czas trwania, datę zakończenia albo bezterminowo; ograniczenia czasowe wygasają bez restartu i bez zadania cyklicznego.
+
+Każda decyzja, upomnienie i cofnięcie blokady pozostawia wpis w historii oraz powiadomienie dla użytkownika. Podczas pełnej blokady użytkownik widzi powód i termin na osobnym ekranie. API administracyjne jest dostępne pod `/api/admin/users/{id}/moderation`, a własny status pod `/api/auth/moderation`. Kody błędów `ACCOUNT_BLOCKED` i `ACTION_RESTRICTED` odróżniają blokadę konta od ograniczenia pojedynczej czynności. Starsze ograniczenia licytowania są przenoszone migracją V32.

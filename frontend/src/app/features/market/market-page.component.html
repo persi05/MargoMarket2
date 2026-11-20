@@ -1,35 +1,5 @@
-<nav class="market-tabs" aria-label="Rodzaje ofert"><a routerLink="/" aria-current="page">Przedmioty</a><a routerLink="/gold">Złoto</a><a routerLink="/auctions">Licytacje</a></nav>
-<section class="market-shell">
-  <aside class="filter-dock">
-    <div class="filters" #filterPanel [class.is-dragging]="filterDragging" [class.has-custom-position]="filterPosition !== null" [style.left.px]="filterPosition?.x" [style.top.px]="filterPosition?.y" (pointermove)="moveFilter($event)" (pointerup)="stopFilterDrag($event)" (pointercancel)="stopFilterDrag($event)" (lostpointercapture)="stopFilterDrag($event)">
-      <div class="filter-top" (pointerdown)="startFilterDrag($event)">
-        <h2>Filtrowanie</h2>
-        <button
-          type="button"
-          class="panel-tool reset-position"
-          aria-label="Przywróć położenie panelu filtrowania"
-          title="Przywróć położenie"
-          (click)="resetFilterPosition()"
-        >
-          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true" focusable="false">
-            <path d="M4 9a6 6 0 1 1 1.7 4.2M4 4v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <button
-          type="button"
-          class="panel-tool drag-handle"
-          aria-label="Przesuń panel filtrowania"
-          title="Przeciągnij panel filtrowania"
-          (keydown)="moveFilterWithKeyboard($event)"
-        >
-          <svg viewBox="0 0 16 20" width="16" height="20" aria-hidden="true" focusable="false">
-            <circle cx="5" cy="4" r="1.6"/><circle cx="11" cy="4" r="1.6"/>
-            <circle cx="5" cy="10" r="1.6"/><circle cx="11" cy="10" r="1.6"/>
-            <circle cx="5" cy="16" r="1.6"/><circle cx="11" cy="16" r="1.6"/>
-          </svg>
-        </button>
-      </div>
-
+<mm-market-layout active="items">
+  <mm-market-filter marketFilter>
     @if (dictionaries$ | async; as dictionaries) {
       <form [formGroup]="filters" (ngSubmit)="applyFilters()">
         <label>
@@ -93,9 +63,7 @@
         </div>
       </form>
     }
-    </div>
-  </aside>
-
+  </mm-market-filter>
   <div class="results">
     @let page = listings$ | async;
     @if (notice) {
@@ -113,12 +81,15 @@
           }
         </div>
 
+        <div class="market-heading-actions">
+          <a class="market-create-action" routerLink="/new">Wystaw przedmiot</a>
         @if (page && !loading) {
           <div class="pager">
             <button type="button" [disabled]="page.first" (click)="previousPage(page)">Poprzednia</button>
             <button type="button" [disabled]="page.last" (click)="nextPage(page)">Następna</button>
           </div>
         }
+        </div>
       </div>
 
       <div class="table-wrapper">
@@ -144,7 +115,7 @@
                 @for (row of skeletonRows; track row) {
                   <tr class="skeleton-row" aria-hidden="true">
                     @if (authService.isLoggedIn) { <td class="favorite-col"><span class="skeleton-block skeleton-icon"></span></td> }
-                    <td class="preview-col"><span class="skeleton-block skeleton-image"></span></td>
+                    <td class="preview-col"><span class="skeleton-block skeleton-icon"></span></td>
                     <td class="name-col"><span class="skeleton-block skeleton-name"></span><span class="skeleton-block skeleton-subline"></span></td>
                     <td class="level-col"><span class="skeleton-block skeleton-short"></span></td>
                     <td class="enhancement-col"><span class="skeleton-block skeleton-short"></span></td>
@@ -173,65 +144,7 @@
                         </button>
                       </td>
                     }
-                    <td class="preview-col">
-                      <span
-                          class="item-frame"
-                          tabindex="0"
-                          [attr.aria-label]="'Podgląd przedmiotu: ' + listing.itemName"
-                          [class.rarity-unique]="rarityClass(listing) === 'rarity-unique'"
-                          [class.rarity-heroic]="rarityClass(listing) === 'rarity-heroic'"
-                          [class.rarity-legendary]="rarityClass(listing) === 'rarity-legendary'"
-                          [class.rarity-upgraded]="rarityClass(listing) === 'rarity-upgraded'"
-                        >
-                          @if (showListingImage(listing)) {
-                            <img class="item-icon" [src]="listing.iconUrl" [alt]="listing.itemName" loading="lazy" (error)="markListingImageBroken(listing)">
-                          } @else {
-                            <span class="item-placeholder">{{ listing.itemName.charAt(0) }}</span>
-                          }
-                          @if (!previewPositions.has(listing.id)) {
-                          <span class="item-tooltip market-preview" role="tooltip">
-                            <span class="tooltip-title preview-title">
-                              <span class="tooltip-icon">
-                                @if (showListingImage(listing)) {
-                                  <img [src]="listing.iconUrl" [alt]="listing.itemName" loading="lazy" (error)="markListingImageBroken(listing)">
-                                } @else {
-                                  <span class="item-placeholder">{{ listing.itemName.charAt(0) }}</span>
-                                }
-                              </span>
-                              <span>
-                                <strong>{{ listing.itemName }}</strong>
-                                <span class="tooltip-muted">Typ: {{ listing.itemType?.name }}</span>
-                              </span>
-                              <span class="preview-actions">
-                                <button type="button" class="preview-pin" aria-label="Przypnij podgląd przedmiotu" title="Przypnij podgląd" (click)="pinPreview(listing, $event)">
-                                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6ZM12 14v7"/></svg>
-                                </button>
-                              </span>
-                            </span>
-                            <span class="tooltip-rarity">{{ listing.rarity?.name }}</span>
-                            <span>Ulepszenie: {{ enhancementLabel(listing) }}</span>
-                            <span>Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
-                            @for (stat of statLines(listing); track stat.label) {
-                              <span>{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
-                            }
-                            @if (listing.itemDescription) {
-                              <span class="description">{{ listing.itemDescription | itemDescription:listing.itemStats }}</span>
-                            }
-                            @if (lastAvailableDuring(listing); as occasion) {
-                              <span>Ostatnio dostępny podczas: {{ occasion }}</span>
-                            }
-                            @if (requiredProfessions(listing); as professions) {
-                              <span>Wymagane profesje: {{ professions }}</span>
-                            }
-                            <span>Wymagany poziom: {{ listing.level }}</span>
-                            <span class="tooltip-separator"></span>
-                            <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel(listing)" [compact]="true" [showLoginLink]="false" /></span>
-                            <span>Serwer: {{ listing.server.name }}</span>
-                            <span>Sprzedający: <a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a></span>
-                          </span>
-                          }
-                      </span>
-                    </td>
+                    <td class="preview-col"><mm-item-preview [listing]="listing" /></td>
                     <td class="name-col">
                       <span class="item-name" [attr.title]="listing.itemName">{{ listing.itemName }}</span>
                       <span class="binding-label">Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
@@ -269,65 +182,14 @@
           </table>
         </div>
       </div>
+      @if (page && !loading) {
+        <nav class="pager pager-bottom" aria-label="Strony listy przedmiotów">
+          <button type="button" [disabled]="page.first" (click)="previousPage(page)">Poprzednia</button>
+          <button type="button" [disabled]="page.last" (click)="nextPage(page)">Następna</button>
+        </nav>
+      }
   </div>
-</section>
-
-@for (listing of pinnedListings; track listing.id) {
-  <div
-    #pinnedPreview
-    class="item-tooltip market-preview pinned-preview"
-    [attr.data-listing-id]="listing.id"
-    [class.is-dragging]="previewDraggingId === listing.id"
-    [style.zIndex]="frontPreviewId === listing.id ? 101 : 100"
-    [class.rarity-unique]="rarityClass(listing) === 'rarity-unique'"
-    [class.rarity-heroic]="rarityClass(listing) === 'rarity-heroic'"
-    [class.rarity-legendary]="rarityClass(listing) === 'rarity-legendary'"
-    [class.rarity-upgraded]="rarityClass(listing) === 'rarity-upgraded'"
-    [style.left.px]="previewPositions.get(listing.id)?.x"
-    [style.top.px]="previewPositions.get(listing.id)?.y"
-    role="dialog"
-    [attr.aria-label]="'Przypięty podgląd przedmiotu: ' + listing.itemName"
-    (pointerdown)="startPreviewDrag(listing.id, $event)"
-    (focusin)="bringPreviewToFront(listing.id)"
-  >
-    <span class="tooltip-title preview-title">
-      <span class="tooltip-icon">
-        @if (showListingImage(listing)) {
-          <img [src]="listing.iconUrl" [alt]="listing.itemName" loading="lazy" (error)="markListingImageBroken(listing)">
-        } @else {
-          <span class="item-placeholder">{{ listing.itemName.charAt(0) }}</span>
-        }
-      </span>
-      <span><strong>{{ listing.itemName }}</strong><span class="tooltip-muted">Typ: {{ listing.itemType?.name }}</span></span>
-      <span class="preview-actions">
-        <button type="button" class="preview-tool" aria-label="Przesuń podgląd przedmiotu" title="Przeciągnij podgląd" (keydown)="movePreviewWithKeyboard(listing.id, $event)">
-          <svg viewBox="0 0 16 20" width="16" height="20" aria-hidden="true" focusable="false"><circle cx="5" cy="4" r="1.6"/><circle cx="11" cy="4" r="1.6"/><circle cx="5" cy="10" r="1.6"/><circle cx="11" cy="10" r="1.6"/><circle cx="5" cy="16" r="1.6"/><circle cx="11" cy="16" r="1.6"/></svg>
-        </button>
-        <button type="button" class="preview-tool preview-close" aria-label="Odepnij podgląd przedmiotu" title="Odepnij podgląd" (click)="unpinPreview(listing.id)">×</button>
-      </span>
-    </span>
-    <span class="tooltip-rarity">{{ listing.rarity?.name }}</span>
-    <span>Ulepszenie: {{ enhancementLabel(listing) }}</span>
-    <span>Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
-    @for (stat of statLines(listing); track stat.label) {
-      <span>{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
-    }
-    @if (listing.itemDescription) {
-      <span class="description">{{ listing.itemDescription | itemDescription:listing.itemStats }}</span>
-    }
-    @if (lastAvailableDuring(listing); as occasion) {
-      <span>Ostatnio dostępny podczas: {{ occasion }}</span>
-    }
-    @if (requiredProfessions(listing); as professions) {
-      <span>Wymagane profesje: {{ professions }}</span>
-    }
-    <span>Wymagany poziom: {{ listing.level }}</span>
-    <span class="tooltip-separator"></span>
-    <span>Cena: <mm-private-detail [value]="listing.price === null ? null : priceLabel(listing)" [compact]="true" [showLoginLink]="false" /></span>
-    <span>Serwer: {{ listing.server.name }}</span>
-    <span>Sprzedający: <a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a></span>
-  </div>
-}
+</mm-market-layout>
 
 @if (activeDiscussionListing; as listing) {
   <mm-discussion-drawer [listing]="listing" (closed)="closeDiscussion()" />

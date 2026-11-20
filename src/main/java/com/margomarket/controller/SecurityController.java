@@ -41,6 +41,7 @@ public class SecurityController {
                 new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
         User user = (User) userService.loadUserByUsername(request.username());
+        if(user.isAccessBlocked()) throw new com.margomarket.exception.UserRestrictedException(com.margomarket.service.ModerationScope.ACCOUNT,user.getAccountBlockReason(),user.getAccountBlockUntil());
         return new LoginResponse(
                 "Bearer",
                 jwtService.generateToken(user),

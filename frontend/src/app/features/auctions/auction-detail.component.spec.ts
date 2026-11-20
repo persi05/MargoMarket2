@@ -20,9 +20,10 @@ describe('auction bidding', () => {
       startingAmount:1000,highestAmount:2000,nextMinimumBid:2100,endsAt:new Date(Date.now()+3600000).toISOString(),
       originalEndsAt:new Date(Date.now()+3600000).toISOString(),serverTime:new Date().toISOString(),status:'ACTIVE',version:1,bidCount:1,owner,leading:false,winner:false};
   }
-  function flushState(value=state()) {
+  function flushState(value=state(), bids:any[] = []) {
     http.expectOne(url).flush(value);
-    http.expectOne(`${url}/bids?page=1`).flush({content:[],page:1,first:true,last:true});
+    http.expectOne(`${url}/bids?page=1`).flush({content:bids,page:1,first:true,last:true});
+    http.match(request => request.url.endsWith('/listings/favorites/ids')).forEach(request => request.flush([]));
   }
   beforeEach(() => {
     user$=new BehaviorSubject<unknown>({role:'user'});
@@ -49,6 +50,20 @@ describe('auction bidding', () => {
     expect(retry.request.body.idempotencyKey).toBe(key);
     retry.flush({id:9});flushState();
     expect(c.input).toBe('');expect(c.notice).toContain('przyjęta');
+  });
+  it('adds and removes an auction from watched listings', () => {
+    const fixture = TestBed.createComponent(AuctionDetailComponent);
+    const component = fixture.componentInstance as any;
+    flushState(); http.expectOne(`${environment.apiUrl}/auctions/config`).flush({enabled:true,plnEnabled:true});
+    component.toggleWatch(); component.toggleWatch();
+    const add = http.expectOne(`${environment.apiUrl}/listings/7/favorite`);
+    expect(add.request.method).toBe('POST'); add.flush(null);
+    expect(component.watching).toBe(true);
+    component.toggleWatch();
+    const remove = http.expectOne(`${environment.apiUrl}/listings/7/favorite`);
+    expect(remove.request.method).toBe('DELETE'); remove.flush(null);
+    expect(component.watching).toBe(false);
+    fixture.destroy();
   });
   it('hides the bid form for an owner', () => {
     const fixture=TestBed.createComponent(AuctionDetailComponent);
@@ -91,4 +106,26 @@ describe('auction bidding', () => {
     flushState();
     fixture.destroy();
   });
+  it('lets the seller report a specific bid through the shared dialog', () => {
+    const fixture=TestBed.createComponent(AuctionDetailComponent);
+    const component=fixture.componentInstance as any;
+    const bid={id:19,bidder:'Gracz',userId:3,amount:2000,currency:'PLN',acceptedAt:new Date().toISOString(),invalidated:false};
+    flushState(state(true),[bid]);http.expectOne(environment.apiUrl+'/auctions/config').flush({enabled:true,plnEnabled:true});
+    fixture.detectChanges();
+    const report=Array.from(fixture.nativeElement.querySelectorAll('button')).find((b:any)=>b.textContent.includes('Zgłoś ofertę')) as HTMLButtonElement;
+    expect(report).toBeTruthy();report.click();fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('mm-conversation-report-dialog')).toBeTruthy();
+    component.submitDialog({details:'Podejrzenie manipulacji'});
+    const request=http.expectOne(url+'/bids/19/reports');
+    expect(request.request.body).toEqual({reason:'Podejrzenie manipulacji'});
+    request.flush(null);flushState(state(true),[bid]);fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('mm-conversation-report-dialog')).toBeNull();
+    fixture.destroy();
+  });
+  it('does not expose bid report controls to other participants', () => {
+    const fixture=TestBed.createComponent(AuctionDetailComponent);
+    flushState();http.expectOne(environment.apiUrl+'/auctions/config').flush({enabled:true,plnEnabled:true});
+    fixture.detectChanges();expect(fixture.nativeElement.textContent).not.toContain('Zgłoś ofertę');fixture.destroy();
+  });
+
 });

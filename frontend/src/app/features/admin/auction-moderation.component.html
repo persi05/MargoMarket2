@@ -1,0 +1,28 @@
+<section class="workspace">
+  <header class="workspace-heading"><div><h2>Moderacja licytacji</h2><p>Zgłoszenia ofert i licytacji oraz historia decyzji.</p></div><button type="button" class="mm-button secondary" [disabled]="loading || busy" (click)="load(result?.page ?? 1)">Odśwież</button></header>
+  <nav class="workspace-tabs" aria-label="Rejestry moderacji">
+    <button type="button" class="mm-button secondary" [class.active]="kind === 'reports'" (click)="selectKind('reports')">Zgłoszenia</button>
+    <button type="button" class="mm-button secondary" [class.active]="kind === 'restrictions'" (click)="selectKind('restrictions')">Ograniczenia udziału</button>
+    <button type="button" class="mm-button secondary" [class.active]="kind === 'audit'" (click)="selectKind('audit')">Historia decyzji</button>
+  </nav>
+  @if(kind === 'reports'){<div class="workspace-filters"><label>Wyświetl<select [(ngModel)]="state" (change)="load()"><option value="OPEN">Do rozpatrzenia</option><option value="RESOLVED">Rozpatrzone</option><option value="ALL">Wszystkie</option></select></label><a class="mm-button secondary" routerLink="/auctions" [queryParams]="{scope:'ADMIN'}">Przeglądaj licytacje</a></div>}
+  @if(error){<p class="error" role="alert">{{error}}</p>}@if(notice){<p class="notice" role="status">{{notice}}</p>}
+  @if(loading){<p role="status">Wczytywanie wpisów…</p>}
+  <div class="queue" [attr.aria-busy]="loading">
+    @for(row of result?.content;track row.id){<article class="queue-card">
+      <div class="queue-heading"><h3>{{kind === 'reports' ? (row.item_name || 'Zgłoszenie licytacji') : kind === 'restrictions' ? 'Ograniczenie udziału' : (row.action || 'Decyzja administratora')}}</h3><span class="badge">{{kind === 'reports' ? (row.resolved_at ? 'Rozpatrzone' : 'Do rozpatrzenia') : '#' + row.id}}</span></div>
+      <div class="queue-meta"><span>{{row.created_at | date:'dd.MM.yyyy HH:mm'}}</span>@if(row.auction_id){<a [routerLink]="['/auctions',row.auction_id]">Licytacja #{{row.auction_id}}</a>}@if(row.user_id){<a [routerLink]="['/u',row.user_id,'profil']">{{kind === 'reports' ? 'Zgłaszający: ' + row.reporter_name : 'Konto #' + row.user_id}}</a>}</div>
+      @if(row.bid_id){<p>Oferta #{{row.bid_id}}: <a [routerLink]="['/u',row.bidder_id,'profil']">{{row.bidder_name}}</a> — <strong>{{amount(row.amount!,row.currency!)}}</strong>@if(row.bid_invalidated){<span> · unieważniona</span>}</p>}
+      <p class="queue-reason">{{row.reason}}</p>
+      @if(row.resolution){<p>Decyzja: {{row.resolution}}</p>}
+      @if(row.expires_at){<p>Do: {{row.expires_at | date:'dd.MM.yyyy HH:mm'}}@if(row.appeal_instructions){. Odwołanie: {{row.appeal_instructions}}}</p>}
+      <div class="queue-actions">
+        @if(kind === 'reports' && !row.resolved_at){<button type="button" class="mm-button" [disabled]="busy" (click)="open(row,'review')">Rozpatrz zgłoszenie</button>@if(row.bid_id && !row.bid_invalidated){<button type="button" class="mm-button secondary" [disabled]="busy" (click)="open(row,'invalidate')">Unieważnij ofertę i rozpatrz</button>}}
+        @if(kind === 'restrictions' && !row.revoked_at){<button type="button" class="mm-button secondary" [disabled]="busy" (click)="open(row,'revoke')">Cofnij ograniczenie</button>}
+      </div>
+    </article>}@empty{@if(!loading){<p class="empty">Brak wpisów w wybranym widoku.</p>}}
+  </div>
+  @if(result;as page){<mm-pagination [page]="page" [loading]="loading || busy" (pageChange)="load($event)" />}
+  @if(kind === 'restrictions'){<div class="workspace-form"><h3>Zarządzanie blokadami</h3><p>Blokady licytowania są częścią moderacji konta. Wejdź na profil użytkownika, aby dodać blokadę, wybrać jej zakres i termin albo wysłać upomnienie.</p><label>ID użytkownika<input type="number" min="1" [(ngModel)]="userId"></label>@if(userId){<a class="mm-button secondary" [routerLink]="['/u',userId,'profil']">Otwórz profil użytkownika</a>}</div>}
+  @if(selected;as selection){<mm-conversation-report-dialog [title]="selection.action === 'invalidate' ? 'Unieważnij zgłoszoną ofertę' : selection.action === 'revoke' ? 'Cofnij ograniczenie' : 'Rozpatrz zgłoszenie'" [description]="'Opisz decyzję administratora. Uzasadnienie zostanie zapisane w historii.'" [showReasons]="false" [detailsRequired]="true" submitLabel="Zapisz decyzję" [busy]="busy" [error]="dialogError" (cancel)="selected = null" (submitReport)="decide($event)" />}
+</section>

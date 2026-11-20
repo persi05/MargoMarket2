@@ -1,6 +1,6 @@
 <section class="public-profile" aria-live="polite">
 @if (loading) { <p>Ładowanie profilu…</p> }
-@if (error) { <p role="alert">{{ error }}</p><a routerLink="/">Wróć do ogłoszeń</a> }
+@if (error) { <p role="alert">{{ error }}</p><a routerLink="/items">Wróć do ogłoszeń</a> }
 @if (profile; as p) {
 <header><span class="avatar" aria-hidden="true">{{ p.displayName.charAt(0) }}</span><div><h1>{{ p.displayName }}</h1><p>W serwisie od {{ p.createdAt | date:'dd.MM.yyyy' }}</p></div></header>
 <p>Zakończone licytacje sprzedawcy: {{ p.endedAuctions ?? 0 }}. Wynik licytacji nie potwierdza wykonania wymiany.</p><section class="confirmed"><h2>Wymiany potwierdzone przez administratora: {{ p.confirmedPurchases + p.confirmedSales }}</h2><p>Zakupy: {{ p.confirmedPurchases }} · Sprzedaże: {{ p.confirmedSales }}</p><p>Uwzględniamy wyłącznie jawne potwierdzenia zarejestrowane od uruchomienia tej funkcji. Historia wymian nie gwarantuje bezpieczeństwa kolejnych transakcji.</p></section>
@@ -14,5 +14,6 @@
   </div>
   <mm-pagination [page]="result" [loading]="listingsLoading" (pageChange)="page($event)" />
 }
+@if((viewer$ | async)?.role === 'admin'){<mm-user-moderation [userId]="p.id" [displayName]="p.displayName" />}
 }
 </section>

@@ -19,6 +19,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private final com.fasterxml.jackson.databind.ObjectMapper mapper;
     private final JwtService jwtService;
     private final UserService userService;
 
@@ -46,6 +47,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             User user = userService.getByEmail(email);
             if (jwtService.isTokenValid(token, user)) {
+                String path=request.getRequestURI().substring(request.getContextPath().length());
+                if(user.isAccessBlocked() && !path.equals("/api/auth/moderation") && !path.equals("/api/auth/login")) {
+                    response.setStatus(403);response.setContentType("application/json");response.setCharacterEncoding("UTF-8");
+                    mapper.writeValue(response.getWriter(),new com.margomarket.exception.UserRestrictedException(com.margomarket.service.ModerationScope.ACCOUNT,user.getAccountBlockReason(),user.getAccountBlockUntil()).response());
+                    return;
+                }
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         user,
                         null,

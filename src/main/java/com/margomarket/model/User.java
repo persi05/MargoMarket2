@@ -57,6 +57,17 @@ public class User implements UserDetails {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name="account_block_id",insertable=false,updatable=false)
+    private Long accountBlockId;
+    @Column(name="account_block_reason",insertable=false,updatable=false)
+    private String accountBlockReason;
+    @Column(name="account_block_until",insertable=false,updatable=false)
+    private java.time.Instant accountBlockUntil;
+
+    public boolean isAccessBlocked() {
+        return accountBlockId!=null && (accountBlockUntil==null || accountBlockUntil.isAfter(java.time.Instant.now()));
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

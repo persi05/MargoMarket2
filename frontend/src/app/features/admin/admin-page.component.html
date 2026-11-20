@@ -6,23 +6,15 @@
     </div>
   </header>
 
-  <div class="stats-row">
-    @if (listings$ | async; as page) {
-      <div class="stat">
-        <span>Ogłoszenia</span>
-        <strong>{{ page.totalElements | number }}</strong>
-      </div>
-    }
+  @if (stats$ | async; as stats) {
+    <div class="stats-row">
+      <div class="stat"><span>Ogłoszenia</span><strong>{{stats.listings | number}}</strong></div>
+      <div class="stat"><span>Użytkownicy</span><strong>{{stats.users | number}}</strong></div>
+    </div>
+  }
 
-    @if (users$ | async; as users) {
-      <div class="stat">
-        <span>Użytkownicy</span>
-        <strong>{{ (usersPageData?.totalElements ?? 0) | number }}</strong>
-      </div>
-    }
-  </div>
-
-  <div class="tabs">
+  <nav class="tabs" aria-label="Sekcje administracji">
+    <button type="button" [class.active]="activeTab === 'catalog'" (click)="selectTab('catalog')">Katalog przedmiotów</button>
     <button type="button" [class.active]="activeTab === 'listings'" (click)="selectTab('listings')">
       Ogłoszenia
     </button>
@@ -35,13 +27,21 @@
     <button type="button" [class.active]="activeTab === 'reports'" (click)="selectTab('reports')">Zgłoszenia rozmów</button>
     <button type="button" [class.active]="activeTab === 'chats'" (click)="selectTab('chats')">Chaty</button>
     <button type="button" [class.active]="activeTab === 'intermediary'" (click)="selectTab('intermediary')">Wymiany</button>
-  </div>
+      <button type="button" [class.active]="activeTab === 'confirmations'" (click)="selectTab('confirmations')">Potwierdzanie wymian</button>
+    <button type="button" [class.active]="activeTab === 'auctions'" (click)="selectTab('auctions')">Moderacja licytacji</button>
+  </nav>
 
   @if (notice) {
     <p class="notice">{{ notice }}</p>
   }
 
-  @if (activeTab === 'listings') {
+  @if (activeTab === 'confirmations') {
+    <mm-exchange-confirmations />
+  } @else if (activeTab === 'auctions') {
+    <mm-auction-moderation />
+  } @else if (activeTab === 'catalog') {
+    <mm-catalog-admin />
+  } @else if (activeTab === 'listings') {
     <aside class="filters">
       @if (dictionaries$ | async; as dictionaries) {
         <form [formGroup]="filters" (ngSubmit)="applyFilters()">
@@ -220,6 +220,4 @@
   } @else {
     <mm-moderation-panel />
   }
-<mm-exchange-confirmations />
-<mm-auction-moderation />
 </section>

@@ -19,6 +19,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Transactional(readOnly=true)
 public class AuctionService {
+    private final UserModerationService userModeration;
     private final AuctionRepository auctions;
     private final JdbcTemplate jdbc;
     private final ListingService listings;
@@ -28,6 +29,7 @@ public class AuctionService {
     private final AuctionBidRateLimiter limiter;
     private final AuctionRealtimePublisher realtime;
     private final NotificationService notifications;
+    private final TextModerationService textModeration;
     @Value("${app.features.item-auctions-enabled:false}") private boolean enabled;
     @Value("${app.features.pln-auctions-enabled:false}") private boolean plnEnabled;
 
@@ -38,12 +40,13 @@ public class AuctionService {
 
     @Transactional
     public AuctionResponse create(AuctionRequest r, User user) {
+        requireDescriptionAllowed(r.description());
         requireEnabled(r.currency());
         if (!user.isEmailVerified()) throw new ForbiddenOperationException("Zweryfikuj e-mail");
         var now = auctions.now();
         AuctionRules.amount(r.currency(), r.startingAmount());
         AuctionRules.duration(now, r.endsAt());
-        Listing l = listings.createListing(listingRequest(r), user);
+        Listing l = listings.createAuctionListing(listingRequest(r), user);
         l.setSaleMode("AUCTION");
         l.setDescription(r.description());
         listingRepository.saveAndFlush(l);
@@ -55,6 +58,8 @@ public class AuctionService {
 
     @Transactional
     public AuctionResponse update(long id, AuctionRequest r, User user) {
+        userModeration.requireAllowed(user,ModerationScope.AUCTION_LISTINGS);
+        requireDescriptionAllowed(r.description());
         State a = auctions.lock(id);
         Listing l = listings.getListing(id);
         owner(l,user);
@@ -76,6 +81,7 @@ public class AuctionService {
     public AuctionResponse get(long id, User viewer) {
         State a = auctions.get(id);
         Listing l = listings.getListing(id);
+        requireVisible(a,viewer);
         var fulfillments=fulfillments(List.of(id));
         return response(a,l,viewer,fulfillments.getOrDefault(id,Map.of()),auctions.now());
     }
@@ -96,7 +102,7 @@ public class AuctionService {
                 viewer==null?null:a.highestAmount(),viewer==null?null:next,a.originalEndsAt(),a.endsAt(),now,a.status(),a.version(),a.bidCount(),
                 uid!=null && uid.equals(a.leaderId()),own,winner,own||winner||admin?fulfillment:null,conversation,
                 "PENDING_CONTACT".equals(fulfillment) && now.isAfter(a.endsAt().plusSeconds(48*3600)),
-                own||winner||admin?winnerId:null,winnerName);
+                own||winner||admin?winnerId:null,winnerName,biddingRestriction(viewer,now));
     }
 
     private Map<Long,Map<String,Object>> fulfillments(List<Long> ids) {
@@ -109,6 +115,9 @@ public class AuctionService {
     }
 
     public PageResponse<AuctionResponse> search(Long serverId, String currency, String search, int page, String scope, User viewer) {
+        return search(serverId,currency,search,page,scope,viewer,null,null,null,null);
+    }
+    public PageResponse<AuctionResponse> search(Long serverId,String currency,String search,int page,String scope,User viewer,Long itemTypeId,Boolean bound,Integer minLevel,Integer maxLevel) {
         if (currency!=null && !currency.isBlank()) AuctionRules.limit(currency);
         if (!Set.of("ACTIVE","ENDED","SELLING","BIDDING","ADMIN").contains(scope)) throw new IllegalArgumentException("Nieznany widok");
         if (Set.of("SELLING","BIDDING","ADMIN").contains(scope) && viewer==null) throw new ForbiddenOperationException("Zaloguj się");
@@ -120,13 +129,15 @@ public class AuctionService {
             case "ADMIN" -> "true";
             default -> "a.status='ACTIVE' AND a.ends_at>clock_timestamp()";
         };
-        String from = " FROM auctions a JOIN listings l ON l.id=a.id WHERE " + condition +
-                " AND (?::bigint IS NULL OR l.server_id=?) AND (?='' OR a.currency=?) AND lower(l.item_name) LIKE ? ESCAPE '!'";
+        String visibility = viewer != null && viewer.isAdmin() ? "" : " AND (a.status='ACTIVE' OR (CASE WHEN a.status='CANCELLED' THEN COALESCE((SELECT min(h.created_at) FROM auction_audit h WHERE h.auction_id=a.id AND h.action='CANCELLED'),a.ends_at) ELSE a.ends_at END) >= clock_timestamp()-interval '1 day')";
+        String from = " FROM auctions a JOIN listings l ON l.id=a.id WHERE " + condition + visibility +
+                " AND (?::bigint IS NULL OR l.server_id=?) AND (?='' OR a.currency=?) AND lower(l.item_name) LIKE ? ESCAPE '!'" +
+                " AND (?::bigint IS NULL OR l.item_type_id=?) AND (?::boolean IS NULL OR l.is_bound=?) AND l.level BETWEEN ? AND ?";
         String c=currency==null?"":currency;
         String s="%"+(search==null?"":search.trim().toLowerCase(Locale.ROOT)).replace("!","!!").replace("%","!%").replace("_","!_")+"%";
-        long total=jdbc.queryForObject("SELECT count(*)"+from,Long.class,serverId,serverId,c,c,s);
+        long total=jdbc.queryForObject("SELECT count(*)"+from,Long.class,serverId,serverId,c,c,s,itemTypeId,itemTypeId,bound,bound,minLevel==null?1:minLevel,maxLevel==null?300:maxLevel);
         int current=Math.clamp(page,1,1_000_000);
-        var ids=jdbc.queryForList("SELECT a.id"+from+" ORDER BY a.ends_at,a.id LIMIT 20 OFFSET ?",Long.class,serverId,serverId,c,c,s,(current-1)*20);
+        var ids=jdbc.queryForList("SELECT a.id"+from+" ORDER BY a.ends_at,a.id LIMIT 20 OFFSET ?",Long.class,serverId,serverId,c,c,s,itemTypeId,itemTypeId,bound,bound,minLevel==null?1:minLevel,maxLevel==null?300:maxLevel,(current-1)*20);
         List<AuctionResponse> content=List.of();
         if(!ids.isEmpty()) {
             var states=auctions.getAll(ids).stream().collect(java.util.stream.Collectors.toMap(State::id,a->a));
@@ -146,6 +157,7 @@ public class AuctionService {
 
     @Transactional
     public Receipt bid(long id, PlaceBidRequest r, User user) {
+        userModeration.requireAllowed(user,ModerationScope.BIDDING);
         var prior=receipt(id,user,r.idempotencyKey());
         if (!prior.isEmpty()) return replay(prior.getFirst(),r);
         long wait=limiter.attempt(user.getId(),id);
@@ -157,8 +169,6 @@ public class AuctionService {
         requireEnabled(a.currency());
         if (!user.isEmailVerified() || user.getCreatedAt()==null || user.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant().plusSeconds(24*3600).isAfter(now))
             throw new ForbiddenOperationException("Licytowanie wymaga zweryfikowanego e-maila i konta starszego niż 24 godziny");
-        var restrictions=jdbc.queryForList("SELECT reason,appeal_instructions FROM auction_user_restrictions WHERE user_id=? AND revoked_at IS NULL AND expires_at>clock_timestamp() ORDER BY expires_at DESC LIMIT 1",user.getId());
-        if (!restrictions.isEmpty()) throw new ForbiddenOperationException("Udział ograniczony: "+restrictions.getFirst().get("reason")+". Odwołanie: "+restrictions.getFirst().get("appeal_instructions"));
         Listing l=listings.getListing(id);
         if (l.getUser().getId().equals(user.getId())) throw new ForbiddenOperationException("Nie możesz licytować własnego przedmiotu");
         if (!"ACTIVE".equals(a.status()) || !now.isBefore(a.endsAt())) throw new IllegalArgumentException("Aukcja jest zakończona");
@@ -175,22 +185,26 @@ public class AuctionService {
     }
 
     public PageResponse<Map<String,Object>> bids(long id,int page,User viewer) {
-        auctions.get(id);
+        requireVisible(auctions.get(id),viewer);
         int current=Math.clamp(page,1,1_000_000);
         long total=jdbc.queryForObject("SELECT count(*) FROM auction_bids WHERE auction_id=?",Long.class,id);
+        boolean reveal = viewer != null && (viewer.isAdmin() || listings.getListing(id).getUser().getId().equals(viewer.getId()));
         // Alias is the ordinal of a participant's first bid, scoped to this auction only.
         var rows=jdbc.query("""
             WITH participants AS (SELECT user_id,dense_rank() OVER(ORDER BY min(id)) alias FROM auction_bids WHERE auction_id=? GROUP BY user_id)
-            SELECT b.*,p.alias,i.reason invalidation FROM auction_bids b JOIN participants p ON p.user_id=b.user_id
+            SELECT b.*,p.alias,i.reason invalidation,
+                CASE WHEN u.display_name LIKE '%@%' THEN 'Gracz '||u.id ELSE u.display_name END display_name
+            FROM auction_bids b JOIN participants p ON p.user_id=b.user_id JOIN users u ON u.id=b.user_id
             LEFT JOIN auction_bid_invalidations i ON i.bid_id=b.id WHERE b.auction_id=? ORDER BY b.id DESC LIMIT 30 OFFSET ?
             """,(r,n)-> {
             Map<String,Object> row=new LinkedHashMap<>();
-            row.put("id",r.getLong("id")); row.put("bidder","Licytujący "+r.getLong("alias"));
+            row.put("id",r.getLong("id")); row.put("bidder",reveal ? r.getString("display_name") : "Licytujący "+r.getLong("alias"));
             row.put("own",viewer!=null && viewer.getId().equals(r.getLong("user_id")));
             row.put("amount",viewer==null?null:r.getLong("amount")); row.put("currency",r.getString("currency"));
             row.put("acceptedAt",r.getObject("accepted_at",OffsetDateTime.class).toInstant());
             row.put("invalidated",r.getString("invalidation")!=null);
-            if (viewer!=null && viewer.isAdmin()) { row.put("userId",r.getLong("user_id")); row.put("reason",r.getString("invalidation")); }
+            if (reveal) row.put("userId",r.getLong("user_id"));
+            if (viewer!=null && viewer.isAdmin()) row.put("reason",r.getString("invalidation"));
             return row;
         },id,id,(current-1)*30);
         return new PageResponse<>(rows,current,30,total,(int)((total+29)/30),current==1,current*30L>=total);
@@ -214,7 +228,18 @@ public class AuctionService {
     @Transactional
     public void report(long id,User user,String reason) {
         auctions.get(id);
-        jdbc.update("INSERT INTO auction_reports(auction_id,user_id,reason) VALUES (?,?,?) ON CONFLICT(auction_id,user_id) DO NOTHING",id,user.getId(),reason(reason));
+        jdbc.update("INSERT INTO auction_reports(auction_id,user_id,reason) VALUES (?,?,?) ON CONFLICT DO NOTHING",id,user.getId(),reason(reason));
+    }
+
+    @Transactional
+    public void reportBid(long id,long bidId,User user,String reason) {
+        requireVisible(auctions.get(id),user);
+        Listing listing=listings.getListing(id);
+        if(!user.isAdmin() && !listing.getUser().getId().equals(user.getId()))
+            throw new ForbiddenOperationException("Ofertę może zgłosić sprzedający lub administrator");
+        if(!Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM auction_bids WHERE auction_id=? AND id=?)",Boolean.class,id,bidId)))
+            throw new NotFoundException("Oferta nie istnieje w tej licytacji");
+        jdbc.update("INSERT INTO auction_reports(auction_id,bid_id,user_id,reason) VALUES (?,?,?,?) ON CONFLICT DO NOTHING",id,bidId,user.getId(),reason(reason));
     }
 
     void endListing(long id) {
@@ -233,6 +258,26 @@ public class AuctionService {
     }
     private void owner(Listing l,User user) {
         if(!l.getUser().getId().equals(user.getId())) throw new ForbiddenOperationException("Tylko sprzedający może edytować aukcję");
+    }
+    private void requireDescriptionAllowed(String description) {
+        if (description != null && textModeration.containsBlockedWord(description)) throw new IllegalArgumentException("Opis aukcji zawiera niedozwolone słowa.");
+    }
+    private String biddingRestriction(User user, Instant now) {
+        if (user == null) return "Zaloguj się, aby licytować.";
+        if (!user.isEmailVerified()) return "Nie możesz licytować bez weryfikacji adresu e-mail. Zweryfikuj e-mail w swoim profilu.";
+        if (user.getCreatedAt() == null || user.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant().plusSeconds(86400).isAfter(now))
+            return "Możesz licytować po upływie 24 godzin od rejestracji konta.";
+        return null;
+    }
+    private void requireVisible(State auction, User viewer) {
+        if ((viewer != null && viewer.isAdmin()) || "ACTIVE".equals(auction.status())) return;
+        Instant endedAt = auction.endsAt();
+        if ("CANCELLED".equals(auction.status())) {
+            endedAt = jdbc.queryForObject("SELECT COALESCE(min(created_at),?::timestamptz) FROM auction_audit WHERE auction_id=? AND action='CANCELLED'",
+                    OffsetDateTime.class,time(auction.endsAt()),auction.id()).toInstant();
+        }
+        if (endedAt.plusSeconds(86400).isBefore(auctions.now()))
+            throw new NotFoundException("Zakończona licytacja jest dostępna przez 24 godziny od zakończenia.");
     }
     private Receipt replay(Receipt previous,PlaceBidRequest r) {
         if(previous.amount()!=r.amount() || !previous.currency().equals(r.currency())) throw new IllegalArgumentException("Klucz ponowienia został już użyty z inną ofertą");

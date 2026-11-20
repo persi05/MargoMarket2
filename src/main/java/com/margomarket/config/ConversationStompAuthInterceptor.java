@@ -35,7 +35,7 @@ class ConversationStompAuthInterceptor implements ChannelInterceptor {
             try {
                 String token = authorization.substring(7);
                 User user = userService.getByEmail(jwtService.extractUsername(token));
-                if (!jwtService.isTokenValid(token, user)) throw new MessagingException("Invalid token");
+                if (user.isAccessBlocked() || !jwtService.isTokenValid(token, user)) throw new MessagingException("Invalid token");
                 accessor.setUser(new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
             } catch (RuntimeException exception) {
                 throw new MessagingException("Invalid token", exception);

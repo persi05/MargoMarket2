@@ -8,6 +8,8 @@ import com.margomarket.model.User;
 import com.margomarket.repository.FavoriteRepository;
 import com.margomarket.repository.ListingRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -53,11 +55,13 @@ class FavoriteServiceTest {
         assertThat(favorites.getContent()).containsExactly(first, second);
     }
 
-    @Test
-    void addFavoriteSavesFavoriteForActiveListingWhenItDoesNotExistYet() {
+    @ParameterizedTest
+    @ValueSource(strings = {"FIXED", "AUCTION"})
+    void addFavoriteSavesFavoriteForActiveListingWhenItDoesNotExistYet(String mode) {
         User user = new User();
         Listing listing = listing("active");
 
+        listing.setSaleMode(mode);
         when(listingRepository.findById(10L)).thenReturn(Optional.of(listing));
         when(favoriteRepository.existsByUserAndListing(user, listing)).thenReturn(false);
 

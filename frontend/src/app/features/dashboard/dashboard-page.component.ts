@@ -123,6 +123,7 @@ export class DashboardPageComponent {
   }
 
   private handleLoadError(response: unknown): void {
+    if(response instanceof HttpErrorResponse && response.error?.code === 'ACCOUNT_BLOCKED') { this.notice=response.error.message; return; }
     if (response instanceof HttpErrorResponse && (response.status === 401 || response.status === 403)) {
       this.notice = 'Sesja wygasła albo token jest niepoprawny. Zaloguj się ponownie.';
       this.authService.logout();

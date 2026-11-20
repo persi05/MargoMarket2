@@ -1,0 +1,157 @@
+.report-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: 20px;
+  background: rgba(8, 9, 8, .74);
+  backdrop-filter: blur(4px);
+}
+.report-dialog {
+  position: relative;
+  width: min(100%, 480px);
+  border: 1px solid #806c58;
+  border-radius: 16px;
+  padding: 28px;
+  background: #26211d;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+}
+.report-dialog h2 {
+  margin: 0 36px 8px 0;
+  color: #f5eadb;
+  font-size: 23px;
+}
+.report-dialog > p {
+  margin: 0 0 22px;
+  color: #c4b6a6;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.report-dialog > p strong {
+  color: #f6e4c9;
+}
+.report-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background: transparent;
+  color: #cbbcaf;
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1;
+}
+.report-close:hover {
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+}
+.report-form {
+  display: grid;
+  gap: 11px;
+}
+.report-form fieldset {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  margin: 0 0 8px;
+  border: 0;
+  padding: 0;
+}
+.report-form legend, .report-form > label {
+  margin-bottom: 7px;
+  color: #e9dac4;
+  font-size: 13px;
+  font-weight: 800;
+}
+.report-form > label span {
+  color: #a99c8c;
+  font-weight: 400;
+}
+.report-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid #665849;
+  border-radius: 10px;
+  padding: 12px;
+  background: #302922;
+  cursor: pointer;
+}
+.report-option:has(input:checked) {
+  border-color: var(--color-primary);
+  background: rgba(168, 201, 138, .1);
+}
+.report-option input {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  margin: 3px 0 0;
+  accent-color: var(--color-primary);
+}
+.report-option span {
+  display: grid;
+  gap: 3px;
+}
+.report-option strong {
+  color: #f5eadb;
+  font-size: 14px;
+}
+.report-option small {
+  color: #b9ab99;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.report-form textarea {
+  width: 100%;
+  min-height: 82px;
+  resize: vertical;
+  border: 1px solid #665849;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #1d1916;
+  color: #f5eadb;
+  font: inherit;
+  font-size: 13px;
+}
+.report-form textarea:focus {
+  outline: 2px solid rgba(168, 201, 138, .45);
+}
+.report-error {
+  margin: 0;
+  color: #ffc7bd;
+  font-size: 12px;
+}
+.close-dialog > .report-error {
+  margin-top: 12px;
+  color: #ffc7bd;
+}
+.report-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+.report-dialog-actions button {
+  padding: 10px 15px;
+  font-size: 13px;
+}
+.report-dialog-actions .report-cancel {
+  border-color: #665849;
+  background: #3a322b;
+  color: #f1e5d6;
+}
+@media (max-width: 560px) {
+  .report-dialog {
+    padding: 22px 18px;
+  }
+}
+
+.report-dialog { box-sizing:border-box; max-height:calc(100dvh - 40px); overflow:auto; }.report-dialog-actions button { border:1px solid #71915e; border-radius:5px; background:var(--color-action); color:var(--color-action-text); font:inherit; font-weight:800; cursor:pointer; }.report-dialog-actions button:disabled { opacity:.45; cursor:not-allowed; }

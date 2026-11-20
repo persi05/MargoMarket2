@@ -24,6 +24,7 @@ export interface Auction {
   contactReminder: boolean;
   winnerId: number | null;
   winnerDisplayName: string | null;
+  biddingRestriction?: string | null;
 }
 export interface AuctionBid {
   id: number;
@@ -63,6 +64,7 @@ export class AuctionService {
   bid(id: number, amount: number, currency: string, idempotencyKey: string) {
     return this.http.post(`${this.url}/${id}/bids`, {amount, currency, idempotencyKey});
   }
+  reportBid(id: number, bidId: number, reason: string) { return this.http.post(`${this.url}/${id}/bids/${bidId}/reports`, {reason}); }
   report(id: number, reason: string) { return this.http.post(`${this.url}/${id}/reports`, {reason}); }
   cancel(id: number, reason: string) { return this.http.post(`${this.url}/${id}/cancel`, {reason}); }
   start(id: number) { return this.http.post<{conversationId: number}>(`${this.url}/${id}/fulfillment/start`, {}); }

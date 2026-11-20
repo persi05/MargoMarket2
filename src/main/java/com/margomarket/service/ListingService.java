@@ -38,6 +38,7 @@ public class ListingService {
 
     private static final int PAGE_SIZE = 50;
 
+    private final UserModerationService userModeration;
     private final ListingRepository listingRepository;
     private final ListingStatusRepository listingStatusRepository;
     private final ServerRepository serverRepository;
@@ -112,6 +113,17 @@ public class ListingService {
 
     @Transactional
     public Listing createListing(ListingRequest request, User owner) {
+        userModeration.requireAllowed(owner,ModerationScope.ITEM_LISTINGS);
+        return createItemListing(request,owner);
+    }
+
+    @Transactional
+    public Listing createAuctionListing(ListingRequest request,User owner) {
+        userModeration.requireAllowed(owner,ModerationScope.AUCTION_LISTINGS);
+        return createItemListing(request,owner);
+    }
+
+    private Listing createItemListing(ListingRequest request,User owner) {
         Listing listing = new Listing();
         listing.setUser(owner);
         applyRequest(listing, request);
@@ -121,6 +133,7 @@ public class ListingService {
 
     @Transactional
     public Listing updateListing(Long id, ListingRequest request, User currentUser) {
+        userModeration.requireAllowed(currentUser,ModerationScope.ITEM_LISTINGS);
         Listing listing = lockedListing(id);
         requireOwnerOrAdmin(listing, currentUser);
         auctionPolicy.requireFixed(listing);
@@ -183,7 +196,7 @@ public class ListingService {
         listing.setPrice(request.price());
         listing.setCurrency(getCurrency(request.currencyId()));
         listing.setServer(getServer(request.serverId()));
-        listing.setContact(request.contact().trim());
+        listing.setContact(request.contact() == null ? "" : request.contact().trim());
     }
 
     private Listing lockedListing(Long id) {

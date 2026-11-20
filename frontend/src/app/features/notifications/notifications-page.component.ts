@@ -1,3 +1,6 @@
+import { ChatRealtimeService } from '../../core/services/chat-realtime.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -30,6 +33,7 @@ export class NotificationsPageComponent {
 
   constructor() {
     this.loadNotifications();
+    inject(ChatRealtimeService).events$.pipe(filter(event=>event.kind==='account-access'),takeUntilDestroyed()).subscribe(()=>this.loadNotifications());
   }
 
   protected markAsRead(notification: NotificationResponse): void {
@@ -78,6 +82,7 @@ export class NotificationsPageComponent {
   }
 
   private errorMessage(error: HttpErrorResponse, fallback: string): string {
+    if(error.error?.code === 'ACCOUNT_BLOCKED') return error.error.message;
     if (error.status === 401 || error.status === 403) {
       this.authService.logout();
       void this.router.navigate(['/auth']);

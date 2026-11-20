@@ -1,9 +1,8 @@
 <section class="auth-page">
   <div class="copy">
-    <p class="eyebrow">Konto gracza</p>
     <h1>{{ mode === 'login' ? 'Zaloguj się do MargoMarket' : mode === 'register' ? 'Załóż konto w MargoMarket' : 'Potwierdź e-mail' }}</h1>
     <p>Jedno miejsce do kupowania i sprzedawania przedmiotów. Poznaj giełdę stworzoną dla graczy jednej z najpopularniejszych polskich gier MMORPG. Nad platformą czuwa Persi, którego znacie z społeczności handlarskiej.</p>
-    <a routerLink="/">Wróć do giełdy</a>
+    <a routerLink="/items">Wróć do giełdy</a>
   </div>
   <form [formGroup]="form" (ngSubmit)="submit()">
     <div class="flow-heading">

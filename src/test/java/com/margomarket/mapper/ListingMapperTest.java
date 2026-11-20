@@ -32,6 +32,20 @@ class ListingMapperTest {
         assertThat(publicResponse.sellerDisplayName()).isEqualTo("Gracz 7");
     }
 
+    @Test
+    void auctionCardAmountsAreVisibleOnlyWithPrivateDetails() {
+        Listing listing = listing();
+        listing.setSaleMode("AUCTION");
+        var summary = new com.margomarket.dto.AuctionSummary("GOLD", 500000000L, 750000000L,
+                3L, java.time.Instant.parse("2026-11-21T12:00:00Z"), "ACTIVE");
+        var publicResponse = mapper.toResponse(listing, false, summary);
+        var privateResponse = mapper.toResponse(listing, true, summary);
+        assertThat(publicResponse.auction().startingAmount()).isNull();
+        assertThat(publicResponse.auction().highestAmount()).isNull();
+        assertThat(privateResponse.auction().highestAmount()).isEqualTo(750000000L);
+        assertThat(privateResponse.price()).isNull();
+    }
+
     private Listing listing() {
         User seller = new User();
         seller.setId(7L);

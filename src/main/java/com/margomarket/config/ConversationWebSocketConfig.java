@@ -16,6 +16,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ConversationWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final ConversationStompAuthInterceptor authInterceptor;
+    private final ModerationWebSocketSessions moderationSessions;
+
+    @Override
+    public void configureWebSocketTransport(org.springframework.web.socket.config.annotation.WebSocketTransportRegistration registration) { registration.addDecoratorFactory(moderationSessions); }
 
     @Value("${app.cors.allowed-origins}")
     private List<String> allowedOrigins;

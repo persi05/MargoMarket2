@@ -14,8 +14,8 @@
   @if (dictionaries$ | async; as dictionaries) {
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       @if (auctionMode) {
-        <div class="wide"><p>Ustal cenę wywoławczą w PLN lub złocie Margonem i wybierz termin zakończenia. Licytacja może trwać od 1 godziny do maksymalnie 7 dni.</p>
-          <label>Koniec licytacji (czas lokalny)<input type="datetime-local" [value]="auctionEnd" [max]="auctionMaxEnd" (input)="auctionEnd = $any($event.target).value" required></label>
+        <div class="wide auction-fields"><p>Ustal cenę wywoławczą w PLN lub złocie i wybierz termin zakończenia. Licytacja może trwać od 1 godziny do maksymalnie 7 dni.</p>
+          <label>Koniec licytacji<input type="datetime-local" [value]="auctionEnd" [max]="auctionMaxEnd" (input)="auctionEnd = $any($event.target).value" required></label>
           <label>Opis aukcji<textarea maxlength="2000" [value]="auctionDescription" (input)="auctionDescription = $any($event.target).value" rows="3"></textarea></label>
           <p>Oferta przyjęta w ostatnich 2 minutach przedłuża licytację. Po pierwszej ofercie dane aukcji nie mogą być zmieniane przez sprzedawcę.</p>
           @if (!plnAuctionsEnabled) {<p>Licytacje w PLN nie zostały jeszcze uruchomione.</p>}
@@ -133,7 +133,7 @@
         <span>2</span>
         <div>
           <h2>Szczegóły ogłoszenia</h2>
-          <p>Ustaw cenę, serwer i sposób kontaktu.</p>
+          <p>Ustaw cenę i serwer. Wymianę uzgodnisz na czacie.</p>
         </div>
       </div>
 
@@ -162,7 +162,7 @@
 
       <label class="manual-field" [class.invalid]="hasFieldError('price')">
         Cena
-        <input type="text" formControlName="price" [attr.inputmode]="isGoldCurrencySelected() ? 'decimal' : 'numeric'" [placeholder]="pricePlaceholder()">
+        <input type="text" formControlName="price" inputmode="text" [placeholder]="pricePlaceholder()">
         @if (fieldError('price')) {
           <small>{{ fieldError('price') }}</small>
         }
@@ -191,14 +191,6 @@
         </select>
         @if (fieldError('serverId')) {
           <small>Wybierz serwer.</small>
-        }
-      </label>
-
-      <label class="contact-field manual-field" [class.invalid]="hasFieldError('contact')">
-        Kontakt
-        <input type="text" formControlName="contact" placeholder="Discord, nick w grze albo email">
-        @if (fieldError('contact')) {
-          <small>{{ fieldError('contact') }}</small>
         }
       </label>
 

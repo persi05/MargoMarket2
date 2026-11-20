@@ -1,66 +1,66 @@
-<section class="gold-market">
-  <nav class="tabs" aria-label="Rodzaje ofert">
-    <a routerLink="/">Przedmioty</a><a routerLink="/gold" aria-current="page">Złoto</a>
-  <a routerLink="/auctions">Licytacje</a></nav>
-  <header>
-    <div>
-      <h1>Złoto Margonem</h1>
-      <p>
-        Oferty całych pakietów złota. Kontakt i uzgodnienie wymiany odbywają się bezpośrednio ze
-        sprzedawcą.
-      </p>
-    </div>
-    @if (enabled) {
-      <a routerLink="/gold/new">Wystaw złoto</a>
-    } @else {
-      <span>Wystawianie złota nie zostało jeszcze uruchomione.</span>
-    }
-  </header>
-  @if (!auth.isLoggedIn) {
-    <p><a routerLink="/auth">Zaloguj si?</a>, aby zobaczy? kursy i ceny oraz filtrowa? po cenie.</p>
-  }
-  <form (ngSubmit)="load()" class="filters">
+<mm-market-layout active="gold">
+<mm-market-filter marketFilter>  <form (ngSubmit)="load()" class="market-filter-form">
     <label
-      >Świat<select name="world" [(ngModel)]="filters.serverId">
+      ><span class="sr-only">Świat</span><select name="world" [(ngModel)]="filters.serverId">
         <option value="">Wszystkie światy</option>
         @for (w of worlds; track w.id) {
           <option [value]="w.id">{{ w.name }}</option>
         }
       </select></label
     ><label
-      >Szukaj w opisach<input name="search" [(ngModel)]="filters.search" maxlength="200" /></label
+      ><span class="sr-only">Szukaj w opisach</span><input placeholder="Szukaj w opisach" name="search" [(ngModel)]="filters.search" maxlength="200" /></label
     ><label
-      >Ilość od (m)<input
+      ><span class="sr-only">Ilość od (m)</span><input placeholder="Ilość od (m)"
         name="minAmount"
         [(ngModel)]="filters.minAmount"
         inputmode="decimal" /></label
     ><label
-      >Ilość do (m)<input
+      ><span class="sr-only">Ilość do (m)</span><input placeholder="Ilość do (m)"
         name="maxAmount"
         [(ngModel)]="filters.maxAmount"
         inputmode="decimal" /></label
     ><label
-      >Cena od (PLN)<input
+      ><span class="sr-only">Cena od (PLN)</span><input placeholder="Cena od (PLN)"
         [disabled]="!auth.isLoggedIn"
         name="minPrice"
         [(ngModel)]="filters.minPrice"
         inputmode="decimal" /></label
     ><label
-      >Cena do (PLN)<input
+      ><span class="sr-only">Cena do (PLN)</span><input placeholder="Cena do (PLN)"
         [disabled]="!auth.isLoggedIn"
         name="maxPrice"
         [(ngModel)]="filters.maxPrice"
         inputmode="decimal" /></label
     ><label
-      >Sortowanie<select name="sort" [(ngModel)]="filters.sort">
+      ><span class="sr-only">Sortowanie</span><select name="sort" [(ngModel)]="filters.sort">
         <option value="newest">Najnowsze</option>
         <option [disabled]="!auth.isLoggedIn" value="priceAsc">Cena rosnąco</option>
         <option [disabled]="!auth.isLoggedIn" value="priceDesc">Cena malejąco</option>
         <option value="amountAsc">Ilość rosnąco</option>
         <option value="amountDesc">Ilość malejąco</option>
       </select></label
-    ><button>Filtruj</button><button type="button" (click)="refresh()">Odśwież</button>
-  </form>
+    ><div class="filter-actions"><button>Filtruj</button><button type="button" (click)="resetFilters()">Wyczyść</button></div>
+  </form></mm-market-filter><div class="gold-results">
+  <header>
+    <div>
+      <h1>Złoto Margonem</h1>
+      <p>
+        Oferty całych pakietów złota.
+      </p>
+    </div>
+    <div class="market-heading-actions">
+    @if (enabled) {
+      <a class="market-create-action" routerLink="/gold/new">Wystaw złoto</a>
+    } @else {
+      <span>Wystawianie złota nie zostało jeszcze uruchomione.</span>
+    }
+    @if (result; as r) {<nav class="pager" aria-label="Górna paginacja złota"><button [disabled]="loading || r.first" (click)="load(r.page-1)">Poprzednia</button><button [disabled]="loading || r.last" (click)="load(r.page+1)">Następna</button></nav>}
+    </div>
+  </header>
+  @if (!auth.isLoggedIn) {
+    <p><a routerLink="/auth">Zaloguj się</a>, aby zobaczyć kursy i ceny oraz filtrować po cenie.</p>
+  }
+
   @if (error) {
     <p role="alert">{{ error }}</p>
   }
@@ -68,28 +68,30 @@
     <p>Ładowanie ofert…</p>
   }
   @if (result; as r) {
-    <div class="offers">
+    @let viewer = auth.user$ | async;
+    <div class="market-table-scroll"><table class="market-table gold-table" [attr.aria-busy]="loading"><thead><tr>
+      @if (auth.isLoggedIn) {<th aria-label="Obserwowane"></th>}
+      <th>Ilość złota</th><th>Kurs</th><th>Cena pakietu</th><th>Sprzedający</th><th>Serwer</th><th>Data wystawienia</th><th>Kontakt</th>
+    </tr></thead><tbody>
       @for (l of r.content; track l.id) {
-        <div>
-          <mm-listing-card
-            [listing]="l"
-            [showFavorite]="auth.isLoggedIn"
-            [isFavorite]="favoriteIds.has(l.id)"
-            [favoriteBusy]="favoriteBusy.has(l.id)"
-            (favorite)="toggleFavorite($event)"
-          /><button (click)="discussion = l">Dyskusja</button>
-        </div>
-      } @empty {
-        <p>Brak ofert spełniających wybrane warunki.</p>
-      }
-    </div>
-    <nav aria-label="Strony ofert">
+        <tr>
+          @if (auth.isLoggedIn) {<td><button type="button" class="favorite-star" [class.is-favorite]="favoriteIds.has(l.id)" [attr.aria-pressed]="favoriteIds.has(l.id)" [attr.aria-label]="favoriteIds.has(l.id) ? 'Usuń z obserwowanych' : 'Dodaj do obserwowanych'" [disabled]="favoriteBusy.has(l.id)" (click)="toggleFavorite(l)">{{favoriteIds.has(l.id) ? '★' : '☆'}}</button></td>}
+          <td class="text-left"><strong>{{goldAmount(l.goldAmount!)}}</strong>@if(l.description){<small class="gold-description">{{l.description}}</small>}</td>
+          <td><mm-private-detail [value]="l.ratePriceMinor === null ? null : goldRate(l.goldRateMode,l.rateGoldUnits,l.ratePriceMinor)" [compact]="true" /></td>
+          <td class="money"><mm-private-detail [value]="l.priceMinor === null ? null : goldPrice(l.priceMinor)" [compact]="true" /></td>
+          <td><a [routerLink]="['/u',l.sellerId,'profil']">{{l.sellerDisplayName}}</a></td><td>{{l.server.name}}</td><td>{{l.createdAt | date:'dd.MM.yyyy HH:mm'}}</td>
+          <td><div class="row-actions">@if(viewer?.id !== l.sellerId){<a class="mm-button secondary" [routerLink]="['/messages/new',l.id]">Napisz wiadomość</a>}<button type="button" class="mm-button secondary" (click)="discussion = l">Dyskusja</button></div></td>
+        </tr>
+      } @empty {<tr><td [attr.colspan]="auth.isLoggedIn ? 8 : 7">Brak ofert spełniających wybrane warunki.</td></tr>}
+    </tbody></table></div>
+    <nav class="pagination" aria-label="Strony ofert">
       <button [disabled]="loading || r.first" (click)="load(r.page - 1)">Poprzednia</button
-      ><span>Strona {{ r.page }}</span
+      ><span>Strona {{ r.page }} z {{ r.totalPages || 1 }}</span
       ><button [disabled]="loading || r.last" (click)="load(r.page + 1)">Następna</button>
-    <a routerLink="/auctions">Licytacje</a></nav>
+    </nav>
   }
   @if (discussion; as l) {
     <mm-discussion-drawer [listing]="l" (closed)="discussion = null" />
   }
-</section>
+</div>
+</mm-market-layout>

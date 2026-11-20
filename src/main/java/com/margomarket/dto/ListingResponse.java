@@ -31,6 +31,7 @@ public record ListingResponse(
         Long ratePriceMinor,
         String description,
         LocalDateTime soldAt,
-        String saleMode
+        String saleMode,
+        AuctionSummary auction
 ) {
 }

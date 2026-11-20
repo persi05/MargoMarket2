@@ -1,6 +1,7 @@
 package com.margomarket.mapper;
 
 import com.margomarket.dto.ListingResponse;
+import com.margomarket.dto.AuctionSummary;
 import com.margomarket.model.Listing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,12 @@ public class ListingMapper {
     }
 
     public ListingResponse toResponse(Listing listing, boolean showPrivateDetails) {
+        return toResponse(listing, showPrivateDetails, null);
+    }
+
+    public ListingResponse toResponse(Listing listing, boolean showPrivateDetails, AuctionSummary auction) {
+        AuctionSummary visibleAuction = auction == null || showPrivateDetails ? auction
+                : new AuctionSummary(auction.currency(), null, null, auction.bidCount(), auction.endsAt(), auction.status());
         return new ListingResponse(
                 listing.getId(),
                 listing.getItem() == null ? null : listing.getItem().getId(),
@@ -45,7 +52,8 @@ public class ListingMapper {
                 showPrivateDetails ? listing.getRatePriceMinor() : null,
                 listing.getDescription(),
                 listing.getSoldAt(),
-                listing.getSaleMode()
+                listing.getSaleMode(),
+                visibleAuction
         );
     }
 }

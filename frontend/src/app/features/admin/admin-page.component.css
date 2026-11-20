@@ -254,9 +254,10 @@ tr:last-child td {
 .admin-queue {
   display: grid;
   gap: 12px;
-  max-width: 900px;
-  max-height: 70dvh;
-  overflow-y: auto;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  overflow: visible;
   align-content: start;
 }
 .admin-queue-card {
@@ -346,3 +347,9 @@ tr:last-child td {
     flex-direction: column;
   }
 }
+
+.tabs { display:grid; grid-template-columns:repeat(auto-fit,minmax(165px,1fr)); gap:6px; padding:6px; border:1px solid var(--color-border); border-radius:9px; background:var(--color-input-dark); }.tabs button { border:1px solid transparent; border-radius:5px; box-shadow:none; background:transparent; padding:12px; }.tabs button.active { background:var(--color-primary); color:#182215; border-color:var(--color-primary); }.tabs button:focus-visible { outline:2px solid var(--color-primary); outline-offset:2px; }
+
+@media(min-width:1400px) { .tabs { grid-template-columns:repeat(9,minmax(0,1fr)); }.tabs button { min-width:0; padding:12px 7px; font-size:14px; line-height:1.35; } }
+@media(min-width:700px) and (max-width:1399px) { .tabs { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:699px) { .tabs { grid-template-columns:repeat(2,minmax(0,1fr)); }.tabs button:last-child { grid-column:1/-1; } }

@@ -26,6 +26,7 @@ import java.util.Set;
 public class ConversationService {
     private static final int MESSAGE_PAGE_SIZE = 50;
 
+    private final UserModerationService userModeration;
     private final ConversationRepository conversations;
     private final ConversationMessageRepository messages;
     private final ListingRepository listings;
@@ -77,6 +78,7 @@ public class ConversationService {
 
     @Transactional
     public ConversationResponse start(Long listingId, String body, User buyer) {
+        userModeration.requireAllowed(buyer,ModerationScope.MESSAGES);
         Listing listing = listings.findLockedById(listingId)
                 .orElseThrow(() -> new NotFoundException("Ogłoszenie nie istnieje"));
         if (listing.getUser().getId().equals(buyer.getId())) {
@@ -105,6 +107,7 @@ public class ConversationService {
 
     @Transactional
     public ChatMessageResponse send(Long id, String body, User sender) {
+        userModeration.requireAllowed(sender,ModerationScope.MESSAGES);
         Conversation conversation = access.requireParticipant(id, sender);
         if (conversation.getClosedAt() != null) {
             throw new IllegalArgumentException("Ta wymiana jest zakończona.");

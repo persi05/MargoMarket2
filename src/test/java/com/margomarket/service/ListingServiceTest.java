@@ -68,6 +68,8 @@ class ListingServiceTest {
 
     @Mock private AuctionListingPolicy auctionPolicy;
 
+    @org.mockito.Mock private UserModerationService userModeration;
+
     @InjectMocks
     private ListingService listingService;
 
