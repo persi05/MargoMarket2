@@ -3,10 +3,7 @@
     <p class="eyebrow">Nowa oferta</p>
     <h1>{{ auctionMode ? (auctionEditId ? 'Edytuj licytację' : 'Wystaw przedmiot na licytację') : 'Dodaj przedmiot na giełdę' }}</h1>
     @if (!auctionEditId) {
-      <div class="sale-mode" role="group" aria-label="Sposób sprzedaży">
-        <button type="button" [attr.aria-pressed]="!auctionMode" (click)="auctionMode = false">Zwykła sprzedaż</button>
-        <button type="button" [attr.aria-pressed]="auctionMode" [disabled]="!auctionsEnabled" (click)="auctionMode = true">Licytacja</button>
-      </div>
+      <mm-sale-mode [active]="auctionMode ? 'auction' : 'item'" [auctionsEnabled]="auctionsEnabled" />
       @if (!auctionsEnabled) {<p>Nowe licytacje nie zostały jeszcze uruchomione.</p>}
     }
   </header>

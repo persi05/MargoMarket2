@@ -1,3 +1,4 @@
+import { SaleModeComponent } from '../../shared/sale-mode/sale-mode.component';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -18,9 +19,9 @@ import {
 @Component({
   selector: 'mm-gold-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, SaleModeComponent],
   templateUrl: './gold-form.component.html',
-  styleUrl: './gold-page.component.css',
+  styleUrls: ['../listing-form/listing-form-page.component.css', './gold-form.component.css'],
 })
 export class GoldFormComponent {
   private service = inject(ListingService);
@@ -43,7 +44,7 @@ export class GoldFormComponent {
   }
   protected get preview() {
     const amount = parseGoldMillions(this.form.amount);
-    return amount === null ? 'Wpisz dodatnią ilość w m' : formatGold(amount);
+    return amount === null ? 'Możesz wpisać m lub g.' : formatGold(amount);
   }
   protected get total() {
     const amount = parseGoldMillions(this.form.amount);

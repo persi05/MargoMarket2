@@ -1,3 +1,5 @@
+import { SaleModeComponent } from '../../shared/sale-mode/sale-mode.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AsyncPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -19,7 +21,7 @@ import { goldMillionsInput, parseGoldMillions, parsePln } from '../../core/utils
 @Component({
   selector: 'mm-listing-form-page',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
+  imports: [SaleModeComponent, AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
   templateUrl: './listing-form-page.component.html',
   styleUrl: './listing-form-page.component.css'
 })
@@ -91,6 +93,9 @@ export class ListingFormPageComponent {
   );
 
   constructor() {
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe(params => {
+      if (!this.auctionEditId) this.auctionMode = params.get('mode') === 'auction';
+    });
     this.auctions.config().subscribe(c => { this.auctionsEnabled = c.enabled; this.plnAuctionsEnabled = c.plnEnabled; });
     if (this.auctionEditId) this.auctions.get(this.auctionEditId).subscribe({
       next: a => {

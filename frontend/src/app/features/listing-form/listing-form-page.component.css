@@ -74,17 +74,9 @@ textarea {
   resize: vertical;
 }
 
-.sale-mode {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 16px 0;
-}
 
-.sale-mode button[aria-pressed="true"] {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
+
+
 
 input::placeholder {
   color: rgba(170, 157, 141, 0.68);
@@ -583,6 +575,3 @@ h2 {
 .auction-fields p { margin: 0; line-height: 1.6; color: var(--color-text-muted); }
 .auction-fields label { gap: 8px; }
 .auction-fields textarea { margin: 0; }
-.sale-mode { display: inline-flex; padding: 4px; gap: 4px; background: var(--color-input-dark); border: 1px solid var(--color-border); border-radius: 10px; }
-.sale-mode button { background: transparent; color: var(--color-text-muted); border: 0; box-shadow: none; padding: 11px 20px; border-radius: 7px; }
-.sale-mode button[aria-pressed="true"] { outline: none; background: #a8c98a; color: #182215; }
