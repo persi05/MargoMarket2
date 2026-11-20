@@ -1,11 +1,18 @@
 <mm-market-layout active="auctions">
-  @if (filters.scope === 'SELLING' || filters.scope === 'BIDDING') {
-    <nav class="account-navigation" aria-label="Moje ogłoszenia">
-      <a routerLink="/dashboard">Moje ogłoszenia</a><a routerLink="/auctions" [queryParams]="{scope:'SELLING'}" [attr.aria-current]="filters.scope === 'SELLING' ? 'page' : null">Moje licytacje</a><a routerLink="/auctions" [queryParams]="{scope:'BIDDING'}" [attr.aria-current]="filters.scope === 'BIDDING' ? 'page' : null">Moje złożone oferty</a>
-    </nav>
-  }
 
     <mm-market-filter marketFilter><form class="market-filter-form" (ngSubmit)="load()">
+      <label class="scope-select">
+        <span class="sr-only">Widok licytacji</span>
+        <select name="scope" [ngModel]="filters.scope" (ngModelChange)="setScope($event)">
+          <option value="ACTIVE">Trwające licytacje</option>
+          <option value="ENDED">Zakończone licytacje</option>
+          @if (auth.isLoggedIn) {
+            <option value="SELLING">Moje licytacje</option>
+            <option value="BIDDING">Moje złożone oferty</option>
+          }
+          @if (admin) {<option value="ADMIN">Wszystkie (moderacja)</option>}
+        </select>
+      </label>
       <label><span class="sr-only">Przedmiot</span><input name="search" [(ngModel)]="filters.search" maxlength="200" placeholder="Nazwa przedmiotu"></label>
       <label><span class="sr-only">Typ przedmiotu</span><select name="type" [(ngModel)]="filters.itemTypeId"><option value="">Typ przedmiotu</option>@for (t of types; track t.id) {<option [value]="t.id">{{t.name}}</option>}</select></label>
       <label><span class="sr-only">Powiązanie</span><select name="bound" [(ngModel)]="filters.bound"><option value="">Wszystkie przedmioty</option><option value="true">Związane</option><option value="false">Niezwiązane</option></select></label>
@@ -20,7 +27,6 @@
         @if (enabled) {<a class="market-create-action" routerLink="/new" [queryParams]="{mode:'auction'}">Wystaw na licytację</a>}
         @if (result; as r) {<nav class="pager" aria-label="Górna paginacja licytacji"><button [disabled]="loading || r.first" (click)="load(r.page-1,false)">Poprzednia</button><button [disabled]="loading || r.last" (click)="load(r.page+1,false)">Następna</button></nav>}
       </div></header>
-      <div class="scope-tabs" role="group" aria-label="Widok licytacji"><button [attr.aria-pressed]="filters.scope === 'ACTIVE'" (click)="setScope('ACTIVE')">Trwające</button><button [attr.aria-pressed]="filters.scope === 'ENDED'" (click)="setScope('ENDED')">Zakończone</button>@if (admin) {<button [attr.aria-pressed]="filters.scope === 'ADMIN'" (click)="setScope('ADMIN')">Moderacja</button>}</div>
       @if (error) {<p role="alert">{{error}}</p>}
       @if (loading) {<p role="status">Ładowanie licytacji…</p>}
       <div class="table-scroll"><table class="auction-table" [attr.aria-busy]="loading"><thead><tr><th aria-label="Podgląd"></th><th>Nazwa przedmiotu</th><th>Poziom</th><th>Ulepszenie</th><th>Najwyższa oferta</th><th>Sprzedający</th><th>Serwer</th><th>Do końca</th><th></th></tr></thead><tbody>
