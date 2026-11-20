@@ -5,7 +5,11 @@ import com.margomarket.exception.*;
 import com.margomarket.model.User;
 import com.margomarket.repository.*;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,8 +30,19 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 @SpringBootTest
 @ActiveProfiles("auction-test")
 @AutoConfigureMockMvc
-@EnabledIfEnvironmentVariable(named="AUCTION_TEST_DATABASE_URL",matches=".+")
-class AuctionIntegrationTest {
+@Testcontainers
+class AuctionIntegrationIT {
+    @Container
+    private static final PostgreSQLContainer DATABASE = new PostgreSQLContainer("postgres:17-alpine")
+            .withDatabaseName("auction_test").withUsername("auction_test").withPassword("auction_test");
+
+    @DynamicPropertySource
+    static void databaseProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", DATABASE::getJdbcUrl);
+        registry.add("spring.datasource.username", DATABASE::getUsername);
+        registry.add("spring.datasource.password", DATABASE::getPassword);
+    }
+
     @Autowired AuctionService auctions;
     @Autowired AuctionClosingService closing;
     @Autowired AuctionFulfillmentService fulfillment;
