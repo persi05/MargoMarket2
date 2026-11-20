@@ -6,7 +6,7 @@
     <header class="detail-heading"><mm-auction-item [listing]="a.listing" /><div><h1>{{a.listing.itemName}}</h1><p>{{a.listing.server.name}} · {{a.listing.rarity?.name}} · poziom {{a.listing.level}} · ulepszenie +{{a.listing.enhancementLevel}} · {{a.listing.bound ? 'Związany' : 'Niezwiązany'}}</p><a class="seller-link" [routerLink]="['/u',a.listing.sellerId,'profil']">{{a.listing.sellerDisplayName}}</a></div><span>{{status(a.status)}}</span></header>
     <div class="detail-grid"><div>
       <h2>Opis aukcji</h2><p class="auction-description">{{a.listing.description || 'Sprzedający nie dodał opisu.'}}</p>
-      <p class="rules">Serwis nie weryfikuje posiadania środków ani nie realizuje płatności. Wygrana wymaga osobnego uzgodnienia wymiany.</p>
+      <p class="rules">Serwis nie weryfikuje posiadania środków ani nie realizuje płatności. Wygrana wymaga późniejszego uzgodnienia wymiany.</p>
       <button (click)="discussion = true">Dyskusja o przedmiocie</button>
       @if (a.owner && a.status === 'ACTIVE' && a.bidCount === 0 && !expired) { <a [routerLink]="['/auctions/edit',a.id]">Edytuj aukcję</a> }
       @if ((a.owner || a.winner || admin) && a.fulfillmentStatus) {
