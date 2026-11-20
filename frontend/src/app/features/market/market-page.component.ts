@@ -1,5 +1,7 @@
+import { MarketLayoutComponent } from '../../shared/market-layout/market-layout.component';
+import { MarketFilterComponent } from '../../shared/market-layout/market-filter.component';
 import { AsyncPipe } from '@angular/common';
-import { DestroyRef, Component, ElementRef, HostListener, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
+import { DestroyRef, Component, ElementRef, HostListener, QueryList, ViewChildren, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BehaviorSubject, catchError, combineLatest, debounceTime, distinctUntilChanged, finalize, of, shareReplay, switchMap, tap } from 'rxjs';
@@ -18,12 +20,11 @@ import { DiscussionDrawerComponent } from './discussion-drawer.component';
 @Component({
   selector: 'mm-market-page',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, RouterLink, ItemDescriptionPipe, DiscussionDrawerComponent, PrivateDetailComponent],
+  imports: [MarketLayoutComponent, MarketFilterComponent, AsyncPipe, ReactiveFormsModule, RouterLink, ItemDescriptionPipe, DiscussionDrawerComponent, PrivateDetailComponent],
   templateUrl: './market-page.component.html',
   styleUrl: './market-page.component.css'
 })
 export class MarketPageComponent {
-  @ViewChild('filterPanel') private filterPanel?: ElementRef<HTMLElement>;
   @ViewChildren('pinnedPreview') private pinnedPreviewElements?: QueryList<ElementRef<HTMLElement>>;
 
   private readonly fb = inject(FormBuilder);
@@ -54,21 +55,12 @@ export class MarketPageComponent {
   protected readonly favoriteBusyIds = new Set<number>();
   protected readonly brokenListingImageIds = new Set<number>();
   protected activeDiscussionListing: ListingResponse | null = null;
-  protected filterPosition: { x: number; y: number } | null = null;
-  protected filterDragging = false;
   protected pinnedListings: ListingResponse[] = [];
   protected readonly previewPositions = new Map<number, { x: number; y: number }>();
   protected previewDraggingId: number | null = null;
   protected frontPreviewId: number | null = null;
   private previewDragState: {
     listingId: number;
-    pointerId: number;
-    offsetX: number;
-    offsetY: number;
-    width: number;
-    height: number;
-  } | null = null;
-  private filterDragState: {
     pointerId: number;
     offsetX: number;
     offsetY: number;
@@ -130,58 +122,6 @@ export class MarketPageComponent {
     if (document.hidden || this.requestInFlight || Date.now() - this.lastLoaded < 30000) return;
     this.backgroundRefresh = true;
     this.pageSubject.next(this.pageSubject.value);
-  }
-
-  protected startFilterDrag(event: PointerEvent): void {
-    if (!event.isPrimary || event.button !== 0 || window.innerWidth <= 920
-        || (event.target as HTMLElement).closest('.reset-position')) {
-      return;
-    }
-
-    const panel = this.filterPanel?.nativeElement;
-    if (!panel) {
-      return;
-    }
-
-    const bounds = panel.getBoundingClientRect();
-    this.filterPosition = { x: bounds.left, y: bounds.top };
-    this.filterDragState = {
-      pointerId: event.pointerId,
-      offsetX: event.clientX - bounds.left,
-      offsetY: event.clientY - bounds.top,
-      width: bounds.width,
-      height: bounds.height
-    };
-    this.filterDragging = true;
-    panel.setPointerCapture(event.pointerId);
-    event.preventDefault();
-  }
-
-  protected resetFilterPosition(): void {
-    this.filterPosition = null;
-    this.filterDragState = null;
-    this.filterDragging = false;
-  }
-
-  protected moveFilter(event: PointerEvent): void {
-    const drag = this.filterDragState;
-    if (!drag || event.pointerId !== drag.pointerId) {
-      return;
-    }
-
-    this.filterPosition = this.clampFilterPosition(
-      event.clientX - drag.offsetX,
-      event.clientY - drag.offsetY,
-      drag.width,
-      drag.height
-    );
-  }
-
-  protected stopFilterDrag(event: PointerEvent): void {
-    if (event.pointerId === this.filterDragState?.pointerId) {
-      this.filterDragState = null;
-      this.filterDragging = false;
-    }
   }
 
   protected pinPreview(listing: ListingResponse, event: MouseEvent): void {
@@ -291,41 +231,8 @@ export class MarketPageComponent {
     };
   }
 
-  protected moveFilterWithKeyboard(event: KeyboardEvent): void {
-    if (window.innerWidth <= 920) {
-      return;
-    }
-
-    if (event.key === 'Home') {
-      this.filterPosition = null;
-      event.preventDefault();
-      return;
-    }
-
-    const shifts: Record<string, [number, number]> = {
-      ArrowLeft: [-24, 0],
-      ArrowRight: [24, 0],
-      ArrowUp: [0, -24],
-      ArrowDown: [0, 24]
-    };
-    const shift = shifts[event.key];
-    const panel = this.filterPanel?.nativeElement;
-    if (!shift || !panel) {
-      return;
-    }
-
-    const bounds = panel.getBoundingClientRect();
-    this.filterPosition = this.clampFilterPosition(
-      bounds.left + shift[0],
-      bounds.top + shift[1],
-      bounds.width,
-      bounds.height
-    );
-    event.preventDefault();
-  }
-
   @HostListener('window:resize')
-  protected keepFilterInViewport(): void {
+  protected keepPreviewsInViewport(): void {
     this.pinnedPreviewElements?.forEach(({ nativeElement: preview }) => {
       const listingId = Number(preview.dataset['listingId']);
       const position = this.previewPositions.get(listingId);
@@ -337,28 +244,10 @@ export class MarketPageComponent {
         position.x, position.y, bounds.width, bounds.height
       ));
     });
-    const panel = this.filterPanel?.nativeElement;
-    if (!panel || !this.filterPosition || window.innerWidth <= 920) {
-      return;
-    }
 
-    const bounds = panel.getBoundingClientRect();
-    this.filterPosition = this.clampFilterPosition(
-      this.filterPosition.x,
-      this.filterPosition.y,
-      bounds.width,
-      bounds.height
-    );
   }
 
-  private clampFilterPosition(x: number, y: number, width: number, height: number): { x: number; y: number } {
-    const maxX = Math.max(12, window.innerWidth - width - 12);
-    const maxY = Math.max(83, window.innerHeight - height - 12);
-    return {
-      x: Math.min(maxX, Math.max(12, x)),
-      y: Math.min(maxY, Math.max(83, y))
-    };
-  }
+
 
   applyFilters(): void {
     this.pageSubject.next(1);

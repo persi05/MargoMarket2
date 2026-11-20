@@ -1,3 +1,5 @@
+import { MarketLayoutComponent } from '../../shared/market-layout/market-layout.component';
+import { MarketFilterComponent } from '../../shared/market-layout/market-filter.component';
 import { AuthService } from '../../core/services/auth.service';
 import { skip } from 'rxjs';
 import { Component, inject, HostListener, DestroyRef } from '@angular/core';
@@ -12,7 +14,7 @@ import { parseGoldMillions, parsePln } from '../../core/utils/gold-format';
 @Component({
   selector: 'mm-gold-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, ListingCardComponent, DiscussionDrawerComponent],
+  imports: [MarketLayoutComponent, MarketFilterComponent, FormsModule, RouterLink, ListingCardComponent, DiscussionDrawerComponent],
   templateUrl: './gold-page.component.html',
   styleUrl: './gold-page.component.css',
 })
@@ -69,6 +71,10 @@ export class GoldPageComponent {
   }
   @HostListener('document:visibilitychange') visible() {
     if (!document.hidden && !this.requestInFlight && Date.now() - this.lastLoaded >= 30000) this.load(this.currentPage, true);
+  }
+  protected resetFilters() {
+    this.filters = {serverId:'',search:'',minAmount:'',maxAmount:'',minPrice:'',maxPrice:'',sort:'newest'};
+    this.load();
   }
   protected load(page = 1, background = false) {
     const f = this.filters;

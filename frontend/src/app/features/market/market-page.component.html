@@ -1,35 +1,5 @@
-<nav class="market-tabs" aria-label="Rodzaje ofert"><a routerLink="/" aria-current="page">Przedmioty</a><a routerLink="/gold">Złoto</a><a routerLink="/auctions">Licytacje</a></nav>
-<section class="market-shell">
-  <aside class="filter-dock">
-    <div class="filters" #filterPanel [class.is-dragging]="filterDragging" [class.has-custom-position]="filterPosition !== null" [style.left.px]="filterPosition?.x" [style.top.px]="filterPosition?.y" (pointermove)="moveFilter($event)" (pointerup)="stopFilterDrag($event)" (pointercancel)="stopFilterDrag($event)" (lostpointercapture)="stopFilterDrag($event)">
-      <div class="filter-top" (pointerdown)="startFilterDrag($event)">
-        <h2>Filtrowanie</h2>
-        <button
-          type="button"
-          class="panel-tool reset-position"
-          aria-label="Przywróć położenie panelu filtrowania"
-          title="Przywróć położenie"
-          (click)="resetFilterPosition()"
-        >
-          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true" focusable="false">
-            <path d="M4 9a6 6 0 1 1 1.7 4.2M4 4v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <button
-          type="button"
-          class="panel-tool drag-handle"
-          aria-label="Przesuń panel filtrowania"
-          title="Przeciągnij panel filtrowania"
-          (keydown)="moveFilterWithKeyboard($event)"
-        >
-          <svg viewBox="0 0 16 20" width="16" height="20" aria-hidden="true" focusable="false">
-            <circle cx="5" cy="4" r="1.6"/><circle cx="11" cy="4" r="1.6"/>
-            <circle cx="5" cy="10" r="1.6"/><circle cx="11" cy="10" r="1.6"/>
-            <circle cx="5" cy="16" r="1.6"/><circle cx="11" cy="16" r="1.6"/>
-          </svg>
-        </button>
-      </div>
-
+<mm-market-layout active="items">
+  <mm-market-filter marketFilter>
     @if (dictionaries$ | async; as dictionaries) {
       <form [formGroup]="filters" (ngSubmit)="applyFilters()">
         <label>
@@ -93,9 +63,7 @@
         </div>
       </form>
     }
-    </div>
-  </aside>
-
+  </mm-market-filter>
   <div class="results">
     @let page = listings$ | async;
     @if (notice) {
@@ -113,12 +81,15 @@
           }
         </div>
 
+        <div class="market-heading-actions">
+          <a class="market-create-action" routerLink="/new">Wystaw przedmiot</a>
         @if (page && !loading) {
           <div class="pager">
             <button type="button" [disabled]="page.first" (click)="previousPage(page)">Poprzednia</button>
             <button type="button" [disabled]="page.last" (click)="nextPage(page)">Następna</button>
           </div>
         }
+        </div>
       </div>
 
       <div class="table-wrapper">
@@ -276,7 +247,7 @@
         </nav>
       }
   </div>
-</section>
+</mm-market-layout>
 
 @for (listing of pinnedListings; track listing.id) {
   <div

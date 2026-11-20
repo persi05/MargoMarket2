@@ -596,3 +596,18 @@ a:not(.brand):hover {
     padding: 22px 18px;
   }
 }
+
+/* Shared market and account navigation */
+.market-navigation, .account-navigation { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; margin: 16px auto 24px; max-width: 1160px; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-input-dark); }
+.market-navigation a, .account-navigation a { flex: 1; text-align: center; padding: 12px 18px; border: 0; border-radius: 6px; color: var(--color-text-muted); text-decoration: none; font-weight: 700; }
+.market-navigation a:hover, .account-navigation a:hover { background: rgba(168,201,138,.09); color: var(--color-text-main); }
+.market-navigation a[aria-current="page"], .account-navigation a[aria-current="page"] { background: #a8c98a; color: #182215; border: 0; }
+.market-navigation a:focus-visible, .account-navigation a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+.market-heading-actions { display:flex; flex-direction:column; align-items:flex-end; gap:12px; flex-shrink:0; }
+.market-heading-actions .pager { display:flex; gap:10px; margin:0; }
+a.market-create-action { display:inline-block; padding:11px 16px; border:1px solid transparent; border-radius:6px; background:var(--color-primary); color:#182215; font-weight:700; text-decoration:none; text-align:center; white-space:nowrap; }
+a.market-create-action:hover { background:var(--color-primary-hover); }
+.market-heading-actions .pager button { padding:10px 14px; border:1px solid var(--color-border); border-radius:5px; background:var(--color-input-dark); color:var(--color-text-main); font:inherit; font-weight:700; cursor:pointer; }
+.market-heading-actions .pager button:disabled { opacity:.45; cursor:not-allowed; }
+@media(max-width:620px) { .market-heading-actions { width:100%; align-items:stretch; } .market-heading-actions .pager { flex-direction:row; } .market-heading-actions .pager button { flex:1; } }
