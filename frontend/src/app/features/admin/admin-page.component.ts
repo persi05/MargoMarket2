@@ -1,3 +1,4 @@
+import { CatalogAdminComponent } from './catalog-admin.component';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -19,7 +20,7 @@ import { AuctionModerationComponent } from './auction-moderation.component';
 @Component({
   selector: 'mm-admin-page',
   standalone: true,
-  imports: [AuctionModerationComponent, ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
+  imports: [CatalogAdminComponent, AuctionModerationComponent, ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
   templateUrl: './admin-page.component.html',
   styleUrl: './admin-page.component.css'
 })
@@ -33,7 +34,7 @@ export class AdminPageComponent {
   private readonly usersReloadSubject = new BehaviorSubject(0);
   private readonly usersPageSubject = new BehaviorSubject(1);
 
-  protected activeTab: 'listings' | 'users' | 'moderation' | 'reports' | 'intermediary' | 'chats' = 'listings';
+  protected activeTab: 'listings' | 'users' | 'moderation' | 'reports' | 'intermediary' | 'chats' | 'catalog' = 'listings';
   protected selectedAdminChatId: number | null = null;
   protected reports: ConversationReportResponse[] = [];
   protected reportsPageData: PageResponse<ConversationReportResponse> | null = null;

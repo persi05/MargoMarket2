@@ -23,6 +23,7 @@
   </div>
 
   <div class="tabs">
+    <button type="button" [class.active]="activeTab === 'catalog'" (click)="selectTab('catalog')">Katalog przedmiotów</button>
     <button type="button" [class.active]="activeTab === 'listings'" (click)="selectTab('listings')">
       Ogłoszenia
     </button>
@@ -41,7 +42,9 @@
     <p class="notice">{{ notice }}</p>
   }
 
-  @if (activeTab === 'listings') {
+  @if (activeTab === 'catalog') {
+    <mm-catalog-admin />
+  } @else if (activeTab === 'listings') {
     <aside class="filters">
       @if (dictionaries$ | async; as dictionaries) {
         <form [formGroup]="filters" (ngSubmit)="applyFilters()">

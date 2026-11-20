@@ -52,19 +52,11 @@ http://localhost:4200
 
 ## Aktualizacja katalogu przedmiotów
 
-Uruchomienie skryptu do pobrania przedmiotów z margoworld:
+Administrator uruchamia aktualizację w panelu administracyjnym: **Katalog przedmiotów → Aktualizuj katalog**. Backend pobiera katalog z MargoWorld w tle i pokazuje status oraz liczbę nowych i zaktualizowanych przedmiotów. Nie ma harmonogramu. Nie jest potrzebny restart ani przebudowa aplikacji; kolejne wyszukiwania korzystają z nowych danych.
 
-```powershell
-node scripts\update-margoworld-items.mjs
-```
+Pobieranie i walidacja poprzedzają zapis. Błąd źródła lub importu zachowuje dotychczasowe dane. Import aktualizuje przedmioty po identyfikatorze zewnętrznym, zachowuje ich lokalne ID i powiązania z ogłoszeniami. Brak przedmiotu w źródle nie usuwa go z bazy. Baza blokuje równoczesne aktualizacje; przerwany import można ponowić po 5 minutach bez postępu.
 
-Katalog przedmiotów jest wczytywany z pliku JSON przy starcie backendu. Po wykonaniu `node scripts/update-margoworld-items.mjs` przejrzyj różnice w `src/main/resources/data/margoworld-market-items.json`, a następnie przebuduj i uruchom backend:
-
-```powershell
-docker compose up -d --build app
-```
-
-Importer zapisuje rekordy w PostgreSQL na podstawie identyfikatora zewnętrznego. Zapytania aplikacji korzystają z bazy, nie odczytują JSON-a przy każdym żądaniu. Na serwerze baza musi mieć trwały wolumen lub działać jako osobna usługa; lokalny Docker Compose już używa wolumenu PostgreSQL.
+Plik `src/main/resources/data/margoworld-market-items.json` jest wyłącznie katalogiem startowym, wczytywanym jednorazowo. Późniejszy restart nie nadpisuje katalogu z bazy. Skrypt `node scripts/update-margoworld-items.mjs` służy opcjonalnie do odświeżania tego pliku w repozytorium dla nowych instalacji. Na hostingu PostgreSQL musi mieć trwałe dane; lokalny Docker Compose używa wolumenu.
 
 ## Testy backendu
 
