@@ -22,7 +22,7 @@
     }
   </div>
 
-  <div class="tabs">
+  <nav class="tabs" aria-label="Sekcje administracji">
     <button type="button" [class.active]="activeTab === 'catalog'" (click)="selectTab('catalog')">Katalog przedmiotów</button>
     <button type="button" [class.active]="activeTab === 'listings'" (click)="selectTab('listings')">
       Ogłoszenia
@@ -36,13 +36,19 @@
     <button type="button" [class.active]="activeTab === 'reports'" (click)="selectTab('reports')">Zgłoszenia rozmów</button>
     <button type="button" [class.active]="activeTab === 'chats'" (click)="selectTab('chats')">Chaty</button>
     <button type="button" [class.active]="activeTab === 'intermediary'" (click)="selectTab('intermediary')">Wymiany</button>
-  </div>
+      <button type="button" [class.active]="activeTab === 'confirmations'" (click)="selectTab('confirmations')">Potwierdzanie wymian</button>
+    <button type="button" [class.active]="activeTab === 'auctions'" (click)="selectTab('auctions')">Moderacja licytacji</button>
+  </nav>
 
   @if (notice) {
     <p class="notice">{{ notice }}</p>
   }
 
-  @if (activeTab === 'catalog') {
+  @if (activeTab === 'confirmations') {
+    <mm-exchange-confirmations />
+  } @else if (activeTab === 'auctions') {
+    <mm-auction-moderation />
+  } @else if (activeTab === 'catalog') {
     <mm-catalog-admin />
   } @else if (activeTab === 'listings') {
     <aside class="filters">
@@ -223,6 +229,4 @@
   } @else {
     <mm-moderation-panel />
   }
-<mm-exchange-confirmations />
-<mm-auction-moderation />
 </section>

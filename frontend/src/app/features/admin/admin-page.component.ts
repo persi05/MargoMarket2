@@ -34,7 +34,7 @@ export class AdminPageComponent {
   private readonly usersReloadSubject = new BehaviorSubject(0);
   private readonly usersPageSubject = new BehaviorSubject(1);
 
-  protected activeTab: 'listings' | 'users' | 'moderation' | 'reports' | 'intermediary' | 'chats' | 'catalog' = 'listings';
+  protected activeTab: 'listings' | 'users' | 'moderation' | 'reports' | 'intermediary' | 'chats' | 'catalog' | 'confirmations' | 'auctions' = 'listings';
   protected selectedAdminChatId: number | null = null;
   protected reports: ConversationReportResponse[] = [];
   protected reportsPageData: PageResponse<ConversationReportResponse> | null = null;
