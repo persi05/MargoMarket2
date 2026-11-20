@@ -127,7 +127,7 @@ public class AuctionService {
             case "ADMIN" -> "true";
             default -> "a.status='ACTIVE' AND a.ends_at>clock_timestamp()";
         };
-        String visibility = viewer != null && viewer.isAdmin() ? "" : " AND (a.status='ACTIVE' OR a.ends_at >= clock_timestamp()-interval '1 day')";
+        String visibility = viewer != null && viewer.isAdmin() ? "" : " AND (a.status='ACTIVE' OR (CASE WHEN a.status='CANCELLED' THEN COALESCE((SELECT min(h.created_at) FROM auction_audit h WHERE h.auction_id=a.id AND h.action='CANCELLED'),a.ends_at) ELSE a.ends_at END) >= clock_timestamp()-interval '1 day')";
         String from = " FROM auctions a JOIN listings l ON l.id=a.id WHERE " + condition + visibility +
                 " AND (?::bigint IS NULL OR l.server_id=?) AND (?='' OR a.currency=?) AND lower(l.item_name) LIKE ? ESCAPE '!'" +
                 " AND (?::bigint IS NULL OR l.item_type_id=?) AND (?::boolean IS NULL OR l.is_bound=?) AND l.level BETWEEN ? AND ?";
@@ -254,7 +254,13 @@ public class AuctionService {
         return null;
     }
     private void requireVisible(State auction, User viewer) {
-        if ((viewer == null || !viewer.isAdmin()) && !"ACTIVE".equals(auction.status()) && auction.endsAt().plusSeconds(86400).isBefore(auctions.now()))
+        if ((viewer != null && viewer.isAdmin()) || "ACTIVE".equals(auction.status())) return;
+        Instant endedAt = auction.endsAt();
+        if ("CANCELLED".equals(auction.status())) {
+            endedAt = jdbc.queryForObject("SELECT COALESCE(min(created_at),?::timestamptz) FROM auction_audit WHERE auction_id=? AND action='CANCELLED'",
+                    OffsetDateTime.class,time(auction.endsAt()),auction.id()).toInstant();
+        }
+        if (endedAt.plusSeconds(86400).isBefore(auctions.now()))
             throw new NotFoundException("Zakończona licytacja jest dostępna przez 24 godziny od zakończenia.");
     }
     private Receipt replay(Receipt previous,PlaceBidRequest r) {

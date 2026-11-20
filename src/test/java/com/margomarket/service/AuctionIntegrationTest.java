@@ -71,6 +71,8 @@ class AuctionIntegrationTest {
     }
 
     @Test void publicResponsesHideAmountsAndPrivateIdentityAndApiRequiresAuthentication() throws Exception {
+        String uniqueName="Miecz testowy "+UUID.randomUUID();
+        jdbc.update("UPDATE items SET name=? WHERE id=?",uniqueName,item);
         long id=create(); auctions.bid(id,bid(1000),buyer);
         var publicView=auctions.get(id,null);
         assertThat(publicView.startingAmount()).isNull(); assertThat(publicView.highestAmount()).isNull();
@@ -80,7 +82,7 @@ class AuctionIntegrationTest {
         mvc.perform(get("/api/auctions/"+id)).andExpect(status().isOk()).andExpect(jsonPath("highestAmount").doesNotExist());
         mvc.perform(post("/api/auctions/"+id+"/bids").contentType("application/json").content("{}" )).andExpect(status().isForbidden());
         mvc.perform(get("/api/admin/auctions/register/audit").with(user(buyer))).andExpect(status().isForbidden());
-        assertThat(auctions.search(null,null,"",1,"ACTIVE",null).content()).extracting(AuctionResponse::id).contains(id);
+        assertThat(auctions.search(null,null,uniqueName,1,"ACTIVE",null).content()).extracting(AuctionResponse::id).contains(id);
     }
     @Test void validatesCurrencyAgeOwnerMinimumAndLeadingBidder() {
         long id=create();
@@ -149,6 +151,12 @@ class AuctionIntegrationTest {
         assertThatThrownBy(()->auctions.bids(id,1,buyer)).isInstanceOf(NotFoundException.class);
         assertThat(auctions.get(id,admin).id()).isEqualTo(id);
         assertThat(auctions.search(null,null,"",1,"ENDED",buyer).content()).noneMatch(a->a.id()==id);
+        long cancelled=create();
+        jdbc.update("UPDATE auctions SET status='CANCELLED' WHERE id=?",cancelled);
+        jdbc.update("INSERT INTO auction_audit(auction_id,action,created_at) VALUES (?,'CANCELLED',clock_timestamp()-interval '2 days')",cancelled);
+        assertThatThrownBy(()->auctions.get(cancelled,buyer)).isInstanceOf(NotFoundException.class);
+        assertThat(auctions.get(cancelled,admin).id()).isEqualTo(cancelled);
+        assertThat(auctions.search(null,null,"",1,"ENDED",buyer).content()).noneMatch(a->a.id()==cancelled);
     }
     @Test void antiSnipingExtendsAndExpiredBidsAreRejected() {
         long id=create();
