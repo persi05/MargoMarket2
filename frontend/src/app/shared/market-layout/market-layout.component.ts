@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
   <section class="market-layout-shell">
     <aside class="market-left-rail"><ng-content select="[marketFilter]" /></aside>
     <div class="market-center">
-      <nav class="market-navigation" aria-label="Rodzaje ofert"><a routerLink="/" [attr.aria-current]="active === 'items' ? 'page' : null">Przedmioty</a><a routerLink="/gold" [attr.aria-current]="active === 'gold' ? 'page' : null">Złoto</a><a routerLink="/auctions" [attr.aria-current]="active === 'auctions' ? 'page' : null">Licytacje</a></nav>
+      <nav class="market-navigation" aria-label="Rodzaje ofert"><a routerLink="/items" [attr.aria-current]="active === 'items' ? 'page' : null">Przedmioty</a><a routerLink="/gold" [attr.aria-current]="active === 'gold' ? 'page' : null">Złoto</a><a routerLink="/auctions" [attr.aria-current]="active === 'auctions' ? 'page' : null">Licytacje</a></nav>
       <ng-content />
     </div>
     <div class="market-right-rail" aria-hidden="true"></div>
