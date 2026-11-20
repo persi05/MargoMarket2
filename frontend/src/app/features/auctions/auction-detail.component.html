@@ -6,7 +6,7 @@
     <header class="detail-heading"><mm-item-preview [listing]="a.listing" [auctionPrice]="(a.highestAmount ?? a.startingAmount) === null ? null : amount(a.highestAmount ?? a.startingAmount,a.currency)" /><div><h1>{{a.listing.itemName}}</h1><p>{{a.listing.server.name}} · {{a.listing.rarity?.name}} · poziom {{a.listing.level}} · ulepszenie +{{a.listing.enhancementLevel}} · {{a.listing.bound ? 'Związany' : 'Niezwiązany'}}</p><a class="seller-link" [routerLink]="['/u',a.listing.sellerId,'profil']">{{a.listing.sellerDisplayName}}</a></div><div class="detail-heading-actions"><span>{{status(a.status)}}</span>@if (auth.isLoggedIn && a.status === 'ACTIVE') {<button type="button" class="watch-button" [attr.aria-pressed]="watching" [disabled]="watchBusy || (expired && !watching)" (click)="toggleWatch()">{{watching ? '★ Obserwujesz' : '☆ Obserwuj'}}</button>}</div></header>
     <div class="detail-grid"><div>
       <h2>Opis aukcji</h2><p class="auction-description">{{a.listing.description || 'Sprzedający nie dodał opisu.'}}</p>
-      <p class="rules">Serwis nie weryfikuje posiadania środków ani nie realizuje płatności. Wygrana wymaga późniejszego uzgodnienia wymiany.</p>
+      <p class="rules">Serwis nie weryfikuje posiadania środków ani nie realizuje płatności. Wygrana wymaga późniejszego uzgodnienia.</p>
       <button (click)="discussion = true">Dyskusja o przedmiocie</button>
       @if (a.owner && a.status === 'ACTIVE' && a.bidCount === 0 && !expired) { <a class="mm-button secondary" [routerLink]="['/auctions/edit',a.id]">Edytuj licytację</a> }
       @if ((a.owner || a.winner || admin) && a.fulfillmentStatus) {
