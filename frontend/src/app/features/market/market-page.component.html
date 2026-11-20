@@ -269,6 +269,12 @@
           </table>
         </div>
       </div>
+      @if (page && !loading) {
+        <nav class="pager pager-bottom" aria-label="Strony listy przedmiotów">
+          <button type="button" [disabled]="page.first" (click)="previousPage(page)">Poprzednia</button>
+          <button type="button" [disabled]="page.last" (click)="nextPage(page)">Następna</button>
+        </nav>
+      }
   </div>
 </section>
 
