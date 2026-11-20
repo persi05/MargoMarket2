@@ -29,13 +29,29 @@ export class GoldFormComponent {
   private id = Number(inject(ActivatedRoute).snapshot.paramMap.get('id')) || null;
   protected worlds: LookupResponse[] = [];
   protected form = {
-    serverId: '',
+    serverId: 0,
     amount: '',
     rateMode: 'M_PER_PLN' as GoldRateMode,
     rate: '',
     description: '',
     contact: '',
   };
+  protected submitted = false;
+  protected touched = new Set<string>();
+  protected serverErrors: Record<string, string> = {};
+  protected touch(field: string) { this.touched.add(field); }
+  protected changed(field: string) { delete this.serverErrors[field]; this.error = ''; }
+  protected fieldError(field: string): string {
+    if (this.serverErrors[field]) return this.serverErrors[field];
+    if (!this.submitted && !this.touched.has(field)) return '';
+    if (field === 'serverId') return this.worlds.some(w => w.id === Number(this.form.serverId)) ? '' : 'Wybierz świat.';
+    if (field === 'amount') return parseGoldMillions(this.form.amount) !== null ? '' : (this.form.amount.trim() ? 'Wpisz dodatnią ilość złota, np. 500m lub 2g.' : 'Podaj ilość złota.');
+    if (field === 'rate') {
+      if (parseGoldRate(this.form.rate, this.form.rateMode) === null) return this.form.rate.trim() ? 'Wpisz dodatni kurs. Możesz użyć przecinka lub kropki.' : 'Podaj kurs złota.';
+      if (parseGoldMillions(this.form.amount) !== null && this.total === null) return 'Dla podanej ilości i kursu cena pakietu musi wynosić od 0,01 do 1 000 000 PLN.';
+    }
+    return '';
+  }
   protected busy = false;
   protected error = '';
   protected enabled = false;
@@ -60,7 +76,9 @@ export class GoldFormComponent {
       : formatPln(total);
   }
   protected worldChanged() {
-    const world = this.worlds.find((w) => String(w.id) === this.form.serverId);
+    this.changed('serverId');
+    this.changed('rate');
+    const world = this.worlds.find((w) => w.id === Number(this.form.serverId));
     const mode = defaultGoldRateMode(world?.name || '');
     if (mode !== this.form.rateMode) {
       this.form.rateMode = mode;
@@ -84,7 +102,7 @@ export class GoldFormComponent {
           }
           const mode = l.goldRateMode === 'M_PER_PLN' ? 'M_PER_PLN' : 'PLN_PER_G';
           this.form = {
-            serverId: String(l.server.id),
+            serverId: l.server.id,
             amount: goldMillionsInput(l.goldAmount),
             rateMode: mode,
             rate:
@@ -106,11 +124,9 @@ export class GoldFormComponent {
     if (this.busy || (!this.enabled && !this.editing)) return;
     const goldAmount = parseGoldMillions(this.form.amount);
     const quote = parseGoldRate(this.form.rate, this.form.rateMode);
-    if (goldAmount === null || quote === null || this.total === null || !this.form.serverId) {
-      this.error =
-        'Wybierz świat i podaj poprawną ilość oraz kurs. Cena pakietu musi wynosić 0,01–1 000 000 PLN.';
-      return;
-    }
+    this.submitted = true;
+    this.error = '';
+    if (['serverId', 'amount', 'rate'].some(field => this.fieldError(field)) || goldAmount === null || quote === null || this.total === null) return;
     this.busy = true;
     this.error = '';
     const request = {
@@ -128,7 +144,14 @@ export class GoldFormComponent {
       next: () => this.router.navigateByUrl('/dashboard'),
       error: (e) => {
         this.busy = false;
-        this.error = e.error?.message || 'Nie udało się zapisać oferty.';
+        const aliases: Record<string,string> = {serverId:'serverId', goldAmount:'amount', rateMode:'rate', rateGoldUnits:'rate', ratePriceMinor:'rate'};
+        const errors = e.error?.errors || {};
+        let mapped = false;
+        for (const [key, value] of Object.entries(errors)) {
+          const field = aliases[key];
+          if (field) { this.serverErrors[field] = String(value); mapped = true; }
+        }
+        if (!mapped) this.error = e.error?.message || 'Nie udało się zapisać oferty.';
       },
     });
   }

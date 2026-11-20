@@ -7,7 +7,7 @@
 }
 
 header {
-  max-width: 720px;
+  max-width: none;
 }
 
 .eyebrow {
@@ -575,3 +575,7 @@ h2 {
 .auction-fields p { margin: 0; line-height: 1.6; color: var(--color-text-muted); }
 .auction-fields label { gap: 8px; }
 .auction-fields textarea { margin: 0; }
+
+@media(max-width:700px) { header h1 { min-height:2lh; } }
+.auction-field-feedback { display:block; min-height:36px; line-height:18px; }
+.invalid textarea { border-color:var(--color-danger); background:rgba(239,68,68,.08); }
