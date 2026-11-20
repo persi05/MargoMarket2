@@ -1,7 +1,9 @@
-import { AuctionItemComponent } from '../../shared/auction-item/auction-item.component';
+import { ConversationReportDialogComponent } from '../messages/conversation-report-dialog.component';
+import { PaginationComponent } from '../../shared/pagination/pagination.component';
+import { ItemPreviewComponent } from '../../shared/item-preview/item-preview.component';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, HostListener, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, HostListener, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -18,10 +20,11 @@ import { PrivateDetailComponent } from '../../shared/private-detail/private-deta
 
 @Component({
   selector: 'mm-auction-detail', standalone: true,
-  imports: [AuctionItemComponent, RouterLink, FormsModule, DatePipe, DiscussionDrawerComponent, PrivateDetailComponent],
+  imports: [ConversationReportDialogComponent, PaginationComponent, ItemPreviewComponent, RouterLink, FormsModule, DatePipe, DiscussionDrawerComponent, PrivateDetailComponent],
   templateUrl: './auction-detail.component.html', styleUrl: './auctions.component.css'
 })
 export class AuctionDetailComponent {
+  private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly service = inject(AuctionService);
   private readonly listings = inject(ListingService);
   protected watching = false;
@@ -36,6 +39,15 @@ export class AuctionDetailComponent {
   protected history: PageResponse<AuctionBid> | null = null;
   protected input = '';
   protected reason = '';
+  protected dialog: {kind: string; bid?: AuctionBid} | null = null;
+  protected dialogError = '';
+  protected get dialogTitle() {
+    return ({BID_REPORT:'Zgłoś ofertę',REPORT:'Zgłoś licytację',INVALIDATE:'Unieważnij ofertę',CANCEL:'Anuluj licytację',DISPUTE:'Zgłoś problem z realizacją',FULFILLMENT_CANCEL:'Anuluj realizację',RESUME:'Wznów realizację'} as Record<string,string>)[this.dialog?.kind ?? ''] ?? '';
+  }
+  protected get dialogDescription() {
+    const b=this.dialog?.bid;
+    return b ? 'Oferta: ' + b.bidder + ', ' + (b.amount === null ? '' : this.amount(b.amount,b.currency)) + '. Opisz powód zgłoszenia lub decyzji.' : 'Licytacja: ' + this.auction?.listing.itemName + '. Opisz sytuację, aby umożliwić jej rozpatrzenie.';
+  }
   protected error = '';
   protected notice = '';
   protected busy = false;
@@ -61,7 +73,7 @@ export class AuctionDetailComponent {
       if(u) { this.socket.connect(this.admin); this.socket.watchAuction(this.id); }
       else this.socket.stopAuction();
     });
-    this.auth.user$.pipe(skip(1),takeUntilDestroyed()).subscribe(() => { this.auction = null; this.history = null; this.pendingBid = null; this.refresh(); });
+    this.auth.user$.pipe(skip(1),takeUntilDestroyed()).subscribe(() => { this.auction = null; this.history = null; this.pendingBid = null; this.dialog = null; this.refresh(); });
     this.socket.events$.pipe(
       filter(e => e.kind === 'connected' || (e.kind === 'auction' && e.auctionId === this.id)),
       auditTime(500),
@@ -139,6 +151,27 @@ export class AuctionDetailComponent {
     this.service.start(this.id).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: r => { this.busy = false; void this.router.navigate(['/messages',r.conversationId]); },
       error: e => { this.busy = false; this.error = this.message(e); }
+    });
+  }
+  protected openDialog(kind: string, bid?: AuctionBid) {
+    if(this.busy) return;
+    this.dialog={kind,bid}; this.dialogError='';
+  }
+  protected submitDialog(value: {details:string}) {
+    if(!this.dialog || this.busy || !value.details.trim()) return;
+    const {kind,bid}=this.dialog, reason=value.details.trim();
+    let request: import('rxjs').Observable<unknown>;
+    switch(kind) {
+      case 'BID_REPORT': if(!bid)return; request=this.service.reportBid(this.id,bid.id,reason);break;
+      case 'REPORT': request=this.service.report(this.id,reason);break;
+      case 'INVALIDATE': if(!bid)return;request=this.service.invalidate(this.id,bid.id,reason);break;
+      case 'CANCEL': request=this.service.cancel(this.id,reason);break;
+      default: request=this.service.action(this.id,kind === 'FULFILLMENT_CANCEL' ? 'CANCEL' : kind,reason);
+    }
+    this.busy=true;this.dialogError='';
+    request.pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next:()=>{this.busy=false;this.dialog=null;this.notice=kind==='BID_REPORT'||kind==='REPORT' ? 'Zgłoszenie trafiło do administratora.' : 'Zapisano zmianę.';this.changeDetector.markForCheck();this.refresh();},
+      error:e=>{this.busy=false;this.dialogError=this.message(e);this.changeDetector.markForCheck();}
     });
   }
   protected action(action: string) { this.mutate(this.service.action(this.id,action,this.reason)); }

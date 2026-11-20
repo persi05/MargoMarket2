@@ -1,6 +1,6 @@
 import { MarketLayoutComponent } from '../../shared/market-layout/market-layout.component';
 import { MarketFilterComponent } from '../../shared/market-layout/market-filter.component';
-import { AuctionItemComponent } from '../../shared/auction-item/auction-item.component';
+import { ItemPreviewComponent } from '../../shared/item-preview/item-preview.component';
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, HostListener, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -16,7 +16,7 @@ import { auctionAmount, auctionRemaining, auctionStatus } from '../../core/utils
 import { PrivateDetailComponent } from '../../shared/private-detail/private-detail.component';
 
 @Component({
-  selector: 'mm-auctions-page', standalone: true, imports: [MarketLayoutComponent, MarketFilterComponent, AuctionItemComponent, RouterLink, FormsModule, DatePipe, PrivateDetailComponent],
+  selector: 'mm-auctions-page', standalone: true, imports: [MarketLayoutComponent, MarketFilterComponent, ItemPreviewComponent, RouterLink, FormsModule, DatePipe, PrivateDetailComponent],
   templateUrl: './auctions-page.component.html', styleUrl: './auctions.component.css'
 })
 export class AuctionsPageComponent {

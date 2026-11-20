@@ -1,0 +1,46 @@
+<span class="item-frame" [class]="'item-frame ' + rarityClass" tabindex="0" [attr.aria-label]="'Podgląd przedmiotu: ' + listing.itemName" (mouseenter)="show($event)" (mouseleave)="hide()" (focusin)="show($event)" (focusout)="blur()">
+  @if (showImage) {<img class="item-icon" [src]="listing.iconUrl" [alt]="listing.itemName" loading="lazy" (error)="imageFailed = true">}
+  @else {<span>{{listing.itemName.charAt(0)}}</span>}
+  @if (open || pinned) {
+    <span #panel [class]="'item-tooltip market-preview ' + rarityClass" [class.pinned-preview]="pinned" [class.is-dragging]="dragging" [style.left.px]="x" [style.top.px]="y" [style.zIndex]="z" [attr.role]="pinned ? 'dialog' : 'tooltip'" [attr.aria-label]="'Statystyki: ' + listing.itemName" (pointerdown)="front()" (keydown.escape)="unpin()">
+    <span class="tooltip-title preview-title" (pointerdown)="startDrag($event)">
+      <span class="tooltip-icon">
+        @if (showImage) {
+          <img [src]="listing.iconUrl" [alt]="listing.itemName" loading="lazy" (error)="imageFailed = true">
+        } @else {
+          <span class="item-placeholder">{{ listing.itemName.charAt(0) }}</span>
+        }
+      </span>
+      <span><strong>{{ listing.itemName }}</strong><span class="tooltip-muted">Typ: {{ listing.itemType?.name }}</span></span>
+      <span class="preview-actions">
+        @if (pinned) {
+          <button type="button" class="preview-tool" aria-label="Przesuń podgląd przedmiotu" title="Przeciągnij lub użyj strzałek" (keydown)="moveWithKeyboard($event)">⠿</button>
+          <button type="button" class="preview-tool preview-close" aria-label="Odepnij podgląd przedmiotu" (click)="unpin()">×</button>
+        } @else {
+          <button type="button" class="preview-pin" aria-label="Przypnij podgląd przedmiotu" (click)="pin()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6ZM12 14v7"/></svg></button>
+        }
+      </span>
+    </span>
+    <span class="tooltip-rarity">{{ listing.rarity?.name }}</span>
+    <span>Ulepszenie: {{ enhancement }}</span>
+    <span>Związane: {{ listing.bound ? 'Tak' : 'Nie' }}</span>
+    @for (stat of stats(listing.itemStats); track stat.label) {
+      <span>{{ stat.label }}: <b [class.accent]="stat.accent">{{ stat.value }}</b></span>
+    }
+    @if (listing.itemDescription) {
+      <span class="description">{{ listing.itemDescription | itemDescription:listing.itemStats }}</span>
+    }
+    @if (occasion(listing.itemStats); as occasion) {
+      <span>Ostatnio dostępny podczas: {{ occasion }}</span>
+    }
+    @if (professions(listing.itemStats); as professions) {
+      <span>Wymagane profesje: {{ professions }}</span>
+    }
+    <span>Wymagany poziom: {{ listing.level }}</span>
+    <span class="tooltip-separator"></span>
+    <span>Cena: <mm-private-detail [value]="price" [compact]="true" [showLoginLink]="false" /></span>
+    <span>Serwer: {{ listing.server.name }}</span>
+    <span>Sprzedający: <a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a></span>
+    </span>
+  }
+</span>

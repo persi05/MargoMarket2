@@ -1,3 +1,6 @@
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { PrivateDetailComponent } from '../../shared/private-detail/private-detail.component';
+import { formatGold, formatPln, formatGoldRate } from '../../core/utils/gold-format';
 import { MarketLayoutComponent } from '../../shared/market-layout/market-layout.component';
 import { MarketFilterComponent } from '../../shared/market-layout/market-filter.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -8,17 +11,19 @@ import { RouterLink } from '@angular/router';
 import { ListingService } from '../../core/services/listing.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ListingResponse, LookupResponse, PageResponse } from '../../core/models/api.models';
-import { ListingCardComponent } from '../../shared/listing-card/listing-card.component';
 import { DiscussionDrawerComponent } from '../market/discussion-drawer.component';
 import { parseGoldMillions, parsePln } from '../../core/utils/gold-format';
 @Component({
   selector: 'mm-gold-page',
   standalone: true,
-  imports: [MarketLayoutComponent, MarketFilterComponent, FormsModule, RouterLink, ListingCardComponent, DiscussionDrawerComponent],
+  imports: [AsyncPipe, DatePipe, PrivateDetailComponent, MarketLayoutComponent, MarketFilterComponent, FormsModule, RouterLink, DiscussionDrawerComponent],
   templateUrl: './gold-page.component.html',
   styleUrl: './gold-page.component.css',
 })
 export class GoldPageComponent {
+  protected readonly goldAmount = formatGold;
+  protected readonly goldPrice = formatPln;
+  protected readonly goldRate = formatGoldRate;
   protected readonly auth = inject(AuthService);
   private service = inject(ListingService);
   private version = 0;

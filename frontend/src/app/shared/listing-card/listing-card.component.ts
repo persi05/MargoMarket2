@@ -1,3 +1,4 @@
+import { ItemPreviewComponent } from '../item-preview/item-preview.component';
 import { ListingService } from '../../core/services/listing.service';
 import { auctionAmount, auctionStatus } from '../../core/utils/auction-format';
 import { formatGold, formatPln, formatGoldRate } from '../../core/utils/gold-format';
@@ -6,9 +7,7 @@ import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { ListingResponse } from '../../core/models/api.models';
-import { ItemDescriptionPipe } from '../../core/pipes/item-description.pipe';
 import { formatListingPrice } from '../../core/utils/price-format';
-import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
 import { hasEnhancementLevel } from '../../core/utils/item-types';
 import { PrivateDetailComponent } from '../private-detail/private-detail.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -16,7 +15,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'mm-listing-card',
   standalone: true,
-  imports: [AsyncPipe, DatePipe, RouterLink, ItemDescriptionPipe, PrivateDetailComponent],
+  imports: [ItemPreviewComponent, AsyncPipe, DatePipe, RouterLink, PrivateDetailComponent],
   templateUrl: './listing-card.component.html',
   styleUrl: './listing-card.component.css'
 })
@@ -44,7 +43,6 @@ export class ListingCardComponent {
   @Output() sold = new EventEmitter<ListingResponse>();
   @Output() deleteListing = new EventEmitter<ListingResponse>();
 
-  protected imageFailed = false;
 
   protected get isActive(): boolean {
     return this.listing.status === 'active';
@@ -93,60 +91,8 @@ export class ListingCardComponent {
     return formatListingPrice(this.listing.price, this.listing.currency.name);
   }
 
-  protected get showImage(): boolean {
-    return Boolean(this.listing.iconUrl) && !this.imageFailed;
-  }
-
-  protected get statLines() {
-    return itemStatLines(this.listing.itemStats);
-  }
-
   protected get enhancementLabel(): string {
     return hasEnhancementLevel((this.listing.itemType?.name ?? ''), this.listing.itemName) ? `+${this.listing.enhancementLevel}` : '-';
   }
 
-  protected get requiredProfessions(): string | null {
-    return itemRequiredProfessions(this.listing.itemStats);
-  }
-
-  protected get lastAvailableDuring(): string | null {
-    return itemLastAvailableDuring(this.listing.itemStats);
-  }
-
-  protected markImageFailed(): void {
-    this.imageFailed = true;
-  }
-
-  protected get rarityClass(): string {
-    return `rarity-${this.rarityKey}`;
-  }
-
-  private get rarityKey(): string {
-    const rarity = this.normalize((this.listing.rarity?.name ?? ''));
-
-    if (rarity.includes('legendarn')) {
-      return 'legendary';
-    }
-
-    if (rarity.includes('heroiczn')) {
-      return 'heroic';
-    }
-
-    if (rarity.includes('unikat')) {
-      return 'unique';
-    }
-
-    if (rarity.includes('ulepszon')) {
-      return 'upgraded';
-    }
-
-    return 'normal';
-  }
-
-  private normalize(value: string): string {
-    return value
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
-  }
 }

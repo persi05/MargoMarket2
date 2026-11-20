@@ -68,21 +68,22 @@
     <p>Ładowanie ofert…</p>
   }
   @if (result; as r) {
-    <div class="offers">
+    @let viewer = auth.user$ | async;
+    <div class="market-table-scroll"><table class="market-table gold-table" [attr.aria-busy]="loading"><thead><tr>
+      @if (auth.isLoggedIn) {<th aria-label="Obserwowane"></th>}
+      <th>Ilość złota</th><th>Kurs</th><th>Cena pakietu</th><th>Sprzedający</th><th>Serwer</th><th>Data wystawienia</th><th>Kontakt</th>
+    </tr></thead><tbody>
       @for (l of r.content; track l.id) {
-        <div>
-          <mm-listing-card
-            [listing]="l"
-            [showFavorite]="auth.isLoggedIn"
-            [isFavorite]="favoriteIds.has(l.id)"
-            [favoriteBusy]="favoriteBusy.has(l.id)"
-            (favorite)="toggleFavorite($event)"
-          /><button (click)="discussion = l">Dyskusja</button>
-        </div>
-      } @empty {
-        <p>Brak ofert spełniających wybrane warunki.</p>
-      }
-    </div>
+        <tr>
+          @if (auth.isLoggedIn) {<td><button type="button" class="favorite-star" [class.is-favorite]="favoriteIds.has(l.id)" [attr.aria-pressed]="favoriteIds.has(l.id)" [attr.aria-label]="favoriteIds.has(l.id) ? 'Usuń z obserwowanych' : 'Dodaj do obserwowanych'" [disabled]="favoriteBusy.has(l.id)" (click)="toggleFavorite(l)">{{favoriteIds.has(l.id) ? '★' : '☆'}}</button></td>}
+          <td class="text-left"><strong>{{goldAmount(l.goldAmount!)}}</strong>@if(l.description){<small class="gold-description">{{l.description}}</small>}</td>
+          <td><mm-private-detail [value]="l.ratePriceMinor === null ? null : goldRate(l.goldRateMode,l.rateGoldUnits,l.ratePriceMinor)" [compact]="true" /></td>
+          <td class="money"><mm-private-detail [value]="l.priceMinor === null ? null : goldPrice(l.priceMinor)" [compact]="true" /></td>
+          <td><a [routerLink]="['/u',l.sellerId,'profil']">{{l.sellerDisplayName}}</a></td><td>{{l.server.name}}</td><td>{{l.createdAt | date:'dd.MM.yyyy HH:mm'}}</td>
+          <td><div class="row-actions">@if(viewer?.id !== l.sellerId){<a class="mm-button secondary" [routerLink]="['/messages/new',l.id]">Napisz wiadomość</a>}<button type="button" class="mm-button secondary" (click)="discussion = l">Dyskusja</button></div></td>
+        </tr>
+      } @empty {<tr><td [attr.colspan]="auth.isLoggedIn ? 8 : 7">Brak ofert spełniających wybrane warunki.</td></tr>}
+    </tbody></table></div>
     <nav class="pagination" aria-label="Strony ofert">
       <button [disabled]="loading || r.first" (click)="load(r.page - 1)">Poprzednia</button
       ><span>Strona {{ r.page }} z {{ r.totalPages || 1 }}</span

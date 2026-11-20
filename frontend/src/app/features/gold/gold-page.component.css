@@ -13,3 +13,5 @@ button:focus-visible, a:focus-visible { outline:2px solid var(--color-primary); 
 .pagination button { background:var(--color-input-dark); color:var(--color-text-main); }
 .gold-results { min-width:0; }
 @media(max-width:500px) { .pagination { justify-content:center; gap:10px; } }
+
+.gold-description { display:block; max-width:32ch; margin-top:7px; color:var(--color-text-muted); line-height:1.5; overflow-wrap:anywhere; }.row-actions { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }.gold-table strong { color:var(--color-primary); font-size:15px; }
