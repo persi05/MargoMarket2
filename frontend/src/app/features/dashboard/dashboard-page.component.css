@@ -171,6 +171,3 @@ header a {
     grid-template-columns: 1fr;
   }
 }
-
-.dashboard .account-navigation { width:100%; max-width:none; margin:0; }
-.dashboard .account-navigation a { flex:1 1 0; min-width:0; }

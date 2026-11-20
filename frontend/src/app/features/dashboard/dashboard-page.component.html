@@ -6,13 +6,6 @@
     <a routerLink="/new">Stwórz ogłoszenie</a>
   </header>
 
-  @if (!isFavoritesPage) {
-    <nav class="account-navigation" aria-label="Moje ogłoszenia">
-      <a routerLink="/dashboard" aria-current="page">Moje ogłoszenia</a>
-      <a routerLink="/auctions" [queryParams]="{scope:'SELLING'}">Moje licytacje</a>
-      <a routerLink="/auctions" [queryParams]="{scope:'BIDDING'}">Moje złożone oferty</a>
-    </nav>
-  }
   @if (notice) {
     <p class="notice">{{ notice }}</p>
   }
