@@ -1,3 +1,5 @@
+import { SaleModeComponent } from '../../shared/sale-mode/sale-mode.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AsyncPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -19,7 +21,7 @@ import { goldMillionsInput, parseGoldMillions, parsePln } from '../../core/utils
 @Component({
   selector: 'mm-listing-form-page',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
+  imports: [SaleModeComponent, AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
   templateUrl: './listing-form-page.component.html',
   styleUrl: './listing-form-page.component.css'
 })
@@ -91,6 +93,9 @@ export class ListingFormPageComponent {
   );
 
   constructor() {
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe(params => {
+      if (!this.auctionEditId) this.auctionMode = params.get('mode') === 'auction';
+    });
     this.auctions.config().subscribe(c => { this.auctionsEnabled = c.enabled; this.plnAuctionsEnabled = c.plnEnabled; });
     if (this.auctionEditId) this.auctions.get(this.auctionEditId).subscribe({
       next: a => {
@@ -173,9 +178,11 @@ export class ListingFormPageComponent {
     this.error = '';
     this.clearServerErrors();
 
-    if (this.form.invalid || this.loading) {
+    if (this.loading) return;
+    if (this.auctionMode) this.validateAuctionFields();
+    if (this.form.invalid || Object.keys(this.serverErrors).length) {
       this.form.markAllAsTouched();
-      this.error = 'Uzupełnij wymagane pola i popraw zaznaczone błędy.';
+      this.error = this.auctionMode ? '' : 'Uzupełnij wymagane pola i popraw zaznaczone błędy.';
       return;
     }
 
@@ -186,15 +193,7 @@ export class ListingFormPageComponent {
       const currency = this.isGoldCurrencySelected() ? 'GOLD' as const : 'PLN' as const;
       const startingAmount = currency === 'GOLD' ? parseGoldMillions(raw.price) : parsePln(raw.price);
       const end = new Date(this.auctionEnd);
-      if (startingAmount === null || !Number.isFinite(end.getTime())) {
-        this.error = 'Wpisz poprawną cenę wywoławczą i termin zakończenia.'; this.loading = false; return;
-      }
-      const duration = end.getTime() - Date.now();
-      if (duration < 3600_000 || duration > 7 * 24 * 3600_000) {
-        this.error = 'Wybierz termin zakończenia od 1 godziny do maksymalnie 7 dni od teraz.';
-        this.loading = false;
-        return;
-      }
+      if (startingAmount === null || !Number.isFinite(end.getTime())) { this.loading = false; return; }
       const request = {itemId:raw.itemId, serverId:raw.serverId, enhancementLevel:raw.enhancementLevel, bound:raw.bound,
         currency, startingAmount, endsAt:end.toISOString(), description:this.auctionDescription, contact:raw.contact};
       (this.auctionEditId ? this.auctions.update(this.auctionEditId,request) : this.auctions.create(request))
@@ -239,6 +238,24 @@ export class ListingFormPageComponent {
         this.applyServerErrors(response);
       }
     });
+  }
+
+  protected auctionFieldChanged(field: string, value: string): void {
+    if (field === 'auctionEnd') this.auctionEnd = value;
+    else this.auctionDescription = value;
+    delete this.serverErrors[field];
+    this.error = '';
+  }
+
+  private validateAuctionFields(): void {
+    const price = this.form.controls.price.value;
+    if ((this.isGoldCurrencySelected() ? parseGoldMillions(price) : parsePln(price)) === null) {
+      this.serverErrors['price'] = this.isGoldCurrencySelected() ? 'Wpisz dodatnią cenę, np. 500m lub 2g.' : 'Wpisz dodatnią cenę w PLN, np. 25,50.';
+    }
+    const duration = new Date(this.auctionEnd).getTime() - Date.now();
+    if (!this.auctionEnd) this.serverErrors['auctionEnd'] = 'Wybierz termin zakończenia licytacji.';
+    else if (!Number.isFinite(duration) || duration < 3600_000 || duration > 7 * 24 * 3600_000) this.serverErrors['auctionEnd'] = 'Wybierz termin od 1 godziny do 7 dni od teraz.';
+    if (this.auctionDescription.length > 2000) this.serverErrors['auctionDescription'] = 'Opis może mieć maksymalnie 2000 znaków.';
   }
 
   fieldError(name: string): string {
@@ -363,9 +380,10 @@ export class ListingFormPageComponent {
     const apiError = response instanceof HttpErrorResponse ? response.error as ApiError | null : null;
 
     if (apiError?.errors) {
-      Object.assign(this.serverErrors, apiError.errors);
+      const aliases: Record<string,string> = {startingAmount:'price', endsAt:'auctionEnd', description:'auctionDescription', currency:'currencyId'};
+      for (const [field, message] of Object.entries(apiError.errors)) this.serverErrors[this.auctionMode ? (aliases[field] || field) : field] = message;
       Object.keys(apiError.errors).forEach((field) => this.form.get(field)?.markAsTouched());
-      this.error = 'Backend odrzucił formularz. Popraw zaznaczone pola.';
+      this.error = this.auctionMode ? '' : 'Backend odrzucił formularz. Popraw zaznaczone pola.';
       return;
     }
 

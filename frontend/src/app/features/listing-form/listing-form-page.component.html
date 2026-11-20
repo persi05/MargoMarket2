@@ -3,10 +3,7 @@
     <p class="eyebrow">Nowa oferta</p>
     <h1>{{ auctionMode ? (auctionEditId ? 'Edytuj licytację' : 'Wystaw przedmiot na licytację') : 'Dodaj przedmiot na giełdę' }}</h1>
     @if (!auctionEditId) {
-      <div class="sale-mode" role="group" aria-label="Sposób sprzedaży">
-        <button type="button" [attr.aria-pressed]="!auctionMode" (click)="auctionMode = false">Zwykła sprzedaż</button>
-        <button type="button" [attr.aria-pressed]="auctionMode" [disabled]="!auctionsEnabled" (click)="auctionMode = true">Licytacja</button>
-      </div>
+      <mm-sale-mode [active]="auctionMode ? 'auction' : 'item'" [auctionsEnabled]="auctionsEnabled" />
       @if (!auctionsEnabled) {<p>Nowe licytacje nie zostały jeszcze uruchomione.</p>}
     }
   </header>
@@ -15,8 +12,8 @@
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       @if (auctionMode) {
         <div class="wide auction-fields"><p>Ustal cenę wywoławczą w PLN lub złocie i wybierz termin zakończenia. Licytacja może trwać od 1 godziny do maksymalnie 7 dni.</p>
-          <label>Koniec licytacji<input type="datetime-local" [value]="auctionEnd" [max]="auctionMaxEnd" (input)="auctionEnd = $any($event.target).value" required></label>
-          <label>Opis aukcji<textarea maxlength="2000" [value]="auctionDescription" (input)="auctionDescription = $any($event.target).value" rows="3"></textarea></label>
+          <label [class.invalid]="hasFieldError('auctionEnd')">Koniec licytacji<input [attr.aria-invalid]="hasFieldError('auctionEnd')" aria-describedby="auction-end-error" type="datetime-local" [value]="auctionEnd" [max]="auctionMaxEnd" (input)="auctionFieldChanged('auctionEnd', $any($event.target).value)" required><small id="auction-end-error" class="auction-field-feedback" aria-live="polite">{{ fieldError('auctionEnd') }}</small></label>
+          <label [class.invalid]="hasFieldError('auctionDescription')">Opis aukcji<textarea [attr.aria-invalid]="hasFieldError('auctionDescription')" aria-describedby="auction-description-error" maxlength="2000" [value]="auctionDescription" (input)="auctionFieldChanged('auctionDescription', $any($event.target).value)" rows="3"></textarea><small id="auction-description-error" class="auction-field-feedback" aria-live="polite">{{ fieldError('auctionDescription') }}</small></label>
           <p>Oferta przyjęta w ostatnich 2 minutach przedłuża licytację. Po pierwszej ofercie dane aukcji nie mogą być zmieniane przez sprzedawcę.</p>
           @if (!plnAuctionsEnabled) {<p>Licytacje w PLN nie zostały jeszcze uruchomione.</p>}
         </div>

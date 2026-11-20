@@ -22,7 +22,7 @@
       <div class="filter-actions"><button [disabled]="loading">Filtruj</button><button type="button" class="secondary" (click)="resetFilters()">Wyczyść</button></div>
     </form></mm-market-filter>
     <div class="market-results">
-      <header><div><h1>Licytacje przedmiotów</h1><p class="intro">Wybierz przedmiot i złóż ofertę w walucie ustalonej przez sprzedawcę. Serwis nie weryfikuje posiadania środków ani nie realizuje płatności. Wygrana wymaga późniejszego uzgodnienia wymiany.</p></div>
+      <header><div><h1>Licytacje przedmiotów</h1><p class="intro">Wybierz przedmiot i złóż ofertę w walucie ustalonej przez sprzedawcę. Serwis nie weryfikuje posiadania środków ani nie realizuje płatności. Wygrana wymaga późniejszego uzgodnienia.</p></div>
       <div class="market-heading-actions">
         @if (enabled) {<a class="market-create-action" routerLink="/new" [queryParams]="{mode:'auction'}">Wystaw na licytację</a>}
         @if (result; as r) {<nav class="pager" aria-label="Górna paginacja licytacji"><button [disabled]="loading || r.first" (click)="load(r.page-1,false)">Poprzednia</button><button [disabled]="loading || r.last" (click)="load(r.page+1,false)">Następna</button></nav>}
