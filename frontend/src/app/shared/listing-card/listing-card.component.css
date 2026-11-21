@@ -257,11 +257,6 @@ footer {
   text-decoration: none;
 }
 
-.favorite-listing .actions,
-.admin-listing .actions {
-  margin-top: auto;
-}
-
 button {
   width: 100%;
   border: 1px solid rgba(170, 157, 141, 0.22);
