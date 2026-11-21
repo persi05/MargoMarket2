@@ -207,6 +207,14 @@
         </button>
       </div>
 
+      @if (form.controls.itemId.value && form.controls.serverId.value) {
+        <div class="price-suggestion-row">
+          <mm-price-suggestion [itemId]="form.controls.itemId.value" [serverId]="form.controls.serverId.value"
+            [enhancement]="form.controls.enhancementLevel.value" [bound]="form.controls.bound.value" [useable]="true"
+            (use)="useSuggestedPrice($event)" />
+        </div>
+      }
+
       <button type="submit" [disabled]="loading || (auctionMode && !auctionsEnabled)">{{ loading ? 'Zapisywanie…' : auctionMode ? (auctionEditId ? 'Zapisz licytację' : 'Wystaw na licytację') : 'Dodaj ogłoszenie' }}</button>
       }
 

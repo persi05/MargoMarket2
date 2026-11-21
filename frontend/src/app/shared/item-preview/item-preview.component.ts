@@ -9,8 +9,9 @@ import { hasEnhancementLevel } from '../../core/utils/item-types';
 import { formatListingPrice } from '../../core/utils/price-format';
 import { auctionAmount } from '../../core/utils/auction-format';
 import { PrivateDetailComponent } from '../private-detail/private-detail.component';
+import { PriceSuggestionComponent } from '../price-suggestion/price-suggestion.component';
 
-@Component({ selector: 'mm-item-preview', standalone: true, imports: [RouterLink, ItemDescriptionPipe, PrivateDetailComponent],
+@Component({ selector: 'mm-item-preview', standalone: true, imports: [RouterLink, ItemDescriptionPipe, PrivateDetailComponent, PriceSuggestionComponent],
   templateUrl: './item-preview.component.html', styleUrl: './item-preview.component.css' })
 export class ItemPreviewComponent {
   @Input({required:true}) listing!: ListingResponse;
@@ -25,6 +26,8 @@ export class ItemPreviewComponent {
   protected imageFailed = false; protected x = 12; protected y = 12; protected z = 110;
   private drag: {id:number; dx:number; dy:number} | null = null;
   protected readonly stats = itemStatLines; protected readonly occasion = itemLastAvailableDuring; protected readonly professions = itemRequiredProfessions;
+  /** Suggestions are fetched only for a pinned preview, so hovering a list does not fire requests. */
+  protected get showSuggestion() { return this.pinned && this.auth.isLoggedIn && !!this.listing.itemId && this.listing.listingKind === 'ITEM'; }
   protected get showImage() { return !!this.listing.iconUrl && !this.imageFailed; }
   protected get enhancement() { return hasEnhancementLevel(this.listing.itemType?.name ?? '',this.listing.itemName) ? '+' + this.listing.enhancementLevel : '-'; }
   protected get rarityClass() {

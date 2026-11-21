@@ -131,6 +131,10 @@ input::placeholder {
   background: rgba(12, 10, 9, 0.2);
 }
 
+.price-suggestion-row {
+  grid-column: 1 / -1;
+}
+
 .bound-row {
   grid-column: -2 / -1;
   display: grid;
