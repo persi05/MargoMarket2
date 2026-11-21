@@ -13,7 +13,7 @@ function level(enhancement: number, changes: Partial<PriceLevel> = {}): PriceLev
 
 const overview: PriceOverview = {
   itemId: 7, itemName: 'Legenda', rarity: 'Legendarny', level: 40, serverId: 3, serverName: 'Classic', worldType: 'TRANSFERABLE',
-  goldPerPln: 20_000_000, recentOnly: true, recentDays: 180, marketWorlds: ['Classic', 'Gefion'],
+  goldPerPln: 20_000_000, upgradeable: true, bindable: true, recentOnly: true, recentDays: 180, marketWorlds: ['Classic', 'Gefion'],
   levels: [
     level(0, { basis: 'DIRECT', baseGrosze: null, upgradeGrosze: 0, totalGrosze: 11_000, totalGold: 2_200_000_000 }),
     level(1), level(2), level(3),
@@ -35,6 +35,14 @@ describe('price suggestion', () => {
     fixture.detectChanges();
     return { fixture, service, text: () => fixture.nativeElement.textContent as string };
   }
+
+  it('shows the single +0 price of items that cannot be upgraded', async () => {
+    const skrytka: PriceOverview = { ...overview, itemName: 'Skrytka', upgradeable: false, levels: [level(0, { basis: 'DIRECT', totalGrosze: 2_000, totalGold: 400_000_000 })] };
+    const { text } = await render({ enhancement: 3 }, of(skrytka));
+    expect(text()).toContain('Sugerowana cena:');
+    expect(text()).toContain('20 PLN');
+    expect(text()).not.toContain('+3');
+  });
 
   it('shows the estimated price with its breakdown and market', async () => {
     const { text, service } = await render({ enhancement: 3 });

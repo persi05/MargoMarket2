@@ -278,6 +278,9 @@ export interface PriceOverview {
   serverName: string;
   worldType: WorldType;
   goldPerPln: number | null;
+  /** False for skrytki, torby, talizmany and other items without +1…+5; levels then hold only +0. */
+  upgradeable: boolean;
+  bindable: boolean;
   recentOnly: boolean;
   recentDays: number;
   marketWorlds: string[];

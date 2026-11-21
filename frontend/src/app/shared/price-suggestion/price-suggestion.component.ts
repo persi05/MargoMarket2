@@ -23,7 +23,7 @@ type State = { status: 'idle' | 'loading' | 'error' } | { status: 'ready'; overv
       @if (level(); as row) {
         <section class="price-suggestion" [class.compact]="compact()" aria-label="Sugerowana cena">
           @if (row.totalGrosze !== null) {
-            <p class="headline">Sugerowana cena{{ enhancement() > 0 ? ' (+' + enhancement() + ')' : '' }}:
+            <p class="headline">Sugerowana cena{{ effectiveEnhancement() > 0 ? ' (+' + effectiveEnhancement() + ')' : '' }}:
               <strong>{{ pln(row.totalGrosze) }}</strong>
               @if (row.totalGold !== null) { <span class="gold">≈ {{ gold(row.totalGold) }}</span> }
             </p>
@@ -33,13 +33,13 @@ type State = { status: 'idle' | 'loading' | 'error' } | { status: 'ready'; overv
             <p class="headline muted">Brak historii cen tego przedmiotu na tym rynku.</p>
           }
           @if (!compact()) {
-            @if (row.basis === 'ESTIMATED' && row.totalGrosze !== null && enhancement() > 0) {
-              <p class="breakdown">Cena +0: {{ pln(row.baseGrosze!) }} · ulepszenie do +{{ enhancement() }}: {{ pln(row.upgradeGrosze!) }}</p>
+            @if (row.basis === 'ESTIMATED' && row.totalGrosze !== null && effectiveEnhancement() > 0) {
+              <p class="breakdown">Cena +0: {{ pln(row.baseGrosze!) }} · ulepszenie do +{{ effectiveEnhancement() }}: {{ pln(row.upgradeGrosze!) }}</p>
             }
-            @if (row.basis === 'DIRECT' && enhancement() > 0) {
-              <p class="breakdown">Wyliczona z transakcji przedmiotów na +{{ enhancement() }}.</p>
+            @if (row.basis === 'DIRECT' && effectiveEnhancement() > 0) {
+              <p class="breakdown">Wyliczona z transakcji przedmiotów na +{{ effectiveEnhancement() }}.</p>
             }
-            @if (row.upgradeRateMissing && enhancement() > 0) {
+            @if (row.upgradeRateMissing && effectiveEnhancement() > 0) {
               <p class="warning">Brak przelicznika ulepy dla świata {{ data.serverName }} – nie da się doliczyć ulepszenia.</p>
             }
           }
@@ -81,8 +81,10 @@ export class PriceSuggestionComponent {
 
   protected readonly state = signal<State>({ status: 'idle' });
   protected readonly overview = computed(() => { const s = this.state(); return s.status === 'ready' ? s.overview : null; });
+  /** Items that cannot be upgraded only have a +0 price, whatever enhancement the form holds. */
+  protected readonly effectiveEnhancement = computed(() => this.overview()?.upgradeable === false ? 0 : this.enhancement());
   protected readonly level = computed<PriceLevel | null>(() =>
-    this.overview()?.levels.find(l => l.enhancement === this.enhancement()) ?? null);
+    this.overview()?.levels.find(l => l.enhancement === this.effectiveEnhancement()) ?? null);
 
   constructor() {
     const query = computed(() => ({ itemId: this.itemId(), serverId: this.serverId(), bound: this.bound() }),

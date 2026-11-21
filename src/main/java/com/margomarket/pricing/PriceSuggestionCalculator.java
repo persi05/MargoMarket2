@@ -37,10 +37,22 @@ public final class PriceSuggestionCalculator {
 
     public static Result suggest(String rarity, int itemLevel, Server target, Map<Long, Server> worlds,
                                  List<PriceSample> samples, boolean bound, Instant now) {
+        return suggest(rarity, itemLevel, target, worlds, samples, bound, true, now);
+    }
+
+    /**
+     * For items that cannot be upgraded (skrytki, torby, talizmany...) every sample counts as +0
+     * and only the +0 level is returned.
+     */
+    public static Result suggest(String rarity, int itemLevel, Server target, Map<Long, Server> worlds,
+                                 List<PriceSample> samples, boolean bound, boolean upgradeable, Instant now) {
         List<Long> market = marketWorldIds(target, worlds);
         List<Priced> priced = new ArrayList<>();
         for (PriceSample sample : samples) {
             if (sample.bound() != bound || !market.contains(sample.serverId())) continue;
+            if (!upgradeable && sample.enhancement() != 0)
+                sample = new PriceSample(sample.listingId(), sample.source(), sample.serverId(), 0, sample.bound(),
+                        sample.currency(), sample.amount(), sample.at());
             Server world = worlds.get(sample.serverId());
             OptionalLong grosze = sample.currency() == PriceSample.Currency.PLN
                     ? OptionalLong.of(sample.amount()) : WorldRates.goldToGrosze(sample.amount(), world);
@@ -51,7 +63,8 @@ public final class PriceSuggestionCalculator {
         List<Priced> used = recentOnly ? recent : priced;
 
         List<Level> levels = new ArrayList<>();
-        for (int n = 0; n <= UpgradeCostCalculator.MAX_ENHANCEMENT; n++)
+        int maxEnhancement = upgradeable ? UpgradeCostCalculator.MAX_ENHANCEMENT : 0;
+        for (int n = 0; n <= maxEnhancement; n++)
             levels.add(level(n, rarity, itemLevel, target, worlds, used));
         return new Result(levels, recentOnly, market);
     }

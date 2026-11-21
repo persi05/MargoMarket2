@@ -190,4 +190,18 @@ class PriceSuggestionCalculatorTest {
         assertThat(level.lowData()).isTrue();
         assertThat(level.upgradeGrosze()).isNotNull();
     }
+
+    @Test
+    void itemsThatCannotBeUpgradedOnlyGetAPlusZeroPriceFromAllSamples() {
+        add(SALE, classic, 0, PLN, 3_000);
+        add(SALE, classic, 0, PLN, 3_000);
+        add(SALE, classic, 2, PLN, 3_000); // stored before the item was locked; still a +0 price
+        var result = PriceSuggestionCalculator.suggest("Legendarny", 40, classic, worlds, samples, false, false, NOW);
+        assertThat(result.levels()).hasSize(1);
+        var plusZero = result.levels().get(0);
+        assertThat(plusZero.basis()).isEqualTo(DIRECT);
+        assertThat(plusZero.sampleCount()).isEqualTo(3);
+        assertThat(plusZero.totalGrosze()).isEqualTo(3_000);
+        assertThat(plusZero.lowData()).isFalse();
+    }
 }

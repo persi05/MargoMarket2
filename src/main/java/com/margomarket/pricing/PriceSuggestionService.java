@@ -3,6 +3,7 @@ package com.margomarket.pricing;
 import com.margomarket.dto.PageResponse;
 import com.margomarket.exception.NotFoundException;
 import com.margomarket.model.Item;
+import com.margomarket.model.ItemRules;
 import com.margomarket.model.Server;
 import com.margomarket.repository.ItemRepository;
 import com.margomarket.repository.ServerRepository;
@@ -28,7 +29,8 @@ public class PriceSuggestionService {
     private final PriceSampleRepository samples;
 
     public record Overview(long itemId, String itemName, String rarity, int level, long serverId, String serverName,
-                           String worldType, Long goldPerPln, boolean recentOnly, int recentDays,
+                           String worldType, Long goldPerPln, boolean upgradeable, boolean bindable,
+                           boolean recentOnly, int recentDays,
                            List<String> marketWorlds, List<PriceSuggestionCalculator.Level> levels) {}
 
     public record HistoryEntry(long listingId, PriceSample.Source source, String serverName, int enhancement,
@@ -40,11 +42,13 @@ public class PriceSuggestionService {
         Map<Long, Server> worlds = worlds();
         Server target = worlds.get(serverId);
         if (target == null) throw new NotFoundException("Nie znaleziono świata");
+        boolean upgradeable = !ItemRules.isEnhancementLocked(item);
+        boolean bindable = ItemRules.canBind(item);
         var result = PriceSuggestionCalculator.suggest(item.getRarity().getName(), item.getLevel(), target, worlds,
-                samples.findByItem(itemId), bound, Instant.now());
+                samples.findByItem(itemId), bindable && bound, upgradeable, Instant.now());
         List<String> market = result.marketWorldIds().stream().map(id -> worlds.get(id).getName()).sorted().toList();
         return new Overview(item.getId(), item.getName(), item.getRarity().getName(), item.getLevel(), target.getId(),
-                target.getName(), target.getWorldType().name(), target.getGoldPerPln(), result.recentOnly(),
+                target.getName(), target.getWorldType().name(), target.getGoldPerPln(), upgradeable, bindable, result.recentOnly(),
                 (int) PriceSuggestionCalculator.RECENT_WINDOW.toDays(), market, result.levels());
     }
 

@@ -76,6 +76,7 @@ export class PricesPageComponent {
     this.error.set('');
     this.prices.overview(item.id, this.serverId, this.bound).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: overview => {
+        if (!overview.bindable) this.bound = false;
         this.overview.set(overview);
         this.item.set({ id: overview.itemId, name: overview.itemName });
         this.loading.set(false);
@@ -100,8 +101,8 @@ export class PricesPageComponent {
 
   protected pln(grosze: number | null): string { return grosze === null ? '—' : formatPln(Math.round(grosze / 100) * 100); }
   protected gold(units: number | null): string { return units === null ? '—' : formatGold(roundGold(units)); }
-  protected basis(level: PriceLevel): string {
-    if (level.basis === 'DIRECT') return 'z transakcji na +' + level.enhancement;
+  protected basis(level: PriceLevel, upgradeable = true): string {
+    if (level.basis === 'DIRECT') return upgradeable ? 'z transakcji na +' + level.enhancement : 'z transakcji';
     if (level.basis === 'ESTIMATED') return level.upgradeRateMissing ? 'brak przelicznika ulepy' : 'cena +0 + ulepa';
     return 'brak danych';
   }

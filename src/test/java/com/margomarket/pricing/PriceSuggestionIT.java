@@ -141,6 +141,27 @@ class PriceSuggestionIT {
     }
 
     @Test
+    void skrytkiHaveASinglePriceWithoutUpgradeLevels() throws Exception {
+        item = jdbc.queryForObject("INSERT INTO items(external_id,name,icon_url,level,item_type_id,rarity_id)"
+                        + " VALUES (?,'Skrytka testowa','',1,(SELECT id FROM item_types WHERE name='Jednoręczne'),"
+                        + "(SELECT id FROM rarities WHERE name='Zwykły')) RETURNING id",
+                Long.class, Math.abs(UUID.randomUUID().getMostSignificantBits()));
+        listing(classic, "sold", "pln", 20, 0);
+        listing(classic, "sold", "pln", 20, 0);
+        listing(classic, "sold", "pln", 20, 0);
+        mvc.perform(get("/api/prices/items/{id}", item).param("serverId", String.valueOf(classic)).param("bound", "true")
+                        .header("Authorization", token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.upgradeable").value(false))
+                .andExpect(jsonPath("$.bindable").value(true))
+                .andExpect(jsonPath("$.levels.length()").value(1))
+                .andExpect(jsonPath("$.levels[0].basis").value("NONE"));
+        mvc.perform(get("/api/prices/items/{id}", item).param("serverId", String.valueOf(classic)).header("Authorization", token))
+                .andExpect(jsonPath("$.levels[0].totalGrosze").value(2_000))
+                .andExpect(jsonPath("$.levels[0].sampleCount").value(3));
+    }
+
+    @Test
     void isolatedWorldsOnlyUseTheirOwnPrices() throws Exception {
         marketData();
         mvc.perform(get("/api/prices/items/{id}", item).param("serverId", String.valueOf(fobos)).header("Authorization", token))
