@@ -275,7 +275,7 @@ export class ListingFormPageComponent {
   private validateAuctionFields(): void {
     const price = this.form.controls.price.value;
     if ((this.isGoldCurrencySelected() ? parseGoldMillions(price) : parsePln(price)) === null) {
-      this.serverErrors['price'] = this.isGoldCurrencySelected() ? 'Wpisz dodatnią cenę, np. 500m lub 2g.' : 'Wpisz dodatnią cenę w PLN, np. 25,50.';
+      this.serverErrors['price'] = this.isGoldCurrencySelected() ? 'Wpisz dodatnią cenę, np. 500m lub 2g.' : 'Wpisz dodatnią cenę w zł, np. 25,50.';
     }
     const duration = new Date(this.auctionEnd).getTime() - Date.now();
     if (!this.auctionEnd) this.serverErrors['auctionEnd'] = 'Wybierz termin zakończenia licytacji.';
@@ -341,7 +341,7 @@ export class ListingFormPageComponent {
   }
 
   currencyLabel(name: string): string {
-    return name.trim().toLowerCase() === 'pln' ? 'PLN' : name;
+    return name.trim().toLowerCase() === 'pln' ? 'zł' : name;
   }
 
   pricePlaceholder(): string {

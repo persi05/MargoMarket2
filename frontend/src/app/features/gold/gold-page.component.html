@@ -20,13 +20,13 @@
         [(ngModel)]="filters.maxAmount"
         inputmode="decimal" /></label
     ><label
-      ><span class="sr-only">Cena od (PLN)</span><input placeholder="Cena od (PLN)"
+      ><span class="sr-only">Cena od (zł)</span><input placeholder="Cena od (zł)"
         [disabled]="!auth.isLoggedIn"
         name="minPrice"
         [(ngModel)]="filters.minPrice"
         inputmode="decimal" /></label
     ><label
-      ><span class="sr-only">Cena do (PLN)</span><input placeholder="Cena do (PLN)"
+      ><span class="sr-only">Cena do (zł)</span><input placeholder="Cena do (zł)"
         [disabled]="!auth.isLoggedIn"
         name="maxPrice"
         [(ngModel)]="filters.maxPrice"

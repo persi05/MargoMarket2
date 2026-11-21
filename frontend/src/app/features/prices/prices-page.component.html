@@ -1,6 +1,6 @@
 <section class="prices">
   <mm-page-header eyebrow="Ceny" title="Ceny historyczne przedmiotów"
-    lead="Sugerowane ceny liczymy z zakończonych sprzedaży, wygranych licytacji i aktualnych ofert. Ceny w złocie przeliczamy na PLN kursem danego świata, a koszt ulepszenia doliczamy według wzoru z gry." />
+    lead="Sugerowane ceny liczymy z zakończonych sprzedaży, wygranych licytacji i aktualnych ofert. Ceny w złocie przeliczamy na zł kursem danego świata, a koszt ulepszenia doliczamy według wzoru z gry." />
 
   <div class="controls">
     <label class="search">Przedmiot
@@ -74,7 +74,7 @@
           <table>
             <thead><tr>
               <th scope="col">Data</th><th scope="col">Świat</th><th scope="col">{{ overview()?.upgradeable === false ? 'Związany' : 'Ulepszenie' }}</th><th scope="col">Rodzaj</th>
-              <th scope="col">Cena</th><th scope="col">≈ PLN</th>
+              <th scope="col">Cena</th><th scope="col">≈ zł</th>
             </tr></thead>
             <tbody>
               @for (entry of page.content; track entry.listingId) {

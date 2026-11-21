@@ -35,7 +35,7 @@ export function goldMillionsInput(value: number): string {
 export function formatPln(value: number | null): string {
   return value === null
     ? 'Zaloguj się, aby zobaczyć cenę'
-    : decimal(BigInt(value), 100n, 2) + ' PLN';
+    : decimal(BigInt(value), 100n, 2) + ' zł';
 }
 
 export type GoldRateMode = 'M_PER_PLN' | 'PLN_PER_G';
@@ -84,7 +84,7 @@ export function formatGoldRate(
   if (gold === null || minor === null || gold === undefined || minor === undefined)
     return 'Zaloguj się, aby zobaczyć kurs';
   return mode === 'M_PER_PLN'
-    ? '1 PLN = ' + goldMillionsInput(gold) + 'm'
+    ? '1 zł = ' + goldMillionsInput(gold) + 'm'
     : mode === 'PLN_PER_G'
       ? '1g = ' + formatPln(minor)
       : formatGold(gold) + ' = ' + formatPln(minor);
