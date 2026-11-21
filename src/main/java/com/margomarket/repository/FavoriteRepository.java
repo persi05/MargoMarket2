@@ -11,13 +11,10 @@ import com.margomarket.model.ListingFavorite;
 import com.margomarket.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface FavoriteRepository extends JpaRepository<ListingFavorite, Long> {
 
     boolean existsByUserAndListing(User user, Listing listing);
-
-    Optional<ListingFavorite> findByUserAndListing(User user, Listing listing);
 
     @Query(value = """
         SELECT f FROM ListingFavorite f

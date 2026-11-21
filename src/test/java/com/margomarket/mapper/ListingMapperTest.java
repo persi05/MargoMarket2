@@ -25,10 +25,8 @@ class ListingMapperTest {
 
         assertThat(publicResponse.price()).isNull();
         assertThat(publicResponse.contact()).isNull();
-        assertThat(publicResponse.sellerEmail()).isNull();
         assertThat(privateResponse.price()).isEqualTo(1500);
         assertThat(privateResponse.contact()).isEqualTo("Sprzedawca#123");
-        assertThat(privateResponse.sellerEmail()).isNull();
         assertThat(publicResponse.sellerDisplayName()).isEqualTo("Gracz 7");
     }
 

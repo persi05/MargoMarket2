@@ -47,6 +47,7 @@ class AuctionIntegrationIT {
     @Autowired AuctionClosingService closing;
     @Autowired AuctionFulfillmentService fulfillment;
     @Autowired AuctionModerationService moderation;
+    @Autowired UserModerationService userModeration;
     @Autowired AuctionBidRateLimiter limiter;
     @Autowired ListingService listings;
     @Autowired ConversationService conversations;
@@ -91,7 +92,7 @@ class AuctionIntegrationIT {
         long id=create(); auctions.bid(id,bid(1000),buyer);
         var publicView=auctions.get(id,null);
         assertThat(publicView.startingAmount()).isNull(); assertThat(publicView.highestAmount()).isNull();
-        assertThat(publicView.listing().price()).isNull(); assertThat(publicView.listing().sellerEmail()).isNull();
+        assertThat(publicView.listing().price()).isNull();
         var history=auctions.bids(id,1,null).content().getFirst();
         assertThat(history.get("amount")).isNull(); assertThat(history).doesNotContainKey("userId");
         mvc.perform(get("/api/auctions/"+id)).andExpect(status().isOk()).andExpect(jsonPath("highestAmount").doesNotExist());
@@ -242,7 +243,8 @@ class AuctionIntegrationIT {
         ReflectionTestUtils.setField(limiter,"spacing",2);
         assertThat(limiter.attempt(other.getId(),id)).isZero(); assertThat(limiter.attempt(other.getId(),id)).isPositive();
         ReflectionTestUtils.setField(limiter,"spacing",0);
-        moderation.restrict(other.getId(),admin,"Udokumentowany spam","Kontakt z moderacją w serwisie",Instant.now().plusSeconds(3600));
+        userModeration.restrict(other.getId(),Set.of(ModerationScope.BIDDING),"Udokumentowany spam. Odwołanie: kontakt z moderacją w serwisie",
+                new UserModerationService.Term(null,Instant.now().plusSeconds(3600),false),admin);
         assertThatThrownBy(()->auctions.bid(id,bid(1000),other)).isInstanceOf(ForbiddenOperationException.class).hasMessageContaining("Odwołanie");
     }
     @Test void notificationFailureRollsBackBidAndLeaderAndFlagsBlockDirectApi() {

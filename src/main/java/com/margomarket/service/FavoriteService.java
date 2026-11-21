@@ -34,9 +34,6 @@ public class FavoriteService {
         return favoriteRepository.findFavoriteIdsByUser(user, listingIds);
     }
 
-    public boolean isFavorite(User user, Listing listing) {
-        return favoriteRepository.existsByUserAndListing(user, listing);
-    }
 
     @Transactional
     public void addFavorite(User user, Long listingId) {

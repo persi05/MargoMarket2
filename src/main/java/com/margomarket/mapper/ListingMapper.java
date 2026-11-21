@@ -41,7 +41,6 @@ public class ListingMapper {
                 showPrivateDetails ? listing.getContact() : null,
                 listing.getStatus().getName(),
                 listing.getUser().getId(),
-                null,
                 com.margomarket.service.PublicNames.name(listing.getUser()),
                 listing.getCreatedAt(),
                 listing.getListingKind(),
