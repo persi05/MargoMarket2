@@ -18,7 +18,33 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .filters h2 { margin: 0; }
 .level-range, .filter-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .market-results { min-width: 0; }
-.auction-table { min-width:1000px; }
+/* Tabela mieści się od 760px szerokości: stałe szerokości kolumn, a nazwa przedmiotu bierze resztę. Węższa zamienia się w karty. */
+.auction-table { min-width:0; table-layout:fixed; }
+.auction-table .fav-col { width:48px; }
+.auction-table .preview-col { width:64px; }
+.auction-table .level-col { width:72px; }
+.auction-table .enh-col { width:96px; }
+.auction-table .price-col { width:130px; }
+.auction-table .seller-col { width:120px; }
+.auction-table .server-col { width:96px; }
+.auction-table .ends-col { width:96px; }
+.auction-table .open-col { width:104px; }
+.auction-table td { overflow-wrap:anywhere; }
+.auction-table th { white-space:normal; }
+.auction-table .cell-actions .mm-button { padding:8px 12px; white-space:nowrap; }
+@container table-results (max-width: 1000px) {
+  .auction-table th, .auction-table td { padding-inline:6px; }
+  .auction-table th { font-size:11px; letter-spacing:.02em; white-space:normal; }
+  .auction-table .fav-col { width:40px; }
+  .auction-table .preview-col { width:56px; }
+  .auction-table .level-col { width:54px; }
+  .auction-table .enh-col { width:66px; }
+  .auction-table .price-col { width:104px; }
+  .auction-table .seller-col { width:96px; }
+  .auction-table .server-col { width:78px; }
+  .auction-table .ends-col { width:80px; }
+  .auction-table .open-col { width:88px; }
+}
 .item-name { font-size: 14px; font-weight: 700; text-decoration: none; }
 small { display: block; color: var(--color-text-muted); margin-top: 6px; font-size: 11px; }
 .price { color: var(--color-primary); font-weight: 700; white-space: nowrap; }

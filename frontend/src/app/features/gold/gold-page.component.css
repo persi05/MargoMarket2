@@ -25,3 +25,6 @@ button:focus-visible, a:focus-visible { outline:2px solid var(--color-primary); 
   .gold-description { margin-inline:0; }
   .row-actions .mm-button { grid-column:1 / -1; }
 }
+
+.gold-table { min-width:0; }
+@container table-results (max-width: 1000px) { .gold-table th, .gold-table td { padding-inline:6px; } .gold-table th { font-size:11px; white-space:normal; } }
