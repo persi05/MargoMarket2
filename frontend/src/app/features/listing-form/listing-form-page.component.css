@@ -583,3 +583,17 @@ h2 {
 @media(max-width:700px) { header h1 { min-height:2lh; } }
 .auction-field-feedback { display:block; min-height:36px; line-height:18px; }
 .invalid textarea { border-color:var(--color-danger); background:rgba(239,68,68,.08); }
+
+/* Na szerokim ekranie błąd pod polem zajmuje wolne miejsce nad przełącznikiem „Związane”, zamiast rozpychać wiersz. */
+@media (min-width: 1181px) {
+  .detail-field {
+    position: relative;
+  }
+
+  .detail-field small {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 3px;
+  }
+}
