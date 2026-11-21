@@ -188,3 +188,11 @@ mm-market-filter .market-filter-panel .secondary, mm-market-filter .market-filte
 @media(max-width:620px) { mm-market-filter .market-filter-panel form { grid-template-columns:1fr; } mm-market-filter .market-filter-panel input, mm-market-filter .market-filter-panel select { height:48px; } }
 
 @media(max-width:620px) { mm-market-filter .market-filter-panel .filter-actions { grid-template-columns:1fr; } }
+
+/* Wąski panel (od 300px szerokości pasa): tytuł nie wchodzi pod przyciski, a pola poziomu mieszczą podpowiedzi. */
+@media(min-width:1101px) {
+  mm-market-filter .market-filter-panel .filter-top { padding-right: 74px; justify-items: start; }
+  mm-market-filter .market-filter-panel .filter-top h2 { font-size: 22px; justify-self: start; }
+  mm-market-filter .market-filter-panel :is(.range, .level-range) input { padding-inline: 8px; font-size: 14px; appearance: textfield; -moz-appearance: textfield; }
+  mm-market-filter .market-filter-panel :is(.range, .level-range) input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+}

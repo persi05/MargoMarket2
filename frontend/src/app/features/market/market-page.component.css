@@ -364,19 +364,19 @@ tbody tr:hover .item-name {
 
 
 
-/* Gdy obok tabeli jest panel filtrów albo ekran jest węższy, kolumny się zwężają,
-   a dopiero poniżej ~760px tabela przewija się w poziomie wewnątrz ramki. */
-@container market-results (max-width: 1000px) {
-  table { min-width: 760px; }
+/* Gdy na tabelę zostaje mniej niż 960px, kolumny się zwężają,
+   a dopiero poniżej ~780px tabela przewija się w poziomie wewnątrz ramki. */
+@container market-results (max-width: 959px) {
+  table { min-width: 780px; }
   th, td { padding-inline: 6px; }
   th { font-size: 11px; letter-spacing: 0.02em; }
   .favorite-col { width: 44px; }
   .preview-col { width: 60px; }
   .level-col { width: 58px; }
-  .enhancement-col { width: 76px; }
+  .enhancement-col { width: 92px; }
   .price-col { width: 100px; }
-  .contact-col { width: 120px; }
+  .contact-col { width: 112px; }
   .server-col { width: 88px; }
-  .discussion-col { width: 56px; }
+  .discussion-col { width: 82px; }
   .discussion-label { display: none; }
 }
