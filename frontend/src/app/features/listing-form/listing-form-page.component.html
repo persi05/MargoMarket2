@@ -1,12 +1,10 @@
 <section class="page">
-  <header>
-    <p class="eyebrow">Nowa oferta</p>
-    <h1>{{ auctionMode ? (auctionEditId ? 'Edytuj licytację' : 'Wystaw przedmiot na licytację') : 'Dodaj przedmiot na giełdę' }}</h1>
+  <mm-page-header eyebrow="Nowa oferta" [title]="auctionMode ? (auctionEditId ? 'Edytuj licytację' : 'Wystaw przedmiot na licytację') : 'Dodaj przedmiot na giełdę'">
     @if (!auctionEditId) {
       <mm-sale-mode [active]="auctionMode ? 'auction' : 'item'" [auctionsEnabled]="auctionsEnabled" />
-      @if (!auctionsEnabled) {<p>Nowe licytacje nie zostały jeszcze uruchomione.</p>}
+      @if (!auctionsEnabled) {<p class="form-notice">Nowe licytacje nie zostały jeszcze uruchomione.</p>}
     }
-  </header>
+  </mm-page-header>
 
   @if (dictionaries$ | async; as dictionaries) {
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -114,7 +112,7 @@
                     </span>
                     <strong>{{ item.name }}</strong>
                     <span>{{ item.itemType.name }}</span>
-                    <em>poz. {{ item.level }} | {{ item.rarity.name }}</em>
+                    <em>{{ item.level }} lvl</em>
                   </button>
                 }
               </div>
@@ -162,6 +160,8 @@
         <input type="text" formControlName="price" inputmode="text" [placeholder]="pricePlaceholder()">
         @if (fieldError('price')) {
           <small>{{ fieldError('price') }}</small>
+        } @else if (lowGoldConfirm !== null) {
+          <small class="price-confirm" role="alert">Cena to tylko {{ lowGoldConfirm }} złota, nie {{ lowGoldConfirm }}m. Jeśli to się zgadza, kliknij jeszcze raz przycisk wystawienia. Jeśli nie, dopisz „m”.</small>
         }
       </label>
 

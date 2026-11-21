@@ -35,7 +35,8 @@ export function parseListingPrice(input: string, currencyName: string): number |
   return Number.isInteger(value) && value > 0 ? value : null;
 }
 
-function formatGoldPrice(price: number): string { return formatGold(price); }
+/** Amounts under 1m have no m/g suffix, so they get a word to tell them apart from PLN. */
+function formatGoldPrice(price: number): string { return price < 1_000_000 ? `${formatGold(price)} złota` : formatGold(price); }
 function parseGoldPrice(input: string): number | null {
  const value=input.trim().toLowerCase().replace(/\s+/g,'');
  const match=value.match(/^(\d+(?:[.,]\d+)?)([mg])$/);

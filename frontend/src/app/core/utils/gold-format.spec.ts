@@ -12,6 +12,8 @@ describe('Exact gold and PLN units', () => {
     expect(parseListingPrice('0,000000001g', 'w grze')).toBe(1);
     expect(parseListingPrice('3g', 'w grze')).toBeNull();
     expect(formatListingPrice(1500000000, 'w grze')).toBe('1,5g');
+    expect(formatListingPrice(1233, 'w grze')).toBe('1233 złota');
+    expect(formatListingPrice(150000000, 'w grze')).toBe('150m');
     expect(parseListingPrice('150', 'pln')).toBe(150);
   });
   it('converts millions and billions exactly', () => {
