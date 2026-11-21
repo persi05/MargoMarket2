@@ -12,6 +12,9 @@ describe('Exact gold and PLN units', () => {
     expect(parseListingPrice('0,000000001g', 'w grze')).toBe(1);
     expect(parseListingPrice('3g', 'w grze')).toBeNull();
     expect(formatListingPrice(1500000000, 'w grze')).toBe('1,5g');
+    expect(formatListingPrice(1233, 'w grze')).toBe('1233');
+    expect(formatListingPrice(150, 'pln')).toBe('150 zł');
+    expect(formatListingPrice(150000000, 'w grze')).toBe('150m');
     expect(parseListingPrice('150', 'pln')).toBe(150);
   });
   it('converts millions and billions exactly', () => {
@@ -47,7 +50,7 @@ describe('Gold exchange-rate pricing', () => {
       ratePriceMinor: 100,
     });
     expect(goldPackageTotal(260000000, 13000000, 100)).toBe(2000);
-    expect(formatGoldRate('M_PER_PLN', 13000000, 100)).toBe('1 PLN = 13m');
+    expect(formatGoldRate('M_PER_PLN', 13000000, 100)).toBe('1 zł = 13m');
   });
   it('calculates total from PLN per billion', () => {
     expect(parseGoldRate('23', 'PLN_PER_G')).toEqual({

@@ -1,12 +1,7 @@
 <section class="profile-page">
-  <div class="profile-heading">
-    <div class="avatar" aria-hidden="true">{{ initial }}</div>
-    <div>
-      <p class="eyebrow">Twoje konto</p>
-      <h1>Profil</h1>
-      <p class="intro">Zarządzaj pseudonimem i hasłem.</p>
-    </div>
-  </div>
+  <mm-page-header eyebrow="Twoje konto" title="Profil" lead="Zarządzaj pseudonimem i hasłem.">
+    <div pageMedia class="avatar" aria-hidden="true">{{ initial }}</div>
+  </mm-page-header>
 
   <div class="profile-grid">
     <form [formGroup]="displayNameForm" (ngSubmit)="saveDisplayName()">

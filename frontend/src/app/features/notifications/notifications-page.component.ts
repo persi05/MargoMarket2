@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { ChatRealtimeService } from '../../core/services/chat-realtime.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -15,7 +16,7 @@ import { PaginationComponent } from '../../shared/pagination/pagination.componen
 @Component({
   selector: 'mm-notifications-page',
   standalone: true,
-  imports: [DatePipe, PaginationComponent, RouterLink],
+  imports: [PageHeaderComponent, DatePipe, PaginationComponent, RouterLink],
   templateUrl: './notifications-page.component.html',
   styleUrl: './notifications-page.component.css'
 })

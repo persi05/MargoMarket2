@@ -1,21 +1,19 @@
 <section class="page">
-  <header>
-    <p class="eyebrow">Nowa oferta</p>
-    <h1>{{ auctionMode ? (auctionEditId ? 'Edytuj licytację' : 'Wystaw przedmiot na licytację') : 'Dodaj przedmiot na giełdę' }}</h1>
+  <mm-page-header eyebrow="Nowa oferta" [title]="auctionMode ? (auctionEditId ? 'Edytuj licytację' : 'Wystaw przedmiot na licytację') : 'Dodaj przedmiot na giełdę'">
     @if (!auctionEditId) {
       <mm-sale-mode [active]="auctionMode ? 'auction' : 'item'" [auctionsEnabled]="auctionsEnabled" />
-      @if (!auctionsEnabled) {<p>Nowe licytacje nie zostały jeszcze uruchomione.</p>}
+      @if (!auctionsEnabled) {<p class="form-notice">Nowe licytacje nie zostały jeszcze uruchomione.</p>}
     }
-  </header>
+  </mm-page-header>
 
   @if (dictionaries$ | async; as dictionaries) {
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       @if (auctionMode) {
-        <div class="wide auction-fields"><p>Ustal cenę wywoławczą w PLN lub złocie i wybierz termin zakończenia. Licytacja może trwać od 1 godziny do maksymalnie 7 dni.</p>
+        <div class="wide auction-fields"><p>Ustal cenę wywoławczą w zł lub złocie i wybierz termin zakończenia. Licytacja może trwać od 1 godziny do maksymalnie 7 dni.</p>
           <label [class.invalid]="hasFieldError('auctionEnd')">Koniec licytacji<input [attr.aria-invalid]="hasFieldError('auctionEnd')" aria-describedby="auction-end-error" type="datetime-local" [value]="auctionEnd" [max]="auctionMaxEnd" (input)="auctionFieldChanged('auctionEnd', $any($event.target).value)" required><small id="auction-end-error" class="auction-field-feedback" aria-live="polite">{{ fieldError('auctionEnd') }}</small></label>
           <label [class.invalid]="hasFieldError('auctionDescription')">Opis aukcji<textarea [attr.aria-invalid]="hasFieldError('auctionDescription')" aria-describedby="auction-description-error" maxlength="2000" [value]="auctionDescription" (input)="auctionFieldChanged('auctionDescription', $any($event.target).value)" rows="3"></textarea><small id="auction-description-error" class="auction-field-feedback" aria-live="polite">{{ fieldError('auctionDescription') }}</small></label>
           <p>Oferta przyjęta w ostatnich 2 minutach przedłuża licytację. Po pierwszej ofercie dane aukcji nie mogą być zmieniane przez sprzedawcę.</p>
-          @if (!plnAuctionsEnabled) {<p>Licytacje w PLN nie zostały jeszcze uruchomione.</p>}
+          @if (!plnAuctionsEnabled) {<p>Licytacje w zł nie zostały jeszcze uruchomione.</p>}
         </div>
       }
       <div class="section-heading wide">
@@ -114,7 +112,7 @@
                     </span>
                     <strong>{{ item.name }}</strong>
                     <span>{{ item.itemType.name }}</span>
-                    <em>poz. {{ item.level }} | {{ item.rarity.name }}</em>
+                    <em>{{ item.level }} lvl</em>
                   </button>
                 }
               </div>
@@ -162,11 +160,13 @@
         <input type="text" formControlName="price" inputmode="text" [placeholder]="pricePlaceholder()">
         @if (fieldError('price')) {
           <small>{{ fieldError('price') }}</small>
+        } @else if (lowGoldConfirm !== null) {
+          <small class="price-confirm" role="alert">Cena to tylko {{ lowGoldConfirm }} złota, nie {{ lowGoldConfirm }}m. Jeśli to się zgadza, kliknij jeszcze raz przycisk wystawienia. Jeśli nie, dopisz „m”.</small>
         }
       </label>
 
       <label class="manual-field detail-field" [class.invalid]="hasFieldError('currencyId')">
-        Waluta (PLN/złoto)
+        Waluta (zł/złoto)
         <select formControlName="currencyId">
           <option [ngValue]="0">Wybierz</option>
           @for (currency of dictionaries.currencies; track currency.id) {

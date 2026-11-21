@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -16,7 +17,7 @@ import { roundGold } from '../../shared/price-suggestion/price-suggestion.compon
 interface SelectedItem { id: number; name: string; }
 
 @Component({
-  selector: 'mm-prices-page', standalone: true, imports: [FormsModule, DatePipe, PaginationComponent],
+  selector: 'mm-prices-page', standalone: true, imports: [PageHeaderComponent, FormsModule, DatePipe, PaginationComponent],
   templateUrl: './prices-page.component.html', styleUrl: './prices-page.component.css'
 })
 export class PricesPageComponent {

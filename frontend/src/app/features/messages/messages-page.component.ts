@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, DestroyRef, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -18,7 +19,7 @@ import { ConversationReportDialogComponent } from './conversation-report-dialog.
 @Component({
   selector: 'mm-messages-page',
   standalone: true,
-  imports: [DatePipe, FormsModule, RouterLink, ConversationReportDialogComponent, PaginationComponent],
+  imports: [PageHeaderComponent, DatePipe, FormsModule, RouterLink, ConversationReportDialogComponent, PaginationComponent],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.css'
 })

@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { SaleModeComponent } from '../../shared/sale-mode/sale-mode.component';
 import { PriceSuggestionComponent, SuggestedPrice, roundGold } from '../../shared/price-suggestion/price-suggestion.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -19,10 +20,13 @@ import { parseListingPrice } from '../../core/utils/price-format';
 import { AuctionService } from '../../core/services/auction.service';
 import { goldMillionsInput, parseGoldMillions, parsePln } from '../../core/utils/gold-format';
 
+/** Gold prices below this are almost always a typo (most offers are 100m and more). */
+const LOW_GOLD_PRICE = 1_000_000;
+
 @Component({
   selector: 'mm-listing-form-page',
   standalone: true,
-  imports: [SaleModeComponent, PriceSuggestionComponent, AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
+  imports: [PageHeaderComponent, SaleModeComponent, PriceSuggestionComponent, AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
   templateUrl: './listing-form-page.component.html',
   styleUrl: './listing-form-page.component.css'
 })
@@ -135,10 +139,12 @@ export class ListingFormPageComponent {
     });
 
     this.form.controls.price.valueChanges.subscribe(() => {
+      this.lowGoldConfirm = null;
       delete this.serverErrors['price'];
     });
 
     this.form.controls.currencyId.valueChanges.subscribe(() => {
+      this.lowGoldConfirm = null;
       delete this.serverErrors['price'];
     });
   }
@@ -208,6 +214,7 @@ export class ListingFormPageComponent {
       const startingAmount = currency === 'GOLD' ? parseGoldMillions(raw.price) : parsePln(raw.price);
       const end = new Date(this.auctionEnd);
       if (startingAmount === null || !Number.isFinite(end.getTime())) { this.loading = false; return; }
+      if (currency === 'GOLD' && this.needsLowGoldConfirm(startingAmount)) { this.loading = false; return; }
       const request = {itemId:raw.itemId, serverId:raw.serverId, enhancementLevel:raw.enhancementLevel, bound:raw.bound,
         currency, startingAmount, endsAt:end.toISOString(), description:this.auctionDescription, contact:raw.contact};
       (this.auctionEditId ? this.auctions.update(this.auctionEditId,request) : this.auctions.create(request))
@@ -224,6 +231,10 @@ export class ListingFormPageComponent {
         ? 'Wpisz cenę jako liczbę albo skrót, np. 500m lub 2g.'
         : 'Wpisz poprawną cenę liczbową.';
       this.form.controls.price.markAsTouched();
+      this.loading = false;
+      return;
+    }
+    if (this.isGoldCurrencySelected() && this.needsLowGoldConfirm(price)) {
       this.loading = false;
       return;
     }
@@ -264,12 +275,28 @@ export class ListingFormPageComponent {
   private validateAuctionFields(): void {
     const price = this.form.controls.price.value;
     if ((this.isGoldCurrencySelected() ? parseGoldMillions(price) : parsePln(price)) === null) {
-      this.serverErrors['price'] = this.isGoldCurrencySelected() ? 'Wpisz dodatnią cenę, np. 500m lub 2g.' : 'Wpisz dodatnią cenę w PLN, np. 25,50.';
+      this.serverErrors['price'] = this.isGoldCurrencySelected() ? 'Wpisz dodatnią cenę, np. 500m lub 2g.' : 'Wpisz dodatnią cenę w zł, np. 25,50.';
     }
     const duration = new Date(this.auctionEnd).getTime() - Date.now();
     if (!this.auctionEnd) this.serverErrors['auctionEnd'] = 'Wybierz termin zakończenia licytacji.';
     else if (!Number.isFinite(duration) || duration < 3600_000 || duration > 7 * 24 * 3600_000) this.serverErrors['auctionEnd'] = 'Wybierz termin od 1 godziny do 7 dni od teraz.';
     if (this.auctionDescription.length > 2000) this.serverErrors['auctionDescription'] = 'Opis może mieć maksymalnie 2000 znaków.';
+  }
+
+  /** Gold amount the seller has to confirm because it is below 1m, most likely a missing "m". */
+  lowGoldConfirm: number | null = null;
+  private confirmedLowGold: number | null = null;
+
+  /** First submit with a gold price under 1m only asks to confirm it; the second submit with the same amount goes through. */
+  private needsLowGoldConfirm(amount: number): boolean {
+    if (amount >= LOW_GOLD_PRICE || this.confirmedLowGold === amount) return false;
+    if (this.lowGoldConfirm === amount) {
+      this.confirmedLowGold = amount;
+      this.lowGoldConfirm = null;
+      return false;
+    }
+    this.lowGoldConfirm = amount;
+    return true;
   }
 
   fieldError(name: string): string {
@@ -314,7 +341,7 @@ export class ListingFormPageComponent {
   }
 
   currencyLabel(name: string): string {
-    return name.trim().toLowerCase() === 'pln' ? 'PLN' : name;
+    return name.trim().toLowerCase() === 'pln' ? 'zł' : name;
   }
 
   pricePlaceholder(): string {

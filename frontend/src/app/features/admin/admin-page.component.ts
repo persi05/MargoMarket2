@@ -1,7 +1,8 @@
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { CatalogAdminComponent } from './catalog-admin.component';
 import { WorldRatesAdminComponent } from './world-rates-admin.component';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, afterNextRender, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BehaviorSubject, combineLatest, finalize, of, shareReplay, switchMap, tap } from 'rxjs';
@@ -21,7 +22,7 @@ import { AuctionModerationComponent } from './auction-moderation.component';
 @Component({
   selector: 'mm-admin-page',
   standalone: true,
-  imports: [CatalogAdminComponent, WorldRatesAdminComponent, AuctionModerationComponent, ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
+  imports: [PageHeaderComponent, CatalogAdminComponent, WorldRatesAdminComponent, AuctionModerationComponent, ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
   templateUrl: './admin-page.component.html',
   styleUrl: './admin-page.component.css'
 })
@@ -30,6 +31,7 @@ export class AdminPageComponent {
   private readonly adminService = inject(AdminService);
   private readonly conversationsService = inject(ConversationService);
   private readonly listingService = inject(ListingService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly stats$ = this.adminService.stats().pipe(shareReplay({bufferSize:1,refCount:true}));
   protected readonly dictionaries$ = inject(DictionaryService).getAll();
   private readonly pageSubject = new BehaviorSubject(1);
@@ -93,6 +95,29 @@ export class AdminPageComponent {
     )),
     shareReplay({ bufferSize: 1, refCount: true })
   );
+
+  constructor() {
+    afterNextRender(() => this.revealActiveTab());
+  }
+
+  /** On phones the tabs are one sideways-scrolling strip; keep the chosen one in view. */
+  private revealActiveTab(): void {
+    const active = this.host.nativeElement.querySelector<HTMLElement>('.tabs .active');
+    const strip = active?.parentElement;
+    if (!active || !strip || strip.scrollWidth <= strip.clientWidth) return;
+    const tab = active.getBoundingClientRect();
+    const box = strip.getBoundingClientRect();
+    if (tab.right > box.right) strip.scrollLeft += tab.right - box.right + 12;
+    else if (tab.left < box.left) strip.scrollLeft -= box.left - tab.left + 12;
+  }
+
+  /** Lets a regular mouse wheel move the tab strip sideways when it does not fit. */
+  protected scrollTabs(event: WheelEvent): void {
+    const strip = event.currentTarget as HTMLElement;
+    if (strip.scrollWidth <= strip.clientWidth || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+    event.preventDefault();
+    strip.scrollLeft += event.deltaY;
+  }
 
   protected selectTab(tab: typeof this.activeTab): void {
     this.activeTab = tab;

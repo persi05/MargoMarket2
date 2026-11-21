@@ -179,7 +179,7 @@ export class MarketPageComponent {
   }
 
   protected currencyLabel(name: string): string {
-    return name.trim().toLowerCase() === 'pln' ? 'PLN' : name;
+    return name.trim().toLowerCase() === 'pln' ? 'zł' : name;
   }
 
   protected itemTypes(types: LookupResponse[]): LookupResponse[] {

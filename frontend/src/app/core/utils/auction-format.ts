@@ -17,3 +17,10 @@ export function auctionStatus(status: string): string {
     PENDING_CONTACT: 'Oczekuje na kontakt', IN_PROGRESS: 'Uzgadnianie wymiany', DECLARED_COMPLETED: 'Sprzedawca zadeklarował realizację',
     ADMIN_CONFIRMED: 'Wymiana potwierdzona przez administratora', DISPUTED: 'Spór do rozpatrzenia'} as Record<string,string>)[status] ?? status;
 }
+
+/** "1 oferta", "3 oferty", "5 ofert", "22 oferty". */
+export function bidCountLabel(count: number): string {
+  const tens = count % 100, ones = count % 10;
+  if (count === 1) return '1 oferta';
+  return `${count} ${ones >= 2 && ones <= 4 && (tens < 12 || tens > 14) ? 'oferty' : 'ofert'}`;
+}

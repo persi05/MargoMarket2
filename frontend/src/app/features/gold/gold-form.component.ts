@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { SaleModeComponent } from '../../shared/sale-mode/sale-mode.component';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -19,7 +20,7 @@ import {
 @Component({
   selector: 'mm-gold-form',
   standalone: true,
-  imports: [FormsModule, RouterLink, SaleModeComponent],
+  imports: [PageHeaderComponent, FormsModule, RouterLink, SaleModeComponent],
   templateUrl: './gold-form.component.html',
   styleUrls: ['../listing-form/listing-form-page.component.css', './gold-form.component.css'],
 })
@@ -48,7 +49,7 @@ export class GoldFormComponent {
     if (field === 'amount') return parseGoldMillions(this.form.amount) !== null ? '' : (this.form.amount.trim() ? 'Wpisz dodatnią ilość złota, np. 500m lub 2g.' : 'Podaj ilość złota.');
     if (field === 'rate') {
       if (parseGoldRate(this.form.rate, this.form.rateMode) === null) return this.form.rate.trim() ? 'Wpisz dodatni kurs. Możesz użyć przecinka lub kropki.' : 'Podaj kurs złota.';
-      if (parseGoldMillions(this.form.amount) !== null && this.total === null) return 'Dla podanej ilości i kursu cena pakietu musi wynosić od 0,01 do 1 000 000 PLN.';
+      if (parseGoldMillions(this.form.amount) !== null && this.total === null) return 'Dla podanej ilości i kursu cena pakietu musi wynosić od 0,01 do 1 000 000 zł.';
     }
     return '';
   }
@@ -72,7 +73,7 @@ export class GoldFormComponent {
   protected get totalLabel() {
     const total = this.total;
     return total === null
-      ? 'Podaj ilość i kurs. Cena pakietu musi wynosić 0,01–1 000 000 PLN.'
+      ? 'Podaj ilość i kurs. Cena pakietu musi wynosić 0,01–1 000 000 zł.'
       : formatPln(total);
   }
   protected worldChanged() {

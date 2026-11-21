@@ -188,3 +188,30 @@ mm-market-filter .market-filter-panel .secondary, mm-market-filter .market-filte
 @media(max-width:620px) { mm-market-filter .market-filter-panel form { grid-template-columns:1fr; } mm-market-filter .market-filter-panel input, mm-market-filter .market-filter-panel select { height:48px; } }
 
 @media(max-width:620px) { mm-market-filter .market-filter-panel .filter-actions { grid-template-columns:1fr; } }
+
+/* Wąski panel (od 300px szerokości pasa): tytuł nie wchodzi pod przyciski, a pola poziomu mieszczą podpowiedzi. */
+@media(min-width:1101px) {
+  mm-market-filter .market-filter-panel .filter-top { padding-right: 74px; justify-items: start; }
+  mm-market-filter .market-filter-panel .filter-top h2 { font-size: 22px; justify-self: start; }
+  mm-market-filter .market-filter-panel :is(.range, .level-range) input { padding-inline: 8px; font-size: 14px; appearance: textfield; -moz-appearance: textfield; }
+  mm-market-filter .market-filter-panel :is(.range, .level-range) input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+}
+
+mm-market-filter .market-filter-panel .filter-body { display: contents; }
+mm-market-filter .market-filter-panel .filter-toggle { display: none; }
+
+/* Telefon i wąski tablet: filtr jest zwinięty pod przyciskiem „Filtry”, żeby ogłoszenia były widoczne od razu. */
+@media(max-width:1100px) {
+  mm-market-filter .market-filter-panel { gap: 0; max-width: none; padding: 0; overflow: visible; }
+  mm-market-filter .market-filter-panel .filter-top { display: none; }
+  mm-market-filter .market-filter-panel button.filter-toggle[type="button"] {
+    display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 0 16px;
+    border: 0; border-radius: 10px; background: transparent; box-shadow: none; color: var(--color-text-main); font-size: 16px; font-weight: 800; cursor: pointer;
+  }
+  mm-market-filter .market-filter-panel .filter-toggle .chevron { margin-left: auto; transition: transform .2s; }
+  mm-market-filter .market-filter-panel .filter-toggle[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+  mm-market-filter .market-filter-panel .filter-toggle:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -2px; }
+  mm-market-filter .market-filter-panel .filter-body { display: block; justify-self: stretch; width: 100%; padding: 4px 16px 16px; }
+  mm-market-filter .market-filter-panel .filter-body .filter-actions { grid-template-columns: 1fr 1fr; }
+  mm-market-filter .market-filter-panel .filter-body.collapsed { display: none; }
+}

@@ -12,7 +12,7 @@ import { Auction, AuctionService } from '../../core/services/auction.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { LookupResponse, PageResponse } from '../../core/models/api.models';
-import { auctionAmount, auctionRemaining, auctionStatus } from '../../core/utils/auction-format';
+import { auctionAmount, auctionRemaining, auctionStatus, bidCountLabel } from '../../core/utils/auction-format';
 import { PrivateDetailComponent } from '../../shared/private-detail/private-detail.component';
 
 @Component({
@@ -40,6 +40,7 @@ export class AuctionsPageComponent {
   protected error = '';
   protected admin = false;
   protected readonly amount = auctionAmount;
+  protected readonly bidCountLabel = bidCountLabel;
   protected readonly status = auctionStatus;
   private generation = 0;
   private receivedAt = Date.now();

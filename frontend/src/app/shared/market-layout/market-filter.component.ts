@@ -1,6 +1,11 @@
 import { Component, ElementRef, HostListener, ViewChild, ViewEncapsulation } from '@angular/core';
 @Component({selector:'mm-market-filter',standalone:true,encapsulation:ViewEncapsulation.None,template: `
     <div class="market-filter-panel" #filterPanel [class.is-dragging]="filterDragging" [class.has-custom-position]="filterPosition !== null" [style.left.px]="filterPosition?.x" [style.top.px]="filterPosition?.y" (pointermove)="moveFilter($event)" (pointerup)="stopFilterDrag($event)" (pointercancel)="stopFilterDrag($event)" (lostpointercapture)="stopFilterDrag($event)">
+      <button type="button" class="filter-toggle" [attr.aria-expanded]="expanded" aria-controls="market-filter-body" (click)="expanded = !expanded">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+        <span>Filtry</span>
+        <svg class="chevron" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <div class="filter-top" (pointerdown)="startFilterDrag($event)">
         <h2>Filtrowanie</h2>
         <button
@@ -29,9 +34,14 @@ import { Component, ElementRef, HostListener, ViewChild, ViewEncapsulation } fro
         </button>
       </div>
 
-<ng-content /></div>
+<div class="filter-body" id="market-filter-body" [class.collapsed]="!expanded" (submit)="collapseOnNarrowScreen()"><ng-content /></div></div>
 `,styleUrl:'./market-filter.component.css'})
 export class MarketFilterComponent {
+  /** On phones and narrow tablets the filter starts folded so the offers are visible first; wide screens always show it. */
+  protected expanded = false;
+  protected collapseOnNarrowScreen(): void {
+    if (window.innerWidth <= 1100) this.expanded = false;
+  }
   @ViewChild('filterPanel') private filterPanel?: ElementRef<HTMLElement>;
   protected filterPosition: {x:number;y:number}|null=null;
   protected filterDragging=false;

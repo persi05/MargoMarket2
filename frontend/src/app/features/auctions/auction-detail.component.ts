@@ -137,7 +137,7 @@ export class AuctionDetailComponent {
     const a = this.auction;
     if (!a || this.busy) return;
     const value = a.currency === 'PLN' ? parsePln(this.input) : parseGoldMillions(this.input);
-    if (value === null || a.nextMinimumBid === null || value < a.nextMinimumBid) { this.error = value === null ? 'Wpisz poprawną kwotę, np. 500m lub 2g dla złota albo 25,50 PLN.' : 'Minimalna kolejna oferta: ' + (a.nextMinimumBid === null ? 'osiągnięto limit' : this.amount(a.nextMinimumBid,a.currency)) + '. Podbicie wynosi co najmniej 1%, minimum 1 PLN lub 1m złota.'; return; }
+    if (value === null || a.nextMinimumBid === null || value < a.nextMinimumBid) { this.error = value === null ? 'Wpisz poprawną kwotę, np. 500m lub 2g dla złota albo 25,50 zł.' : 'Minimalna kolejna oferta: ' + (a.nextMinimumBid === null ? 'osiągnięto limit' : this.amount(a.nextMinimumBid,a.currency)) + '. Podbicie wynosi co najmniej 1%, minimum 1 zł lub 1m złota.'; return; }
     if (!this.pendingBid || this.pendingBid.amount !== value) this.pendingBid = {amount:value,key:crypto.randomUUID()};
     this.busy = true; this.error = ''; this.notice = '';
     this.service.bid(this.id,value,a.currency,this.pendingBid.key).pipe(takeUntilDestroyed(this.destroy)).subscribe({

@@ -13,7 +13,7 @@ export function formatListingPrice(price: number | null, currencyName: string): 
   const formattedPrice = new Intl.NumberFormat('pl-PL').format(price);
 
   if (normalizedCurrency === 'pln') {
-    return `${formattedPrice} PLN`;
+    return `${formattedPrice} zł`;
   }
 
   return `${formattedPrice} ${currencyName.trim()}`;

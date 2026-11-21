@@ -55,7 +55,7 @@ describe('prices page', () => {
     expect(prices.history).toHaveBeenCalledWith(7, 2, 1);
     expect(text()).toContain('Legenda testowa');
     expect(text()).toContain('Światy z przenosinami (Classic, Gefion)');
-    expect(text()).toContain('140 PLN');
+    expect(text()).toContain('140 zł');
     expect(text()).toContain('z transakcji na +0');
     expect(text()).toContain('Licytacja');
     expect(text()).toContain('2,5g');

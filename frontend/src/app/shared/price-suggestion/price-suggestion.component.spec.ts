@@ -40,7 +40,7 @@ describe('price suggestion', () => {
     const skrytka: PriceOverview = { ...overview, itemName: 'Skrytka', upgradeable: false, levels: [level(0, { basis: 'DIRECT', totalGrosze: 2_000, totalGold: 400_000_000 })] };
     const { text } = await render({ enhancement: 3 }, of(skrytka));
     expect(text()).toContain('Sugerowana cena:');
-    expect(text()).toContain('20 PLN');
+    expect(text()).toContain('20 zł');
     expect(text()).not.toContain('+3');
   });
 
@@ -48,9 +48,9 @@ describe('price suggestion', () => {
     const { text, service } = await render({ enhancement: 3 });
     expect(service.overview).toHaveBeenCalledWith(7, 3, false);
     expect(text()).toContain('Sugerowana cena (+3):');
-    expect(text()).toContain('185 PLN');
+    expect(text()).toContain('185 zł');
     expect(text()).toContain('≈ 3,7g');
-    expect(text()).toContain('Cena +0: 110 PLN · ulepszenie do +3: 75 PLN');
+    expect(text()).toContain('Cena +0: 110 zł · ulepszenie do +3: 75 zł');
     expect(text()).toContain('Na podstawie 4 transakcji · rynek: światy z przenosinami');
   });
 
@@ -64,7 +64,7 @@ describe('price suggestion', () => {
 
   it('explains a missing upgrade rate and a missing history', async () => {
     const missingRate = await render({ enhancement: 4 });
-    expect(missingRate.text()).toContain('Cena +0: 110 PLN');
+    expect(missingRate.text()).toContain('Cena +0: 110 zł');
     expect(missingRate.text()).toContain('Brak przelicznika ulepy dla świata Classic');
     expect(missingRate.fixture.nativeElement.querySelector('button')).toBeNull();
     TestBed.resetTestingModule();

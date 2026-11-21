@@ -3,27 +3,7 @@
   gap: 16px;
   max-width: 1520px;
   margin: 0 auto;
-  padding: 20px clamp(16px, 3vw, 32px);
-}
-
-header {
-  max-width: none;
-}
-
-.eyebrow {
-  margin: 0 0 6px;
-  color: var(--color-primary);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-h1 {
-  margin: 0;
-  color: white;
-  font-size: clamp(28px, 4vw, 42px);
-  line-height: 1;
+  padding: 28px clamp(16px, 3vw, 32px);
 }
 
 form {
@@ -580,7 +560,6 @@ h2 {
 .auction-fields label { gap: 8px; }
 .auction-fields textarea { margin: 0; }
 
-@media(max-width:700px) { header h1 { min-height:2lh; } }
 .auction-field-feedback { display:block; line-height:18px; }
 .auction-field-feedback:empty { display:none; }
 .invalid textarea { border-color:var(--color-danger); background:rgba(239,68,68,.08); }
@@ -598,3 +577,5 @@ h2 {
     margin-top: 3px;
   }
 }
+
+.price-confirm { color: #f2c76b !important; }

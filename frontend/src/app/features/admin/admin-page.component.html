@@ -1,10 +1,5 @@
 <section class="admin">
-  <header>
-    <div>
-      <p class="eyebrow">Administracja</p>
-      <h1>Moderacja serwisu</h1>
-    </div>
-  </header>
+  <mm-page-header eyebrow="Administracja" title="Moderacja serwisu" />
 
   @if (stats$ | async; as stats) {
     <div class="stats-row">
@@ -13,7 +8,7 @@
     </div>
   }
 
-  <nav class="tabs" aria-label="Sekcje administracji">
+  <nav class="tabs" aria-label="Sekcje administracji" (wheel)="scrollTabs($event)">
     <button type="button" [class.active]="activeTab === 'catalog'" (click)="selectTab('catalog')">Katalog przedmiotów</button>
     <button type="button" [class.active]="activeTab === 'worlds'" (click)="selectTab('worlds')">Światy i przeliczniki</button>
     <button type="button" [class.active]="activeTab === 'listings'" (click)="selectTab('listings')">

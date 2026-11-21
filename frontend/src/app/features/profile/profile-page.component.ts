@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -10,7 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'mm-profile-page',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [PageHeaderComponent, ReactiveFormsModule],
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.css'
 })
