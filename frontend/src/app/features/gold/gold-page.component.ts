@@ -1,4 +1,4 @@
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { PrivateDetailComponent } from '../../shared/private-detail/private-detail.component';
 import { formatGold, formatPln, formatGoldRate } from '../../core/utils/gold-format';
 import { MarketLayoutComponent } from '../../shared/market-layout/market-layout.component';
@@ -16,7 +16,7 @@ import { parseGoldMillions, parsePln } from '../../core/utils/gold-format';
 @Component({
   selector: 'mm-gold-page',
   standalone: true,
-  imports: [AsyncPipe, DatePipe, PrivateDetailComponent, MarketLayoutComponent, MarketFilterComponent, FormsModule, RouterLink, DiscussionDrawerComponent],
+  imports: [AsyncPipe, PrivateDetailComponent, MarketLayoutComponent, MarketFilterComponent, FormsModule, RouterLink, DiscussionDrawerComponent],
   templateUrl: './gold-page.component.html',
   styleUrl: './gold-page.component.css',
 })

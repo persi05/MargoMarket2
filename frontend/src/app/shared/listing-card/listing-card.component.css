@@ -188,13 +188,7 @@ footer {
 dl {
   display: grid;
   gap: 13px;
-  margin: 18px 0 0;
-}
-
-.owner-listing dl,
-.profile-listing dl,
-.favorite-listing dl {
-  margin-bottom: 12px;
+  margin: 18px 0 16px;
 }
 
 dl div {
@@ -323,8 +317,8 @@ button.danger {
 }
 
 /* Złoto ma ten sam układ karty co przedmioty, tylko z ikoną monet zamiast podglądu przedmiotu. */
-.gold-frame { --rarity-color: #e8c35a; --rarity-glow: rgba(232, 195, 90, 0.35); width: 64px; height: 64px; }
-.gold-frame img { width: 44px; height: 44px; }
+.gold-frame { --rarity-color: #e8c35a; --rarity-glow: rgba(232, 195, 90, 0.35); width: 40px; height: 40px; }
+.gold-frame img { width: 30px; height: 30px; }
 .gold-description dd { white-space: pre-wrap; overflow-wrap: anywhere; }
 .gold-error { margin: 0 18px 14px; color: #fca5a5; }
 

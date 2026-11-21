@@ -14,4 +14,14 @@ button:focus-visible, a:focus-visible { outline:2px solid var(--color-primary); 
 .gold-results { min-width:0; }
 @media(max-width:500px) { .pagination { justify-content:center; gap:10px; } }
 
-.gold-description { display:block; max-width:32ch; margin-top:7px; color:var(--color-text-muted); line-height:1.5; overflow-wrap:anywhere; }.row-actions { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }.gold-table strong { color:var(--color-primary); font-size:15px; }
+.gold-description { display:block; max-width:32ch; margin:7px auto 0; color:var(--color-text-muted); line-height:1.5; overflow-wrap:anywhere; }.row-actions { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }.gold-table strong { color:var(--color-primary); font-size:15px; }
+
+/* Jak przy przedmiotach: „Napisz wiadomość” pod nazwą sprzedającego. */
+.seller-cell > span { display:inline-grid; justify-items:center; gap:6px; }
+.seller-link { font-weight:800; }
+.contact-chat { color:var(--color-primary); font-size:11px; font-weight:700; text-decoration:underline; text-underline-offset:3px; white-space:nowrap; }
+@media(max-width:620px) {
+  .seller-cell > span { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px; }
+  .gold-description { margin-inline:0; }
+  .row-actions .mm-button { grid-column:1 / -1; }
+}
