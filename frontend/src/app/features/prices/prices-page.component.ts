@@ -3,10 +3,11 @@ import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, catchError, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 
 import { ItemResponse, LookupResponse, PageResponse, PriceHistoryEntry, PriceLevel, PriceOverview } from '../../core/models/api.models';
+import { AuthService } from '../../core/services/auth.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ItemService } from '../../core/services/item.service';
 import { PriceService } from '../../core/services/price.service';
@@ -17,7 +18,7 @@ import { roundGold } from '../../shared/price-suggestion/price-suggestion.compon
 interface SelectedItem { id: number; name: string; }
 
 @Component({
-  selector: 'mm-prices-page', standalone: true, imports: [PageHeaderComponent, FormsModule, DatePipe, PaginationComponent],
+  selector: 'mm-prices-page', standalone: true, imports: [PageHeaderComponent, FormsModule, RouterLink, DatePipe, PaginationComponent],
   templateUrl: './prices-page.component.html', styleUrl: './prices-page.component.css'
 })
 export class PricesPageComponent {
@@ -28,6 +29,8 @@ export class PricesPageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly searchTerms = new Subject<string>();
 
+  /** Guests see the page but prices need an account. */
+  protected readonly loggedIn = inject(AuthService).isLoggedIn;
   protected search = '';
   protected readonly results = signal<ItemResponse[]>([]);
   protected readonly servers = signal<LookupResponse[]>([]);
@@ -71,7 +74,7 @@ export class PricesPageComponent {
 
   protected load(page = 1): void {
     const item = this.item();
-    if (!item || !this.serverId) return;
+    if (!item || !this.serverId || !this.loggedIn) return;
     void this.router.navigate([], { relativeTo: this.route, queryParams: { item: item.id, world: this.serverId }, replaceUrl: true });
     this.loading.set(true);
     this.error.set('');
@@ -93,7 +96,7 @@ export class PricesPageComponent {
 
   protected loadHistory(page: number): void {
     const item = this.item();
-    if (!item || !this.serverId) return;
+    if (!item || !this.serverId || !this.loggedIn) return;
     this.prices.history(item.id, this.serverId, page).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: history => this.history.set(history),
       error: () => this.history.set(null)

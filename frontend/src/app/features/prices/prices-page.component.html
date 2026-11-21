@@ -1,18 +1,23 @@
 <section class="prices">
-  <mm-page-header eyebrow="Ceny" title="Ceny historyczne przedmiotów"
+  <mm-page-header title="Ceny historyczne przedmiotów"
     lead="Sugerowane ceny liczymy z zakończonych sprzedaży, wygranych licytacji i aktualnych ofert. Ceny w złocie przeliczamy na zł kursem danego świata, a koszt ulepszenia doliczamy według wzoru z gry." />
 
-  <div class="controls">
+  @if (!loggedIn) {
+    <p class="login-note">Wyszukiwanie cen jest dostępne po zalogowaniu.
+      <a routerLink="/auth" [queryParams]="{ returnUrl: '/prices' }">Zaloguj się</a> albo załóż konto.</p>
+  }
+
+  <div class="controls" [class.locked]="!loggedIn">
     <label class="search">Przedmiot
-      <input type="search" [(ngModel)]="search" (ngModelChange)="searchChanged($event)" placeholder="Wpisz nazwę przedmiotu"
+      <input type="search" [disabled]="!loggedIn" [(ngModel)]="search" (ngModelChange)="searchChanged($event)" placeholder="Wpisz nazwę przedmiotu"
         autocomplete="off" aria-controls="price-search-results">
     </label>
     <label>Świat
-      <select [(ngModel)]="serverId" (ngModelChange)="load()">
+      <select [disabled]="!loggedIn" [(ngModel)]="serverId" (ngModelChange)="load()">
         @for (server of servers(); track server.id) { <option [ngValue]="server.id">{{ server.name }}</option> }
       </select>
     </label>
-    <label class="check"><input type="checkbox" [(ngModel)]="bound" (ngModelChange)="load()" [disabled]="overview()?.bindable === false"> Związany</label>
+    <label class="check"><input type="checkbox" [(ngModel)]="bound" (ngModelChange)="load()" [disabled]="!loggedIn || overview()?.bindable === false"> Związany</label>
   </div>
 
   @if (results().length) {
@@ -63,7 +68,7 @@
         </table>
       </div>
     </section>
-  } @else if (!item() && !loading()) {
+  } @else if (loggedIn && !item() && !loading()) {
     <p class="muted empty">Wyszukaj przedmiot, aby zobaczyć jego ceny.</p>
   } @else if (loading()) {
     <p class="muted" role="status">Wczytywanie cen…</p>
