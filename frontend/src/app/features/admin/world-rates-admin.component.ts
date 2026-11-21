@@ -30,13 +30,6 @@ interface WorldRow {
       <p>Kursy służą do sugerowania cen. Światy publiczne z przenosinami tworzą jeden wspólny rynek,
         pozostałe są liczone osobno. Puste pole oznacza brak przelicznika.</p>
       @if (loadError()) { <p class="error" role="alert">{{ loadError() }}</p> }
-      <form class="scales" (submit)="$event.preventDefault(); saveScales()">
-        <label for="scales-price">Cena 100 SŁ (zł)</label>
-        <input id="scales-price" name="scales" inputmode="decimal" placeholder="brak" [(ngModel)]="scales" [disabled]="scalesSaving()">
-        <button type="submit" [disabled]="scalesSaving()">Zapisz</button>
-        @if (scalesMessage()) { <span [class.ok]="!scalesError()" [class.error-text]="scalesError()" role="status">{{ scalesMessage() }}</span> }
-        <small>Wspólna dla wszystkich światów. Służy do przeliczania cen związanych i niezwiązanych kosztem odwiązania; puste pole wyłącza przeliczanie.</small>
-      </form>
       <div class="table-wrap">
         <table>
           <thead><tr>
@@ -82,8 +75,6 @@ interface WorldRow {
     input, select { width: 100%; box-sizing: border-box; padding: .45rem .55rem; background: #1b1411; color: #f1ede4; border: 1px solid rgba(151,121,87,.5); border-radius: 6px; font: inherit; }
     button { padding: .5rem .9rem; background: #31542b; color: #f1ede4; border: 1px solid #729661; border-radius: 7px; font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; }
     button:disabled { opacity: .6; cursor: default; } button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #b4ce93; outline-offset: 2px; }
-    .scales { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin: 0 0 1.2rem; }
-    .scales label { font-weight: 700; } .scales input { width: 8rem; } .scales small { flex-basis: 100%; color: #b9ad9f; }
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
     .ok { color: #b4ce93; } .error-text { color: #ffb4a6; } .date { color: #b9ad9f; font-size: .8rem; }
     .error { background: #522820; color: #ffdad2; border-radius: 7px; padding: .75rem; }
@@ -97,43 +88,11 @@ export class WorldRatesAdminComponent implements OnInit {
   protected readonly labels = WORLD_TYPE_LABELS;
   protected readonly rows = signal<WorldRow[]>([]);
   protected readonly loadError = signal('');
-  protected scales = '';
-  protected readonly scalesSaving = signal(false);
-  protected readonly scalesMessage = signal('');
-  protected readonly scalesError = signal(false);
 
   ngOnInit(): void {
     this.prices.worlds().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: worlds => this.rows.set([...worlds.map(toRow), newRow()]),
       error: () => this.loadError.set('Nie udało się wczytać światów.')
-    });
-    this.prices.settings().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: settings => this.scales = plnInput(settings.scalesHundredPriceGrosze),
-      error: () => this.loadError.set('Nie udało się wczytać ceny SŁ.')
-    });
-  }
-
-  protected saveScales(): void {
-    const scalesHundredPriceGrosze = parsePlnInput(this.scales);
-    if (scalesHundredPriceGrosze === undefined) {
-      this.scalesError.set(true);
-      this.scalesMessage.set('Wpisz liczbę, np. 1,5.');
-      return;
-    }
-    this.scalesSaving.set(true);
-    this.scalesMessage.set('');
-    this.prices.saveSettings({ scalesHundredPriceGrosze }).pipe(
-      finalize(() => this.scalesSaving.set(false)), takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: settings => {
-        this.scales = plnInput(settings.scalesHundredPriceGrosze);
-        this.scalesError.set(false);
-        this.scalesMessage.set('Zapisano.');
-      },
-      error: (response: HttpErrorResponse) => {
-        this.scalesError.set(true);
-        this.scalesMessage.set(response.error?.message || 'Nie udało się zapisać.');
-      }
     });
   }
 

@@ -27,7 +27,6 @@ public class PriceSuggestionService {
     private final ItemRepository items;
     private final ServerRepository servers;
     private final PriceSampleRepository samples;
-    private final PricingSettingsService settings;
 
     public record Overview(long itemId, String itemName, String rarity, int level, long serverId, String serverName,
                            String worldType, Long goldPerPln, boolean upgradeable, boolean bindable,
@@ -46,7 +45,7 @@ public class PriceSuggestionService {
         boolean upgradeable = !ItemRules.isEnhancementLocked(item);
         boolean bindable = ItemRules.canBind(item);
         OptionalLong scales = bindable ? UnbindCostCalculator.scales(item.getRarity().getName(), item.getLevel()) : OptionalLong.empty();
-        Long unbindGrosze = scales.isPresent() ? unbindGrosze(scales.getAsLong(), settings.get().scalesHundredPriceGrosze()) : null;
+        Long unbindGrosze = scales.isPresent() ? UnbindCostCalculator.grosze(item.getRarity().getName(), item.getLevel()).getAsLong() : null;
         var result = PriceSuggestionCalculator.suggest(item.getRarity().getName(), item.getLevel(), target, worlds,
                 samples.findByItem(itemId), bindable && bound, upgradeable, unbindGrosze, Instant.now());
         List<String> market = result.marketWorldIds().stream().map(id -> worlds.get(id).getName()).sorted().toList();
@@ -85,11 +84,6 @@ public class PriceSuggestionService {
                 ? OptionalLong.of(sample.amount()) : WorldRates.goldToGrosze(sample.amount(), world);
         return new HistoryEntry(sample.listingId(), sample.source(), world.getName(), sample.enhancement(), sample.bound(),
                 sample.currency(), sample.amount(), grosze.isPresent() ? grosze.getAsLong() : null, sample.at());
-    }
-
-    static Long unbindGrosze(long scales, Long hundredPriceGrosze) {
-        if (hundredPriceGrosze == null) return null;
-        return Math.round(scales * hundredPriceGrosze / 100.0);
     }
 
     private Item item(long itemId) {

@@ -284,18 +284,12 @@ export interface PriceOverview {
   bindable: boolean;
   /** Dragon scales needed to unbind the item; null when it cannot be bound or the rarity has no known cost. */
   unbindScales: number | null;
-  /** Unbinding cost in grosze; null until admins set the scale price. */
+  /** Unbinding cost in grosze at the fixed 80 SŁ per 1 zł. */
   unbindGrosze: number | null;
   recentOnly: boolean;
   recentDays: number;
   marketWorlds: string[];
   levels: PriceLevel[];
-}
-
-/** Price settings shared by all worlds. */
-export interface PricingSettings {
-  /** Price of 100 dragon scales (SŁ) in grosze; null keeps bound and unbound prices apart. */
-  scalesHundredPriceGrosze: number | null;
 }
 
 export interface PriceHistoryEntry {

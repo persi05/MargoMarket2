@@ -32,8 +32,9 @@ class UnbindCostCalculatorTest {
     }
 
     @Test
-    void turnsScalesIntoGroszeWithThePriceOfAHundred() {
-        assertThat(PriceSuggestionService.unbindGrosze(4500, 1_000L)).isEqualTo(45_000);
-        assertThat(PriceSuggestionService.unbindGrosze(4500, null)).isNull();
+    void pricesScalesAtEightyPerZloty() {
+        assertThat(UnbindCostCalculator.grosze("Legendarny", 100)).hasValue(5_625);
+        assertThat(UnbindCostCalculator.grosze("Legendarny", 300)).hasValue(8_438);
+        assertThat(UnbindCostCalculator.grosze("Ulepszony", 100)).isEmpty();
     }
 }

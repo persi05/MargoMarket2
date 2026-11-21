@@ -40,7 +40,7 @@
         {{ data.recentOnly ? '· ostatnie ' + data.recentDays + ' dni' : '· cała historia (mało świeżych danych)' }}</p>
       @if (!data.upgradeable) { <p class="muted">Tego przedmiotu nie można ulepszać, więc ma jedną cenę.</p> }
       @if (data.bindable && data.unbindScales !== null) {
-        <p class="muted">Koszt odwiązania: {{ scales(data.unbindScales) }} SŁ{{ data.unbindGrosze !== null ? ' ≈ ' + pln(data.unbindGrosze) + '. Ceny związanych i niezwiązanych przeliczamy tym kosztem, gdy brakuje transakcji w wybranym stanie.' : '. Związane i niezwiązane liczymy osobno, dopóki administrator nie ustawi ceny SŁ.' }}</p>
+        <p class="muted">Koszt odwiązania: {{ scales(data.unbindScales) }} SŁ{{ data.unbindGrosze !== null ? ' ≈ ' + pln(data.unbindGrosze) : '' }} (1 zł = 80 SŁ). Ceny związanych i niezwiązanych przeliczamy tym kosztem, gdy brakuje transakcji w wybranym stanie.</p>
       }
       <div class="table-wrap">
         <table>

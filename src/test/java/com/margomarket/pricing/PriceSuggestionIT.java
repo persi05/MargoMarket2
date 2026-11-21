@@ -11,7 +11,6 @@ import com.margomarket.model.User;
 import com.margomarket.repository.UserRepository;
 import com.margomarket.security.JwtService;
 import com.margomarket.service.*;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,7 +155,9 @@ class PriceSuggestionIT {
                 .andExpect(jsonPath("$.upgradeable").value(false))
                 .andExpect(jsonPath("$.bindable").value(true))
                 .andExpect(jsonPath("$.levels.length()").value(1))
-                .andExpect(jsonPath("$.levels[0].basis").value("NONE"));
+                // Only unbound sales: 20 zł minus 758 SŁ (9,48 zł) to unbind.
+                .andExpect(jsonPath("$.levels[0].basis").value("ESTIMATED"))
+                .andExpect(jsonPath("$.levels[0].totalGrosze").value(1_052));
         mvc.perform(get("/api/prices/items/{id}", item).param("serverId", String.valueOf(classic)).header("Authorization", token))
                 .andExpect(jsonPath("$.levels[0].totalGrosze").value(2_000))
                 .andExpect(jsonPath("$.levels[0].sampleCount").value(3));
@@ -228,43 +229,17 @@ class PriceSuggestionIT {
                 .andExpect(status().isBadRequest());
     }
 
-    @AfterEach
-    void clearScalePrice() {
-        jdbc.update("UPDATE pricing_settings SET scales_hundred_price_grosze=NULL WHERE id=1");
-    }
-
     @Test
-    void boundPricesUseUnboundSalesOnceAdminsSetTheScalePrice() throws Exception {
+    void boundPricesUseUnboundSalesMinusTheUnbindingCost() throws Exception {
         marketData();
+        // Legendary level 40: (750 + 300) x 3 = 3150 SŁ = 39,38 zł at 80 SŁ per zł; unbound sales cost 100 zł.
         mvc.perform(get("/api/prices/items/{id}", item).param("serverId", String.valueOf(classic)).param("bound", "true")
                         .header("Authorization", token))
                 .andExpect(jsonPath("$.unbindScales").value(3_150))
-                .andExpect(jsonPath("$.unbindGrosze").doesNotExist())
-                .andExpect(jsonPath("$.levels[0].basis").value("NONE"));
-
-        String admin = "Bearer " + jwt.generateToken(account("admin"));
-        mvc.perform(put("/api/admin/worlds/settings").header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"scalesHundredPriceGrosze\":100}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.scalesHundredPriceGrosze").value(100));
-
-        // Legendary level 40: (750 + 300) x 3 = 3150 SŁ = 31,50 zł at 1 zł per 100 SŁ; unbound sales cost 100 zł.
-        mvc.perform(get("/api/prices/items/{id}", item).param("serverId", String.valueOf(classic)).param("bound", "true")
-                        .header("Authorization", token))
-                .andExpect(jsonPath("$.unbindGrosze").value(3_150))
+                .andExpect(jsonPath("$.unbindGrosze").value(3_938))
                 .andExpect(jsonPath("$.levels[0].basis").value("ESTIMATED"))
-                .andExpect(jsonPath("$.levels[0].totalGrosze").value(6_850))
+                .andExpect(jsonPath("$.levels[0].totalGrosze").value(6_062))
                 .andExpect(jsonPath("$.levels[0].convertedSamples").value(5));
-    }
-
-    @Test
-    void onlyAdminsChangeTheScalePrice() throws Exception {
-        mvc.perform(get("/api/admin/worlds/settings").header("Authorization", token)).andExpect(status().isForbidden());
-        mvc.perform(put("/api/admin/worlds/settings").header("Authorization", token).contentType(MediaType.APPLICATION_JSON)
-                .content("{\"scalesHundredPriceGrosze\":100}")).andExpect(status().isForbidden());
-        String admin = "Bearer " + jwt.generateToken(account("admin"));
-        mvc.perform(put("/api/admin/worlds/settings").header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
-                .content("{\"scalesHundredPriceGrosze\":0}")).andExpect(status().isBadRequest());
     }
 
     @Test
