@@ -8,6 +8,9 @@ import com.margomarket.dto.RegisterRequest;
 import com.margomarket.dto.VerifyEmailRequest;
 import com.margomarket.dto.UserResponse;
 import com.margomarket.mapper.UserMapper;
+import com.margomarket.ratelimit.LoginAttemptGuard;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.AuthenticationException;
 import com.margomarket.model.User;
 import com.margomarket.security.JwtService;
 import com.margomarket.service.UserService;
@@ -34,12 +37,21 @@ public class SecurityController {
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final LoginAttemptGuard loginAttempts;
 
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password())
-        );
+    public LoginResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+        String ip = httpRequest.getRemoteAddr();
+        loginAttempts.ensureAllowed(request.username(), ip);
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
+            );
+        } catch (AuthenticationException exception) {
+            loginAttempts.recordFailure(request.username(), ip);
+            throw exception;
+        }
+        loginAttempts.recordSuccess(request.username(), ip);
         User user = (User) userService.loadUserByUsername(request.username());
         if(user.isAccessBlocked()) throw new com.margomarket.exception.UserRestrictedException(com.margomarket.service.ModerationScope.ACCOUNT,user.getAccountBlockReason(),user.getAccountBlockUntil());
         return new LoginResponse(
