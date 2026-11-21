@@ -12,13 +12,17 @@ import { DictionaryService } from '../../core/services/dictionary.service';
 import { ItemService } from '../../core/services/item.service';
 import { PriceService } from '../../core/services/price.service';
 import { formatGold, formatPln } from '../../core/utils/gold-format';
+import { PriceChartComponent } from './price-chart.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { roundGold } from '../../shared/price-suggestion/price-suggestion.component';
+
+/** Newest transactions drawn on the chart (backend allows up to 500 per page). */
+const CHART_SIZE = 500;
 
 interface SelectedItem { id: number; name: string; }
 
 @Component({
-  selector: 'mm-prices-page', standalone: true, imports: [PageHeaderComponent, FormsModule, RouterLink, DatePipe, PaginationComponent],
+  selector: 'mm-prices-page', standalone: true, imports: [PageHeaderComponent, FormsModule, RouterLink, DatePipe, PaginationComponent, PriceChartComponent],
   templateUrl: './prices-page.component.html', styleUrl: './prices-page.component.css'
 })
 export class PricesPageComponent {
@@ -39,6 +43,8 @@ export class PricesPageComponent {
   protected bound = false;
   protected readonly overview = signal<PriceOverview | null>(null);
   protected readonly history = signal<PageResponse<PriceHistoryEntry> | null>(null);
+  /** Whole recent history for the chart; the table below pages through the same data. */
+  protected readonly chartEntries = signal<PriceHistoryEntry[]>([]);
   protected readonly loading = signal(false);
   protected readonly error = signal('');
 
@@ -92,6 +98,10 @@ export class PricesPageComponent {
       }
     });
     this.loadHistory(page);
+    this.prices.history(item.id, this.serverId, 1, CHART_SIZE).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: history => this.chartEntries.set(history.content),
+      error: () => this.chartEntries.set([])
+    });
   }
 
   protected loadHistory(page: number): void {

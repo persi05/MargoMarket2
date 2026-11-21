@@ -6,9 +6,18 @@ import org.junit.jupiter.api.Test;
 
 class UnbindCostCalculatorTest {
     @Test
-    void addsSevenAndAHalfScalesPerLevelToTheBase() {
-        assertThat(UnbindCostCalculator.scales("Zwykły", 1)).hasValue(758);
+    void addsSevenAndAHalfScalesPerLevelRoundedToSeventyFive() {
+        assertThat(UnbindCostCalculator.scales("Zwykły", 1)).hasValue(750);
+        assertThat(UnbindCostCalculator.scales("Zwykły", 6)).hasValue(825);
         assertThat(UnbindCostCalculator.scales("Zwykły", 100)).hasValue(1500);
+    }
+
+    @Test
+    void matchesTheInGamePriceOfLowLevelLegendaries() {
+        assertThat(UnbindCostCalculator.scales("Legendarny", 22)).hasValue(2775);
+        assertThat(UnbindCostCalculator.scales("Legendarny", 23)).hasValue(2775);
+        assertThat(UnbindCostCalculator.scales("Legendarny", 24)).hasValue(2775);
+        assertThat(UnbindCostCalculator.scales("Legendarny", 40)).hasValue(3150);
     }
 
     @Test
@@ -32,9 +41,12 @@ class UnbindCostCalculatorTest {
     }
 
     @Test
-    void pricesScalesAtEightyPerZloty() {
-        assertThat(UnbindCostCalculator.grosze("Legendarny", 100)).hasValue(5_625);
-        assertThat(UnbindCostCalculator.grosze("Legendarny", 300)).hasValue(8_438);
+    void pricesScalesAtEightyPerZlotyRoundedUpToWholeZloty() {
+        // 4500 SŁ = 56,25 zł -> 57 zł; 6750 SŁ = 84,38 zł -> 85 zł; 750 SŁ = 9,38 zł -> 10 zł; 825 SŁ = 10,31 zł -> 11 zł.
+        assertThat(UnbindCostCalculator.grosze("Legendarny", 100)).hasValue(5_700);
+        assertThat(UnbindCostCalculator.grosze("Legendarny", 300)).hasValue(8_500);
+        assertThat(UnbindCostCalculator.grosze("Zwykły", 1)).hasValue(1_000);
+        assertThat(UnbindCostCalculator.grosze("Zwykły", 6)).hasValue(1_100);
         assertThat(UnbindCostCalculator.grosze("Ulepszony", 100)).isEmpty();
     }
 }

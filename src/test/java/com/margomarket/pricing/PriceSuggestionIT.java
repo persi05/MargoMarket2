@@ -155,9 +155,9 @@ class PriceSuggestionIT {
                 .andExpect(jsonPath("$.upgradeable").value(false))
                 .andExpect(jsonPath("$.bindable").value(true))
                 .andExpect(jsonPath("$.levels.length()").value(1))
-                // Only unbound sales: 20 zł minus 758 SŁ (9,48 zł) to unbind.
+                // Only unbound sales: 20 zł minus 750 SŁ (9,38 zł, rounded up to 10 zł) to unbind.
                 .andExpect(jsonPath("$.levels[0].basis").value("ESTIMATED"))
-                .andExpect(jsonPath("$.levels[0].totalGrosze").value(1_052));
+                .andExpect(jsonPath("$.levels[0].totalGrosze").value(1_000));
         mvc.perform(get("/api/prices/items/{id}", item).param("serverId", String.valueOf(classic)).header("Authorization", token))
                 .andExpect(jsonPath("$.levels[0].totalGrosze").value(2_000))
                 .andExpect(jsonPath("$.levels[0].sampleCount").value(3));
@@ -232,13 +232,13 @@ class PriceSuggestionIT {
     @Test
     void boundPricesUseUnboundSalesMinusTheUnbindingCost() throws Exception {
         marketData();
-        // Legendary level 40: (750 + 300) x 3 = 3150 SŁ = 39,38 zł at 80 SŁ per zł; unbound sales cost 100 zł.
+        // Legendary level 40: (750 + 300) x 3 = 3150 SŁ = 39,38 zł at 80 SŁ per zł, rounded up to 40 zł; unbound sales cost 100 zł.
         mvc.perform(get("/api/prices/items/{id}", item).param("serverId", String.valueOf(classic)).param("bound", "true")
                         .header("Authorization", token))
                 .andExpect(jsonPath("$.unbindScales").value(3_150))
-                .andExpect(jsonPath("$.unbindGrosze").value(3_938))
+                .andExpect(jsonPath("$.unbindGrosze").value(4_000))
                 .andExpect(jsonPath("$.levels[0].basis").value("ESTIMATED"))
-                .andExpect(jsonPath("$.levels[0].totalGrosze").value(6_062))
+                .andExpect(jsonPath("$.levels[0].totalGrosze").value(6_000))
                 .andExpect(jsonPath("$.levels[0].convertedSamples").value(5));
     }
 

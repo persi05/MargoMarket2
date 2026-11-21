@@ -22,7 +22,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PriceSuggestionService {
-    public static final int MAX_HISTORY_PAGE_SIZE = 50;
+    /** Large enough for the price chart, which loads the whole recent history at once. */
+    public static final int MAX_HISTORY_PAGE_SIZE = 500;
 
     private final ItemRepository items;
     private final ServerRepository servers;
