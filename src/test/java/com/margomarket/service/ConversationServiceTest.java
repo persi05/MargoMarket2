@@ -115,6 +115,34 @@ class ConversationServiceTest {
     }
 
     @Test
+    void conversationAndMessagesHideDisplayNamesThatAreEmails() {
+        User buyer = user(1L, "user");
+        buyer.setDisplayName("kupujacy@example.com");
+        User seller = user(2L, "user");
+        when(conversations.findDetailedById(7L)).thenReturn(Optional.of(conversation(buyer, seller)));
+        when(moderation.masker()).thenReturn(java.util.function.UnaryOperator.identity());
+        when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
+
+        var response = service.send(7L, "Cześć", buyer);
+
+        assertThat(response.senderDisplayName()).isEqualTo("Gracz 1");
+    }
+
+    @Test
+    void conversationResponseHidesParticipantEmails() {
+        User buyer = user(1L, "user");
+        buyer.setDisplayName("kupujacy@example.com");
+        Conversation conversation = conversation(buyer, user(2L, "user"));
+        when(conversations.findForUpdate(7L)).thenReturn(Optional.of(conversation));
+        when(messages.save(any(ConversationMessage.class))).thenAnswer(invocation -> saved(invocation.getArgument(0)));
+
+        var response = exchangeService.requestIntermediary(7L, buyer);
+
+        assertThat(response.buyerDisplayName()).isEqualTo("Gracz 1");
+        assertThat(response.sellerDisplayName()).isEqualTo("Gracz2");
+    }
+
+    @Test
     void conversationInitiallyLoadsFiftyLatestMessages() {
         User buyer = user(1L, "user");
         when(conversations.findDetailedById(7L)).thenReturn(Optional.of(conversation(buyer, user(2L, "user"))));

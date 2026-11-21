@@ -47,7 +47,6 @@ h2 {
 
 .tabs button,
 .filter-actions button,
-.pager button,
 td button {
   border: 0;
   border-radius: 8px;
@@ -123,8 +122,7 @@ select option {
   color: var(--color-text-main);
 }
 
-.filter-actions,
-.pager {
+.filter-actions {
   display: flex;
   gap: 10px;
 }
@@ -134,8 +132,7 @@ select option {
   color: var(--color-action-text);
 }
 
-.secondary,
-.pager button {
+.secondary {
   border: 1px solid var(--color-border);
   background: var(--color-input-dark);
   color: var(--color-text-main);
@@ -319,15 +316,13 @@ tr:last-child td {
   }
 
   .section-head,
-  .filter-actions,
-  .pager {
+.filter-actions {
     align-items: stretch;
     flex-direction: column;
   }
 }
 
 .tabs { display:grid; grid-template-columns:repeat(auto-fit,minmax(165px,1fr)); gap:6px; padding:6px; border:1px solid var(--color-border); border-radius:9px; background:var(--color-input-dark); }.tabs button { border:1px solid transparent; border-radius:5px; box-shadow:none; background:transparent; padding:12px; }.tabs button.active { background:var(--color-primary); color:#182215; border-color:var(--color-primary); }.tabs button:focus-visible { outline:2px solid var(--color-primary); outline-offset:2px; }
-
 
 /* Zakładki to jeden pasek; gdy się nie mieszczą, przewija się w bok (także kółkiem myszy). */
 .tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; }

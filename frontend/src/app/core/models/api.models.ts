@@ -86,7 +86,6 @@ interface ListingCommon {
   ratePriceMinor: number | null;
   description: string | null;
   sellerId: number;
-  sellerEmail: string | null;
   sellerDisplayName: string;
   createdAt: string;
   soldAt: string | null;

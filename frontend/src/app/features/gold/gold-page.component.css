@@ -3,10 +3,7 @@ header > div { flex:1; min-width:220px; }
 h1 { font-size:clamp(26px,3vw,38px); margin:0 0 10px; }
 p { color:var(--color-text-muted); max-width:76ch; line-height:1.6; }
 a { color:var(--color-primary); }
-.offers { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr)); gap:20px; }
-.offers > div { display:grid; grid-template-rows:1fr auto; gap:12px; min-width:0; }
-button, .action { display:inline-block; padding:10px 16px; border:1px solid var(--color-border); border-radius:6px; font:inherit; font-weight:700; cursor:pointer; background:var(--color-action); color:var(--color-action-text); text-decoration:none; }
-.action { background:var(--color-primary); color:#182215; }
+button { display:inline-block; padding:10px 16px; border:1px solid var(--color-border); border-radius:6px; font:inherit; font-weight:700; cursor:pointer; background:var(--color-action); color:var(--color-action-text); text-decoration:none; }
 button:disabled { opacity:.45; cursor:not-allowed; }
 button:focus-visible, a:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
 .pagination { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:14px; margin:24px 0; }

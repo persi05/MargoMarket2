@@ -190,7 +190,6 @@
   white-space: nowrap;
 }
 
-.ghost-button,
 .primary-link {
   border: 0;
   border-radius: 8px;
@@ -198,12 +197,6 @@
   background: var(--color-action);
   color: var(--color-action-text);
   font-weight: 800;
-}
-
-.ghost-button {
-  background: rgba(239, 68, 68, 0.9);
-  color: white;
-  cursor: pointer;
 }
 
 .primary-link {

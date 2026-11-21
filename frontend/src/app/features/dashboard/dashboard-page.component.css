@@ -12,36 +12,6 @@
   padding: 28px clamp(18px, 4vw, 40px) 32px;
 }
 
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.tabs button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(170, 157, 141, 0.3);
-  border-radius: 999px;
-  padding: 10px 18px;
-  background: var(--color-card-dark);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  font-weight: 800;
-}
-
-.tabs button.active {
-  border-color: var(--color-primary);
-  background: var(--color-action);
-  color: var(--color-action-text);
-}
-
-.tabs span {
-  opacity: 0.75;
-  font-size: 12px;
-}
-
 .notice {
   margin: 0;
   border-radius: 8px;
@@ -90,58 +60,7 @@
   text-align: center;
 }
 
-.notifications {
-  display: grid;
-  gap: 12px;
-}
-
-.notification {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  border: 1px solid var(--color-border);
-  border-left: 4px solid var(--color-text-muted);
-  border-radius: 10px;
-  padding: 16px;
-  background: var(--color-card-dark);
-}
-
-.notification.unread {
-  border-left-color: var(--color-primary);
-  background: rgba(168, 201, 138, 0.08);
-}
-
-.notification p {
-  margin: 0 0 6px;
-  color: white;
-  font-weight: 800;
-}
-
-.notification time {
-  color: var(--color-text-muted);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.notification button {
-  flex: 0 0 auto;
-  border: 1px solid rgba(168, 201, 138, 0.34);
-  border-radius: 8px;
-  padding: 9px 12px;
-  background: rgba(168, 201, 138, 0.1);
-  color: var(--color-primary);
-  cursor: pointer;
-  font-weight: 800;
-}
-
 @media (max-width: 760px) {
-  header,
-  .notification {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
   .grid {
     grid-template-columns: 1fr;
   }

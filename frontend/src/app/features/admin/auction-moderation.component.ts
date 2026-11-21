@@ -23,7 +23,7 @@ export class AuctionModerationComponent implements OnInit {
   private readonly http=inject(HttpClient);
   private readonly destroy=inject(DestroyRef);
   private readonly url=environment.apiUrl+'/admin/auctions';
-  protected kind='reports'; protected state='OPEN'; protected reason=''; protected appeal=''; protected end=''; protected userId:number|null=null;
+  protected kind='reports'; protected state='OPEN'; protected userId:number|null=null;
   protected result:PageResponse<RecordRow>|null=null;
   protected error='';protected notice='';protected loading=false;protected busy=false;protected dialogError='';
   protected selected:{row:RecordRow;action:'review'|'invalidate'|'revoke'}|null=null;
@@ -45,14 +45,6 @@ export class AuctionModerationComponent implements OnInit {
     const request=action==='revoke' ? this.http.post(this.url+'/restrictions/'+row.id+'/revoke',{reason:value.details})
       : this.http.post(this.url+'/reports/'+row.id+'/review',{reason:value.details,invalidateBid:action==='invalidate'});
     request.pipe(takeUntilDestroyed(this.destroy)).subscribe({next:()=>{this.busy=false;this.selected=null;this.notice='Decyzja została zapisana.';this.load(this.result?.page ?? 1);},error:(e:HttpErrorResponse)=>{this.busy=false;this.dialogError=e.error?.message ?? 'Nie udało się zapisać decyzji.';}});
-  }
-  protected restrict() {
-    if(this.busy || !this.userId || !this.reason.trim() || !this.appeal.trim())return;
-    const end=new Date(this.end);if(!Number.isFinite(end.getTime())){this.error='Podaj termin ograniczenia.';return;}
-    this.busy=true;this.error='';
-    this.http.post(this.url+'/users/'+this.userId+'/restrictions',{reason:this.reason,appealInstructions:this.appeal,expiresAt:end.toISOString()}).pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next:()=>{this.busy=false;this.reason='';this.appeal='';this.end='';this.userId=null;this.notice='Ograniczenie zostało zapisane.';this.load();},error:e=>{this.busy=false;this.failure(e);}
-    });
   }
   private failure(e:HttpErrorResponse) {this.error=e.error?.message ?? 'Nie udało się pobrać lub zapisać danych.';}
 }

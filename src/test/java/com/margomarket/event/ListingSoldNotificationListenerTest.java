@@ -1,8 +1,6 @@
 package com.margomarket.event;
 
 import com.margomarket.model.UserNotification;
-import com.margomarket.repository.NotificationRepository;
-import com.margomarket.repository.UserRepository;
 import com.margomarket.service.NotificationService;
 import org.junit.jupiter.api.Test;
 

@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -39,20 +38,13 @@ public class AuctionModerationService {
     }
 
     @Transactional
-    public void restrict(long uid,User admin,String reason,String appeal,Instant end) {
-        admin(admin);
-        if(end==null || !end.isAfter(auctions.now()) || end.isAfter(auctions.now().plusSeconds(365*86400L))) throw new IllegalArgumentException("Podaj termin ograniczenia (maksymalnie rok)");
-        userModeration.restrict(uid,Set.of(ModerationScope.BIDDING),AuctionService.reason(reason)+" Odwołanie: "+AuctionService.reason(appeal),new UserModerationService.Term(null,end,false),admin);
-    }
-    @Transactional
     public void revoke(long id,User admin,String reason) {
         admin(admin);
         var users=jdbc.queryForList("SELECT user_id FROM user_moderation_actions WHERE id=? AND scope='BIDDING'",Long.class,id);
         if(users.isEmpty()) throw new NotFoundException("Brak ograniczenia licytowania");
         userModeration.revoke(users.getFirst(),id,reason,admin);
     }
-    @Transactional
-    public void resolveReport(long id,User admin,String reason) {
+    private void resolveReport(long id,User admin,String reason) {
         admin(admin);
         if(jdbc.update("UPDATE auction_reports SET resolved_at=clock_timestamp(),resolved_by=?,resolution=? WHERE id=? AND resolved_at IS NULL",admin.getId(),AuctionService.reason(reason),id)==0) throw new NotFoundException("Brak otwartego zgłoszenia");
     }
@@ -67,11 +59,6 @@ public class AuctionModerationService {
             invalidate(((Number)report.get("auction_id")).longValue(),((Number)report.get("bid_id")).longValue(),admin,reason);
         }
         resolveReport(id,admin,reason);
-    }
-
-    @Transactional(readOnly=true)
-    public PageResponse<Map<String,Object>> page(String kind,int page,User admin) {
-        return page(kind,page,"ALL",admin);
     }
 
     @Transactional(readOnly=true)

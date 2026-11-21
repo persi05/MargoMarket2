@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.text.NumberFormat;
 import java.time.LocalDateTime;
-import java.util.Locale;
 
 @Entity
 @Table(name = "listings")
@@ -104,13 +102,4 @@ public class Listing {
         return "sold".equals(status.getName());
     }
 
-    public String getFormattedPrice() {
-        if ("GOLD".equals(listingKind)) return java.math.BigDecimal.valueOf(priceMinor, 2).toPlainString() + " PLN";
-        NumberFormat fmt = NumberFormat.getIntegerInstance(new Locale("pl", "PL"));
-        String formatted = fmt.format(price).replace('\u00a0', ' ');
-        if ("w grze".equals(currency.getName())) {
-            return formatted + " złota";
-        }
-        return formatted + " PLN";
-    }
 }

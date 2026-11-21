@@ -9,18 +9,6 @@ button {
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.18), 0 2px 5px rgba(0, 0, 0, 0.28);
 }
 
-button.preview-pin,
-button.preview-tool {
-  flex: 0 0 28px;
-  width: 28px;
-  height: 28px;
-  border: 1px solid #806b50;
-  padding: 0;
-  background: rgba(57, 50, 43, 0.72);
-  color: #d0c4ab;
-  line-height: 1;
-}
-
 button.secondary,
 .pager button {
   border: 1px solid var(--color-border);
@@ -60,15 +48,6 @@ button:disabled {
   margin-bottom: 24px;
 }
 
-.eyebrow {
-  margin: 0 0 8px;
-  color: var(--color-primary);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 h1 {
   margin: 0;
   color: white;
@@ -76,7 +55,7 @@ h1 {
   line-height: 1;
 }
 
-.results-head p:not(.eyebrow) {
+.results-head p {
   margin: 8px 0 0;
   color: var(--color-text-muted);
 }
@@ -183,10 +162,6 @@ tr:last-child td {
   overflow-wrap: anywhere;
 }
 
-.contact-col .contact {
-  display: block;
-}
-
 .contact-chat {
   display: inline-block;
   margin-top: 6px;
@@ -256,46 +231,11 @@ tr:last-child td {
   font-weight: 700;
 }
 
-.item-frame {
-  display: inline-grid;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-}
-
-.item-icon {
-  width: 34px;
-  height: 34px;
-  image-rendering: pixelated;
-  object-fit: contain;
-}
-
-.item-tooltip b {
-  color: inherit;
-}
-
-.item-tooltip b.accent {
-  color: #a9ca88;
-}
-
-.item-tooltip .description {
-  margin-top: 5px;
-  border-top: 1px solid rgba(168, 153, 120, 0.38);
-  padding-top: 9px;
-  color: #d7c9a9;
-  white-space: pre-line;
-}
-
 tbody tr:hover .item-name {
   color: var(--color-primary);
 }
 
-.center {
-  text-align: center;
-}
-
-.muted,
-.contact {
+.muted {
   color: var(--color-text-muted);
 }
 
@@ -351,23 +291,6 @@ tbody tr:hover .item-name {
   .pager { display: grid; grid-template-columns: 1fr 1fr; }
   .pager button { min-height: 44px; }
 }
-
-@media (max-width: 1050px) {
-  .item-tooltip {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: min(340px, calc(100vw - 32px));
-    max-height: min(520px, calc(100vh - 32px));
-    transform: translate(-50%, -50%);
-  }
-
-  .item-tooltip.pinned-preview {
-    transform: none;
-  }
-}
-
-
 
 /* Gdy na tabelę zostaje mniej niż 960px, kolumny się zwężają,
    a poniżej 760px wiersze zamieniają się w karty. */

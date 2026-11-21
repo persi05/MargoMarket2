@@ -46,37 +46,6 @@
   box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.55);
 }
 
-.item-frame.rarity-unique {
-  --rarity-color: #facc15;
-  --rarity-glow: rgba(250, 204, 21, 0.5);
-  border-color: #facc15;
-  background: radial-gradient(circle, rgba(250, 204, 21, 0.24), rgba(28, 23, 20, 0.9) 72%);
-  box-shadow: 0 0 14px rgba(250, 204, 21, 0.35), inset 0 0 12px rgba(250, 204, 21, 0.14);
-}
-
-.item-frame.rarity-heroic {
-  --rarity-color: #38bdf8;
-  --rarity-glow: rgba(56, 189, 248, 0.55);
-  border-color: #38bdf8;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.26), rgba(28, 23, 20, 0.9) 72%);
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.38), inset 0 0 12px rgba(56, 189, 248, 0.14);
-}
-
-.item-frame.rarity-legendary {
-  --rarity-color: #fb923c;
-  --rarity-glow: rgba(251, 146, 60, 0.62);
-  border-color: #fb923c;
-  background: radial-gradient(circle, rgba(251, 146, 60, 0.3), rgba(28, 23, 20, 0.92) 72%);
-  box-shadow: 0 0 16px rgba(251, 146, 60, 0.48), inset 0 0 12px rgba(251, 146, 60, 0.16);
-}
-
-.item-frame.rarity-upgraded {
-  --rarity-color: #c084fc;
-  --rarity-glow: rgba(192, 132, 252, 0.26);
-  border-color: #c084fc;
-  background: radial-gradient(circle, rgba(192, 132, 252, 0.22), rgba(28, 23, 20, 0.9) 72%);
-}
-
 .item-icon {
   width: 54px;
   height: 54px;
@@ -86,24 +55,6 @@
 
 .admin-listing {
   min-height: 500px;
-}
-
-.item-tooltip {
-  top: 100%;
-  left: 0;
-  width: min(320px, calc(100vw - 32px));
-}
-
-.item-tooltip b.accent {
-  color: #a9ca88;
-}
-
-.item-tooltip .description {
-  margin-top: 5px;
-  border-top: 1px solid rgba(168, 153, 120, 0.38);
-  padding-top: 9px;
-  color: #d7c9a9;
-  white-space: pre-line;
 }
 .type {
   display: inline-flex;

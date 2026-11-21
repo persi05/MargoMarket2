@@ -20,7 +20,6 @@ public record ListingResponse(
         String contact,
         String status,
         Long sellerId,
-        String sellerEmail,
         String sellerDisplayName,
         LocalDateTime createdAt,
         String listingKind,

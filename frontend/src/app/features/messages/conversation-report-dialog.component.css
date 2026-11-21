@@ -129,10 +129,6 @@
   color: #ffc7bd;
   font-size: 12px;
 }
-.close-dialog > .report-error {
-  margin-top: 12px;
-  color: #ffc7bd;
-}
 .report-dialog-actions {
   display: flex;
   justify-content: flex-end;

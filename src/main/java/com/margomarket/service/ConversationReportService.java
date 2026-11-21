@@ -100,10 +100,10 @@ public class ConversationReportService {
     private ConversationReportResponse toResponse(ConversationReport report) {
         Conversation conversation = report.getConversation();
         String reportedUserDisplayName = report.getReporter().getId().equals(conversation.getBuyer().getId())
-                ? conversation.getSeller().getDisplayName() : conversation.getBuyer().getDisplayName();
+                ? PublicNames.name(conversation.getSeller()) : PublicNames.name(conversation.getBuyer());
         return new ConversationReportResponse(report.getId(), conversation.getId(), conversation.getItemName(),
-                conversation.getBuyer().getDisplayName(), conversation.getSeller().getDisplayName(),
-                report.getReporter().getDisplayName(), reportedUserDisplayName, report.getReason(), report.getDetails(),
+                PublicNames.name(conversation.getBuyer()), PublicNames.name(conversation.getSeller()),
+                PublicNames.name(report.getReporter()), reportedUserDisplayName, report.getReason(), report.getDetails(),
                 report.getStatus(), report.getCreatedAt(), report.getReviewedAt());
     }
 

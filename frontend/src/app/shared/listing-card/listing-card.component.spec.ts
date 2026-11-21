@@ -11,7 +11,7 @@ const gold: GoldListingResponse = {
   id: 5, itemId: null, itemName: 'Złoto', iconUrl: null, itemDescription: null, itemStats: null, itemType: null, level: null,
   enhancementLevel: 0, bound: false, rarity: null, price: null, currency: { id: 1, name: 'pln' }, server: { id: 2, name: 'Classic' },
   contact: null, status: 'active', listingKind: 'GOLD', goldAmount: 1_500_000_000, priceMinor: 3_450, goldRateMode: 'PLN_PER_G',
-  rateGoldUnits: 1_000_000_000, ratePriceMinor: 2_300, description: 'Szybka wymiana', sellerId: 1, sellerEmail: null,
+  rateGoldUnits: 1_000_000_000, ratePriceMinor: 2_300, description: 'Szybka wymiana', sellerId: 1,
   sellerDisplayName: 'Gracz', createdAt: '2026-11-20T10:00:00', soldAt: null
 };
 

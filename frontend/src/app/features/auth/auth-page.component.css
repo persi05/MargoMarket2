@@ -11,15 +11,6 @@
   max-width: 680px;
 }
 
-.eyebrow {
-  margin: 0 0 12px;
-  color: var(--color-primary);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 h1 {
   margin: 0;
   color: white;
@@ -27,7 +18,7 @@ h1 {
   line-height: 1;
 }
 
-.copy p:not(.eyebrow) {
+.copy p {
   max-width: 620px;
   margin: 20px 0;
   color: var(--color-text-muted);
@@ -160,7 +151,6 @@ input::placeholder { color: var(--color-text-muted); opacity: .7; }
   color: #c4f0d3;
   font-weight: 700;
 }
-.verify-hint { color: var(--color-text-muted); margin: 0; }
 .resend { border: 0; background: transparent; color: var(--color-primary); cursor: pointer; text-align: left; font-weight: 800; }
 .resend:disabled { cursor: not-allowed; opacity: .6; }
 

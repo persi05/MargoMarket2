@@ -54,10 +54,6 @@ textarea {
   resize: vertical;
 }
 
-
-
-
-
 input::placeholder {
   color: rgba(170, 157, 141, 0.68);
 }
@@ -122,10 +118,6 @@ input::placeholder {
   justify-items: end;
   gap: 5px;
   padding-top: 20px;
-}
-
-.contact-field {
-  grid-column: 1 / -2;
 }
 
 .bound-toggle:disabled {
@@ -373,8 +365,7 @@ h2 {
 }
 
 .catalog-item:hover,
-.catalog-item:focus-visible,
-.catalog-item.selected {
+.catalog-item:focus-visible {
   border-color: var(--color-primary);
   background: rgba(168, 201, 138, 0.1);
   outline: none;
@@ -548,10 +539,6 @@ h2 {
     grid-column: 1;
     justify-items: start;
     padding-top: 0;
-  }
-
-  .contact-field {
-    grid-column: 1;
   }
 }
 
