@@ -1,0 +1,98 @@
+<section class="prices">
+  <header>
+    <p class="eyebrow">Ceny</p>
+    <h1>Ceny historyczne przedmiotów</h1>
+    <p class="lead">Sugerowane ceny liczymy z zakończonych sprzedaży, wygranych licytacji i aktualnych ofert.
+      Ceny w złocie przeliczamy na PLN kursem danego świata, a koszt ulepszenia doliczamy według wzoru z gry.</p>
+  </header>
+
+  <div class="controls">
+    <label class="search">Przedmiot
+      <input type="search" [(ngModel)]="search" (ngModelChange)="searchChanged($event)" placeholder="Wpisz nazwę przedmiotu"
+        autocomplete="off" aria-controls="price-search-results">
+    </label>
+    <label>Świat
+      <select [(ngModel)]="serverId" (ngModelChange)="load()">
+        @for (server of servers(); track server.id) { <option [ngValue]="server.id">{{ server.name }}</option> }
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" [(ngModel)]="bound" (ngModelChange)="load()"> Związany</label>
+  </div>
+
+  @if (results().length) {
+    <ul class="results" id="price-search-results" aria-label="Wyniki wyszukiwania">
+      @for (found of results(); track found.id) {
+        <li><button type="button" (click)="choose(found)">
+          @if (found.iconUrl) { <img [src]="found.iconUrl" alt="" loading="lazy"> }
+          <span>{{ found.name }}</span><small>{{ found.rarity.name }} · poziom {{ found.level }}</small>
+        </button></li>
+      }
+    </ul>
+  }
+
+  @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+
+  @if (overview(); as data) {
+    <section class="card" aria-labelledby="suggested-title">
+      <h2 id="suggested-title">{{ data.itemName }}</h2>
+      <p class="muted">{{ data.rarity }} · poziom {{ data.level }} · rynek: {{ market(data) }}
+        {{ data.recentOnly ? '· ostatnie ' + data.recentDays + ' dni' : '· cała historia (mało świeżych danych)' }}</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th scope="col">Ulepszenie</th><th scope="col">Sugerowana cena</th><th scope="col">≈ złoto</th>
+            <th scope="col">Cena +0</th><th scope="col">Koszt ulepy</th><th scope="col">Podstawa</th><th scope="col">Transakcji</th>
+          </tr></thead>
+          <tbody>
+            @for (row of data.levels; track row.enhancement) {
+              <tr [class.low]="row.lowData">
+                <th scope="row">+{{ row.enhancement }}</th>
+                <td class="money">{{ pln(row.totalGrosze) }}</td>
+                <td>{{ gold(row.totalGold) }}</td>
+                <td>{{ pln(row.baseGrosze) }}</td>
+                <td>{{ row.enhancement === 0 ? '—' : pln(row.upgradeGrosze) }}</td>
+                <td>{{ basis(row) }}</td>
+                <td>{{ row.sampleCount }}{{ row.lowData && row.sampleCount ? ' (mało danych)' : '' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  } @else if (!item() && !loading()) {
+    <p class="muted empty">Wyszukaj przedmiot, aby zobaczyć jego ceny.</p>
+  } @else if (loading()) {
+    <p class="muted" role="status">Wczytywanie cen…</p>
+  }
+
+  @if (history(); as page) {
+    <section class="card" aria-labelledby="history-title">
+      <h2 id="history-title">Historia transakcji</h2>
+      @if (page.content.length) {
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th scope="col">Data</th><th scope="col">Świat</th><th scope="col">Ulepszenie</th><th scope="col">Rodzaj</th>
+              <th scope="col">Cena</th><th scope="col">≈ PLN</th>
+            </tr></thead>
+            <tbody>
+              @for (entry of page.content; track entry.listingId) {
+                <tr>
+                  <td>{{ entry.at | date:'dd.MM.yyyy HH:mm' }}</td>
+                  <td>{{ entry.serverName }}</td>
+                  <td>+{{ entry.enhancement }}{{ entry.bound ? ' · związany' : '' }}</td>
+                  <td>{{ source(entry) }}</td>
+                  <td class="money">{{ amount(entry) }}</td>
+                  <td>{{ pln(entry.plnGrosze) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <mm-pagination [page]="page" (pageChange)="loadHistory($event)" />
+      } @else {
+        <p class="muted">Brak transakcji tego przedmiotu na tym rynku.</p>
+      }
+    </section>
+  }
+</section>

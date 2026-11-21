@@ -10,6 +10,7 @@
 
   <nav class="nav">
     <a routerLink="/items" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Ogłoszenia</a>
+    <a routerLink="/prices" routerLinkActive="active">Ceny</a>
     @if (user$ | async; as user) {
       <a routerLink="/dashboard" routerLinkActive="active">Moje ogłoszenia</a>
       <a routerLink="/new" routerLinkActive="active">Stwórz ogłoszenie</a>
