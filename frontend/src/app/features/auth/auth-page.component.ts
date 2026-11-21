@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ApiError } from '../../core/models/api.models';
+import { formatWait, rateLimitSeconds } from '../../core/utils/rate-limit';
 
 const EMAIL_ADDRESS_PATTERN = /^[^\s@]+@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,63}$/;
 
@@ -23,7 +24,9 @@ export class AuthPageComponent {
   protected loading = false;
   protected error = '';
   protected notice = '';
+  protected readonly rateLimitWait = signal(0);
   private cooldownErrorTimer?: ReturnType<typeof setTimeout>;
+  private rateLimitTimer?: ReturnType<typeof setInterval>;
   private registrationNoticeTimer?: ReturnType<typeof setTimeout>;
   private readonly passwordsMatch: ValidatorFn = (group) =>
     this.mode === 'register' && group.get('password')?.value !== group.get('confirmPassword')?.value
@@ -37,10 +40,15 @@ export class AuthPageComponent {
     code: ['']
   }, { validators: this.passwordsMatch });
 
-  constructor() { this.setValidators(); }
+  constructor() {
+    this.setValidators();
+    inject(DestroyRef).onDestroy(() => this.stopRateLimit());
+  }
+
+  protected get rateLimitLabel(): string { return formatWait(this.rateLimitWait()); }
 
   submit(): void {
-    if (this.loading) return;
+    if (this.loading || this.rateLimitWait() > 0) return;
     this.setValidators();
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.loading = true;
@@ -53,7 +61,7 @@ export class AuthPageComponent {
           this.form.controls.code.reset();
           this.switchMode('verify');
         },
-        error: (response: HttpErrorResponse) => this.error = this.errorMessage(response, 'Nie udało się wysłać kodu.')
+        error: (response: HttpErrorResponse) => this.showError(response, 'Nie udało się wysłać kodu.')
       });
       return;
     }
@@ -71,7 +79,7 @@ export class AuthPageComponent {
           this.form.controls.confirmPassword.reset();
           this.form.controls.code.reset();
         },
-        error: (response: HttpErrorResponse) => this.error = this.errorMessage(response, 'Nie udało się potwierdzić adresu. Sprawdź kod.')
+        error: (response: HttpErrorResponse) => this.showError(response, 'Nie udało się potwierdzić adresu. Sprawdź kod.')
       });
       return;
     }
@@ -82,13 +90,16 @@ export class AuthPageComponent {
         void this.router.navigateByUrl(returnUrl?.startsWith('/') && !returnUrl.startsWith('//')
           ? returnUrl : '/items');
       },
-      error: () => this.error = 'Nie udało się zalogować. Sprawdź login i hasło.'
+      error: (response: HttpErrorResponse) => {
+        if (!this.startRateLimit(response)) this.error = 'Nie udało się zalogować. Sprawdź login i hasło.';
+      }
     });
   }
 
   switchMode(mode: 'login' | 'register' | 'verify'): void {
     clearTimeout(this.cooldownErrorTimer);
     clearTimeout(this.registrationNoticeTimer);
+    this.stopRateLimit();
     this.mode = mode;
     this.error = '';
     this.notice = '';
@@ -102,7 +113,7 @@ export class AuthPageComponent {
   }
 
   resend(): void {
-    if (this.loading) return;
+    if (this.loading || this.rateLimitWait() > 0) return;
     const { username, displayName, email, password } = this.form.getRawValue();
     if (!username || !displayName || !email || !password) {
       this.switchMode('register');
@@ -117,6 +128,7 @@ export class AuthPageComponent {
   }
 
   private showResendError(response: HttpErrorResponse): void {
+    if (this.startRateLimit(response)) return;
     this.error = this.errorMessage(response, 'Nie udało się wysłać kodu.');
     clearTimeout(this.cooldownErrorTimer);
     if (!this.error.startsWith('Nowy kod można wysłać za ')) return;
@@ -125,6 +137,31 @@ export class AuthPageComponent {
       if (this.error === message) this.error = '';
       this.cooldownErrorTimer = undefined;
     }, 5000);
+  }
+
+  private showError(response: HttpErrorResponse, fallback: string): void {
+    if (!this.startRateLimit(response)) this.error = this.errorMessage(response, fallback);
+  }
+
+  /** Shows a live countdown for 429 responses and blocks the form until it ends. */
+  private startRateLimit(response: HttpErrorResponse): boolean {
+    const seconds = rateLimitSeconds(response);
+    if (!seconds) return false;
+    this.stopRateLimit();
+    this.error = '';
+    this.notice = '';
+    this.rateLimitWait.set(seconds);
+    this.rateLimitTimer = setInterval(() => {
+      this.rateLimitWait.update(wait => wait - 1);
+      if (this.rateLimitWait() <= 0) this.stopRateLimit();
+    }, 1000);
+    return true;
+  }
+
+  private stopRateLimit(): void {
+    clearInterval(this.rateLimitTimer);
+    this.rateLimitTimer = undefined;
+    this.rateLimitWait.set(0);
   }
 
   private setValidators(): void {

@@ -15,6 +15,7 @@
       <button type="button" [class.active]="mode !== 'login'" [disabled]="loading" (click)="switchMode('register')">Rejestracja</button>
     </div>
     @if (notice) { <p class="notice" role="status">{{ notice }}</p> }
+    @if (rateLimitWait() > 0) { <p class="error" role="alert">Zbyt wiele prób. Spróbuj ponownie za {{ rateLimitLabel }}.</p> }
     @if (error) { <p class="error" role="alert">{{ error }}</p> }
     @if (mode !== 'verify') {
       <label>Login <input type="text" formControlName="username" autocomplete="username" [attr.aria-invalid]="form.controls.username.touched && form.controls.username.invalid"></label>
@@ -50,10 +51,10 @@
       <label>Kod weryfikacyjny <input class="code-input" type="text" formControlName="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" [attr.aria-invalid]="form.controls.code.touched && form.controls.code.invalid"></label>
       @if (form.controls.code.touched && form.controls.code.invalid) { <p class="field-error">Wpisz 6 cyfr z wiadomości.</p> }
       <div class="verify-actions">
-        <button type="button" class="resend" (click)="resend()" [disabled]="loading">Wyślij kod ponownie</button>
+        <button type="button" class="resend" (click)="resend()" [disabled]="loading || rateLimitWait() > 0">Wyślij kod ponownie</button>
         <button type="button" class="resend" (click)="switchMode('register')" [disabled]="loading">Zmień dane konta</button>
       </div>
     }
-    <button class="submit" type="submit" [disabled]="loading">{{ loading ? 'Przetwarzanie...' : mode === 'login' ? 'Zaloguj' : mode === 'register' ? 'Wyślij kod weryfikacyjny na e-mail' : 'Potwierdź kod i aktywuj konto' }}</button>
+    <button class="submit" type="submit" [disabled]="loading || rateLimitWait() > 0">{{ loading ? 'Przetwarzanie...' : mode === 'login' ? 'Zaloguj' : mode === 'register' ? 'Wyślij kod weryfikacyjny na e-mail' : 'Potwierdź kod i aktywuj konto' }}</button>
   </form>
 </section>

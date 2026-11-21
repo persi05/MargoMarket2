@@ -42,3 +42,14 @@ frontend/.angular/
 
 # Terminal Paste Image folder
 .cp-images/
+
+### AI assistants ###
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.agents/
+.codex/
+AGENTS.md
+
+### Root npm leftovers ###
+/package-lock.json

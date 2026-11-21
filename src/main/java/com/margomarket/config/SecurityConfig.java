@@ -1,5 +1,8 @@
 package com.margomarket.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.margomarket.ratelimit.RateLimitFilter;
+import com.margomarket.ratelimit.RateLimiter;
 import com.margomarket.security.JwtAuthenticationFilter;
 import com.margomarket.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,8 @@ public class SecurityConfig {
 
     private final UserService userService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimiter rateLimiter;
+    private final ObjectMapper objectMapper;
 
     @Value("${app.cors.allowed-origins}")
     private List<String> allowedOrigins;
@@ -76,7 +81,8 @@ public class SecurityConfig {
                 )
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .httpBasic(httpBasic -> httpBasic.disable())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new RateLimitFilter(rateLimiter, objectMapper), JwtAuthenticationFilter.class);
 
         return http.build();
     }
