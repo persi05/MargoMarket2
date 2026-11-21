@@ -581,7 +581,8 @@ h2 {
 .auction-fields textarea { margin: 0; }
 
 @media(max-width:700px) { header h1 { min-height:2lh; } }
-.auction-field-feedback { display:block; min-height:36px; line-height:18px; }
+.auction-field-feedback { display:block; line-height:18px; }
+.auction-field-feedback:empty { display:none; }
 .invalid textarea { border-color:var(--color-danger); background:rgba(239,68,68,.08); }
 
 /* Na szerokim ekranie błąd pod polem zajmuje wolne miejsce nad przełącznikiem „Związane”, zamiast rozpychać wiersz. */
