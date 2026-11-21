@@ -30,6 +30,13 @@ public class GlobalExceptionHandler {
                 .body(java.util.Map.of("status",429,"message",ex.getMessage(),"retryAfterSeconds",ex.retryAfterSeconds));
     }
 
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<Map<String, Object>> rateLimited(RateLimitExceededException exception) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(exception.getRetryAfterSeconds()))
+                .body(exception.response());
+    }
+
     @ExceptionHandler(CommentMutedException.class)
     public ResponseEntity<java.util.Map<String, Object>> muted(CommentMutedException exception) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
