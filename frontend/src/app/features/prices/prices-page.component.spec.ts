@@ -10,10 +10,10 @@ import { PricesPageComponent } from './prices-page.component';
 
 const overview: PriceOverview = {
   itemId: 7, itemName: 'Legenda testowa', rarity: 'Legendarny', level: 40, serverId: 2, serverName: 'Classic', worldType: 'TRANSFERABLE',
-  goldPerPln: 20_000_000, upgradeable: true, bindable: true, recentOnly: true, recentDays: 180, marketWorlds: ['Classic', 'Gefion'],
+  goldPerPln: 20_000_000, upgradeable: true, bindable: true, unbindScales: 3150, unbindGrosze: null, recentOnly: true, recentDays: 180, marketWorlds: ['Classic', 'Gefion'],
   levels: [0, 1, 2, 3, 4, 5].map(n => ({
     enhancement: n, basis: n === 0 ? 'DIRECT' : 'ESTIMATED', baseGrosze: n === 0 ? null : 11_000, upgradeGrosze: n * 1_000,
-    totalGrosze: 11_000 + n * 1_000, totalGold: (11_000 + n * 1_000) * 200_000, sampleCount: 4, lowData: false, upgradeRateMissing: false
+    totalGrosze: 11_000 + n * 1_000, totalGold: (11_000 + n * 1_000) * 200_000, sampleCount: 4, lowData: false, upgradeRateMissing: false, convertedSamples: 0
   }) as const)
 };
 

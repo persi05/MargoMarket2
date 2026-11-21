@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, shareReplay, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { PageResponse, PriceHistoryEntry, PriceOverview, WorldRates, WorldRatesRequest } from '../models/api.models';
+import { PageResponse, PriceHistoryEntry, PriceOverview, PricingSettings, WorldRates, WorldRatesRequest } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class PriceService {
@@ -41,6 +41,15 @@ export class PriceService {
 
   worlds(): Observable<WorldRates[]> {
     return this.http.get<WorldRates[]>(this.worldsUrl);
+  }
+
+  settings(): Observable<PricingSettings> {
+    return this.http.get<PricingSettings>(`${this.worldsUrl}/settings`);
+  }
+
+  saveSettings(settings: PricingSettings): Observable<PricingSettings> {
+    this.clearCache();
+    return this.http.put<PricingSettings>(`${this.worldsUrl}/settings`, settings);
   }
 
   saveWorld(request: WorldRatesRequest, id?: number): Observable<WorldRates> {

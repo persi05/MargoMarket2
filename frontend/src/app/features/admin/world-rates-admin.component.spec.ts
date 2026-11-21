@@ -19,6 +19,7 @@ describe('world rates admin', () => {
     fixture.detectChanges();
     const http = TestBed.inject(HttpTestingController);
     http.expectOne('/api/admin/worlds').flush([luvia]);
+    http.expectOne('/api/admin/worlds/settings').flush({ scalesHundredPriceGrosze: 150 });
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -28,6 +29,7 @@ describe('world rates admin', () => {
   it('shows rates in the units admins think in', async () => {
     const { fixture } = await render();
     const inputs = [...fixture.nativeElement.querySelectorAll('tbody tr:first-child input')] as HTMLInputElement[];
+    expect(scalesInput(fixture)).toBe('1,5');
     expect(fixture.nativeElement.textContent).toContain('Luvia');
     expect(inputs.map(input => input.value)).toEqual(['18', '150', '2']);
   });
@@ -61,4 +63,23 @@ describe('world rates admin', () => {
     request.flush({ ...luvia, id: 2, name: 'Hades', worldType: 'PRIVATE', goldPerPln: 30_000_000 });
     expect(page.rows().map((r: any) => r.name)).toEqual(['Hades', 'Luvia', '']);
   });
+
+  it('saves the scale price and rejects invalid values', async () => {
+    const { http, page } = await render();
+    page.scales = 'tanio';
+    page.saveScales();
+    http.expectNone('/api/admin/worlds/settings');
+    expect(page.scalesMessage()).toContain('Wpisz liczbę');
+
+    page.scales = '2';
+    page.saveScales();
+    const request = http.expectOne(r => r.method === 'PUT' && r.url === '/api/admin/worlds/settings');
+    expect(request.request.body).toEqual({ scalesHundredPriceGrosze: 200 });
+    request.flush({ scalesHundredPriceGrosze: 200 });
+    expect(page.scalesMessage()).toBe('Zapisano.');
+  });
 });
+
+function scalesInput(fixture: any): string {
+  return (fixture.nativeElement.querySelector('#scales-price') as HTMLInputElement).value;
+}

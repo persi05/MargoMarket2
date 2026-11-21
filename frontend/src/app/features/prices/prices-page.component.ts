@@ -100,6 +100,7 @@ export class PricesPageComponent {
     });
   }
 
+  protected scales(count: number): string { return count.toLocaleString('pl-PL'); }
   protected pln(grosze: number | null): string { return grosze === null ? '—' : formatPln(Math.round(grosze / 100) * 100); }
   protected gold(units: number | null): string { return units === null ? '—' : formatGold(roundGold(units)); }
   protected basis(level: PriceLevel, upgradeable = true): string {

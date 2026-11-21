@@ -15,10 +15,11 @@ import java.util.OptionalLong;
  * Suggests prices for +0..+5 of one item on one world from observed samples. Pure logic, no I/O.
  *
  * <p>Samples come from the target world's market (all transferable worlds together, otherwise the world alone),
- * with the same bound flag, converted to PLN with each sample's own world rates. If at least {@link #MIN_SAMPLES}
- * samples exist at exactly +N, the suggestion is their weighted median. Otherwise every sample is reduced to +0 by
- * subtracting its upgrade cost, the weighted median of those +0 prices is taken and the target world's upgrade cost
- * of +N is added back.
+ * converted to PLN with each sample's own world rates. Samples in the other bound state are turned into the requested
+ * one with the unbinding cost (minus it for a bound price, plus it for an unbound one); without an unbinding cost
+ * only samples in the requested state count. If at least {@link #MIN_SAMPLES} samples in the requested state exist
+ * at exactly +N, the suggestion is their weighted median. Otherwise every sample is reduced to +0 by subtracting its
+ * upgrade cost, the weighted median of those +0 prices is taken and the target world's upgrade cost of +N is added back.
  */
 public final class PriceSuggestionCalculator {
     public static final int MIN_SAMPLES = 3;
@@ -27,11 +28,13 @@ public final class PriceSuggestionCalculator {
     public enum Basis { DIRECT, ESTIMATED, NONE }
 
     public record Level(int enhancement, Basis basis, Long baseGrosze, Long upgradeGrosze, Long totalGrosze,
-                        Long totalGold, int sampleCount, boolean lowData, boolean upgradeRateMissing) {}
+                        Long totalGold, int sampleCount, boolean lowData, boolean upgradeRateMissing,
+                        int convertedSamples) {}
 
     public record Result(List<Level> levels, boolean recentOnly, List<Long> marketWorldIds) {}
 
-    private record Priced(PriceSample sample, long grosze) {}
+    /** {@code grosze} is already in the requested bound state; {@code converted} marks samples moved there by the unbinding cost. */
+    private record Priced(PriceSample sample, long grosze, boolean converted) {}
 
     private PriceSuggestionCalculator() {}
 
@@ -46,17 +49,28 @@ public final class PriceSuggestionCalculator {
      */
     public static Result suggest(String rarity, int itemLevel, Server target, Map<Long, Server> worlds,
                                  List<PriceSample> samples, boolean bound, boolean upgradeable, Instant now) {
+        return suggest(rarity, itemLevel, target, worlds, samples, bound, upgradeable, null, now);
+    }
+
+    /**
+     * @param unbindGrosze price of unbinding this item in grosze; null when bound and unbound prices must not be mixed
+     */
+    public static Result suggest(String rarity, int itemLevel, Server target, Map<Long, Server> worlds,
+                                 List<PriceSample> samples, boolean bound, boolean upgradeable, Long unbindGrosze, Instant now) {
         List<Long> market = marketWorldIds(target, worlds);
         List<Priced> priced = new ArrayList<>();
         for (PriceSample sample : samples) {
-            if (sample.bound() != bound || !market.contains(sample.serverId())) continue;
+            boolean converted = sample.bound() != bound;
+            if ((converted && unbindGrosze == null) || !market.contains(sample.serverId())) continue;
             if (!upgradeable && sample.enhancement() != 0)
                 sample = new PriceSample(sample.listingId(), sample.source(), sample.serverId(), 0, sample.bound(),
                         sample.currency(), sample.amount(), sample.at());
             Server world = worlds.get(sample.serverId());
             OptionalLong grosze = sample.currency() == PriceSample.Currency.PLN
                     ? OptionalLong.of(sample.amount()) : WorldRates.goldToGrosze(sample.amount(), world);
-            if (grosze.isPresent() && grosze.getAsLong() > 0) priced.add(new Priced(sample, grosze.getAsLong()));
+            if (grosze.isEmpty()) continue;
+            long value = !converted ? grosze.getAsLong() : bound ? grosze.getAsLong() - unbindGrosze : grosze.getAsLong() + unbindGrosze;
+            if (value > 0) priced.add(new Priced(sample, value, converted));
         }
         List<Priced> recent = priced.stream().filter(p -> !p.sample().at().isBefore(now.minus(RECENT_WINDOW))).toList();
         boolean recentOnly = recent.size() >= MIN_SAMPLES;
@@ -74,32 +88,36 @@ public final class PriceSuggestionCalculator {
                 .map(cost -> WorldRates.upgradeGrosze(cost, target)).orElse(OptionalLong.empty());
         Long upgradeGrosze = upgrade.isPresent() ? upgrade.getAsLong() : null;
 
-        List<Weighted> direct = samples.stream().filter(p -> p.sample().enhancement() == n)
+        List<Weighted> direct = samples.stream().filter(p -> !p.converted() && p.sample().enhancement() == n)
                 .map(p -> new Weighted(p.grosze(), p.sample().source().weight())).toList();
         if (direct.size() >= MIN_SAMPLES) {
             long total = weightedMedian(trimOutliers(direct));
-            return new Level(n, Basis.DIRECT, null, upgradeGrosze, total, gold(total, target), direct.size(), false, false);
+            return new Level(n, Basis.DIRECT, null, upgradeGrosze, total, gold(total, target), direct.size(), false, false, 0);
         }
 
         List<Weighted> base = new ArrayList<>();
+        int converted = 0;
         for (Priced p : samples) {
             Server world = worlds.get(p.sample().serverId());
             OptionalLong cost = UpgradeCostCalculator.cost(rarity, itemLevel, p.sample().enhancement())
                     .map(c -> WorldRates.upgradeGrosze(c, world)).orElse(OptionalLong.empty());
             if (cost.isEmpty()) continue;
             long plusZero = p.grosze() - cost.getAsLong();
-            if (plusZero > 0) base.add(new Weighted(plusZero, p.sample().source().weight()));
+            if (plusZero > 0) {
+                base.add(new Weighted(plusZero, p.sample().source().weight()));
+                if (p.converted()) converted++;
+            }
         }
         if (base.isEmpty()) {
             // Fall back to the few direct samples rather than showing nothing.
-            if (direct.isEmpty()) return new Level(n, Basis.NONE, null, upgradeGrosze, null, null, 0, true, upgradeGrosze == null);
+            if (direct.isEmpty()) return new Level(n, Basis.NONE, null, upgradeGrosze, null, null, 0, true, upgradeGrosze == null, 0);
             long total = weightedMedian(direct);
-            return new Level(n, Basis.DIRECT, null, upgradeGrosze, total, gold(total, target), direct.size(), true, false);
+            return new Level(n, Basis.DIRECT, null, upgradeGrosze, total, gold(total, target), direct.size(), true, false, 0);
         }
         long plusZero = weightedMedian(trimOutliers(base));
         Long total = upgradeGrosze == null ? null : plusZero + upgradeGrosze;
         return new Level(n, Basis.ESTIMATED, plusZero, upgradeGrosze, total, total == null ? null : gold(total, target),
-                base.size(), base.size() < MIN_SAMPLES, upgradeGrosze == null);
+                base.size(), base.size() < MIN_SAMPLES, upgradeGrosze == null, converted);
     }
 
     public static List<Long> marketWorldIds(Server target, Map<Long, Server> worlds) {

@@ -1,7 +1,9 @@
 package com.margomarket.controller;
 
+import com.margomarket.dto.PricingSettingsRequest;
 import com.margomarket.dto.WorldRatesRequest;
 import com.margomarket.dto.WorldResponse;
+import com.margomarket.pricing.PricingSettingsService;
 import com.margomarket.pricing.WorldAdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminWorldController {
     private final WorldAdminService worlds;
+    private final PricingSettingsService settings;
 
     @GetMapping
     public List<WorldResponse> list() {
@@ -30,5 +33,15 @@ public class AdminWorldController {
     @PutMapping("/{id}")
     public WorldResponse update(@PathVariable long id, @Valid @RequestBody WorldRatesRequest request) {
         return worlds.update(id, request);
+    }
+
+    @GetMapping("/settings")
+    public PricingSettingsService.Settings settings() {
+        return settings.get();
+    }
+
+    @PutMapping("/settings")
+    public PricingSettingsService.Settings updateSettings(@Valid @RequestBody PricingSettingsRequest request) {
+        return settings.update(request.scalesHundredPriceGrosze());
     }
 }

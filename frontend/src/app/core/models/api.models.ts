@@ -266,6 +266,8 @@ export interface PriceLevel {
   sampleCount: number;
   lowData: boolean;
   upgradeRateMissing: boolean;
+  /** Samples from the other bound state, moved over with the unbinding cost. */
+  convertedSamples: number;
 }
 
 export interface PriceOverview {
@@ -280,10 +282,20 @@ export interface PriceOverview {
   /** False for skrytki, torby, talizmany and other items without +1…+5; levels then hold only +0. */
   upgradeable: boolean;
   bindable: boolean;
+  /** Dragon scales needed to unbind the item; null when it cannot be bound or the rarity has no known cost. */
+  unbindScales: number | null;
+  /** Unbinding cost in grosze; null until admins set the scale price. */
+  unbindGrosze: number | null;
   recentOnly: boolean;
   recentDays: number;
   marketWorlds: string[];
   levels: PriceLevel[];
+}
+
+/** Price settings shared by all worlds. */
+export interface PricingSettings {
+  /** Price of 100 dragon scales (SŁ) in grosze; null keeps bound and unbound prices apart. */
+  scalesHundredPriceGrosze: number | null;
 }
 
 export interface PriceHistoryEntry {
