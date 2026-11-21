@@ -538,3 +538,9 @@ button:disabled {
     flex-direction: column;
   }
 }
+
+/* Telefon: bez wybranej rozmowy nie pokazujemy pustego panelu czatu pod listą rozmów. */
+@media (max-width: 800px) {
+  .chat-panel:has(.chat-placeholder) { display: none; }
+  .inbox:has(+ .chat-panel .chat-placeholder) { border-bottom: 0; }
+}

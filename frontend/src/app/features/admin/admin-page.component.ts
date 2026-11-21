@@ -1,7 +1,7 @@
 import { CatalogAdminComponent } from './catalog-admin.component';
 import { WorldRatesAdminComponent } from './world-rates-admin.component';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, afterNextRender, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BehaviorSubject, combineLatest, finalize, of, shareReplay, switchMap, tap } from 'rxjs';
@@ -30,6 +30,7 @@ export class AdminPageComponent {
   private readonly adminService = inject(AdminService);
   private readonly conversationsService = inject(ConversationService);
   private readonly listingService = inject(ListingService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly stats$ = this.adminService.stats().pipe(shareReplay({bufferSize:1,refCount:true}));
   protected readonly dictionaries$ = inject(DictionaryService).getAll();
   private readonly pageSubject = new BehaviorSubject(1);
@@ -93,6 +94,18 @@ export class AdminPageComponent {
     )),
     shareReplay({ bufferSize: 1, refCount: true })
   );
+
+  constructor() {
+    afterNextRender(() => this.revealActiveTab());
+  }
+
+  /** On phones the tabs are one sideways-scrolling strip; keep the chosen one in view. */
+  private revealActiveTab(): void {
+    const active = this.host.nativeElement.querySelector<HTMLElement>('.tabs .active');
+    const strip = active?.parentElement;
+    if (!active || !strip || strip.scrollWidth <= strip.clientWidth) return;
+    strip.scrollTo({ left: active.getBoundingClientRect().left - strip.getBoundingClientRect().left + strip.scrollLeft - 12 });
+  }
 
   protected selectTab(tab: typeof this.activeTab): void {
     this.activeTab = tab;

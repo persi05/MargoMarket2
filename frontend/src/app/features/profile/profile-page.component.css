@@ -26,3 +26,14 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 .account-email strong { overflow-wrap: anywhere; }
 .account-email small { color: var(--color-text-muted); }
 @media (max-width: 720px) { .profile-grid, .account-email { grid-template-columns: 1fr; } form { padding: 22px; } .field-error { height: 30px; } }
+
+/* Telefon: formularze są jeden pod drugim, więc nie trzeba wyrównywać ich wysokości rezerwą na komunikaty. */
+@media (max-width: 720px) {
+  .field-error { height: auto; padding-bottom: 4px; }
+  .field-error.is-hidden { display: none; }
+  .form-feedback { flex: none; height: auto; margin-top: 8px; }
+  .form-feedback:not(:has(*)) { display: none; }
+  form > button { margin-top: 12px; }
+  .profile-heading { gap: 14px; margin-bottom: 20px; }
+  .avatar { flex-basis: 60px; width: 60px; height: 60px; font-size: 26px; }
+}
