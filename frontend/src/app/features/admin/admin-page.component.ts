@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { CatalogAdminComponent } from './catalog-admin.component';
 import { WorldRatesAdminComponent } from './world-rates-admin.component';
 import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
@@ -21,7 +22,7 @@ import { AuctionModerationComponent } from './auction-moderation.component';
 @Component({
   selector: 'mm-admin-page',
   standalone: true,
-  imports: [CatalogAdminComponent, WorldRatesAdminComponent, AuctionModerationComponent, ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
+  imports: [PageHeaderComponent, CatalogAdminComponent, WorldRatesAdminComponent, AuctionModerationComponent, ExchangeConfirmationsComponent, AsyncPipe, DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink, ListingCardComponent, PaginationComponent, MessagesPageComponent, ModerationPanelComponent],
   templateUrl: './admin-page.component.html',
   styleUrl: './admin-page.component.css'
 })
@@ -104,7 +105,18 @@ export class AdminPageComponent {
     const active = this.host.nativeElement.querySelector<HTMLElement>('.tabs .active');
     const strip = active?.parentElement;
     if (!active || !strip || strip.scrollWidth <= strip.clientWidth) return;
-    strip.scrollTo({ left: active.getBoundingClientRect().left - strip.getBoundingClientRect().left + strip.scrollLeft - 12 });
+    const tab = active.getBoundingClientRect();
+    const box = strip.getBoundingClientRect();
+    if (tab.right > box.right) strip.scrollLeft += tab.right - box.right + 12;
+    else if (tab.left < box.left) strip.scrollLeft -= box.left - tab.left + 12;
+  }
+
+  /** Lets a regular mouse wheel move the tab strip sideways when it does not fit. */
+  protected scrollTabs(event: WheelEvent): void {
+    const strip = event.currentTarget as HTMLElement;
+    if (strip.scrollWidth <= strip.clientWidth || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+    event.preventDefault();
+    strip.scrollLeft += event.deltaY;
   }
 
   protected selectTab(tab: typeof this.activeTab): void {

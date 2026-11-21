@@ -1,7 +1,4 @@
 
-header { max-width:none; }
-
-
 input, select { border-color:var(--color-border); font:inherit; }
 textarea { margin:0; }
 small { color:var(--color-text-muted); line-height:1.5; font-size:12px; font-weight:400; }

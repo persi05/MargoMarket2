@@ -1,9 +1,7 @@
 <section class="page gold-form-page">
-  <header>
-    <p class="eyebrow">Nowa oferta</p>
-    <h1>{{ editing ? 'Edytuj ogłoszenie złota' : 'Wystaw złoto' }}</h1>
+  <mm-page-header eyebrow="Nowa oferta" [title]="editing ? 'Edytuj ogłoszenie złota' : 'Wystaw złoto'">
     @if (!editing) {<mm-sale-mode active="gold" />}
-  </header>
+  </mm-page-header>
   @if (!enabled && !editing) {<p class="form-notice" role="status">Wystawianie złota nie zostało jeszcze uruchomione.</p>}
   <form (ngSubmit)="submit()" novalidate>
     <div class="section-heading wide"><span>1</span><div><h2>Szczegóły oferty</h2><p>Wybierz świat, na którym sprzedajesz złoto.</p></div></div>

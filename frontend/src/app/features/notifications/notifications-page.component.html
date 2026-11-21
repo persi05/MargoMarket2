@@ -1,17 +1,12 @@
 <section class="notifications-page">
-  <header>
-    <div>
-      <p class="eyebrow">Powiadomienia</p>
-      <h1>Twoje powiadomienia</h1>
-    </div>
-
+  <mm-page-header eyebrow="Powiadomienia" title="Twoje powiadomienia">
     @if (pageData?.totalElements) {
-      <div class="summary">
+      <div pageActions class="summary">
         <span>Nieprzeczytane</span>
         <strong>{{ unreadCount }}</strong>
       </div>
     }
-  </header>
+  </mm-page-header>
 
   @if (notice) {
     <p class="notice">{{ notice }}</p>

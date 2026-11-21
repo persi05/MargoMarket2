@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { SaleModeComponent } from '../../shared/sale-mode/sale-mode.component';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -19,7 +20,7 @@ import {
 @Component({
   selector: 'mm-gold-form',
   standalone: true,
-  imports: [FormsModule, RouterLink, SaleModeComponent],
+  imports: [PageHeaderComponent, FormsModule, RouterLink, SaleModeComponent],
   templateUrl: './gold-form.component.html',
   styleUrls: ['../listing-form/listing-form-page.component.css', './gold-form.component.css'],
 })

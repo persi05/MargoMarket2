@@ -1,10 +1,7 @@
 <section class="dashboard">
-  <header>
-    <div>
-      <h1>{{ pageTitle }}</h1>
-    </div>
-    <a routerLink="/new">Stwórz ogłoszenie</a>
-  </header>
+  <mm-page-header eyebrow="Twoje konto" [title]="pageTitle">
+    <a pageActions class="mm-button" routerLink="/new">Stwórz ogłoszenie</a>
+  </mm-page-header>
 
   @if (notice) {
     <p class="notice">{{ notice }}</p>

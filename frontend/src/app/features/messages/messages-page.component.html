@@ -1,10 +1,6 @@
 <section class="messages-page" [class.admin-chats]="adminAll">
   @if (!adminAll) {
-  <header class="page-heading">
-    <div>
-      <h1>Wiadomości</h1>
-    </div>
-  </header>
+  <mm-page-header eyebrow="Rozmowy" title="Wiadomości" />
   }
 
   @if (error) {

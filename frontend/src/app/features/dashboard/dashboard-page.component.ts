@@ -1,3 +1,4 @@
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
@@ -11,7 +12,7 @@ import { ListingCardComponent } from '../../shared/listing-card/listing-card.com
 @Component({
   selector: 'mm-dashboard-page',
   standalone: true,
-  imports: [RouterLink, ListingCardComponent],
+  imports: [PageHeaderComponent, RouterLink, ListingCardComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.css'
 })
