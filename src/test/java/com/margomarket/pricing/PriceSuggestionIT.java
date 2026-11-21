@@ -1,7 +1,8 @@
 package com.margomarket.pricing;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import org.springframework.http.MediaType;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.margomarket.dto.AuctionRequest;
@@ -83,11 +84,13 @@ class PriceSuggestionIT {
         return jdbc.queryForObject("SELECT id FROM servers WHERE name=?", Long.class, name);
     }
 
-    private User account() {
+    private User account() { return account("user"); }
+
+    private User account(String role) {
         String name = "s" + UUID.randomUUID().toString().replace("-", "").substring(0, 20);
         long id = jdbc.queryForObject("INSERT INTO users(email,username,display_name,password,role_id,email_verified,created_at)"
-                        + " VALUES (?,?,?,'unused',(SELECT id FROM roles WHERE name='user'),true,localtimestamp-interval '2 days') RETURNING id",
-                Long.class, name + "@example.invalid", name, name);
+                        + " VALUES (?,?,?,'unused',(SELECT id FROM roles WHERE name=?),true,localtimestamp-interval '2 days') RETURNING id",
+                Long.class, name + "@example.invalid", name, name, role);
         return users.findById(id).orElseThrow();
     }
 
@@ -164,6 +167,51 @@ class PriceSuggestionIT {
     void pricesRequireSignIn() throws Exception {
         mvc.perform(get("/api/prices/items/{id}", item).param("serverId", String.valueOf(classic)))
                 .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void adminsEditWorldRatesAndSuggestionsFollow() throws Exception {
+        marketData();
+        String admin = "Bearer " + jwt.generateToken(account("admin"));
+        mvc.perform(get("/api/admin/worlds").header("Authorization", admin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.name=='Classic')].goldPerPln").value(19_000_000));
+
+        // Double the price of upgrade points on Classic: +3 cost goes from 82,28 zł to 164,56 zł.
+        mvc.perform(put("/api/admin/worlds/{id}", classic).header("Authorization", admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"worldType\":\"TRANSFERABLE\",\"goldPerPln\":19000000,\"upgradeMillionPriceGrosze\":22000,\"essencePriceGrosze\":100}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ratesUpdatedAt").exists());
+        mvc.perform(get("/api/prices/items/{id}", item).param("serverId", String.valueOf(classic)).header("Authorization", token))
+                .andExpect(jsonPath("$.levels[3].upgradeGrosze").value(16_456));
+    }
+
+    @Test
+    void adminsAddWorldsWithUniqueNames() throws Exception {
+        String admin = "Bearer " + jwt.generateToken(account("admin"));
+        String body = "{\"name\":\"Hades%s\",\"worldType\":\"PRIVATE\",\"goldPerPln\":30000000}";
+        String suffix = UUID.randomUUID().toString().substring(0, 6);
+        mvc.perform(post("/api/admin/worlds").header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
+                        .content(body.formatted(suffix)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.worldType").value("PRIVATE"))
+                .andExpect(jsonPath("$.upgradeMillionPriceGrosze").doesNotExist());
+        mvc.perform(post("/api/admin/worlds").header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
+                        .content(body.formatted(suffix)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Świat o tej nazwie już istnieje"));
+        mvc.perform(post("/api/admin/worlds").header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Zly\",\"worldType\":\"PRIVATE\",\"goldPerPln\":-5}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void onlyAdminsManageWorlds() throws Exception {
+        mvc.perform(get("/api/admin/worlds").header("Authorization", token)).andExpect(status().isForbidden());
+        mvc.perform(put("/api/admin/worlds/{id}", classic).header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"worldType\":\"PRIVATE\"}"))
+                .andExpect(status().isForbidden());
     }
 
     @Test

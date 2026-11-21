@@ -242,3 +242,56 @@ export interface CommentSendResponse {
   censored: boolean;
   postingStatus: CommentPostingStatus;
 }
+
+export type WorldType = 'TRANSFERABLE' | 'ISOLATED' | 'PRIVATE';
+
+export interface WorldRates {
+  id: number;
+  name: string;
+  worldType: WorldType;
+  goldPerPln: number | null;
+  upgradeMillionPriceGrosze: number | null;
+  essencePriceGrosze: number | null;
+  ratesUpdatedAt: string | null;
+}
+
+export type WorldRatesRequest = Omit<WorldRates, 'id' | 'name' | 'ratesUpdatedAt'> & { name?: string };
+
+export interface PriceLevel {
+  enhancement: number;
+  basis: 'DIRECT' | 'ESTIMATED' | 'NONE';
+  baseGrosze: number | null;
+  upgradeGrosze: number | null;
+  totalGrosze: number | null;
+  totalGold: number | null;
+  sampleCount: number;
+  lowData: boolean;
+  upgradeRateMissing: boolean;
+}
+
+export interface PriceOverview {
+  itemId: number;
+  itemName: string;
+  rarity: string;
+  level: number;
+  serverId: number;
+  serverName: string;
+  worldType: WorldType;
+  goldPerPln: number | null;
+  recentOnly: boolean;
+  recentDays: number;
+  marketWorlds: string[];
+  levels: PriceLevel[];
+}
+
+export interface PriceHistoryEntry {
+  listingId: number;
+  source: 'SALE' | 'AUCTION' | 'OFFER';
+  serverName: string;
+  enhancement: number;
+  bound: boolean;
+  currency: 'PLN' | 'GOLD';
+  amount: number;
+  plnGrosze: number | null;
+  at: string;
+}
