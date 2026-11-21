@@ -1,4 +1,5 @@
 import { SaleModeComponent } from '../../shared/sale-mode/sale-mode.component';
+import { PriceSuggestionComponent, SuggestedPrice, roundGold } from '../../shared/price-suggestion/price-suggestion.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AsyncPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -21,7 +22,7 @@ import { goldMillionsInput, parseGoldMillions, parsePln } from '../../core/utils
 @Component({
   selector: 'mm-listing-form-page',
   standalone: true,
-  imports: [SaleModeComponent, AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
+  imports: [SaleModeComponent, PriceSuggestionComponent, AsyncPipe, ReactiveFormsModule, ItemDescriptionPipe],
   templateUrl: './listing-form-page.component.html',
   styleUrl: './listing-form-page.component.css'
 })
@@ -163,6 +164,19 @@ export class ListingFormPageComponent {
     }
     this.form.controls.itemId.markAsDirty();
     this.form.controls.itemId.markAsTouched();
+  }
+
+  /** Fills the price with the suggestion, in gold when gold is chosen and fits, otherwise in PLN. */
+  useSuggestedPrice(price: SuggestedPrice): void {
+    const fixedListingGoldLimit = 2_000_000_000;
+    if (this.isGoldCurrencySelected() && price.gold !== null && (this.auctionMode || roundGold(price.gold) <= fixedListingGoldLimit)) {
+      this.form.controls.price.setValue(goldMillionsInput(roundGold(price.gold)) + 'm');
+    } else {
+      const pln = this.dictionaries?.currencies.find(currency => currency.name.trim().toLowerCase() === 'pln');
+      if (pln) this.form.controls.currencyId.setValue(pln.id);
+      this.form.controls.price.setValue(String(Math.max(1, Math.round(price.grosze / 100))));
+    }
+    this.form.controls.price.markAsDirty();
   }
 
   toggleBound(): void {

@@ -39,6 +39,10 @@
     <span>Wymagany poziom: {{ listing.level }}</span>
     <span class="tooltip-separator"></span>
     <span>Cena: <mm-private-detail [value]="price" [compact]="true" [showLoginLink]="false" /></span>
+    @if (showSuggestion) {
+      <span class="preview-suggestion"><mm-price-suggestion [itemId]="listing.itemId" [serverId]="listing.server.id"
+        [enhancement]="listing.enhancementLevel" [bound]="listing.bound" [compact]="true" /></span>
+    }
     <span>Serwer: {{ listing.server.name }}</span>
     <span>Sprzedający: <a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a></span>
     </span>

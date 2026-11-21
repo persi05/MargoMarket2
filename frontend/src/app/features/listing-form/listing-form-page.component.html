@@ -138,7 +138,7 @@
         <p class="error">{{ error }}</p>
       }
 
-      <label class="manual-field" [class.invalid]="hasFieldError('enhancementLevel')">
+      <label class="manual-field detail-field" [class.invalid]="hasFieldError('enhancementLevel')">
         Poziom ulepszenia
         <select formControlName="enhancementLevel">
           @if (isEnhancementLocked()) {
@@ -157,7 +157,7 @@
         }
       </label>
 
-      <label class="manual-field" [class.invalid]="hasFieldError('price')">
+      <label class="manual-field detail-field" [class.invalid]="hasFieldError('price')">
         Cena
         <input type="text" formControlName="price" inputmode="text" [placeholder]="pricePlaceholder()">
         @if (fieldError('price')) {
@@ -165,7 +165,7 @@
         }
       </label>
 
-      <label class="manual-field" [class.invalid]="hasFieldError('currencyId')">
+      <label class="manual-field detail-field" [class.invalid]="hasFieldError('currencyId')">
         Waluta (PLN/złoto)
         <select formControlName="currencyId">
           <option [ngValue]="0">Wybierz</option>
@@ -178,7 +178,7 @@
         }
       </label>
 
-      <label class="manual-field" [class.invalid]="hasFieldError('serverId')">
+      <label class="manual-field detail-field" [class.invalid]="hasFieldError('serverId')">
         Serwer
         <select formControlName="serverId">
           <option [ngValue]="0">Wybierz</option>
@@ -206,6 +206,14 @@
           <span>Związane: {{ form.controls.bound.value ? 'Tak' : 'Nie' }}</span>
         </button>
       </div>
+
+      @if (form.controls.itemId.value && form.controls.serverId.value) {
+        <div class="price-suggestion-row">
+          <mm-price-suggestion [itemId]="form.controls.itemId.value" [serverId]="form.controls.serverId.value"
+            [enhancement]="form.controls.enhancementLevel.value" [bound]="form.controls.bound.value" [useable]="true"
+            (use)="useSuggestedPrice($event)" />
+        </div>
+      }
 
       <button type="submit" [disabled]="loading || (auctionMode && !auctionsEnabled)">{{ loading ? 'Zapisywanie…' : auctionMode ? (auctionEditId ? 'Zapisz licytację' : 'Wystaw na licytację') : 'Dodaj ogłoszenie' }}</button>
       }

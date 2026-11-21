@@ -14,7 +14,7 @@ small { color:var(--color-text-muted); line-height:1.5; font-size:12px; font-wei
 
 .package-summary strong.pending { color:var(--color-text-muted); font-size:15px; font-weight:400; }
 
-.field-feedback { display:block; min-height:54px; line-height:18px; }
+.field-feedback { display:block; min-height:18px; line-height:18px; }
 .field-feedback.has-error { color:#fca5a5; font-weight:800; }
 
 .package-summary strong { min-height:28px; line-height:28px; }

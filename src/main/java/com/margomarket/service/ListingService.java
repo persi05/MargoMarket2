@@ -7,6 +7,7 @@ import com.margomarket.exception.ForbiddenOperationException;
 import com.margomarket.exception.NotFoundException;
 import com.margomarket.model.Currency;
 import com.margomarket.model.Item;
+import com.margomarket.model.ItemRules;
 import com.margomarket.model.Listing;
 import com.margomarket.model.ListingStatus;
 import com.margomarket.model.Server;
@@ -27,9 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.margomarket.event.ListingSoldEvent;
 
 import java.time.LocalDateTime;
-import java.text.Normalizer;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -190,8 +189,8 @@ public class ListingService {
         listing.setItemName(item.getName());
         listing.setItemType(item.getItemType());
         listing.setLevel(item.getLevel());
-        listing.setEnhancementLevel(isEnhancementLocked(item) || request.enhancementLevel() == null ? 0 : request.enhancementLevel());
-        listing.setBound(canBindItem(item) && request.bound());
+        listing.setEnhancementLevel(ItemRules.isEnhancementLocked(item) || request.enhancementLevel() == null ? 0 : request.enhancementLevel());
+        listing.setBound(ItemRules.canBind(item) && request.bound());
         listing.setRarity(item.getRarity());
         listing.setPrice(request.price());
         listing.setCurrency(getCurrency(request.currencyId()));
@@ -222,22 +221,6 @@ public class ListingService {
     private Item getItem(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Przedmiot nie istnieje"));
-    }
-
-    private boolean isSkrytka(Item item) {
-        String normalizedName = Normalizer.normalize(item.getName(), Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .toLowerCase(Locale.ROOT);
-        return normalizedName.contains("skrytk");
-    }
-
-    private boolean isEnhancementLocked(Item item) {
-        return isSkrytka(item) || java.util.Set.of("Konsumpcyjne", "Talizmany", "Waluta", "Torby")
-                .contains(item.getItemType().getName());
-    }
-
-    private boolean canBindItem(Item item) {
-        return !java.util.Set.of("Konsumpcyjne", "Waluta").contains(item.getItemType().getName());
     }
 
     private Currency getCurrency(Long id) {
