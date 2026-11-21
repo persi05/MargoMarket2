@@ -34,6 +34,7 @@ button:disabled {
 }
 
 .results {
+  container: market-results / inline-size;
   min-width: 0;
   width: 100%;
   max-width: none;
@@ -102,7 +103,7 @@ h1 {
 }
 
 .table-scroll {
-  overflow: visible;
+  overflow-x: auto;
 }
 
 table {
@@ -347,10 +348,6 @@ tbody tr:hover .item-name {
 }
 
 @media (max-width: 1050px) {
-  .table-scroll {
-    overflow-x: auto;
-  }
-
   .item-tooltip {
     position: fixed;
     top: 50%;
@@ -366,3 +363,20 @@ tbody tr:hover .item-name {
 }
 
 
+
+/* Gdy obok tabeli jest panel filtrów albo ekran jest węższy, kolumny się zwężają,
+   a dopiero poniżej ~760px tabela przewija się w poziomie wewnątrz ramki. */
+@container market-results (max-width: 1000px) {
+  table { min-width: 760px; }
+  th, td { padding-inline: 6px; }
+  th { font-size: 11px; letter-spacing: 0.02em; }
+  .favorite-col { width: 44px; }
+  .preview-col { width: 60px; }
+  .level-col { width: 58px; }
+  .enhancement-col { width: 76px; }
+  .price-col { width: 100px; }
+  .contact-col { width: 120px; }
+  .server-col { width: 88px; }
+  .discussion-col { width: 56px; }
+  .discussion-label { display: none; }
+}
