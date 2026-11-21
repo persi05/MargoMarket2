@@ -14,7 +14,7 @@ public final class ConversationMessageMapper {
                 : senderId.equals(conversation.getBuyer().getId()) ? "buyer"
                 : senderId.equals(conversation.getSeller().getId()) ? "seller" : "intermediary";
         return new ChatMessageResponse(message.getId(), senderId,
-                message.getSender() == null ? null : message.getSender().getDisplayName(), role,
+                message.getSender() == null ? null : com.margomarket.service.PublicNames.name(message.getSender()), role,
                 message.getKind(), message.getBody(), message.getCreatedAt());
     }
 }
