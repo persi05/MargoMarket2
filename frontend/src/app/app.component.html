@@ -8,7 +8,15 @@
     </span>
   </a>
 
-  <nav class="nav">
+  <button type="button" class="menu-toggle" [class.open]="menuOpen()" [attr.aria-expanded]="menuOpen()" aria-controls="main-nav"
+    [attr.aria-label]="menuOpen() ? 'Zamknij menu' : 'Otwórz menu'" (click)="toggleMenu($event)">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      @if (menuOpen()) { <path d="M6 6l12 12M18 6 6 18" /> } @else { <path d="M4 7h16M4 12h16M4 17h16" /> }
+    </svg>
+    @if (unreadMessages && !menuOpen()) { <span class="menu-dot" aria-hidden="true"></span> }
+  </button>
+
+  <nav class="nav" id="main-nav" [class.open]="menuOpen()" aria-label="Główne menu" (click)="closeMenuOnLink($event)">
     <a routerLink="/items" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Ogłoszenia</a>
     <a routerLink="/prices" routerLinkActive="active">Ceny</a>
     @if (user$ | async; as user) {
