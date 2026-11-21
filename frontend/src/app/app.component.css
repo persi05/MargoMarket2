@@ -166,6 +166,7 @@
 }
 .account-options a:hover,
 .account-options button:hover { background: var(--color-input-dark); transform: none; }
+.account-options a.active { color: var(--color-primary); }
 .account-options button { color: #f4a49a; border-top: 1px solid var(--color-border); }
 
 .profile-avatar {
@@ -261,4 +262,13 @@ main {
 @media (max-width: 480px) {
   .account-trigger .profile-name { display: none; }
   .brand small { display: none; }
+}
+
+/* Laptop: linki mieszczą się w jednej linii, bo znika podpis marki i nazwa konta (zostaje awatar), a odstępy są mniejsze. */
+@media (min-width: 921px) and (max-width: 1240px) {
+  .topbar { gap: 18px; }
+  .nav { flex-wrap: nowrap; gap: 8px 14px; }
+  .nav a { font-size: 14px; white-space: nowrap; }
+  .brand small { display: none; }
+  .account-trigger .profile-name { display: none; }
 }

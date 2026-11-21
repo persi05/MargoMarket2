@@ -27,10 +27,6 @@
         @if (unreadMessages) { <span class="message-badge" [attr.aria-label]="unreadMessages + ' nieprzeczytanych wiadomości'">{{ unreadMessages }}</span> }
       </a>
       <a routerLink="/favorites" routerLinkActive="active">Obserwowane</a>
-      <a routerLink="/notifications" routerLinkActive="active">Powiadomienia</a>
-      @if (user.role === 'admin') {
-        <a routerLink="/admin" routerLinkActive="active">Administracja</a>
-      }
     }
   </nav>
 
@@ -43,6 +39,10 @@
       </summary>
       <nav class="account-options" aria-label="Opcje konta">
         <a [routerLink]="['/u', user.id, 'profil']" (click)="closeAccountMenu()">Zobacz profil</a>
+        <a routerLink="/notifications" routerLinkActive="active" (click)="closeAccountMenu()">Powiadomienia</a>
+        @if (user.role === 'admin') {
+          <a routerLink="/admin" routerLinkActive="active" (click)="closeAccountMenu()">Administracja</a>
+        }
         <a routerLink="/profile" (click)="closeAccountMenu()">Edytuj ustawienia</a>
         <button type="button" (click)="logout()">Wyloguj</button>
       </nav>
