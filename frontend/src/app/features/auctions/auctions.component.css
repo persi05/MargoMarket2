@@ -13,7 +13,6 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
 .secondary { color: var(--color-text-main); background: var(--color-input-dark); border-color: var(--color-border); }
 .market-layout { display: grid; grid-template-columns: 250px minmax(0,1fr); gap: 30px; align-items: start; }
-.filter-dock { border: 1px solid var(--color-border); border-radius: 8px; padding: 18px; background: var(--color-card-dark); }
 .filters { display: grid; gap: 15px; }
 .filters h2 { margin: 0; }
 .level-range, .filter-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -48,7 +47,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .item-name { font-size: 14px; font-weight: 700; text-decoration: none; }
 small { display: block; color: var(--color-text-muted); margin-top: 6px; font-size: 11px; }
 .price { color: var(--color-primary); font-weight: 700; white-space: nowrap; }
-.open-auction { display: inline-block; white-space: nowrap; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: 5px; text-decoration: none; }
 .deadline-tooltip { position: relative; display: inline-block; white-space: nowrap; cursor: help; }
 .deadline-tooltip > span { display: none; position: fixed; z-index: 20; padding: 12px 16px; margin-top: 8px; transform: translateX(-50%); border: 1px solid var(--color-border); border-radius: 6px; background: #281f19; box-shadow: 0 8px 24px #0008; }
 .deadline-tooltip:hover > span, .deadline-tooltip:focus > span { display: block; }
@@ -76,12 +74,9 @@ small { display: block; color: var(--color-text-muted); margin-top: 6px; font-si
 .invalid { text-decoration: line-through; color: var(--color-text-muted); }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
 .reason { width: 100%; margin: 16px 0; }
-.report-panel { margin-top: 30px; border-top: 1px solid var(--color-border); padding-top: 20px; }
-.report-panel summary { color: var(--color-text-muted); cursor: pointer; }
 @media(max-width: 950px) { .market-layout { grid-template-columns: 1fr; } .filters { grid-template-columns: repeat(2,minmax(0,1fr)); } .filters h2 { grid-column: 1/-1; } }
 @media(max-width: 750px) { .detail-grid { grid-template-columns: 1fr; gap: 24px; } .bid-panel { grid-row: 1; } .detail-heading > div { min-width: 180px; } }
 @media(max-width: 500px) { .auction-page { padding: 12px; } .filters { grid-template-columns: 1fr; } .history th, .history td { padding: 10px 5px; font-size: 11px; } .pagination { justify-content: center; gap: 10px; } .bid-panel { padding: 18px; } }
-
 
 .market-results header > div:not(.market-heading-actions) { text-align:left; }
 .market-results .intro { margin-inline:0; }

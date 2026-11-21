@@ -101,7 +101,6 @@
 }
 
 @media (max-width: 760px) {
-  header,
   .notification {
     align-items: stretch;
     flex-direction: column;
