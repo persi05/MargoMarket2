@@ -11,7 +11,7 @@ button:focus-visible, a:focus-visible { outline:2px solid var(--color-primary); 
 .gold-results { min-width:0; }
 @media(max-width:500px) { .pagination { justify-content:center; gap:10px; } }
 
-.gold-description { display:block; max-width:32ch; margin:7px auto 0; color:var(--color-text-muted); line-height:1.5; overflow-wrap:anywhere; }.row-actions { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }.gold-table strong { color:var(--color-primary); font-size:15px; }
+.gold-description { display:block; max-width:32ch; margin:7px auto 0; color:var(--color-text-muted); line-height:1.5; overflow-wrap:anywhere; }.gold-table strong { color:var(--color-primary); font-size:15px; }
 
 /* Jak przy przedmiotach: „Napisz wiadomość” pod nazwą sprzedającego. */
 .seller-cell > span { display:inline-grid; justify-items:center; gap:6px; }
@@ -20,8 +20,14 @@ button:focus-visible, a:focus-visible { outline:2px solid var(--color-primary); 
 @media(max-width:620px) {
   .seller-cell > span { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px; }
   .gold-description { margin-inline:0; }
-  .row-actions .mm-button { grid-column:1 / -1; }
+  .discussion-button { min-height:44px; min-width:44px; }
 }
 
 .gold-table { min-width:0; }
 @container table-results (max-width: 1000px) { .gold-table th, .gold-table td { padding-inline:6px; } .gold-table th { font-size:11px; white-space:normal; } }
+
+/* Ten sam przycisk dyskusji co w tabeli przedmiotów. */
+.discussion-col { width:130px; }
+.discussion-button { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:7px 8px; border:1px solid #71915e; border-radius:5px;
+  background:rgba(168,201,138,.1); color:var(--color-primary); font-size:12px; font-weight:800; box-shadow:inset 0 1px rgba(255,255,255,.18), 0 2px 5px rgba(0,0,0,.28); }
+.discussion-button:hover { background:rgba(168,201,138,.2); }

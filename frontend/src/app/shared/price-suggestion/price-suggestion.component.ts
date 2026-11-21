@@ -39,6 +39,9 @@ type State = { status: 'idle' | 'loading' | 'error' } | { status: 'ready'; overv
             @if (row.basis === 'DIRECT' && effectiveEnhancement() > 0) {
               <p class="breakdown">Wyliczona z transakcji przedmiotów na +{{ effectiveEnhancement() }}.</p>
             }
+            @if (row.convertedSamples > 0 && data.unbindGrosze !== null) {
+              <p class="breakdown">Uwzględnia {{ row.convertedSamples }} {{ bound() ? 'niezwiązanych' : 'związanych' }} po przeliczeniu kosztem odwiązania ({{ scales(data.unbindScales!) }} SŁ ≈ {{ pln(data.unbindGrosze) }}).</p>
+            }
             @if (row.upgradeRateMissing && effectiveEnhancement() > 0) {
               <p class="warning">Brak przelicznika ulepy dla świata {{ data.serverName }} – nie da się doliczyć ulepszenia.</p>
             }
@@ -100,6 +103,7 @@ export class PriceSuggestionComponent {
   }
 
   protected pln(grosze: number): string { return formatPln(Math.round(grosze / 100) * 100); }
+  protected scales(count: number): string { return count.toLocaleString('pl-PL'); }
   protected gold(units: number): string { return formatGold(roundGold(units)); }
   protected market(data: PriceOverview): string {
     return data.worldType === 'TRANSFERABLE' ? 'światy z przenosinami' : data.serverName;

@@ -71,7 +71,7 @@
     @let viewer = auth.user$ | async;
     <div class="market-table-scroll"><table class="market-table gold-table stack-on-phone" [attr.aria-busy]="loading"><thead><tr>
       @if (auth.isLoggedIn) {<th aria-label="Obserwowane"></th>}
-      <th>Ilość złota</th><th>Kurs</th><th>Cena pakietu</th><th>Sprzedający</th><th>Serwer</th><th>Dyskusja</th>
+      <th>Ilość złota</th><th>Kurs</th><th>Cena pakietu</th><th>Sprzedający</th><th>Serwer</th><th class="discussion-col">Dyskusja</th>
     </tr></thead><tbody>
       @for (l of r.content; track l.id) {
         <tr>
@@ -80,7 +80,7 @@
           <td data-label="Kurs"><mm-private-detail [value]="l.ratePriceMinor === null ? null : goldRate(l.goldRateMode,l.rateGoldUnits,l.ratePriceMinor)" [compact]="true" /></td>
           <td class="money" data-label="Cena pakietu"><mm-private-detail [value]="l.priceMinor === null ? null : goldPrice(l.priceMinor)" [compact]="true" /></td>
           <td class="seller-cell" data-label="Sprzedający"><span><a class="seller-link" [routerLink]="['/u',l.sellerId,'profil']">{{l.sellerDisplayName}}</a>@if(viewer?.id !== l.sellerId){<a class="contact-chat" [routerLink]="['/messages/new',l.id]" [attr.aria-label]="'Napisz do sprzedającego: ' + goldAmount(l.goldAmount!)">Napisz wiadomość</a>}</span></td><td data-label="Serwer">{{l.server.name}}</td>
-          <td class="cell-actions"><div class="row-actions"><button type="button" class="mm-button secondary" [attr.aria-label]="'Otwórz dyskusję o ofercie ' + goldAmount(l.goldAmount!)" (click)="discussion = l">Dyskusja</button></div></td>
+          <td class="cell-actions discussion-col"><button type="button" class="discussion-button" [attr.aria-label]="'Otwórz dyskusję o ofercie ' + goldAmount(l.goldAmount!)" (click)="discussion = l"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5 8 8 0 0 1-3.2-.7L4 20l1.6-4.5A7.5 7.5 0 1 1 20 11.5Z" /></svg><span>Dyskusja</span></button></td>
         </tr>
       } @empty {<tr><td [attr.colspan]="auth.isLoggedIn ? 7 : 6">Brak ofert spełniających wybrane warunki.</td></tr>}
     </tbody></table></div>

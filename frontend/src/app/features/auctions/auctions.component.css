@@ -22,27 +22,27 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .auction-table .fav-col { width:48px; }
 .auction-table .preview-col { width:64px; }
 .auction-table .level-col { width:72px; }
-.auction-table .enh-col { width:96px; }
+.auction-table .enh-col { width:110px; }
 .auction-table .price-col { width:130px; }
 .auction-table .seller-col { width:120px; }
 .auction-table .server-col { width:96px; }
-.auction-table .ends-col { width:96px; }
-.auction-table .open-col { width:104px; }
+.auction-table .ends-col { width:130px; }
 .auction-table td { overflow-wrap:anywhere; }
 .auction-table th { white-space:normal; }
-.auction-table .cell-actions .mm-button { padding:8px 12px; white-space:nowrap; }
+/* Cały wiersz prowadzi do licytacji; nazwa przedmiotu zostaje linkiem dla klawiatury. */
+.auction-table .row-link { cursor:pointer; }
+.auction-table .row-link:hover td { background:rgba(168,201,138,.06); }
 @container table-results (max-width: 1000px) {
   .auction-table th, .auction-table td { padding-inline:6px; }
   .auction-table th { font-size:11px; letter-spacing:.02em; white-space:normal; }
   .auction-table .fav-col { width:40px; }
   .auction-table .preview-col { width:56px; }
   .auction-table .level-col { width:54px; }
-  .auction-table .enh-col { width:66px; }
+  .auction-table .enh-col { width:84px; }
   .auction-table .price-col { width:104px; }
   .auction-table .seller-col { width:96px; }
   .auction-table .server-col { width:78px; }
-  .auction-table .ends-col { width:80px; }
-  .auction-table .open-col { width:88px; }
+  .auction-table .ends-col { width:96px; }
 }
 .item-name { font-size: 14px; font-weight: 700; text-decoration: none; }
 small { display: block; color: var(--color-text-muted); margin-top: 6px; font-size: 11px; }

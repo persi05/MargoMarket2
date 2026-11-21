@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import { of } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PageResponse, PriceHistoryEntry, PriceOverview } from '../../core/models/api.models';
+import { AuthService } from '../../core/services/auth.service';
 import { DictionaryService } from '../../core/services/dictionary.service';
 import { ItemService } from '../../core/services/item.service';
 import { PriceService } from '../../core/services/price.service';
@@ -10,10 +11,10 @@ import { PricesPageComponent } from './prices-page.component';
 
 const overview: PriceOverview = {
   itemId: 7, itemName: 'Legenda testowa', rarity: 'Legendarny', level: 40, serverId: 2, serverName: 'Classic', worldType: 'TRANSFERABLE',
-  goldPerPln: 20_000_000, upgradeable: true, bindable: true, recentOnly: true, recentDays: 180, marketWorlds: ['Classic', 'Gefion'],
+  goldPerPln: 20_000_000, upgradeable: true, bindable: true, unbindScales: 3150, unbindGrosze: null, recentOnly: true, recentDays: 180, marketWorlds: ['Classic', 'Gefion'],
   levels: [0, 1, 2, 3, 4, 5].map(n => ({
     enhancement: n, basis: n === 0 ? 'DIRECT' : 'ESTIMATED', baseGrosze: n === 0 ? null : 11_000, upgradeGrosze: n * 1_000,
-    totalGrosze: 11_000 + n * 1_000, totalGold: (11_000 + n * 1_000) * 200_000, sampleCount: 4, lowData: false, upgradeRateMissing: false
+    totalGrosze: 11_000 + n * 1_000, totalGold: (11_000 + n * 1_000) * 200_000, sampleCount: 4, lowData: false, upgradeRateMissing: false, convertedSamples: 0
   }) as const)
 };
 
@@ -28,7 +29,7 @@ const history: PageResponse<PriceHistoryEntry> = {
 describe('prices page', () => {
   afterEach(() => TestBed.resetTestingModule());
 
-  async function render(query: Record<string, string>) {
+  async function render(query: Record<string, string>, loggedIn = true) {
     const prices = { overview: vi.fn(() => of(overview)), history: vi.fn(() => of(history)) };
     const items = { search: vi.fn(() => of([{ id: 9, name: 'Inna legenda', iconUrl: '', level: 50, rarity: { id: 4, name: 'Legendarny' } }])) };
     TestBed.configureTestingModule({
@@ -38,6 +39,7 @@ describe('prices page', () => {
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(query) } } },
         { provide: PriceService, useValue: prices },
         { provide: ItemService, useValue: items },
+        { provide: AuthService, useValue: { isLoggedIn: loggedIn } },
         { provide: DictionaryService, useValue: { getAll: () => of({ servers: [{ id: 1, name: 'Aether' }, { id: 2, name: 'Classic' }], currencies: [], rarities: [], itemTypes: [] }) } }
       ]
     });
@@ -76,5 +78,14 @@ describe('prices page', () => {
 
     page.choose(page.results()[0]);
     expect(prices.overview).toHaveBeenCalledWith(9, 1, false);
+  });
+
+  it('shows guests the page with a sign-in prompt instead of prices', async () => {
+    const { fixture, prices, text } = await render({ item: '7', world: '2' }, false);
+    expect(text()).toContain('Ceny historyczne przedmiotów');
+    expect(text()).toContain('Wyszukiwanie cen jest dostępne po zalogowaniu.');
+    expect(fixture.nativeElement.querySelector('input[type=search]').disabled).toBe(true);
+    expect(prices.overview).not.toHaveBeenCalled();
+    expect(prices.history).not.toHaveBeenCalled();
   });
 });

@@ -18,7 +18,6 @@ export const routes: Routes = [
   },
   {
     path: 'prices',
-    canActivate: [authGuard],
     loadComponent: () => import('./features/prices/prices-page.component').then((m) => m.PricesPageComponent),
     title: 'Ceny przedmiotów | MargoMarket'
   },

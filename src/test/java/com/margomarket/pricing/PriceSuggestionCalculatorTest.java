@@ -204,4 +204,63 @@ class PriceSuggestionCalculatorTest {
         assertThat(plusZero.totalGrosze()).isEqualTo(3_000);
         assertThat(plusZero.lowData()).isFalse();
     }
+
+    private PriceSuggestionCalculator.Level boundLevel(boolean bound, Long unbindGrosze, int enhancement) {
+        return PriceSuggestionCalculator.suggest("Legendarny", 40, classic, worlds, samples, bound, true, unbindGrosze, NOW)
+                .levels().get(enhancement);
+    }
+
+    @Test
+    void keepsBoundAndUnboundApartWithoutAnUnbindingPrice() {
+        add(SALE, classic, 0, PLN, 20_000, false, NOW.minus(Duration.ofDays(1)));
+        add(SALE, classic, 0, PLN, 22_000, false, NOW.minus(Duration.ofDays(1)));
+        add(SALE, classic, 0, PLN, 21_000, false, NOW.minus(Duration.ofDays(1)));
+
+        var bound = boundLevel(true, null, 0);
+        assertThat(bound.basis()).isEqualTo(NONE);
+        assertThat(bound.convertedSamples()).isZero();
+    }
+
+    @Test
+    void estimatesABoundPriceFromUnboundSalesMinusTheUnbindingCost() {
+        add(SALE, classic, 0, PLN, 20_000, false, NOW.minus(Duration.ofDays(1)));
+        add(SALE, classic, 0, PLN, 22_000, false, NOW.minus(Duration.ofDays(1)));
+        add(SALE, classic, 0, PLN, 21_000, false, NOW.minus(Duration.ofDays(1)));
+
+        var bound = boundLevel(true, 6_000L, 0);
+        assertThat(bound.basis()).isEqualTo(ESTIMATED);
+        assertThat(bound.totalGrosze()).isEqualTo(15_000);
+        assertThat(bound.convertedSamples()).isEqualTo(3);
+        assertThat(boundLevel(false, 6_000L, 0).basis()).isEqualTo(DIRECT);
+    }
+
+    @Test
+    void estimatesAnUnboundPriceFromBoundSalesPlusTheUnbindingCost() {
+        add(SALE, classic, 3, PLN, 9_000 + PLUS_THREE_UPGRADE, true, NOW.minus(Duration.ofDays(1)));
+        add(SALE, classic, 3, PLN, 9_000 + PLUS_THREE_UPGRADE, true, NOW.minus(Duration.ofDays(1)));
+        add(SALE, classic, 0, PLN, 15_000, false, NOW.minus(Duration.ofDays(1)));
+
+        var unbound = boundLevel(false, 6_000L, 3);
+        assertThat(unbound.basis()).isEqualTo(ESTIMATED);
+        assertThat(unbound.baseGrosze()).isEqualTo(15_000);
+        assertThat(unbound.totalGrosze()).isEqualTo(15_000 + PLUS_THREE_UPGRADE);
+        assertThat(unbound.convertedSamples()).isEqualTo(2);
+    }
+
+    @Test
+    void prefersSalesInTheRequestedBoundStateWhenThereAreEnough() {
+        for (int i = 0; i < 3; i++) add(SALE, classic, 0, PLN, 18_000, true, NOW.minus(Duration.ofDays(1)));
+        for (int i = 0; i < 5; i++) add(SALE, classic, 0, PLN, 40_000, false, NOW.minus(Duration.ofDays(1)));
+
+        var bound = boundLevel(true, 6_000L, 0);
+        assertThat(bound.basis()).isEqualTo(DIRECT);
+        assertThat(bound.totalGrosze()).isEqualTo(18_000);
+    }
+
+    @Test
+    void dropsConvertedSamplesThatWouldBeWorthNothing() {
+        add(SALE, classic, 0, PLN, 4_000, false, NOW.minus(Duration.ofDays(1)));
+
+        assertThat(boundLevel(true, 6_000L, 0).basis()).isEqualTo(NONE);
+    }
 }

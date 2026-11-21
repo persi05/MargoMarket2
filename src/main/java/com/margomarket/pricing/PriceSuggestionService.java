@@ -22,7 +22,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PriceSuggestionService {
-    public static final int MAX_HISTORY_PAGE_SIZE = 50;
+    /** Large enough for the price chart, which loads the whole recent history at once. */
+    public static final int MAX_HISTORY_PAGE_SIZE = 500;
 
     private final ItemRepository items;
     private final ServerRepository servers;
@@ -30,7 +31,7 @@ public class PriceSuggestionService {
 
     public record Overview(long itemId, String itemName, String rarity, int level, long serverId, String serverName,
                            String worldType, Long goldPerPln, boolean upgradeable, boolean bindable,
-                           boolean recentOnly, int recentDays,
+                           Long unbindScales, Long unbindGrosze, boolean recentOnly, int recentDays,
                            List<String> marketWorlds, List<PriceSuggestionCalculator.Level> levels) {}
 
     public record HistoryEntry(long listingId, PriceSample.Source source, String serverName, int enhancement,
@@ -44,11 +45,14 @@ public class PriceSuggestionService {
         if (target == null) throw new NotFoundException("Nie znaleziono świata");
         boolean upgradeable = !ItemRules.isEnhancementLocked(item);
         boolean bindable = ItemRules.canBind(item);
+        OptionalLong scales = bindable ? UnbindCostCalculator.scales(item.getRarity().getName(), item.getLevel()) : OptionalLong.empty();
+        Long unbindGrosze = scales.isPresent() ? UnbindCostCalculator.grosze(item.getRarity().getName(), item.getLevel()).getAsLong() : null;
         var result = PriceSuggestionCalculator.suggest(item.getRarity().getName(), item.getLevel(), target, worlds,
-                samples.findByItem(itemId), bindable && bound, upgradeable, Instant.now());
+                samples.findByItem(itemId), bindable && bound, upgradeable, unbindGrosze, Instant.now());
         List<String> market = result.marketWorldIds().stream().map(id -> worlds.get(id).getName()).sorted().toList();
         return new Overview(item.getId(), item.getName(), item.getRarity().getName(), item.getLevel(), target.getId(),
-                target.getName(), target.getWorldType().name(), target.getGoldPerPln(), upgradeable, bindable, result.recentOnly(),
+                target.getName(), target.getWorldType().name(), target.getGoldPerPln(), upgradeable, bindable,
+                scales.isPresent() ? scales.getAsLong() : null, unbindGrosze, result.recentOnly(),
                 (int) PriceSuggestionCalculator.RECENT_WINDOW.toDays(), market, result.levels());
     }
 

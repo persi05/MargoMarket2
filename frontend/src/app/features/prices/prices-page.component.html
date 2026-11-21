@@ -1,18 +1,23 @@
 <section class="prices">
-  <mm-page-header eyebrow="Ceny" title="Ceny historyczne przedmiotów"
+  <mm-page-header title="Ceny historyczne przedmiotów"
     lead="Sugerowane ceny liczymy z zakończonych sprzedaży, wygranych licytacji i aktualnych ofert. Ceny w złocie przeliczamy na zł kursem danego świata, a koszt ulepszenia doliczamy według wzoru z gry." />
 
-  <div class="controls">
+  @if (!loggedIn) {
+    <p class="login-note">Wyszukiwanie cen jest dostępne po zalogowaniu.
+      <a routerLink="/auth" [queryParams]="{ returnUrl: '/prices' }">Zaloguj się</a> albo załóż konto.</p>
+  }
+
+  <div class="controls" [class.locked]="!loggedIn">
     <label class="search">Przedmiot
-      <input type="search" [(ngModel)]="search" (ngModelChange)="searchChanged($event)" placeholder="Wpisz nazwę przedmiotu"
+      <input type="search" [disabled]="!loggedIn" [(ngModel)]="search" (ngModelChange)="searchChanged($event)" placeholder="Wpisz nazwę przedmiotu"
         autocomplete="off" aria-controls="price-search-results">
     </label>
     <label>Świat
-      <select [(ngModel)]="serverId" (ngModelChange)="load()">
+      <select [disabled]="!loggedIn" [(ngModel)]="serverId" (ngModelChange)="load()">
         @for (server of servers(); track server.id) { <option [ngValue]="server.id">{{ server.name }}</option> }
       </select>
     </label>
-    <label class="check"><input type="checkbox" [(ngModel)]="bound" (ngModelChange)="load()" [disabled]="overview()?.bindable === false"> Związany</label>
+    <label class="check"><input type="checkbox" [(ngModel)]="bound" (ngModelChange)="load()" [disabled]="!loggedIn || overview()?.bindable === false"> Związany</label>
   </div>
 
   @if (results().length) {
@@ -34,6 +39,9 @@
       <p class="muted">{{ data.rarity }} · poziom {{ data.level }} · rynek: {{ market(data) }}
         {{ data.recentOnly ? '· ostatnie ' + data.recentDays + ' dni' : '· cała historia (mało świeżych danych)' }}</p>
       @if (!data.upgradeable) { <p class="muted">Tego przedmiotu nie można ulepszać, więc ma jedną cenę.</p> }
+      @if (data.bindable && data.unbindScales != null) {
+        <p class="muted">Koszt odwiązania: {{ scales(data.unbindScales) }} SŁ{{ data.unbindGrosze != null ? ' ≈ ' + pln(data.unbindGrosze) : '' }} (1 zł = 80 SŁ). Ceny związanych i niezwiązanych przeliczamy tym kosztem, gdy brakuje transakcji w wybranym stanie.</p>
+      }
       <div class="table-wrap">
         <table>
           <thead><tr>
@@ -53,14 +61,14 @@
                   <td>{{ row.enhancement === 0 ? '—' : pln(row.upgradeGrosze) }}</td>
                 }
                 <td>{{ basis(row, data.upgradeable) }}</td>
-                <td>{{ row.sampleCount }}{{ row.lowData && row.sampleCount ? ' (mało danych)' : '' }}</td>
+                <td>{{ row.sampleCount }}{{ row.convertedSamples ? ' (w tym ' + row.convertedSamples + ' przeliczonych)' : '' }}{{ row.lowData && row.sampleCount ? ' (mało danych)' : '' }}</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
     </section>
-  } @else if (!item() && !loading()) {
+  } @else if (loggedIn && !item() && !loading()) {
     <p class="muted empty">Wyszukaj przedmiot, aby zobaczyć jego ceny.</p>
   } @else if (loading()) {
     <p class="muted" role="status">Wczytywanie cen…</p>
@@ -70,6 +78,7 @@
     <section class="card" aria-labelledby="history-title">
       <h2 id="history-title">Historia transakcji</h2>
       @if (page.content.length) {
+        <mm-price-chart [entries]="chartEntries()" [upgradeable]="overview()?.upgradeable !== false" />
         <div class="table-wrap">
           <table>
             <thead><tr>

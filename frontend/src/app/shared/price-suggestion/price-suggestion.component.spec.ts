@@ -8,12 +8,12 @@ import { PriceSuggestionComponent, roundGold } from './price-suggestion.componen
 
 function level(enhancement: number, changes: Partial<PriceLevel> = {}): PriceLevel {
   return { enhancement, basis: 'ESTIMATED', baseGrosze: 11_000, upgradeGrosze: 7_480, totalGrosze: 18_480, totalGold: 3_696_000_000,
-    sampleCount: 4, lowData: false, upgradeRateMissing: false, ...changes };
+    sampleCount: 4, lowData: false, upgradeRateMissing: false, convertedSamples: 0, ...changes };
 }
 
 const overview: PriceOverview = {
   itemId: 7, itemName: 'Legenda', rarity: 'Legendarny', level: 40, serverId: 3, serverName: 'Classic', worldType: 'TRANSFERABLE',
-  goldPerPln: 20_000_000, upgradeable: true, bindable: true, recentOnly: true, recentDays: 180, marketWorlds: ['Classic', 'Gefion'],
+  goldPerPln: 20_000_000, upgradeable: true, bindable: true, unbindScales: 3150, unbindGrosze: null, recentOnly: true, recentDays: 180, marketWorlds: ['Classic', 'Gefion'],
   levels: [
     level(0, { basis: 'DIRECT', baseGrosze: null, upgradeGrosze: 0, totalGrosze: 11_000, totalGold: 2_200_000_000 }),
     level(1), level(2), level(3),
@@ -52,6 +52,13 @@ describe('price suggestion', () => {
     expect(text()).toContain('≈ 3,7g');
     expect(text()).toContain('Cena +0: 110 zł · ulepszenie do +3: 75 zł');
     expect(text()).toContain('Na podstawie 4 transakcji · rynek: światy z przenosinami');
+  });
+
+  it('says how many samples came from the other bound state', async () => {
+    const converted: PriceOverview = { ...overview, unbindGrosze: 3_150, levels: overview.levels.map(l => ({ ...l, convertedSamples: 2 })) };
+    const { text, service } = await render({ enhancement: 3, bound: true }, of(converted));
+    expect(service.overview).toHaveBeenCalledWith(7, 3, true);
+    expect(text()).toContain('Uwzględnia 2 niezwiązanych po przeliczeniu kosztem odwiązania (3150 SŁ ≈ 32 zł).');
   });
 
   it('emits the price when the seller uses it', async () => {

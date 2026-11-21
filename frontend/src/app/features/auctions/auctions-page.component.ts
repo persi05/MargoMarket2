@@ -65,6 +65,14 @@ export class AuctionsPageComponent {
       this.load();
     });
   }
+
+  /** Clicking anywhere in a row opens the auction, except on its own links and buttons. */
+  protected openRow(id: number, event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('a, button, input')) return;
+    void this.router.navigate(['/auctions', id]);
+  }
+
   @HostListener('document:visibilitychange') visible() {
     if (!document.hidden && !this.loading && Date.now() - this.receivedAt >= 30000) this.load(this.result?.page ?? 1,false);
   }
