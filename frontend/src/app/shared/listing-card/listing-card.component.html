@@ -1,12 +1,73 @@
 @let ownListing = (viewer$ | async)?.id === listing.sellerId;
 @if (listing.listingKind === 'GOLD') {
-<article class="listing gold-listing"><header><h3>{{ goldLabel }}</h3><span>{{ listing.server.name }}</span></header><strong><mm-private-detail [value]="listing.priceMinor === null ? null : goldPrice" [compact]="true" /></strong><p>{{ listing.ratePriceMinor === null ? '' : goldRate }}</p><p>{{ listing.description }}</p><p>Sprzedający: <a class="seller-link" [routerLink]="['/u',listing.sellerId,'profil']">{{ listing.sellerDisplayName }}</a></p><p>{{ listing.createdAt | date:'dd.MM.yyyy HH:mm' }} · {{ statusLabel }}</p><footer>
-@if (showOwnerActions && isActive && !isAuction) {<a [routerLink]="['/gold/edit',listing.id]">Edytuj</a><button (click)="sold.emit(listing)">Oznacz jako sprzedane</button><button [disabled]="goldBusy" (click)="withdrawGold()">Zakończ bez sprzedaży</button>}
-@if (showOwnerActions && canDelete && !isAuction) {<button (click)="deleteListing.emit(listing)">Usuń</button>}
-@if (!showOwnerActions && !ownListing) {<a class="message-seller" [routerLink]="['/messages/new',listing.id]">{{ showMessageAction ? 'Napisz wiadomość' : 'Napisz do sprzedającego' }}</a>}
-@if (showFavorite && !favoriteMode) {<button [disabled]="favoriteBusy" (click)="favorite.emit(listing)">{{isFavorite?'Przestań obserwować':'Obserwuj'}}</button>}
-@if (favoriteMode) {<button (click)="removeFavorite.emit(listing)">Przestań obserwować</button>}
-</footer>@if (goldError) {<p role="alert">{{ goldError }}</p>}</article>
+<article class="listing gold-listing" [class.owner-listing]="showOwnerActions" [class.favorite-listing]="favoriteMode">
+  <div class="listing-head">
+    <span class="item-frame gold-frame">
+      <img class="item-icon" src="icons/gold-coins.svg" alt="" title="Ikona: Delapouite, game-icons.net (CC BY 3.0)">
+    </span>
+    <div>
+      <span class="type">Złoto</span>
+      <h3>{{ goldLabel }}</h3>
+    </div>
+    <strong class="price"><mm-private-detail [value]="listing.priceMinor === null ? null : goldPrice" [compact]="true" /></strong>
+  </div>
+
+  <div class="meta">
+    <span>Kurs: {{ listing.ratePriceMinor === null ? '-' : goldRate }}</span>
+    <span [title]="'Świat: ' + listing.server.name">{{ favoriteMode || showOwnerActions ? 'Świat: ' : '' }}{{ listing.server.name }}</span>
+  </div>
+
+  <dl>
+    <div>
+      <dt>Sprzedający</dt>
+      <dd><a class="seller-link" [routerLink]="['/u', listing.sellerId, 'profil']">{{ listing.sellerDisplayName }}</a></dd>
+    </div>
+    <div>
+      <dt>Dodano</dt>
+      <dd>{{ listing.createdAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
+    </div>
+    @if (listing.description) {
+      <div class="gold-description">
+        <dt>Opis</dt>
+        <dd>{{ listing.description }}</dd>
+      </div>
+    }
+  </dl>
+
+  <footer>
+    @if (!favoriteMode) {
+      <span class="status" [class.sold]="isSold">{{ statusLabel }}</span>
+    }
+
+    <div class="actions">
+      @if (showOwnerActions && isActive) {
+        <a class="message-seller" [routerLink]="['/gold/edit', listing.id]">Edytuj</a>
+        <button type="button" (click)="sold.emit(listing)">Oznacz jako sprzedane</button>
+        <button type="button" [disabled]="goldBusy" (click)="withdrawGold()">Zakończ bez sprzedaży</button>
+      }
+      @if (showOwnerActions && canDelete) {
+        <button type="button" class="danger" (click)="deleteListing.emit(listing)">Usuń</button>
+      }
+      @if (!showOwnerActions && !ownListing) {
+        <a class="message-seller" [routerLink]="['/messages/new', listing.id]">{{ showMessageAction ? 'Napisz wiadomość' : 'Napisz do sprzedającego' }}</a>
+      }
+      @if (showFavorite && !favoriteMode) {
+        <button type="button" class="favorite" [class.is-favorite]="isFavorite" [disabled]="favoriteBusy"
+          [attr.title]="isFavorite ? 'Usuń z obserwowanych' : 'Dodaj do obserwowanych'" (click)="favorite.emit(listing)">
+          <span aria-hidden="true">{{ isFavorite ? '★' : '☆' }}</span>
+          {{ favoriteBusy ? 'Zapisywanie...' : (isFavorite ? 'Przestań obserwować' : 'Obserwuj') }}
+        </button>
+      }
+      @if (favoriteMode) {
+        <button type="button" class="favorite is-favorite" (click)="removeFavorite.emit(listing)">
+          <span aria-hidden="true">★</span>
+          Przestań obserwować
+        </button>
+      }
+    </div>
+  </footer>
+  @if (goldError) {<p class="gold-error" role="alert">{{ goldError }}</p>}
+</article>
 } @else {
 <article class="listing" [class.owner-listing]="showOwnerActions" [class.profile-listing]="showMessageAction" [class.favorite-listing]="favoriteMode" [class.admin-listing]="showSoldAt">
   <div class="listing-head">

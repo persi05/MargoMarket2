@@ -322,7 +322,11 @@ button.danger {
   }
 }
 
-.gold-listing{border-left:3px solid var(--color-primary)}.gold-listing header,.gold-listing footer{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.gold-listing a{color:var(--color-primary)}.gold-listing p{white-space:pre-wrap;overflow-wrap:anywhere}.gold-listing strong{font-size:1.4rem;color:var(--color-primary)}
+/* Złoto ma ten sam układ karty co przedmioty, tylko z ikoną monet zamiast podglądu przedmiotu. */
+.gold-frame { --rarity-color: #e8c35a; --rarity-glow: rgba(232, 195, 90, 0.35); width: 64px; height: 64px; }
+.gold-frame img { width: 44px; height: 44px; }
+.gold-description dd { white-space: pre-wrap; overflow-wrap: anywhere; }
+.gold-error { margin: 0 18px 14px; color: #fca5a5; }
 
 .listing-head h3 a { color:inherit; text-decoration:none; }
 .listing-head h3 a:hover { text-decoration:underline; }
