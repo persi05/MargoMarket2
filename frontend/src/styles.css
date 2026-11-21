@@ -624,3 +624,31 @@ a:not(.brand):hover {
 .market-table .favorite-star { padding:4px; border:0; background:transparent; color:var(--color-text-muted); font-size:25px; line-height:1; box-shadow:none; }.market-table .favorite-star.is-favorite { color:#facc15; }
 .mm-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:10px 14px; border:1px solid #71915e; border-radius:5px; background:var(--color-action); color:var(--color-action-text); cursor:pointer; font:inherit; font-weight:800; text-decoration:none; box-shadow:inset 0 1px rgba(255,255,255,.18),0 2px 5px rgba(0,0,0,.28); }
 .mm-button.secondary { border-color:var(--color-border); background:var(--color-input-dark); color:var(--color-text-main); }.mm-button:disabled { opacity:.45; cursor:not-allowed; }.mm-button:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
+
+/* Telefon: tabele złota i licytacji (.stack-on-phone) zamieniają się w karty z podpisanymi polami. */
+@media (max-width: 620px) {
+  .market-table-scroll:has(.stack-on-phone) { overflow: visible; border: 0; background: none; box-shadow: none; }
+  table.market-table.stack-on-phone { display: block; min-width: 0; }
+  .market-table.stack-on-phone thead { display: none; }
+  .market-table.stack-on-phone tbody { display: grid; gap: 10px; }
+  .market-table.stack-on-phone tbody tr {
+    position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px 12px;
+    padding: 14px; border: 1px solid rgba(156, 132, 106, 0.42); border-radius: 10px;
+  }
+  .market-table.stack-on-phone tbody tr:nth-child(even) { background: #1d1714; }
+  .market-table.stack-on-phone td,
+  .market-table.stack-on-phone td:not(:last-child) { grid-column: 1 / -1; padding: 0; border: 0; text-align: left; font-size: 14px; }
+  .market-table.stack-on-phone td[data-label] { display: grid; grid-template-columns: 120px minmax(0, 1fr); align-items: baseline; gap: 10px; }
+  .market-table.stack-on-phone td[data-label]::before { content: attr(data-label); color: var(--color-text-muted); font-size: 12px; font-weight: 700; }
+  .market-table.stack-on-phone td[data-label] small { grid-column: 2; }
+  .market-table.stack-on-phone .cell-fav { position: absolute; top: 8px; right: 8px; }
+  .market-table.stack-on-phone .cell-fav .favorite-star { min-width: 40px; min-height: 40px; }
+  .market-table.stack-on-phone .cell-preview { grid-column: 1; grid-row: 1; }
+  .market-table.stack-on-phone .cell-main { grid-column: 2; grid-row: 1; padding-right: 44px; font-size: 16px; }
+  .market-table.stack-on-phone .cell-main:first-child,
+  .market-table.stack-on-phone .cell-fav + .cell-main { grid-column: 1 / -1; }
+  .market-table.stack-on-phone .cell-actions { margin-top: 6px; }
+  .market-table.stack-on-phone .cell-actions .row-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .market-table.stack-on-phone .cell-actions .mm-button { display: flex; justify-content: center; min-height: 44px; align-items: center; width: 100%; }
+  .market-table.stack-on-phone td[colspan] { text-align: center; }
+}

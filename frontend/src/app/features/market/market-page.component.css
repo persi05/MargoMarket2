@@ -340,11 +340,16 @@ tbody tr:hover .item-name {
 }
 
 @media (max-width: 620px) {
-  .results-head,
-  .pager {
+  .results-head {
     align-items: stretch;
     flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
   }
+
+  .market-heading-actions { display: grid; gap: 10px; }
+  .pager { display: grid; grid-template-columns: 1fr 1fr; }
+  .pager button { min-height: 44px; }
 }
 
 @media (max-width: 1050px) {
@@ -365,9 +370,9 @@ tbody tr:hover .item-name {
 
 
 /* Gdy na tabelę zostaje mniej niż 960px, kolumny się zwężają,
-   a dopiero poniżej ~780px tabela przewija się w poziomie wewnątrz ramki. */
+   a poniżej 760px wiersze zamieniają się w karty. */
 @container market-results (max-width: 959px) {
-  table { min-width: 780px; }
+  table { min-width: 760px; }
   th, td { padding-inline: 6px; }
   th { font-size: 11px; letter-spacing: 0.02em; }
   .favorite-col { width: 44px; }
@@ -379,4 +384,48 @@ tbody tr:hover .item-name {
   .server-col { width: 88px; }
   .discussion-col { width: 82px; }
   .discussion-label { display: none; }
+}
+
+/* Telefon: każdy wiersz tabeli staje się kartą, zamiast przewijać szeroką tabelę w bok.
+   Układ karty: ikona + nazwa + gwiazdka, potem cena, poziom i ulepszenie, na dole sprzedający, świat i dyskusja. */
+@container market-results (max-width: 760px) {
+  .table-wrapper { margin: 0; border: 0; background: none; box-shadow: none; }
+  .table-wrapper::after { display: none; }
+  .table-scroll { overflow: visible; }
+  table, tbody { display: block; min-width: 0; }
+  thead { display: none; }
+  tbody tr {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "preview name name fav"
+      "preview name name fav"
+      "price price level upgrade"
+      "seller seller server discussion";
+    align-items: center;
+    gap: 8px 10px;
+    margin-bottom: 10px;
+    padding: 12px;
+    border: 1px solid rgba(156, 132, 106, 0.42);
+    border-radius: 10px;
+  }
+  tbody tr:nth-child(even) { background: #1d1714; }
+  th, td, th:not(:last-child), td:not(:last-child) { padding: 0; border: 0; text-align: left; }
+  td[colspan] { grid-column: 1 / -1; text-align: center; }
+  .favorite-col { grid-area: fav; width: auto; align-self: start; }
+  .preview-col { grid-area: preview; width: auto; align-self: start; }
+  .name-col { grid-area: name; }
+  .item-name { max-width: none; margin: 0; font-size: 16px; text-align: left; }
+  .level-col { grid-area: level; width: auto; white-space: nowrap; }
+  .level-col::before { content: 'Poz. '; }
+  .enhancement-col { grid-area: upgrade; width: auto; justify-self: end; }
+  .price-col { grid-area: price; width: auto; }
+  .price { font-size: 16px; }
+  .contact-col { grid-area: seller; width: auto; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+  .contact-chat { margin-top: 0; }
+  .server-col { grid-area: server; width: auto; }
+  .discussion-col { grid-area: discussion; width: auto; justify-self: end; }
+  .discussion-button { min-width: 40px; min-height: 40px; }
+  .discussion-label { display: none; }
+  .favorite-btn { width: 40px; height: 40px; }
 }
