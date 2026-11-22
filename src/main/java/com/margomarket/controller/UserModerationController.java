@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.model.User;
 import com.margomarket.service.*;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.Set;
 
+@Tag(name = "Moderacja użytkowników", description = "Ograniczenia kont i ich historia")
 @RestController
 @RequiredArgsConstructor
 public class UserModerationController {

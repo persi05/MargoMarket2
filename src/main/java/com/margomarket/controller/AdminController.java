@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.ListingFilter;
 import com.margomarket.dto.ListingResponse;
 import com.margomarket.dto.AdminUserRowResponse;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+@Tag(name = "Administracja", description = "Przegląd użytkowników i ogłoszeń")
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor

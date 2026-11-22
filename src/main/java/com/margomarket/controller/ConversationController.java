@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.ChatMessageRequest;
 import com.margomarket.dto.ChatMessageResponse;
 import com.margomarket.dto.CloseConversationRequest;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "Rozmowy", description = "Wiadomości między kupującym a sprzedającym")
 @RestController
 @RequestMapping("/api/conversations")
 @RequiredArgsConstructor

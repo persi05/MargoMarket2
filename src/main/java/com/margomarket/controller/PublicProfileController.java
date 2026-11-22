@@ -1,10 +1,12 @@
 package com.margomarket.controller;
-import com.margomarket.dto.*;
+
+import io.swagger.v3.oas.annotations.tags.Tag;import com.margomarket.dto.*;
 import com.margomarket.model.User;
 import com.margomarket.service.PublicProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+@Tag(name = "Profile", description = "Publiczne profile sprzedających")
 @RestController
 @RequestMapping("/api/profiles")
 @RequiredArgsConstructor

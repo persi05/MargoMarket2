@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.ListingFilter;
 import com.margomarket.dto.ListingRequest;
 import com.margomarket.dto.ListingResponse;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Tag(name = "Ogłoszenia", description = "Ogłoszenia przedmiotów i ulubione")
 @RestController
 @RequestMapping("/api/listings")
 @RequiredArgsConstructor

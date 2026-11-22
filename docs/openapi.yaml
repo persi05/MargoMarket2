@@ -1,0 +1,4467 @@
+openapi: 3.0.1
+info:
+  title: MargoMarket API
+  description: |-
+    REST API giełdy graczy Margonem: ogłoszenia przedmiotów i złota, aukcje, rozmowy, komentarze, opinie o sprzedających, ceny oraz panel administracji.
+
+    Uwierzytelnianie: token JWT z `POST /api/auth/login` przekazywany w nagłówku `Authorization: Bearer <token>` (przycisk **Authorize**). Publiczne endpointy GET działają bez tokenu, a `/api/admin/**` wymaga roli ADMIN.
+
+    Kwoty w PLN są podawane w groszach, a złoto w pojedynczych jednostkach. Czat w czasie rzeczywistym (STOMP, `/ws/conversations`) nie jest częścią tej specyfikacji.
+  version: v1
+servers:
+- url: http://localhost
+  description: Generated server url
+security:
+- bearerAuth: []
+tags:
+- name: Rozmowy
+  description: Wiadomości między kupującym a sprzedającym
+- name: Profile
+  description: Publiczne profile sprzedających
+- name: Potwierdzenia wymian
+  description: Potwierdzanie zakończonych transakcji
+- name: Przedmioty
+  description: Katalog przedmiotów gry
+- name: Ogłoszenia złota
+  description: Sprzedaż i kupno złota
+- name: Konto i logowanie
+  description: "Rejestracja, logowanie i ustawienia konta"
+- name: "Administracja: katalog"
+  description: Odświeżanie katalogu przedmiotów
+- name: Ogłoszenia
+  description: Ogłoszenia przedmiotów i ulubione
+- name: Powiadomienia
+  description: Powiadomienia użytkownika
+- name: Komentarze
+  description: Dyskusja pod ogłoszeniami
+- name: Aukcje
+  description: "Aukcje przedmiotów, licytacje i rozliczenia"
+- name: "Administracja: aukcje"
+  description: "Unieważnianie ofert, zgłoszenia i ograniczenia aukcyjne"
+- name: "Administracja: światy"
+  description: Zarządzanie światami gry
+- name: Moderacja użytkowników
+  description: Ograniczenia kont i ich historia
+- name: Ceny
+  description: Historia i sugestie cen przedmiotów
+- name: Opinie
+  description: Opinie o sprzedających po potwierdzonych wymianach
+- name: "Administracja: statystyki"
+  description: Statystyki serwisu
+- name: Słowniki
+  description: "Serwery, kategorie i inne dane do filtrów i formularzy"
+- name: Administracja
+  description: Przegląd użytkowników i ogłoszeń
+- name: "Administracja: blokowane słowa"
+  description: Słownik moderacji tekstu
+paths:
+  /api/listings/{id}:
+    get:
+      tags:
+      - Ogłoszenia
+      operationId: getOne
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    put:
+      tags:
+      - Ogłoszenia
+      operationId: update
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      tags:
+      - Ogłoszenia
+      operationId: delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/{id}/gold:
+    put:
+      tags:
+      - Ogłoszenia złota
+      operationId: update_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoldListingRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auth/me/password:
+    put:
+      tags:
+      - Konto i logowanie
+      operationId: changePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auth/me/display-name:
+    put:
+      tags:
+      - Konto i logowanie
+      operationId: changeDisplayName
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeDisplayNameRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auctions/{id}:
+    get:
+      tags:
+      - Aukcje
+      operationId: get_2
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuctionResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    put:
+      tags:
+      - Aukcje
+      operationId: edit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuctionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuctionResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/worlds/{id}:
+    put:
+      tags:
+      - "Administracja: światy"
+      operationId: update_2
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorldRatesRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorldResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/blocked-words/{id}:
+    put:
+      tags:
+      - "Administracja: blokowane słowa"
+      operationId: update_3
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlockedWordRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlockedWord"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      tags:
+      - "Administracja: blokowane słowa"
+      operationId: delete_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/reviews:
+    post:
+      tags:
+      - Opinie
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SellerReviewResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/notifications/{id}/read:
+    post:
+      tags:
+      - Powiadomienia
+      operationId: markAsRead
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings:
+    get:
+      tags:
+      - Ogłoszenia
+      operationId: search
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/ListingFilter"
+      - name: publicOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      tags:
+      - Ogłoszenia
+      operationId: create_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/{listingId}/comments:
+    get:
+      tags:
+      - Komentarze
+      operationId: getComments
+      parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseListingCommentResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      tags:
+      - Komentarze
+      operationId: addComment
+      parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingCommentRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentSendResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/{id}/withdraw:
+    post:
+      tags:
+      - Ogłoszenia złota
+      operationId: withdraw
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/{id}/sold:
+    post:
+      tags:
+      - Ogłoszenia
+      operationId: markAsSold
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/{id}/favorite:
+    post:
+      tags:
+      - Ogłoszenia
+      operationId: addFavorite
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      tags:
+      - Ogłoszenia
+      operationId: removeFavorite
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/gold:
+    get:
+      tags:
+      - Ogłoszenia złota
+      operationId: search_1
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/GoldListingFilter"
+      - name: publicOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      tags:
+      - Ogłoszenia złota
+      operationId: create_2
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoldListingRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations:
+    post:
+      tags:
+      - Rozmowy
+      operationId: start
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartConversationRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/{id}/reports:
+    post:
+      tags:
+      - Rozmowy
+      operationId: report
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationReportRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationReportResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/{id}/messages:
+    get:
+      tags:
+      - Rozmowy
+      operationId: messages
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseChatMessageResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      tags:
+      - Rozmowy
+      operationId: send
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatMessageRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessageResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/{id}/join-as-intermediary:
+    post:
+      tags:
+      - Rozmowy
+      operationId: joinAsIntermediary
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/{id}/intermediary-request:
+    post:
+      tags:
+      - Rozmowy
+      operationId: requestIntermediary
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/{id}/exchange-confirmation:
+    post:
+      tags:
+      - Potwierdzenia wymian
+      operationId: confirm
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/{id}/contact-request:
+    post:
+      tags:
+      - Rozmowy
+      operationId: requestContact
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/{id}/contact-request/reject:
+    post:
+      tags:
+      - Rozmowy
+      operationId: rejectContact
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/{id}/contact-request/accept:
+    post:
+      tags:
+      - Rozmowy
+      operationId: acceptContact
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/{id}/close:
+    post:
+      tags:
+      - Rozmowy
+      operationId: close
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CloseConversationRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/reports/{id}/review:
+    post:
+      tags:
+      - Rozmowy
+      operationId: reviewReport
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationReportResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auth/verify-email:
+    post:
+      tags:
+      - Konto i logowanie
+      operationId: verifyEmail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyEmailRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auth/register:
+    post:
+      tags:
+      - Konto i logowanie
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auth/login:
+    post:
+      tags:
+      - Konto i logowanie
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auctions:
+    get:
+      tags:
+      - Aukcje
+      operationId: list
+      parameters:
+      - name: serverId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: currency
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: scope
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ACTIVE
+      - name: itemTypeId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: bound
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: minLevel
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: maxLevel
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseAuctionResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      tags:
+      - Aukcje
+      operationId: create_3
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuctionRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuctionResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auctions/{id}/reports:
+    post:
+      tags:
+      - Aukcje
+      operationId: report_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reason"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auctions/{id}/fulfillment/start:
+    post:
+      tags:
+      - Aukcje
+      operationId: start_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int64
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auctions/{id}/fulfillment/actions:
+    post:
+      tags:
+      - Aukcje
+      operationId: action
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Action"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auctions/{id}/cancel:
+    post:
+      tags:
+      - Aukcje
+      operationId: cancel
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reason"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auctions/{id}/bids:
+    get:
+      tags:
+      - Aukcje
+      operationId: bids
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseMapStringObject"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      tags:
+      - Aukcje
+      operationId: bid
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlaceBidRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auctions/{id}/bids/{bidId}/reports:
+    post:
+      tags:
+      - Aukcje
+      operationId: reportBid
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: bidId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reason"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/worlds:
+    get:
+      tags:
+      - "Administracja: światy"
+      operationId: list_1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorldResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      tags:
+      - "Administracja: światy"
+      operationId: create_4
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorldRatesRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorldResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/users/{id}/moderation/warnings:
+    post:
+      tags:
+      - Moderacja użytkowników
+      operationId: warn
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reason"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/users/{id}/moderation/restrictions:
+    post:
+      tags:
+      - Moderacja użytkowników
+      operationId: restrict
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Restriction"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/users/{id}/moderation/restrictions/{actionId}/revoke:
+    post:
+      tags:
+      - Moderacja użytkowników
+      operationId: revoke
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: actionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reason"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/reviews/{id}/hide:
+    post:
+      tags:
+      - Opinie
+      operationId: hide
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HideReviewRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/exchange-confirmations/{id}/revoke:
+    post:
+      tags:
+      - Potwierdzenia wymian
+      operationId: revoke_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RevokeRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/catalog:
+    get:
+      tags:
+      - "Administracja: katalog"
+      operationId: status_1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      tags:
+      - "Administracja: katalog"
+      operationId: start_2
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/blocked-words:
+    get:
+      tags:
+      - "Administracja: blokowane słowa"
+      operationId: list_2
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseBlockedWord"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      tags:
+      - "Administracja: blokowane słowa"
+      operationId: create_5
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlockedWordRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlockedWord"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/auctions/{id}/bids/{bidId}/invalidate:
+    post:
+      tags:
+      - "Administracja: aukcje"
+      operationId: invalidate
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: bidId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reason"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/auctions/restrictions/{id}/revoke:
+    post:
+      tags:
+      - "Administracja: aukcje"
+      operationId: revoke_2
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reason"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/auctions/reports/{id}/review:
+    post:
+      tags:
+      - "Administracja: aukcje"
+      operationId: review
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Review"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/reviews/pending:
+    get:
+      tags:
+      - Opinie
+      operationId: pending
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PendingReview"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/profiles/{id}:
+    get:
+      tags:
+      - Profile
+      operationId: get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicProfileResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/profiles/{id}/reviews:
+    get:
+      tags:
+      - Opinie
+      operationId: forSeller
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SellerReviewsResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/profiles/{id}/listings:
+    get:
+      tags:
+      - Profile
+      operationId: listings
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/prices/items/{itemId}:
+    get:
+      tags:
+      - Ceny
+      operationId: overview
+      parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: serverId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: bound
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Overview"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/prices/items/{itemId}/history:
+    get:
+      tags:
+      - Ceny
+      operationId: history
+      parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: serverId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseHistoryEntry"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/notifications:
+    get:
+      tags:
+      - Powiadomienia
+      operationId: mine
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseNotificationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/notifications/unread-count:
+    get:
+      tags:
+      - Powiadomienia
+      operationId: unreadCount
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int64
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/{listingId}/comments/posting-status:
+    get:
+      tags:
+      - Komentarze
+      operationId: postingStatus
+      parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentPostingStatus"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/private-details:
+    get:
+      tags:
+      - Ogłoszenia
+      operationId: details
+      parameters:
+      - name: ids
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PrivateListingDetails"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/mine:
+    get:
+      tags:
+      - Ogłoszenia
+      operationId: mine_1
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/gold/config:
+    get:
+      tags:
+      - Ogłoszenia złota
+      operationId: config
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/favorites:
+    get:
+      tags:
+      - Ogłoszenia
+      operationId: favorites
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/favorites/ids:
+    get:
+      tags:
+      - Ogłoszenia
+      operationId: favoriteIds
+      parameters:
+      - name: listingIds
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int64
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/items:
+    get:
+      tags:
+      - Przedmioty
+      operationId: search_2
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: itemTypeId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: minLevel
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: maxLevel
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 60
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ItemResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/dictionaries:
+    get:
+      tags:
+      - Słowniki
+      operationId: all
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/LookupResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/{id}:
+    get:
+      tags:
+      - Rozmowy
+      operationId: get_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/unread-count:
+    get:
+      tags:
+      - Rozmowy
+      operationId: unreadCount_1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int64
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/reports:
+    get:
+      tags:
+      - Rozmowy
+      operationId: reports
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseConversationReportResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/reports/{id}/messages:
+    get:
+      tags:
+      - Rozmowy
+      operationId: reportMessages
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessageResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/intermediary-exchanges:
+    get:
+      tags:
+      - Rozmowy
+      operationId: intermediaryExchanges
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/inbox:
+    get:
+      tags:
+      - Rozmowy
+      operationId: inbox
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: scope
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ALL
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/by-listing/{listingId}:
+    get:
+      tags:
+      - Rozmowy
+      operationId: forListing
+      parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/admin/chats/{id}:
+    get:
+      tags:
+      - Rozmowy
+      operationId: adminChat
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/admin/chats/{id}/messages:
+    get:
+      tags:
+      - Rozmowy
+      operationId: adminChatMessages
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseChatMessageResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/conversations/admin/chats/page:
+    get:
+      tags:
+      - Rozmowy
+      operationId: adminChatsPage
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseConversationResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auth/moderation:
+    get:
+      tags:
+      - Moderacja użytkowników
+      operationId: status
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auth/me:
+    get:
+      tags:
+      - Konto i logowanie
+      operationId: currentUser
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auctions/mine:
+    get:
+      tags:
+      - Aukcje
+      operationId: mine_2
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: scope
+        in: query
+        required: false
+        schema:
+          type: string
+          default: SELLING
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseAuctionResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auctions/config:
+    get:
+      tags:
+      - Aukcje
+      operationId: config_1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/users:
+    get:
+      tags:
+      - Administracja
+      operationId: users
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseAdminUserRowResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/users/{id}:
+    get:
+      tags:
+      - Administracja
+      operationId: user
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      tags:
+      - Administracja
+      operationId: deleteUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/users/{id}/stats:
+    get:
+      tags:
+      - Administracja
+      operationId: userStats
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserStats"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/users/{id}/moderation:
+    get:
+      tags:
+      - Moderacja użytkowników
+      operationId: overview_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Overview"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/stats:
+    get:
+      tags:
+      - "Administracja: statystyki"
+      operationId: stats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/listings:
+    get:
+      tags:
+      - Administracja
+      operationId: listings_1
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/ListingFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseListingResponse"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/exchange-confirmations:
+    get:
+      tags:
+      - Potwierdzenia wymian
+      operationId: page
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseMapStringObject"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/admin/auctions/register/{kind}:
+    get:
+      tags:
+      - "Administracja: aukcje"
+      operationId: page_1
+      parameters:
+      - name: kind
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+          default: OPEN
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseMapStringObject"
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/listings/{listingId}/comments/{commentId}:
+    delete:
+      tags:
+      - Komentarze
+      operationId: deleteComment
+      parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+        "4XX":
+          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
+            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
+            \ np. `code` i `retryAfterSeconds`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+components:
+  schemas:
+    ListingRequest:
+      required:
+      - currencyId
+      - itemId
+      - itemName
+      - itemTypeId
+      - level
+      - price
+      - rarityId
+      - serverId
+      type: object
+      properties:
+        itemId:
+          type: integer
+          format: int64
+        itemName:
+          maxLength: 255
+          minLength: 3
+          type: string
+        itemTypeId:
+          type: integer
+          format: int64
+        level:
+          maximum: 300
+          minimum: 1
+          type: integer
+          format: int32
+        enhancementLevel:
+          maximum: 5
+          minimum: 0
+          type: integer
+          format: int32
+        bound:
+          type: boolean
+        rarityId:
+          type: integer
+          format: int64
+        price:
+          maximum: 10000000000000
+          minimum: 1
+          type: integer
+          format: int64
+        currencyId:
+          type: integer
+          format: int64
+        serverId:
+          type: integer
+          format: int64
+        contact:
+          maxLength: 50
+          minLength: 0
+          type: string
+    AuctionSummary:
+      type: object
+      properties:
+        currency:
+          type: string
+        startingAmount:
+          type: integer
+          format: int64
+        highestAmount:
+          type: integer
+          format: int64
+        bidCount:
+          type: integer
+          format: int64
+        endsAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+    ListingResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        itemId:
+          type: integer
+          format: int64
+        itemName:
+          type: string
+        iconUrl:
+          type: string
+        itemDescription:
+          type: string
+        itemStats:
+          type: string
+        itemType:
+          $ref: "#/components/schemas/LookupResponse"
+        level:
+          type: integer
+          format: int32
+        enhancementLevel:
+          type: integer
+          format: int32
+        bound:
+          type: boolean
+        rarity:
+          $ref: "#/components/schemas/LookupResponse"
+        price:
+          type: integer
+          format: int64
+        currency:
+          $ref: "#/components/schemas/LookupResponse"
+        server:
+          $ref: "#/components/schemas/LookupResponse"
+        contact:
+          type: string
+        status:
+          type: string
+        sellerId:
+          type: integer
+          format: int64
+        sellerDisplayName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        listingKind:
+          type: string
+        goldAmount:
+          type: integer
+          format: int64
+        priceMinor:
+          type: integer
+          format: int64
+        goldRateMode:
+          type: string
+        rateGoldUnits:
+          type: integer
+          format: int64
+        ratePriceMinor:
+          type: integer
+          format: int64
+        description:
+          type: string
+        soldAt:
+          type: string
+          format: date-time
+        saleMode:
+          type: string
+        auction:
+          $ref: "#/components/schemas/AuctionSummary"
+    LookupResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    GoldListingRequest:
+      required:
+      - goldAmount
+      - rateGoldUnits
+      - rateMode
+      - ratePriceMinor
+      - serverId
+      type: object
+      properties:
+        serverId:
+          type: integer
+          format: int64
+        goldAmount:
+          maximum: 9000000000000000
+          minimum: 1
+          type: integer
+          format: int64
+        rateMode:
+          pattern: M_PER_PLN|PLN_PER_G
+          type: string
+        rateGoldUnits:
+          maximum: 9000000000000000
+          minimum: 1
+          type: integer
+          format: int64
+        ratePriceMinor:
+          maximum: 100000000
+          minimum: 1
+          type: integer
+          format: int64
+        description:
+          maxLength: 2000
+          minLength: 0
+          type: string
+        contact:
+          maxLength: 50
+          minLength: 0
+          type: string
+    ChangePasswordRequest:
+      required:
+      - currentPassword
+      - newPassword
+      type: object
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          maxLength: 72
+          minLength: 6
+          type: string
+    ChangeDisplayNameRequest:
+      required:
+      - currentPassword
+      - displayName
+      type: object
+      properties:
+        displayName:
+          pattern: "[\\p{L}\\p{N}_. -]{3,32}"
+          type: string
+        currentPassword:
+          type: string
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        displayName:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AuctionRequest:
+      required:
+      - currency
+      - endsAt
+      - enhancementLevel
+      - itemId
+      - serverId
+      - startingAmount
+      type: object
+      properties:
+        itemId:
+          type: integer
+          format: int64
+        serverId:
+          type: integer
+          format: int64
+        enhancementLevel:
+          maximum: 5
+          minimum: 0
+          type: integer
+          format: int32
+        bound:
+          type: boolean
+        currency:
+          pattern: PLN|GOLD
+          type: string
+        startingAmount:
+          type: integer
+          format: int64
+        endsAt:
+          type: string
+          format: date-time
+        description:
+          maxLength: 2000
+          minLength: 0
+          type: string
+        contact:
+          maxLength: 50
+          minLength: 0
+          type: string
+    AuctionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        listing:
+          $ref: "#/components/schemas/ListingResponse"
+        currency:
+          type: string
+        startingAmount:
+          type: integer
+          format: int64
+        highestAmount:
+          type: integer
+          format: int64
+        nextMinimumBid:
+          type: integer
+          format: int64
+        originalEndsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        serverTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+        version:
+          type: integer
+          format: int64
+        bidCount:
+          type: integer
+          format: int64
+        leading:
+          type: boolean
+        owner:
+          type: boolean
+        winner:
+          type: boolean
+        fulfillmentStatus:
+          type: string
+        conversationId:
+          type: integer
+          format: int64
+        contactReminder:
+          type: boolean
+        winnerId:
+          type: integer
+          format: int64
+        winnerDisplayName:
+          type: string
+        biddingRestriction:
+          type: string
+    WorldRatesRequest:
+      required:
+      - worldType
+      type: object
+      properties:
+        name:
+          maxLength: 100
+          minLength: 2
+          type: string
+        worldType:
+          type: string
+          enum:
+          - TRANSFERABLE
+          - ISOLATED
+          - PRIVATE
+        goldPerPln:
+          maximum: 1000000000000
+          type: integer
+          format: int64
+        upgradeMillionPriceGrosze:
+          maximum: 100000000
+          type: integer
+          format: int64
+        essencePriceGrosze:
+          maximum: 100000000
+          type: integer
+          format: int64
+    WorldResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        worldType:
+          type: string
+          enum:
+          - TRANSFERABLE
+          - ISOLATED
+          - PRIVATE
+        goldPerPln:
+          type: integer
+          format: int64
+        upgradeMillionPriceGrosze:
+          type: integer
+          format: int64
+        essencePriceGrosze:
+          type: integer
+          format: int64
+        ratesUpdatedAt:
+          type: string
+          format: date-time
+    BlockedWordRequest:
+      required:
+      - enabled
+      - matchMode
+      - term
+      type: object
+      properties:
+        term:
+          maxLength: 80
+          minLength: 0
+          type: string
+        matchMode:
+          type: string
+          enum:
+          - EXACT
+          - PREFIX
+        enabled:
+          type: boolean
+    BlockedWord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        term:
+          type: string
+        matchMode:
+          type: string
+          enum:
+          - EXACT
+          - PREFIX
+        enabled:
+          type: boolean
+    CreateReviewRequest:
+      type: object
+      properties:
+        confirmationId:
+          type: integer
+          format: int64
+        rating:
+          type: integer
+          format: int32
+        comment:
+          type: string
+    SellerReviewResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        rating:
+          type: integer
+          format: int32
+        comment:
+          type: string
+        buyerId:
+          type: integer
+          format: int64
+        buyerDisplayName:
+          type: string
+        itemName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    NotificationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        type:
+          type: string
+        message:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        auctionId:
+          type: integer
+          format: int64
+    ListingCommentRequest:
+      required:
+      - body
+      type: object
+      properties:
+        body:
+          maxLength: 1000
+          minLength: 0
+          type: string
+    CommentPostingStatus:
+      type: object
+      properties:
+        retryAfterSeconds:
+          type: integer
+          format: int32
+        muteRemainingSeconds:
+          type: integer
+          format: int32
+        serverTime:
+          type: string
+          format: date-time
+        mutedUntil:
+          type: string
+          format: date-time
+    CommentSendResponse:
+      type: object
+      properties:
+        comment:
+          $ref: "#/components/schemas/ListingCommentResponse"
+        censored:
+          type: boolean
+        postingStatus:
+          $ref: "#/components/schemas/CommentPostingStatus"
+    ListingCommentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        authorId:
+          type: integer
+          format: int64
+        authorDisplayName:
+          type: string
+        seller:
+          type: boolean
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        canDelete:
+          type: boolean
+    StartConversationRequest:
+      required:
+      - body
+      - listingId
+      type: object
+      properties:
+        listingId:
+          type: integer
+          format: int64
+        body:
+          maxLength: 2000
+          minLength: 0
+          type: string
+    ConversationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        listingId:
+          type: integer
+          format: int64
+        itemName:
+          type: string
+        buyerId:
+          type: integer
+          format: int64
+        buyerDisplayName:
+          type: string
+        sellerId:
+          type: integer
+          format: int64
+        sellerDisplayName:
+          type: string
+        intermediaryId:
+          type: integer
+          format: int64
+        intermediaryDisplayName:
+          type: string
+        intermediaryStatus:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        lastMessage:
+          type: string
+        unreadCount:
+          type: integer
+          format: int64
+        closedAt:
+          type: string
+          format: date-time
+        contactRequestStatus:
+          type: string
+        contactRequesterId:
+          type: integer
+          format: int64
+        contactRequestAllowed:
+          type: boolean
+    ConversationReportRequest:
+      required:
+      - reason
+      type: object
+      properties:
+        reason:
+          type: string
+        details:
+          maxLength: 1000
+          minLength: 0
+          type: string
+    ConversationReportResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        conversationId:
+          type: integer
+          format: int64
+        itemName:
+          type: string
+        buyerDisplayName:
+          type: string
+        sellerDisplayName:
+          type: string
+        reporterDisplayName:
+          type: string
+        reportedUserDisplayName:
+          type: string
+        reason:
+          type: string
+        details:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          format: date-time
+    ChatMessageRequest:
+      required:
+      - body
+      type: object
+      properties:
+        body:
+          maxLength: 2000
+          minLength: 0
+          type: string
+    ChatMessageResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        senderId:
+          type: integer
+          format: int64
+        senderDisplayName:
+          type: string
+        senderRole:
+          type: string
+        kind:
+          type: string
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    CloseConversationRequest:
+      type: object
+      properties:
+        markSold:
+          type: boolean
+    VerifyEmailRequest:
+      required:
+      - code
+      - email
+      type: object
+      properties:
+        email:
+          type: string
+        code:
+          pattern: "[0-9]{6}"
+          type: string
+    RegisterRequest:
+      required:
+      - displayName
+      - email
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          pattern: "[a-zA-Z0-9_.-]{3,32}"
+          type: string
+        displayName:
+          pattern: "[\\p{L}\\p{N}_. -]{3,32}"
+          type: string
+        email:
+          type: string
+        password:
+          maxLength: 72
+          minLength: 6
+          type: string
+    LoginRequest:
+      required:
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        tokenType:
+          type: string
+        accessToken:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+        user:
+          $ref: "#/components/schemas/UserResponse"
+    Reason:
+      required:
+      - reason
+      type: object
+      properties:
+        reason:
+          maxLength: 1000
+          minLength: 0
+          type: string
+    Action:
+      required:
+      - action
+      type: object
+      properties:
+        action:
+          type: string
+        reason:
+          maxLength: 1000
+          minLength: 0
+          type: string
+    PlaceBidRequest:
+      required:
+      - amount
+      - currency
+      - idempotencyKey
+      type: object
+      properties:
+        amount:
+          type: integer
+          format: int64
+        currency:
+          pattern: PLN|GOLD
+          type: string
+        idempotencyKey:
+          type: string
+          format: uuid
+    Receipt:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        auctionId:
+          type: integer
+          format: int64
+        amount:
+          type: integer
+          format: int64
+        currency:
+          type: string
+        acceptedAt:
+          type: string
+          format: date-time
+    Restriction:
+      required:
+      - reason
+      - scopes
+      type: object
+      properties:
+        scopes:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+            enum:
+            - ACCOUNT
+            - ITEM_LISTINGS
+            - GOLD_LISTINGS
+            - AUCTION_LISTINGS
+            - BIDDING
+            - MESSAGES
+            - COMMENTS
+            - REVIEWS
+        reason:
+          maxLength: 1000
+          minLength: 0
+          type: string
+        durationSeconds:
+          type: integer
+          format: int64
+        expiresAt:
+          type: string
+          format: date-time
+        permanent:
+          type: boolean
+    HideReviewRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+    RevokeRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+    Status:
+      type: object
+      properties:
+        status:
+          type: string
+        jobId:
+          type: string
+          format: uuid
+        startedAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: string
+          format: date-time
+        pages:
+          type: integer
+          format: int32
+        added:
+          type: integer
+          format: int32
+        updated:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int32
+        error:
+          type: string
+    Review:
+      required:
+      - reason
+      type: object
+      properties:
+        reason:
+          maxLength: 1000
+          minLength: 0
+          type: string
+        invalidateBid:
+          type: boolean
+    PendingReview:
+      type: object
+      properties:
+        confirmationId:
+          type: integer
+          format: int64
+        sellerId:
+          type: integer
+          format: int64
+        sellerDisplayName:
+          type: string
+        itemName:
+          type: string
+        confirmedAt:
+          type: string
+          format: date-time
+        reviewableUntil:
+          type: string
+          format: date-time
+    PublicProfileResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        displayName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        activeListings:
+          type: integer
+          format: int64
+        soldListings:
+          type: integer
+          format: int64
+        confirmedPurchases:
+          type: integer
+          format: int64
+        confirmedSales:
+          type: integer
+          format: int64
+        endedAuctions:
+          type: integer
+          format: int64
+    PageResponseSellerReviewResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/SellerReviewResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    ReviewSummary:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int64
+        average:
+          type: number
+          format: double
+        positivePercent:
+          type: integer
+          format: int32
+        distribution:
+          type: array
+          items:
+            type: integer
+            format: int64
+    SellerReviewsResponse:
+      type: object
+      properties:
+        summary:
+          $ref: "#/components/schemas/ReviewSummary"
+        reviews:
+          $ref: "#/components/schemas/PageResponseSellerReviewResponse"
+    PageResponseListingResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ListingResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    Level:
+      type: object
+      properties:
+        enhancement:
+          type: integer
+          format: int32
+        basis:
+          type: string
+          enum:
+          - DIRECT
+          - ESTIMATED
+          - NONE
+        baseGrosze:
+          type: integer
+          format: int64
+        upgradeGrosze:
+          type: integer
+          format: int64
+        totalGrosze:
+          type: integer
+          format: int64
+        totalGold:
+          type: integer
+          format: int64
+        sampleCount:
+          type: integer
+          format: int32
+        lowData:
+          type: boolean
+        upgradeRateMissing:
+          type: boolean
+        convertedSamples:
+          type: integer
+          format: int32
+    Overview:
+      type: object
+      properties:
+        itemId:
+          type: integer
+          format: int64
+        itemName:
+          type: string
+        rarity:
+          type: string
+        level:
+          type: integer
+          format: int32
+        serverId:
+          type: integer
+          format: int64
+        serverName:
+          type: string
+        worldType:
+          type: string
+        goldPerPln:
+          type: integer
+          format: int64
+        upgradeable:
+          type: boolean
+        bindable:
+          type: boolean
+        unbindScales:
+          type: integer
+          format: int64
+        unbindGrosze:
+          type: integer
+          format: int64
+        recentOnly:
+          type: boolean
+        recentDays:
+          type: integer
+          format: int32
+        marketWorlds:
+          type: array
+          items:
+            type: string
+        levels:
+          type: array
+          items:
+            $ref: "#/components/schemas/Level"
+    HistoryEntry:
+      type: object
+      properties:
+        listingId:
+          type: integer
+          format: int64
+        source:
+          type: string
+          enum:
+          - SALE
+          - AUCTION
+          - OFFER
+        serverName:
+          type: string
+        enhancement:
+          type: integer
+          format: int32
+        bound:
+          type: boolean
+        currency:
+          type: string
+          enum:
+          - PLN
+          - GOLD
+        amount:
+          type: integer
+          format: int64
+        plnGrosze:
+          type: integer
+          format: int64
+        at:
+          type: string
+          format: date-time
+    PageResponseHistoryEntry:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoryEntry"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    PageResponseNotificationResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/NotificationResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    ListingFilter:
+      type: object
+      properties:
+        search:
+          type: string
+        serverId:
+          type: integer
+          format: int64
+        itemTypeId:
+          type: integer
+          format: int64
+        rarityId:
+          type: integer
+          format: int64
+        bound:
+          type: boolean
+        currencyId:
+          type: integer
+          format: int64
+        minLevel:
+          type: integer
+          format: int32
+        maxLevel:
+          type: integer
+          format: int32
+        status:
+          type: string
+        page:
+          type: integer
+          format: int32
+        minLevelOrDefault:
+          type: integer
+          format: int32
+        maxLevelOrDefault:
+          type: integer
+          format: int32
+        searchOrEmpty:
+          type: string
+    PageResponseListingCommentResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ListingCommentResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    PrivateListingDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        price:
+          type: integer
+          format: int64
+        priceMinor:
+          type: integer
+          format: int64
+        goldAmount:
+          type: integer
+          format: int64
+        goldRateMode:
+          type: string
+        rateGoldUnits:
+          type: integer
+          format: int64
+        ratePriceMinor:
+          type: integer
+          format: int64
+        contact:
+          type: string
+        status:
+          type: string
+    GoldListingFilter:
+      type: object
+      properties:
+        serverId:
+          type: integer
+          format: int64
+        minAmount:
+          maximum: 9000000000000000
+          minimum: 1
+          type: integer
+          format: int64
+        maxAmount:
+          maximum: 9000000000000000
+          minimum: 1
+          type: integer
+          format: int64
+        minPrice:
+          maximum: 100000000
+          minimum: 1
+          type: integer
+          format: int64
+        maxPrice:
+          maximum: 100000000
+          minimum: 1
+          type: integer
+          format: int64
+        search:
+          maxLength: 200
+          minLength: 0
+          type: string
+        sort:
+          type: string
+        page:
+          maximum: 1000000
+          minimum: 1
+          type: integer
+          format: int32
+    ItemResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        externalId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        iconUrl:
+          type: string
+        level:
+          type: integer
+          format: int32
+        itemType:
+          $ref: "#/components/schemas/LookupResponse"
+        rarity:
+          $ref: "#/components/schemas/LookupResponse"
+        description:
+          type: string
+        stats:
+          type: string
+    PageResponseChatMessageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessageResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    PageResponseConversationReportResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConversationReportResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    PageResponseConversationResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConversationResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    PageResponseAuctionResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuctionResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    PageResponseMapStringObject:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: object
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    AdminUserRowResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/UserResponse"
+        stats:
+          $ref: "#/components/schemas/UserStats"
+    PageResponseAdminUserRowResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminUserRowResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    UserStats:
+      type: object
+      properties:
+        totalListings:
+          type: integer
+          format: int64
+        activeListings:
+          type: integer
+          format: int64
+        soldListings:
+          type: integer
+          format: int64
+    Stats:
+      type: object
+      properties:
+        listings:
+          type: integer
+          format: int64
+        users:
+          type: integer
+          format: int64
+    PageResponseBlockedWord:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/BlockedWord"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+    ApiError:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          format: int32
+        error:
+          type: string
+        message:
+          type: string
+        validation:
+          type: object
+          additionalProperties:
+            type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

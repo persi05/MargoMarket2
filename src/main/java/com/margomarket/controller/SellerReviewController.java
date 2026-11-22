@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.SellerReviewDtos.*;
 import com.margomarket.model.User;
 import com.margomarket.service.SellerReviewService;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Opinie", description = "Opinie o sprzedających po potwierdzonych wymianach")
 @RestController
 @RequiredArgsConstructor
 public class SellerReviewController {

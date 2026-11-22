@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.LookupResponse;
 import com.margomarket.mapper.LookupMapper;
 import com.margomarket.repository.CurrencyRepository;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Tag(name = "Słowniki", description = "Serwery, kategorie i inne dane do filtrów i formularzy")
 @RestController
 @RequestMapping("/api/dictionaries")
 @RequiredArgsConstructor

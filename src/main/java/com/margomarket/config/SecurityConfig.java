@@ -69,6 +69,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/ws/conversations").permitAll()
+                        .requestMatchers("/v3/api-docs", "/v3/api-docs.yaml", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/listings/mine", "/api/listings/favorites", "/api/listings/private-details").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/auctions/mine").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/auctions", "/api/auctions/config", "/api/auctions/*", "/api/auctions/*/bids").permitAll()

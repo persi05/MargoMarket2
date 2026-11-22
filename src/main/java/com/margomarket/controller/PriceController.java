@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.PageResponse;
 import com.margomarket.pricing.PriceSuggestionService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Price suggestions and history; like listing prices, visible only to signed-in users. */
+@Tag(name = "Ceny", description = "Historia i sugestie cen przedmiotów")
 @RestController
 @RequestMapping("/api/prices/items/{itemId}")
 @RequiredArgsConstructor

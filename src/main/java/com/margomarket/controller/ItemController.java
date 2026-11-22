@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.ItemResponse;
 import com.margomarket.mapper.ItemMapper;
 import com.margomarket.repository.ItemRepository;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Tag(name = "Przedmioty", description = "Katalog przedmiotów gry")
 @RestController
 @RequiredArgsConstructor
 public class ItemController {

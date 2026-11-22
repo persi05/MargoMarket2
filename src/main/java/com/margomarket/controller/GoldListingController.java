@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.*;
 import com.margomarket.mapper.*;
 import com.margomarket.model.User;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Ogłoszenia złota", description = "Sprzedaż i kupno złota")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/listings")
