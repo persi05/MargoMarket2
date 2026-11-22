@@ -90,7 +90,12 @@ Na porcie 8081 nie trzeba tokenu.
 | `/actuator/metrics`, `/actuator/prometheus` | metryki JVM, HTTP, puli połączeń i biznesowe |
 | `/actuator/modulith`, `/actuator/info` | mapa modułów, informacje o aplikacji |
 
-Podgląd lokalnie: `docker exec margomarket-api wget -qO- localhost:8081/actuator/health`.
+Docker Compose wystawia port 8081 tylko na `127.0.0.1`, więc na tym samym
+komputerze wystarczy otworzyć `http://localhost:8081/actuator/health`
+(albo `/actuator/prometheus`, `/actuator/modulith`). Z sieci port nie jest
+dostępny. Na serwerze dostęp z własnego komputera daje tunel SSH:
+`ssh -L 8081:localhost:8081 użytkownik@serwer`. Nie wystawiaj portu
+bez `127.0.0.1:`, bo na 8081 nie ma logowania.
 
 Metryki biznesowe (odświeżane co najwyżej co 30 s jednym zapytaniem):
 

@@ -35,6 +35,8 @@ services:
       BLOCKED_EMAIL_DOMAINS: ${BLOCKED_EMAIL_DOMAINS:?required}
     ports:
       - "${APP_PORT:?required}:8080"
+      # Actuator (health, metrics) only on this machine: 127.0.0.1 keeps it off the network.
+      - "127.0.0.1:${MANAGEMENT_PORT:-8081}:8081"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8081/actuator/health/readiness || exit 1"]
       interval: 15s
