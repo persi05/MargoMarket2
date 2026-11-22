@@ -46,20 +46,11 @@ jobs:
           # jacoco.csv: one row per class, columns 4/5 = missed/covered instructions, 6/7 = branches, 8/9 = lines
           awk -F, 'NR>1 {mi+=$4; ci+=$5; mb+=$6; cb+=$7; ml+=$8; cl+=$9}
             END {
-              printf "### Pokrycie testami (JaCoCo)
-
-| Miara | Pokrycie |
-|---|---|
-"
-              printf "| Instrukcje | %.1f%% |
-", 100*ci/(mi+ci)
-              printf "| Gałęzie | %.1f%% |
-", 100*cb/(mb+cb)
-              printf "| Linie | %.1f%% |
-", 100*cl/(ml+cl)
-              printf "
-Pełny raport: artefakt **jacoco-report** (otwórz index.html).
-"
+              printf "### Pokrycie testami (JaCoCo)\n\n| Miara | Pokrycie |\n|---|---|\n"
+              printf "| Instrukcje | %.1f%% |\n", 100*ci/(mi+ci)
+              printf "| Gałęzie | %.1f%% |\n", 100*cb/(mb+cb)
+              printf "| Linie | %.1f%% |\n", 100*cl/(ml+cl)
+              printf "\nPełny raport: artefakt **jacoco-report** (otwórz index.html).\n"
             }' target/site/jacoco/jacoco.csv >> "$GITHUB_STEP_SUMMARY"
       - name: Upload coverage report
         if: always()
