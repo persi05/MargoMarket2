@@ -16,6 +16,7 @@ public class ExchangeConfirmationService {
  private final ListingService listings;
  private final ConversationExchangeService exchanges;
  private final AuctionListingPolicy auctionPolicy;
+ private final NotificationService notifications;
  @Transactional
  public ConversationResponse confirm(Long id,User admin) {
   access.requireAdmin(admin);
@@ -32,6 +33,7 @@ public class ExchangeConfirmationService {
   jdbc.update("INSERT INTO exchange_confirmation_audit(confirmation_id,actor_id,action) VALUES (?,?,'CONFIRMED')",confirmation,admin.getId());
   listings.markAsSold(listingId,admin);
   auctionPolicy.confirmed(c.getListing(),c.getBuyer().getId(),admin.getId());
+  notifications.review(c.getBuyer().getId(),"REVIEW_AVAILABLE","Wymiana „"+c.getItemName()+"” została potwierdzona. Możesz wystawić opinię sprzedawcy w ciągu "+SellerReviewService.REVIEW_WINDOW.toDays()+" dni.","review-available:"+confirmation);
   access.saveSystem(c,"Administrator potwierdził wykonanie wymiany. Potwierdzenie nie jest gwarancją bezpieczeństwa kolejnych transakcji.");
   return exchanges.close(id,admin,false);
  }

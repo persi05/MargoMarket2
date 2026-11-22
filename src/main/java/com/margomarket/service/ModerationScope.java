@@ -7,7 +7,8 @@ public enum ModerationScope {
     AUCTION_LISTINGS("Wystawianie licytacji"),
     BIDDING("Licytowanie"),
     MESSAGES("Wysyłanie wiadomości"),
-    COMMENTS("Komentowanie przedmiotów");
+    COMMENTS("Komentowanie przedmiotów"),
+    REVIEWS("Wystawianie opinii");
     public final String label;
 
     ModerationScope(String label) {
