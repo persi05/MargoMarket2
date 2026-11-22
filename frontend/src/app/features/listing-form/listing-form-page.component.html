@@ -157,7 +157,7 @@
 
       <label class="manual-field detail-field" [class.invalid]="hasFieldError('price')">
         Cena
-        <input type="text" formControlName="price" inputmode="text" [placeholder]="pricePlaceholder()">
+        <input type="text" formControlName="price" inputmode="text" [placeholder]="pricePlaceholder()" (blur)="normalizePrice()">
         @if (fieldError('price')) {
           <small>{{ fieldError('price') }}</small>
         } @else if (lowGoldConfirm !== null) {

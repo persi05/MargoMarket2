@@ -2,7 +2,7 @@ package com.margomarket.dto;
 
 public record PrivateListingDetails(
     Long id,
-    Integer price,
+    Long price,
     Long priceMinor,
     Long goldAmount,
     String goldRateMode,

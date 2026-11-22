@@ -33,8 +33,8 @@ public record ListingRequest(
 
         @NotNull(message = "Cena jest wymagana")
         @Min(value = 1, message = "Cena musi byc wieksza od 0")
-        @Max(value = 2_000_000_000, message = "Cena jest zbyt wysoka")
-        Integer price,
+        @Max(value = ListingRequest.MAX_GOLD_PRICE, message = "Cena jest zbyt wysoka")
+        Long price,
 
         @NotNull(message = "Waluta jest wymagana")
         Long currencyId,
@@ -45,4 +45,8 @@ public record ListingRequest(
         @Size(max = 50, message = "Kontakt moze miec maksymalnie 50 znakow")
         String contact
 ) {
+    /** Gold listing prices are single gold units; 10 000g leaves plenty of room above real offers. */
+    public static final long MAX_GOLD_PRICE = 10_000_000_000_000L;
+    /** PLN listing prices are whole złoty and keep their previous limit. */
+    public static final long MAX_PLN_PRICE = 2_000_000_000L;
 }

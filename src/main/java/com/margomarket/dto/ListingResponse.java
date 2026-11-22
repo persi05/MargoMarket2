@@ -14,7 +14,7 @@ public record ListingResponse(
         Integer enhancementLevel,
         boolean bound,
         LookupResponse rarity,
-        Integer price,
+        Long price,
         LookupResponse currency,
         LookupResponse server,
         String contact,

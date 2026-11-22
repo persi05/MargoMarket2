@@ -55,7 +55,7 @@ public class PriceSampleRepository {
             return new PriceSample(id, PriceSample.Source.AUCTION, server, enhancement, bound, currency, bid, at);
         }
 
-        int price = rs.getInt("price");
+        long price = rs.getLong("price");
         if (rs.wasNull() || price <= 0) return null;
         String status = rs.getString("status");
         PriceSample.Source source = "sold".equals(status) ? PriceSample.Source.SALE
@@ -63,7 +63,7 @@ public class PriceSampleRepository {
         if (source == null) return null;
         boolean gold = "w grze".equals(rs.getString("currency_name"));
         // Item listing prices are whole PLN or gold units.
-        long amount = gold ? price : price * 100L;
+        long amount = gold ? price : price * 100L; // PLN prices are capped far below overflow
         Timestamp at = source == PriceSample.Source.SALE && rs.getTimestamp("sold_at") != null
                 ? rs.getTimestamp("sold_at") : rs.getTimestamp("created_at");
         // Listing timestamps are stored as local time of the backend.

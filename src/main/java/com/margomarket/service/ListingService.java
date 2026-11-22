@@ -192,8 +192,12 @@ public class ListingService {
         listing.setEnhancementLevel(ItemRules.isEnhancementLocked(item) || request.enhancementLevel() == null ? 0 : request.enhancementLevel());
         listing.setBound(ItemRules.canBind(item) && request.bound());
         listing.setRarity(item.getRarity());
+        Currency currency = getCurrency(request.currencyId());
+        if (!"w grze".equalsIgnoreCase(currency.getName().trim()) && request.price() > ListingRequest.MAX_PLN_PRICE) {
+            throw new IllegalArgumentException("Cena jest zbyt wysoka");
+        }
         listing.setPrice(request.price());
-        listing.setCurrency(getCurrency(request.currencyId()));
+        listing.setCurrency(currency);
         listing.setServer(getServer(request.serverId()));
         listing.setContact(request.contact() == null ? "" : request.contact().trim());
     }

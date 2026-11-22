@@ -104,7 +104,7 @@ class UserModerationIT {
 
     ListingRequest listing() {
         return new ListingRequest(
-                item, "Przedmiot", 1L, 100, 0, false, 1L, 100, currency, world, "");
+                item, "Przedmiot", 1L, 100, 0, false, 1L, 100L, currency, world, "");
     }
 
     AuctionRequest auction() {

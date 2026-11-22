@@ -16,7 +16,7 @@ import { ItemService } from '../../core/services/item.service';
 import { ListingService } from '../../core/services/listing.service';
 import { itemLastAvailableDuring, itemRequiredProfessions, itemStatLines } from '../../core/utils/item-stats';
 import { canBindItem, hasEnhancementLevel, marketItemTypes } from '../../core/utils/item-types';
-import { parseListingPrice } from '../../core/utils/price-format';
+import { MAX_GOLD_LISTING_PRICE, goldPriceInput, parseListingPrice } from '../../core/utils/price-format';
 import { AuctionService } from '../../core/services/auction.service';
 import { goldMillionsInput, parseGoldMillions, parsePln } from '../../core/utils/gold-format';
 
@@ -174,9 +174,8 @@ export class ListingFormPageComponent {
 
   /** Fills the price with the suggestion, in gold when gold is chosen and fits, otherwise in PLN. */
   useSuggestedPrice(price: SuggestedPrice): void {
-    const fixedListingGoldLimit = 2_000_000_000;
-    if (this.isGoldCurrencySelected() && price.gold !== null && (this.auctionMode || roundGold(price.gold) <= fixedListingGoldLimit)) {
-      this.form.controls.price.setValue(goldMillionsInput(roundGold(price.gold)) + 'm');
+    if (this.isGoldCurrencySelected() && price.gold !== null && (this.auctionMode || roundGold(price.gold) <= MAX_GOLD_LISTING_PRICE)) {
+      this.form.controls.price.setValue(goldPriceInput(roundGold(price.gold)));
     } else {
       const pln = this.dictionaries?.currencies.find(currency => currency.name.trim().toLowerCase() === 'pln');
       if (pln) this.form.controls.currencyId.setValue(pln.id);
@@ -226,9 +225,9 @@ export class ListingFormPageComponent {
     }
     const currencyName = this.selectedCurrencyName();
     const price = currencyName ? parseListingPrice(raw.price, currencyName) : null;
-    if (price === null || price > 2_000_000_000) {
+    if (price === null) {
       this.serverErrors['price'] = currencyName?.toLowerCase() === 'w grze'
-        ? 'Wpisz cenę jako liczbę albo skrót, np. 500m lub 2g.'
+        ? 'Wpisz cenę jako liczbę albo skrót, np. 500m, 6,5g lub 6.5g (najwyżej 10 000g).'
         : 'Wpisz poprawną cenę liczbową.';
       this.form.controls.price.markAsTouched();
       this.loading = false;
@@ -345,8 +344,19 @@ export class ListingFormPageComponent {
   }
 
   pricePlaceholder(): string {
-    if (this.auctionMode) return this.isGoldCurrencySelected() ? 'Np. 500m lub 2g' : 'Np. 25,50 lub 25.50';
-    return this.isGoldCurrencySelected() ? 'Np. 500m lub 2g' : 'Wpisz cenę';
+    if (this.auctionMode) return this.isGoldCurrencySelected() ? 'Np. 500m lub 6,5g' : 'Np. 25,50 lub 25.50';
+    return this.isGoldCurrencySelected() ? 'Np. 500m lub 6,5g' : 'Wpisz cenę';
+  }
+
+  /** After leaving the field a valid gold price is rewritten to one form, e.g. 6500m or 6.5g becomes 6,5g. */
+  normalizePrice(): void {
+    if (!this.isGoldCurrencySelected()) return;
+    const raw = this.form.controls.price.value;
+    const units = this.auctionMode ? parseGoldMillions(raw) : parseListingPrice(raw, 'w grze');
+    // Auctions read a bare number as millions, so amounts under 1m keep the seller's own text.
+    if (units === null || (this.auctionMode && units < 1_000_000)) return;
+    const text = goldPriceInput(units);
+    if (text !== raw) this.form.controls.price.setValue(text);
   }
 
   showCatalogImage(item: ItemResponse): boolean {

@@ -95,7 +95,7 @@ class ListingServiceTest {
         assertThat(created.getLevel()).isEqualTo(100);
         assertThat(created.getEnhancementLevel()).isZero();
         assertThat(created.isBound()).isTrue();
-        assertThat(created.getPrice()).isEqualTo(2500);
+        assertThat(created.getPrice()).isEqualTo(2500L);
         assertThat(created.getServer()).isSameAs(server);
         assertThat(created.getItemType()).isSameAs(itemType);
         assertThat(created.getRarity()).isSameAs(rarity);
@@ -203,7 +203,7 @@ class ListingServiceTest {
         assertThat(updated.getLevel()).isEqualTo(100);
         assertThat(updated.getEnhancementLevel()).isZero();
         assertThat(updated.isBound()).isTrue();
-        assertThat(updated.getPrice()).isEqualTo(2500);
+        assertThat(updated.getPrice()).isEqualTo(2500L);
     }
 
     @Test
@@ -340,6 +340,34 @@ class ListingServiceTest {
         assertThat(listingService.searchActiveListings(filter)).isSameAs(expectedPage);
     }
 
+    @Test
+    void acceptsGoldPricesAboveTheOldIntegerLimit() {
+        Currency gold = currency(4L);
+        gold.setName("w grze");
+        mockLookups(server(1L), itemType(2L), rarity(3L), gold);
+        when(listingStatusRepository.findByName("active")).thenReturn(Optional.of(status("active")));
+        when(listingRepository.save(any(Listing.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Listing created = listingService.createListing(priced(6_500_000_000L), user(1L, "user"));
+
+        assertThat(created.getPrice()).isEqualTo(6_500_000_000L);
+    }
+
+    @Test
+    void keepsThePreviousLimitForPlnPrices() {
+        when(itemRepository.findById(9L)).thenReturn(Optional.of(item(9L, "Smoczy miecz", 100, itemType(2L), rarity(3L))));
+        when(currencyRepository.findById(4L)).thenReturn(Optional.of(currency(4L)));
+
+        assertThatThrownBy(() -> listingService.createListing(priced(ListingRequest.MAX_PLN_PRICE + 1), user(1L, "user")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Cena jest zbyt wysoka");
+        verify(listingRepository, never()).save(any(Listing.class));
+    }
+
+    private static ListingRequest priced(long price) {
+        return new ListingRequest(9L, "Smoczy miecz", 2L, 100, 0, true, 3L, price, 4L, 1L, "");
+    }
+
     private void mockLookups(Server server, ItemType itemType, Rarity rarity, Currency currency) {
         when(serverRepository.findById(1L)).thenReturn(Optional.of(server));
         when(itemRepository.findById(9L)).thenReturn(Optional.of(item(9L, "Smoczy miecz", 100, itemType, rarity)));
@@ -351,7 +379,7 @@ class ListingServiceTest {
     }
 
     private static ListingRequest request(String itemName, String contact, Integer enhancementLevel) {
-        return new ListingRequest(9L, itemName, 2L, 100, enhancementLevel, true, 3L, 2500, 4L, 1L, contact);
+        return new ListingRequest(9L, itemName, 2L, 100, enhancementLevel, true, 3L, 2500L, 4L, 1L, contact);
     }
 
     private static User user(Long id, String roleName) {
