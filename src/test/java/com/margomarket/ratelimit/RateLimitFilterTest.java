@@ -1,10 +1,11 @@
 package com.margomarket.ratelimit;
 
+import com.margomarket.user.Role;
+import com.margomarket.user.User;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.margomarket.model.Role;
-import com.margomarket.model.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;

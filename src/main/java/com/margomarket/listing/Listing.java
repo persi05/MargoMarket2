@@ -1,0 +1,111 @@
+package com.margomarket.listing;
+
+import com.margomarket.catalog.Currency;
+import com.margomarket.catalog.Item;
+import com.margomarket.catalog.ItemType;
+import com.margomarket.catalog.Rarity;
+import com.margomarket.catalog.Server;
+import com.margomarket.user.User;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "listings")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Listing {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Version
+    private long version;
+    @Column(name = "sale_mode", nullable = false, length = 10)
+    private String saleMode = "FIXED";
+    @Column(name="listing_kind", nullable=false, length=10)
+    private String listingKind = "ITEM";
+    @Column(name="gold_amount")
+    private Long goldAmount;
+    @Column(name="price_minor")
+    private Long priceMinor;
+    @Column(name="gold_rate_mode", length=20)
+    private String goldRateMode;
+    @Column(name="rate_gold_units")
+    private Long rateGoldUnits;
+    @Column(name="rate_price_minor")
+    private Long ratePriceMinor;
+    @Column(length=2000)
+    private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "item_name", nullable = false, length = 255)
+    private String itemName;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "item_id")
+    private Item item;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "item_type_id")
+    private ItemType itemType;
+
+    @Column
+    private Integer level;
+
+    @Column(name = "enhancement_level", nullable = false)
+    private Integer enhancementLevel = 0;
+
+    @Column(name = "is_bound", nullable = false)
+    private boolean bound = false;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "rarity_id")
+    private Rarity rarity;
+
+    @Column
+    private Long price;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "currency_id", nullable = false)
+    private Currency currency;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "server_id", nullable = false)
+    private Server server;
+
+    @Column(nullable = false, length = 255)
+    private String contact;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "status_id", nullable = false)
+    private ListingStatus status;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "sold_at")
+    private LocalDateTime soldAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    public boolean isActive() {
+        return "active".equals(status.getName());
+    }
+
+    public boolean isSold() {
+        return "sold".equals(status.getName());
+    }
+
+}

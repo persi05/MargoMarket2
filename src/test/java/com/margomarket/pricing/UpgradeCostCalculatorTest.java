@@ -1,10 +1,12 @@
 package com.margomarket.pricing;
 
+import com.margomarket.pricing.UpgradeCostCalculator.UpgradeCost;
+
+import com.margomarket.catalog.Server;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.margomarket.model.Server;
-import com.margomarket.pricing.UpgradeCostCalculator.UpgradeCost;
 import org.junit.jupiter.api.Test;
 
 class UpgradeCostCalculatorTest {

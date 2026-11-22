@@ -1,5 +1,7 @@
 package com.margomarket.pricing;
 
+import com.margomarket.catalog.Rarity;
+
 import java.util.Optional;
 
 /**

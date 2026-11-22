@@ -1,0 +1,155 @@
+package com.margomarket.listing;
+
+import com.margomarket.user.User;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ListingRepository extends JpaRepository<Listing, Long>, org.springframework.data.jpa.repository.JpaSpecificationExecutor<Listing> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT l FROM Listing l WHERE l.id=:id")
+    Optional<Listing> findLockedById(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    @Query("SELECT l FROM Listing l WHERE l.id IN :ids")
+    List<Listing> findDetailedByIds(@Param("ids") List<Long> ids);
+    @Override
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    Page<Listing> findAll(org.springframework.data.jpa.domain.Specification<Listing> specification, Pageable pageable);
+
+    @Query(value="SELECT EXISTS (SELECT 1 FROM exchange_confirmations WHERE listing_id = :id)", nativeQuery=true)
+    boolean hasExchangeConfirmation(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    @Query("SELECT l FROM Listing l WHERE l.user.id = :id AND l.status.name = 'active' ORDER BY l.createdAt DESC, l.id DESC")
+    Page<Listing> findPublicActive(@Param("id") Long id, Pageable pageable);
+
+    @Query(value = """
+        SELECT COUNT(*),
+               COUNT(*) FILTER (WHERE status.name = 'active'),
+               COUNT(*) FILTER (WHERE status.name = 'sold')
+        FROM listings listing
+        JOIN listing_statuses status ON status.id = listing.status_id
+        WHERE listing.user_id = :userId
+        """, nativeQuery = true)
+    List<Object[]> countUserListingsByStatus(@Param("userId") Long userId);
+
+    @Query(value = """
+        SELECT listing.user_id,
+               COUNT(*),
+               COUNT(*) FILTER (WHERE status.name = 'active'),
+               COUNT(*) FILTER (WHERE status.name = 'sold')
+        FROM listings listing
+        JOIN listing_statuses status ON status.id = listing.status_id
+        WHERE listing.user_id IN (:userIds)
+        GROUP BY listing.user_id
+        """, nativeQuery = true)
+    List<Object[]> countUserListingsByStatusForUsers(@Param("userIds") List<Long> userIds);
+
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    @Query(value = """
+        SELECT l
+        FROM Listing l
+        WHERE l.user = :user
+        ORDER BY
+          CASE
+            WHEN l.status.name = 'active' THEN 0
+            WHEN l.status.name = 'sold' THEN 1
+            ELSE 2
+          END,
+          l.createdAt DESC,
+          l.id DESC
+        """, countQuery = "SELECT COUNT(l) FROM Listing l WHERE l.user = :user")
+    Page<Listing> findByUserSortedByStatusAndCreatedAtDesc(@Param("user") User user, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    @Query("SELECT l FROM Listing l WHERE l.id = :id")
+    Optional<Listing> findByIdWithDetails(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    @Query("""
+        SELECT l
+        FROM Listing l
+        WHERE l.status.name = 'active' AND l.saleMode = 'FIXED'
+          AND LOWER(l.itemName) LIKE LOWER(CONCAT('%', :search, '%'))
+          AND (:serverId IS NULL OR l.server.id = :serverId)
+          AND (:itemTypeId IS NULL OR l.itemType.id = :itemTypeId)
+          AND (:rarityId IS NULL OR l.rarity.id = :rarityId)
+          AND (:bound IS NULL OR l.bound = :bound)
+          AND (:currencyId IS NULL OR l.currency.id = :currencyId)
+          AND l.level BETWEEN :minLevel AND :maxLevel
+        ORDER BY l.createdAt DESC
+        """)
+        Page<Listing> findActiveListingsFiltered(
+            @Param("search") String search,
+            @Param("serverId") Long serverId,
+            @Param("itemTypeId") Long itemTypeId,
+            @Param("rarityId") Long rarityId,
+            @Param("bound") Boolean bound,
+            @Param("currencyId") Long currencyId,
+            @Param("minLevel") int minLevel,
+            @Param("maxLevel") int maxLevel,
+            Pageable pageable
+    );
+
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    @Query("""
+        SELECT l
+        FROM Listing l
+        WHERE l.status.name = 'active' AND l.saleMode = 'FIXED'
+          AND (:serverId IS NULL OR l.server.id = :serverId)
+          AND (:itemTypeId IS NULL OR l.itemType.id = :itemTypeId)
+          AND (:rarityId IS NULL OR l.rarity.id = :rarityId)
+          AND (:bound IS NULL OR l.bound = :bound)
+          AND (:currencyId IS NULL OR l.currency.id = :currencyId)
+          AND l.level BETWEEN :minLevel AND :maxLevel
+        ORDER BY l.createdAt DESC
+        """)
+    Page<Listing> findActiveListingsFilteredWithoutSearch(
+            @Param("serverId") Long serverId,
+            @Param("itemTypeId") Long itemTypeId,
+            @Param("rarityId") Long rarityId,
+            @Param("bound") Boolean bound,
+            @Param("currencyId") Long currencyId,
+            @Param("minLevel") int minLevel,
+            @Param("maxLevel") int maxLevel,
+            Pageable pageable
+    );
+
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    @Query("""
+        SELECT l
+        FROM Listing l
+        WHERE LOWER(l.itemName) LIKE LOWER(CONCAT('%', :search, '%'))
+          AND (:serverId IS NULL OR l.server.id = :serverId)
+          AND (:statusName IS NULL OR l.status.name = :statusName)
+        ORDER BY l.createdAt DESC
+        """)
+    Page<Listing> findAllListingsAdmin(
+            @Param("search") String search,
+            @Param("serverId") Long serverId,
+            @Param("statusName") String statusName,
+            Pageable pageable
+    );
+
+    @EntityGraph(attributePaths = {"user", "item", "itemType", "rarity", "currency", "server", "status"})
+    @Query("""
+        SELECT l
+        FROM Listing l
+        WHERE (:serverId IS NULL OR l.server.id = :serverId)
+          AND (:statusName IS NULL OR l.status.name = :statusName)
+        ORDER BY l.createdAt DESC
+        """)
+    Page<Listing> findAllListingsAdminWithoutSearch(
+            @Param("serverId") Long serverId,
+            @Param("statusName") String statusName,
+            Pageable pageable
+    );
+}

@@ -1,6 +1,6 @@
 package com.margomarket.pricing;
 
-import com.margomarket.model.Server;
+import com.margomarket.catalog.Server;
 
 import java.math.BigInteger;
 import java.math.RoundingMode;

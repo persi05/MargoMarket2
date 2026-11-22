@@ -69,6 +69,14 @@ Pełny raport: artefakt **jacoco-report** (otwórz index.html).
           path: target/site/jacoco/
           if-no-files-found: warn
           retention-days: 14
+      - name: Upload module diagrams
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: module-docs
+          path: target/spring-modulith-docs/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload backend build
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

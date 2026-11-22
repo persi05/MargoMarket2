@@ -1,6 +1,7 @@
 package com.margomarket.security;
 
-import com.margomarket.model.User;
+import com.margomarket.user.User;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
