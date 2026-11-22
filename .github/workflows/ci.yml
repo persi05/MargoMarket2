@@ -108,7 +108,8 @@ jobs:
 
   e2e:
     name: End-to-end test (Playwright)
-    runs-on: ubuntu-latest
+    # Playwright installs browser system packages only for Ubuntu releases it knows.
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     defaults:
       run:
@@ -134,7 +135,7 @@ jobs:
           CI: 'true'
       - name: Backend logs on failure
         if: failure()
-        run: docker logs margomarket-e2e-api --tail 200
+        run: docker logs margomarket-e2e-api --tail 200 || true
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
