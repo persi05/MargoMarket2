@@ -33,10 +33,32 @@ describe('Seller reviews', () => {
     fixture.detectChanges();
     expect(el.querySelector('.score strong')!.textContent).toBe('4,5');
     expect(el.querySelector('.score')!.textContent).toContain('2 opinie · 100% pozytywnych');
+    // The list starts folded so it does not hide the seller's listings.
+    const toggle = el.querySelector('.toggle') as HTMLButtonElement;
+    expect(el.querySelectorAll('.review').length).toBe(0);
+    expect(toggle.textContent).toContain('Pokaż opinie (2)');
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(toggle.textContent).toContain('Ukryj opinie');
     expect(el.querySelectorAll('.review').length).toBe(2);
     expect(el.textContent).toContain('Szybko i uczciwie');
     expect(el.querySelector('.review a')!.getAttribute('href')).toBe('/u/3/profil');
     expect(el.querySelector('.link-button')).toBeNull();
+  });
+
+  it('loads the next page of reviews inside the opened list', () => {
+    const {fixture, http, el} = render();
+    http.expectOne(url).flush({...data, reviews: {...data.reviews, totalElements: 12, totalPages: 2, last: false}});
+    fixture.detectChanges();
+    (el.querySelector('.toggle') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const buttons = el.querySelectorAll('mm-pagination button');
+    (buttons[buttons.length - 1] as HTMLButtonElement).click();
+    http.expectOne(environment.apiUrl + '/profiles/7/reviews?page=2').flush({...data, reviews: {...data.reviews, page: 2, first: false, last: true}});
+    fixture.detectChanges();
+    expect(el.querySelector('.toggle')!.getAttribute('aria-expanded')).toBe('true');
   });
 
   it('says when a seller has no reviews yet', () => {
@@ -51,6 +73,8 @@ describe('Seller reviews', () => {
   it('lets an admin hide a review with a reason', () => {
     const {fixture, http, el} = render(true);
     http.expectOne(url).flush(data);
+    fixture.detectChanges();
+    (el.querySelector('.toggle') as HTMLButtonElement).click();
     fixture.detectChanges();
     (el.querySelector('.link-button') as HTMLButtonElement).click();
     fixture.detectChanges();

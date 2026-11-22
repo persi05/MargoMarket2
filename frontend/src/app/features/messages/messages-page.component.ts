@@ -6,7 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
-import { ChatMessageResponse, ConversationReportReason, ConversationResponse, ListingResponse, PageResponse, UserResponse } from '../../core/models/api.models';
+import { ChatMessageResponse, ConversationReportReason, ConversationResponse, ListingResponse, PageResponse, PendingReview, UserResponse } from '../../core/models/api.models';
+import { ReviewService } from '../../core/services/review.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ChatRealtimeService } from '../../core/services/chat-realtime.service';
 import { ConversationService } from '../../core/services/conversation.service';
@@ -77,9 +78,30 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   protected error = '';
   protected sendError = '';
 
+  private readonly reviews = inject(ReviewService);
+  /** Confirmed exchanges the current user bought in and can still review. */
+  protected pendingReviews: PendingReview[] = [];
+
   constructor() {
     this.authService.user$.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(user => this.currentUser = user);
+      .subscribe(user => {
+        const changed = user?.id !== this.currentUser?.id;
+        this.currentUser = user;
+        if (changed) this.loadPendingReviews();
+      });
+  }
+
+  private loadPendingReviews(): void {
+    this.pendingReviews = [];
+    if (!this.currentUser || this.adminAll) return;
+    this.reviews.pending().pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: pending => this.pendingReviews = pending, error: () => this.pendingReviews = [] });
+  }
+
+  /** The review the buyer can still leave for this conversation, if any. */
+  protected reviewFor(conversation: ConversationResponse): PendingReview | null {
+    if (this.currentUser?.id !== conversation.buyerId) return null;
+    return this.pendingReviews.find(p => p.conversationId === conversation.id) ?? null;
   }
 
   ngOnInit(): void {
@@ -332,7 +354,7 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   protected confirmExchange(): void {
     if (!this.selected || this.closeBusy) return;
     this.closeBusy=true;
-    this.conversationsService.confirmExchange(this.selected.id).pipe(finalize(()=>this.closeBusy=false)).subscribe({next:c=>{this.selected=c;this.loadInbox(true);this.refreshMessages(c.id)},error:e=>this.closeNotice=e.error?.message || 'Nie udało się potwierdzić wymiany.'});
+    this.conversationsService.confirmExchange(this.selected.id).pipe(finalize(()=>this.closeBusy=false)).subscribe({next:c=>{this.selected=c;this.loadPendingReviews();this.loadInbox(true);this.refreshMessages(c.id)},error:e=>this.closeNotice=e.error?.message || 'Nie udało się potwierdzić wymiany.'});
   }
   protected finishClose(markSold: boolean): void {
     if (!this.canCloseExchange || !this.selected || this.closeBusy) return;

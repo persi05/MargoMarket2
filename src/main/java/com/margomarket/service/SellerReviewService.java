@@ -39,7 +39,7 @@ public class SellerReviewService {
     @Transactional(readOnly = true)
     public List<PendingReview> pending(User buyer) {
         var rows = jdbc.queryForList("""
-                SELECT c.id,c.seller_id,c.listing_id,c.confirmed_at,l.item_name FROM exchange_confirmations c
+                SELECT c.id,c.conversation_id,c.seller_id,c.listing_id,c.confirmed_at,l.item_name FROM exchange_confirmations c
                 LEFT JOIN listings l ON l.id=c.listing_id
                 WHERE c.buyer_id=? AND c.seller_id IS NOT NULL AND c.revoked_at IS NULL
                   AND c.confirmed_at>clock_timestamp()-make_interval(secs=>?)
@@ -50,7 +50,7 @@ public class SellerReviewService {
         return rows.stream().map(r -> {
             Instant confirmed = instant(r.get("confirmed_at"));
             long seller = number(r.get("seller_id"));
-            return new PendingReview(number(r.get("id")), seller, names.getOrDefault(seller, "Gracz " + seller), itemName(r),
+            return new PendingReview(number(r.get("id")), r.get("conversation_id") == null ? null : number(r.get("conversation_id")), seller, names.getOrDefault(seller, "Gracz " + seller), itemName(r),
                     confirmed, confirmed.plus(REVIEW_WINDOW));
         }).toList();
     }

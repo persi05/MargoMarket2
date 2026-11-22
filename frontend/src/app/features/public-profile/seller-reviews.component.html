@@ -15,7 +15,12 @@
           }
         </ul>
       </div>
-      <ul class="list">
+      <button type="button" class="toggle mm-button secondary" (click)="toggle()" [attr.aria-expanded]="expanded()" aria-controls="seller-review-list">
+        {{ expanded() ? 'Ukryj opinie' : 'Pokaż opinie (' + d.summary.count + ')' }}
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" [class.open]="expanded()"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
+      @if (expanded()) {
+      <ul class="list" id="seller-review-list">
         @for (review of d.reviews.content; track review.id) {
           <li class="review">
             <div class="review-head">
@@ -42,6 +47,7 @@
         }
       </ul>
       <mm-pagination [page]="d.reviews" [loading]="loading()" (pageChange)="load(sellerId(), $event)" />
+      }
     } @else {
       <p class="empty">Ten sprzedawca nie ma jeszcze opinii.</p>
     }

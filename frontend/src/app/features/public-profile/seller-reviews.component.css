@@ -23,3 +23,7 @@ h2 { font-size: 1.2rem; }
 .link-button { margin-top: 8px; padding: 0; border: 0; background: none; color: var(--color-text-muted); text-decoration: underline; cursor: pointer; font: inherit; font-size: .85rem; }
 .empty, .note { color: var(--color-text-muted); }
 .note { font-size: .9rem; }
+.toggle { margin-top: 14px; }
+.toggle svg { transition: transform .15s ease; }
+.toggle svg.open { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .toggle svg { transition: none; } }

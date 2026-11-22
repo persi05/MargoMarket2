@@ -154,6 +154,15 @@
         }
 
         @if (!adminAll && conversation.closedAt) {
+          @if (reviewFor(conversation); as review) {
+            <div class="review-prompt" role="status">
+              <div>
+                <strong>Wymiana potwierdzona przez pośrednika</strong>
+                <p>Oceń sprzedawcę {{ review.sellerDisplayName }}. Opinia pomoże innym kupującym. Masz czas do {{ review.reviewableUntil | date: 'dd.MM.yyyy' }}.</p>
+              </div>
+              <a class="mm-button" routerLink="/reviews">Oceń sprzedawcę</a>
+            </div>
+          }
           <div class="contact-panel">
             <div class="contact-panel-copy">
               <strong>Wymiana zakończona</strong>

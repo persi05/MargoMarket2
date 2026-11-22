@@ -61,7 +61,10 @@ class SellerReviewIT {
     @Test
     void buyerReviewsConfirmedExchangeOnceAndSellerIsNotified() {
         long confirmation = confirmedExchange(seller, buyer);
-        assertThat(reviews.pending(buyer)).extracting(p -> p.confirmationId()).containsExactly(confirmation);
+        assertThat(reviews.pending(buyer)).singleElement().satisfies(p -> {
+            assertThat(p.confirmationId()).isEqualTo(confirmation);
+            assertThat(p.conversationId()).isEqualTo(jdbc.queryForObject("SELECT conversation_id FROM exchange_confirmations WHERE id=?", Long.class, confirmation));
+        });
 
         var review = reviews.create(buyer, new CreateReviewRequest(confirmation, 5, "  Szybka i uczciwa wymiana  "));
         assertThat(review.comment()).isEqualTo("Szybka i uczciwa wymiana");

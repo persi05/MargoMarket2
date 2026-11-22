@@ -32,6 +32,8 @@ export class SellerReviewsComponent {
   protected readonly data = signal<SellerReviewsResponse | null>(null);
   protected readonly loading = signal(false);
   protected readonly error = signal('');
+  /** The list is folded by default so many reviews do not push the seller's listings down. */
+  protected readonly expanded = signal(false);
   protected hiding: SellerReview | null = null;
   protected hideReason = '';
   protected hideError = '';
@@ -42,7 +44,7 @@ export class SellerReviewsComponent {
   constructor() {
     effect(() => {
       const id = this.sellerId();
-      untracked(() => this.load(id, 1));
+      untracked(() => { this.expanded.set(false); this.load(id, 1); });
     });
   }
 
@@ -55,6 +57,8 @@ export class SellerReviewsComponent {
       error: () => { if (generation === this.generation) { this.error.set('Nie udało się pobrać opinii.'); this.loading.set(false); } }
     });
   }
+
+  protected toggle(): void { this.expanded.update(open => !open); }
 
   protected average(value: number | null): string {
     return value === null ? '–' : value.toFixed(1).replace('.', ',');

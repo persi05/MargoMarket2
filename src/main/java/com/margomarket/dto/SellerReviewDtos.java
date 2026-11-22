@@ -10,7 +10,7 @@ public final class SellerReviewDtos {
 
     public record HideReviewRequest(String reason) {}
 
-    public record PendingReview(long confirmationId, long sellerId, String sellerDisplayName, String itemName,
+    public record PendingReview(long confirmationId, Long conversationId, long sellerId, String sellerDisplayName, String itemName,
                                 Instant confirmedAt, Instant reviewableUntil) {}
 
     public record SellerReviewResponse(long id, int rating, String comment, long buyerId, String buyerDisplayName,
