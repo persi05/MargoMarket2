@@ -152,7 +152,7 @@ public class ListingService {
         if (listing.isSold()) {
             return listing;
         }
-        if ("GOLD".equals(listing.getListingKind()) && !listing.isActive()) throw new IllegalArgumentException("Oferta z?ota nie jest aktywna");
+        if ("GOLD".equals(listing.getListingKind()) && !listing.isActive()) throw new IllegalArgumentException("Oferta złota nie jest aktywna");
         listing.setStatus(getStatus("sold"));
         listing.setSoldAt(LocalDateTime.now());
         auctionPolicy.declaredSold(listing,currentUser.getId());

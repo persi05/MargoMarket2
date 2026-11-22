@@ -111,8 +111,11 @@ public class GlobalExceptionHandler {
                 .body(ApiError.of(404, "Not Found", "Nie znaleziono zasobu"));
     }
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> unexpected(Exception exception) {
+        log.error("Unexpected error while handling a request", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiError.of(500, "Internal Server Error", "Wystąpił nieoczekiwany błąd serwera"));
     }

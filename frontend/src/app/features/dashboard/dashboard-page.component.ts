@@ -97,8 +97,8 @@ export class DashboardPageComponent {
         this.notice = `${listing.itemName} oznaczono jako sprzedane.`;
         this.reload();
       },
-      error: () => {
-        this.notice = 'Nie udało się oznaczyć ogłoszenia.';
+      error: (response: { error?: { message?: string } }) => {
+        this.notice = response.error?.message || 'Nie udało się oznaczyć ogłoszenia.';
       }
     });
   }
