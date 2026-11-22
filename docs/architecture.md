@@ -5,6 +5,24 @@ biznesowych. Granice modułów sprawdza Spring Modulith (`spring-modulith` 1.2).
 Każdy pakiet bezpośrednio pod `com.margomarket` jest modułem. Moduł trzyma
 u siebie encje, repozytoria, serwisy, DTO i kontrolery swojego obszaru.
 
+Moduł ma dwie części:
+
+- **pakiet główny** (np. `com.margomarket.user`) to jego publiczne API, czyli
+  to, czego mogą używać inne moduły;
+- **podpakiety** (zwykle `internal`, w `listing` także `gold`, `comment`,
+  `auction`) to jego wnętrze: repozytoria, kontrolery, mappery, encje
+  i serwisy, z których korzysta tylko ten moduł.
+
+```
+user/
+  UserDirectory.java      publiczne API: wyszukiwanie użytkowników dla innych modułów
+  UserService.java        publiczne API
+  User.java               encja publiczna, bo inne moduły mają do niej relacje JPA
+  internal/
+    UserRepository.java   tylko dla modułu user
+    RoleRepository.java, Role.java, ...
+```
+
 ## Moduły
 
 | Moduł | Pakiet | Zawartość | Może zależeć od |
@@ -26,23 +44,60 @@ u siebie encje, repozytoria, serwisy, DTO i kontrolery swojego obszaru.
 | Monitoring | `monitoring` | health check i metryki Actuatora | — (czyta bazę bezpośrednio) |
 
 Dozwolone zależności są zapisane w `package-info.java` każdego modułu
-(`@ApplicationModule(allowedDependencies = …)`). Podpakiety modułu są jego
-wnętrzem. Jedyny podpakiet udostępniony innym modułom to `listing.auction`,
-nazwany interfejs `listing::auction`. Rozmowy rozliczają przez niego
-zakończone aukcje.
+(`@ApplicationModule(allowedDependencies = …)`).
+
+## Publiczne API modułów
+
+| Moduł | Publiczne API |
+|---|---|
+| `user` | `UserDirectory` (referencja, zweryfikowane konto, nazwy publiczne), `UserService`, `User`, `PublicNames`, `UserResponse`, żądania dotyczące konta |
+| `catalog` | `Catalog` (przedmiot, świat, waluta, lista światów), encje `Item`, `ItemType`, `Rarity`, `Server`, `Currency`, a także `WorldType`, `ItemRules`, `LookupResponse` |
+| `listing` | `ListingService`, `ListingQueries` (wyszukiwanie dla admina, ogłoszenia na profilu, blokada wiersza), `UserListingStats`, `Listing`, `ListingStatus`, `ListingSoldEvent`, DTO ogłoszeń |
+| `listing::auction` | `AuctionSettlement` (blokada aukcji, wpis w historii, powiadomienie stron na żywo), `AuctionListingPolicy` |
+| `moderation` | `UserModerationService`, `ModerationScope`, `UserRestrictedException`, `UserModerationChanged` |
+| `conversation` | `ExchangeConfirmed` |
+| `notification` | `NotificationService` |
+| `ratelimit` | `RateLimiter`, `RateLimitFilter`, `LoginAttemptGuard` |
+| `security` | `JwtService` |
+| `textmoderation` | `TextModerationService` |
+| `pricing`, `profile`, `review`, `admin`, `monitoring` | brak, inne moduły z nich nie korzystają |
+
+`listing::auction` to nazwany interfejs: z pakietu `listing.auction` inne
+moduły widzą tylko klasy oznaczone `@NamedInterface("auction")`. Rozmowy
+rozliczają przez nie zakończone aukcje.
+
+Encje `User`, `Listing`, `ListingStatus` i encje katalogu są publiczne tylko
+dlatego, że inne moduły mają do nich relacje JPA. Gdy te relacje zastąpią same
+identyfikatory, encje też trafią do `internal`.
 
 ## Jak moduły się komunikują
 
-- **Wywołanie publicznego serwisu.** Przykład: `listing` sprawdza ograniczenia
-  przez `UserModerationService`.
-- **Zdarzenia.** Używamy ich tam, gdzie bezpośrednie wywołanie tworzyłoby cykl
-  albo odwracało kierunek zależności:
-  - `moderation.UserModerationChanged`: po zmianie blokady `conversation`
-    odświeża otwarte strony użytkownika i zamyka sesje WebSocket
-    zablokowanego konta (po commicie).
-  - `conversation.ExchangeConfirmed`: po potwierdzeniu wymiany `review` wysyła
-    kupującemu zaproszenie do opinii. Słuchacz działa w tej samej transakcji.
-  - `listing.ListingSoldEvent`: powiadomienie o sprzedaży.
+- **Wywołanie publicznego API.** Przykład: `listing` sprawdza ograniczenia
+  przez `UserModerationService`, a przedmioty i światy pobiera przez `Catalog`.
+  Żaden moduł nie używa cudzych repozytoriów ani mapperów.
+- **Zdarzenia z outboxem.** Używamy ich tam, gdzie bezpośrednie wywołanie
+  tworzyłoby cykl albo odwracało kierunek zależności. Także tam, gdzie skutek
+  uboczny (powiadomienie, komunikat na żywo) nie powinien cofać głównej
+  operacji:
+  - `moderation.UserModerationChanged`: `conversation` odświeża otwarte strony
+    użytkownika i zamyka sesje WebSocket zablokowanego konta;
+  - `conversation.ExchangeConfirmed`: `review` zaprasza kupującego do opinii;
+  - `listing.ListingSoldEvent`: powiadomienia o sprzedaży dla sprzedawcy
+    i obserwujących.
+
+  Słuchacze mają `@ApplicationModuleListener`. Zdarzenie zapisuje się w tabeli
+  `event_publication` (migracja V36) w tej samej transakcji, w której zostało
+  opublikowane, osobno dla każdego słuchacza. Po commicie słuchacz działa
+  asynchronicznie we własnej transakcji. Po udanej obsłudze wpis dostaje
+  `completion_date`. Wycofana transakcja nie publikuje niczego.
+
+  Gdy słuchacz rzuci wyjątek, główna operacja zostaje zapisana, a zdarzenie
+  czeka w tabeli. `EventPublicationMaintenance` co 5 minut ponawia zdarzenia
+  nieobsłużone od ponad 5 minut. Po restarcie aplikacji ponawiane są wszystkie
+  niedokończone. Obsłużone wpisy są usuwane po 7 dniach. Przez ponowienia
+  słuchacz może dostać to samo zdarzenie więcej niż raz. Dlatego powiadomienia
+  (zaproszenie do opinii, sprzedaż) mają klucz zdarzenia (`event_key`)
+  i drugi raz się nie zapisują.
 - **Obsługa błędów.** Każdy moduł tłumaczy własne wyjątki we własnym
   `@RestControllerAdvice` z `@Order(GlobalExceptionHandler.MODULE_HANDLERS)`.
   `GlobalExceptionHandler` obsługuje tylko błędy wspólne. Format odpowiedzi
@@ -57,8 +112,15 @@ Granice pilnują zależności w kodzie, a nie dostępu do tabel.
 `ModuleStructureTest` (zwykły test jednostkowy, uruchamiany też w CI):
 
 - `ApplicationModules.verify()` przerywa build przy cyklu między modułami,
-  przy użyciu wewnętrznego typu innego modułu albo przy zależności spoza
-  `allowedDependencies`.
+  przy użyciu wewnętrznego typu innego modułu (czegokolwiek z jego
+  podpakietów) albo przy zależności spoza `allowedDependencies`.
+- Repozytoria, kontrolery i klasy `@RestControllerAdvice` nie mogą leżeć
+  w pakiecie głównym modułu, czyli w jego publicznym API.
+- Publiczne mogą być tylko encje z listy `SHARED_ENTITIES`, czyli te, do
+  których inne moduły mają relacje JPA.
+
+`EventPublicationIT` sprawdza outbox: zapis zdarzenia razem z transakcją,
+brak publikacji po wycofaniu i ponowienie po błędzie słuchacza.
 - `Documenter` zapisuje diagramy PlantUML i opisy modułów do
   `target/spring-modulith-docs` (`components.puml`, `module-*.puml`,
   `all-docs.adoc`).
@@ -68,12 +130,17 @@ Mapa modułów jest też dostępna w działającej aplikacji pod
 
 ## Dodawanie kodu
 
-1. Nowa klasa trafia do modułu swojego obszaru, a nie do warstwy technicznej.
-2. Potrzebujesz czegoś z innego modułu? Użyj jego publicznego serwisu z pakietu
-   bazowego. Jeśli tej zależności nie ma w `allowedDependencies`, dopisz ją
-   świadomie albo opublikuj zdarzenie.
+1. Nowa klasa trafia do modułu swojego obszaru, domyślnie do jego pakietu
+   `internal`. Do pakietu głównego trafia tylko to, czego potrzebują inne
+   moduły.
+2. Potrzebujesz czegoś z innego modułu? Użyj jego publicznego API. Jeśli
+   czegoś brakuje, dodaj metodę do publicznej klasy tamtego modułu (np.
+   `Catalog`, `UserDirectory`, `ListingQueries`), zamiast udostępniać
+   repozytorium. Jeśli tej zależności nie ma w `allowedDependencies`, dopisz
+   ją świadomie albo opublikuj zdarzenie.
 3. Gdy moduł A musiałby wołać B, a B już zależy od A, opublikuj zdarzenie w A
-   i obsłuż je w B.
+   i obsłuż je w B metodą z `@ApplicationModuleListener`. Słuchacz musi
+   znieść ponowne dostarczenie tego samego zdarzenia.
 
 ## Monitoring
 
@@ -104,7 +171,9 @@ Metryki biznesowe (odświeżane co najwyżej co 30 s jednym zapytaniem):
 - `margomarket_listings_active{kind="item"|"gold"}`: aktywne ogłoszenia z ceną stałą,
 - `margomarket_conversations_open`: otwarte rozmowy,
 - `margomarket_reports_open{type="conversation"|"auction"}`: zgłoszenia czekające na moderatora,
-- `margomarket_fulfillments_disputed`: sporne rozliczenia aukcji.
+- `margomarket_fulfillments_disputed`: sporne rozliczenia aukcji,
+- `margomarket_events_incomplete`: zdarzenia między modułami nieobsłużone od
+  ponad minuty (słuchacz rzucił wyjątek i zdarzenie czeka na ponowienie).
 
 Składnik zdrowia `auctionClosing` jest `DOWN`, gdy aktywna aukcja jest
 otwarta dłużej niż 2 minuty po czasie zakończenia. Oznacza to, że

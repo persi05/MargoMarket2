@@ -1,6 +1,6 @@
 package com.margomarket.shared;
 
-import com.margomarket.catalog.ItemCatalogImporter;
+import com.margomarket.catalog.internal.ItemCatalogImporter;
 import com.margomarket.listing.auction.AuctionScheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;

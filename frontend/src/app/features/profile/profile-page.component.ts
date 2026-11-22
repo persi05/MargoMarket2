@@ -45,7 +45,7 @@ export class ProfilePageComponent {
         this.displayNameForm.controls.displayName.setValue(user.displayName || user.username);
       }
     });
-    this.auth.refreshMe().subscribe({ error: () => { /* Zachowaj dane zapisane w sesji. */ } });
+    this.auth.refreshMe().subscribe({ error: () => { /* Keep the user data saved in the session. */ } });
   }
 
   get initial(): string {

@@ -1,6 +1,9 @@
 package com.margomarket.textmoderation;
 
-import com.margomarket.textmoderation.BlockedWord.MatchMode;
+import com.margomarket.textmoderation.internal.BlockedWord;
+import com.margomarket.textmoderation.internal.BlockedWordRepository;
+import com.margomarket.textmoderation.internal.BlockedWordRequest;
+import com.margomarket.textmoderation.internal.BlockedWord.MatchMode;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

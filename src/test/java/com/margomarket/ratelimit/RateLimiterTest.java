@@ -1,5 +1,7 @@
 package com.margomarket.ratelimit;
 
+import com.margomarket.ratelimit.internal.RateLimitPolicy;
+import com.margomarket.ratelimit.internal.RateLimitProperties;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;

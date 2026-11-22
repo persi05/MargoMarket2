@@ -1,5 +1,7 @@
 package com.margomarket.ratelimit;
 
+import com.margomarket.ratelimit.internal.RateLimitExceededException;
+import com.margomarket.ratelimit.internal.RateLimitPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

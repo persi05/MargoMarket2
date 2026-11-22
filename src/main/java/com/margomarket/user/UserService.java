@@ -1,5 +1,9 @@
 package com.margomarket.user;
 
+import com.margomarket.user.internal.EmailAlreadyUsedException;
+import com.margomarket.user.internal.Role;
+import com.margomarket.user.internal.RoleRepository;
+import com.margomarket.user.internal.UserRepository;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.shared.NotFoundException;
 import com.margomarket.textmoderation.TextModerationService;

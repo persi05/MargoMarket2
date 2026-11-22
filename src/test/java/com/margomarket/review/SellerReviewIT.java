@@ -1,17 +1,19 @@
 package com.margomarket.review;
 
-import com.margomarket.review.SellerReviewDtos.CreateReviewRequest;
+import com.margomarket.review.internal.SellerReviewService;
+import com.margomarket.review.internal.SellerReviewDtos.CreateReviewRequest;
 
-import com.margomarket.catalog.ItemCatalogImporter;
+import com.margomarket.catalog.internal.ItemCatalogImporter;
 import com.margomarket.listing.auction.AuctionScheduler;
 import com.margomarket.moderation.ModerationScope;
 import com.margomarket.moderation.UserModerationService;
 import com.margomarket.moderation.UserRestrictedException;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.user.User;
-import com.margomarket.user.UserRepository;
+import com.margomarket.user.internal.UserRepository;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -25,9 +27,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.*;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import java.time.Duration;
 import java.util.*;
 
 @SpringBootTest
@@ -54,6 +58,7 @@ class SellerReviewIT {
     @Autowired UserRepository users;
     @Autowired MockMvc mvc;
     @Autowired org.springframework.context.ApplicationEventPublisher events;
+    @Autowired TransactionTemplate transactions;
     User admin, seller, buyer, other;
 
     @BeforeEach
@@ -94,9 +99,12 @@ class SellerReviewIT {
     void confirmedExchangeInvitesTheBuyerToReview() {
         long confirmation = confirmedExchange(seller, buyer);
         long conversation = jdbc.queryForObject("SELECT conversation_id FROM exchange_confirmations WHERE id=?", Long.class, confirmation);
-        events.publishEvent(new com.margomarket.conversation.ExchangeConfirmed(confirmation, conversation, buyer.getId(), seller.getId(), "Miecz"));
-        assertThat(jdbc.queryForObject("SELECT message FROM notifications WHERE user_id=? AND type='REVIEW_AVAILABLE'", String.class, buyer.getId()))
-                .contains("Miecz").contains("30 dni");
+        // Listeners of events between modules run after the publishing transaction commits.
+        transactions.executeWithoutResult(status -> events.publishEvent(
+                new com.margomarket.conversation.ExchangeConfirmed(confirmation, conversation, buyer.getId(), seller.getId(), "Miecz")));
+        await().atMost(Duration.ofSeconds(10)).untilAsserted(() ->
+                assertThat(jdbc.queryForList("SELECT message FROM notifications WHERE user_id=? AND type='REVIEW_AVAILABLE'", String.class, buyer.getId()))
+                        .singleElement().asString().contains("Miecz").contains("30 dni"));
     }
 
     @Test

@@ -1,17 +1,16 @@
 package com.margomarket.listing.gold;
 
 import com.margomarket.catalog.Currency;
-import com.margomarket.catalog.CurrencyRepository;
+import com.margomarket.catalog.Catalog;
 import com.margomarket.catalog.Server;
-import com.margomarket.catalog.ServerRepository;
-import com.margomarket.listing.FavoriteRepository;
+import com.margomarket.listing.internal.FavoriteRepository;
 import com.margomarket.listing.Listing;
-import com.margomarket.listing.ListingRepository;
+import com.margomarket.listing.internal.ListingRepository;
 import com.margomarket.listing.ListingStatus;
-import com.margomarket.listing.ListingStatusRepository;
+import com.margomarket.listing.internal.ListingStatusRepository;
 import com.margomarket.moderation.UserModerationService;
 import com.margomarket.shared.ForbiddenOperationException;
-import com.margomarket.user.Role;
+import com.margomarket.user.internal.Role;
 import com.margomarket.user.User;
 
 import static org.assertj.core.api.Assertions.*;
@@ -24,15 +23,13 @@ import org.springframework.test.util.ReflectionTestUtils;
 class GoldListingServiceTest {
 
     ListingRepository listings = mock(ListingRepository.class);
-    ServerRepository servers = mock(ServerRepository.class);
-    CurrencyRepository currencies = mock(CurrencyRepository.class);
+    Catalog catalog = mock(Catalog.class);
     ListingStatusRepository statuses = mock(ListingStatusRepository.class);
     FavoriteRepository favorites = mock(FavoriteRepository.class);
     GoldListingService service = new GoldListingService(
         mock(UserModerationService.class),
         listings,
-        servers,
-        currencies,
+        catalog,
         statuses,
         favorites
     );
@@ -61,8 +58,8 @@ class GoldListingServiceTest {
         ReflectionTestUtils.setField(service, "enabled", true);
         User owner = new User();
         owner.setId(1L);
-        when(servers.findById(2L)).thenReturn(Optional.of(new Server()));
-        when(currencies.findByNameIgnoreCase("PLN")).thenReturn(Optional.of(new Currency()));
+        when(catalog.server(2L)).thenReturn(Optional.of(new Server()));
+        when(catalog.currencyNamed("PLN")).thenReturn(Optional.of(new Currency()));
         ListingStatus status = new ListingStatus();
         status.setName("active");
         when(statuses.findByName("active")).thenReturn(Optional.of(status));

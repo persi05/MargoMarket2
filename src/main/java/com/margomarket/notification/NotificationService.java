@@ -1,9 +1,10 @@
 package com.margomarket.notification;
 
+import com.margomarket.notification.internal.NotificationRepository;
+import com.margomarket.notification.internal.UserNotification;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.shared.NotFoundException;
 import com.margomarket.user.User;
-import com.margomarket.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,6 @@ public class NotificationService {
     private static final String LISTING_SOLD_TYPE = "LISTING_SOLD";
 
     private final NotificationRepository notificationRepository;
-    private final UserRepository userRepository;
     private final org.springframework.jdbc.core.JdbcTemplate jdbc;
 
     public void auction(long userId,long auctionId,String type,String message,String eventKey) {
@@ -42,19 +42,24 @@ public class NotificationService {
         return notificationRepository.countByUserAndReadFalse(user);
     }
 
+    /**
+     * Tells the seller and everyone watching the listing that it was sold. Each notification has a key
+     * per listing and user, so a repeated delivery of the same sale event adds nothing.
+     */
     @Transactional
-    public List<UserNotification> createListingSoldNotifications(Long ownerId, List<Long> observerIds, String itemName) {
+    public void createListingSoldNotifications(long listingId, long ownerId, List<Long> observerIds, String itemName) {
         String message = "Ogłoszenie \"" + itemName + "\" zostało oznaczone jako sprzedane.";
         Set<Long> recipientIds = new LinkedHashSet<>();
         recipientIds.add(ownerId);
         recipientIds.addAll(observerIds);
+        for (long userId : recipientIds) {
+            jdbc.update("INSERT INTO notifications(user_id,type,message,is_read,created_at,event_key) VALUES (?,?,?,false,clock_timestamp(),?) "
+                    + "ON CONFLICT(event_key) DO NOTHING", userId, LISTING_SOLD_TYPE, message, listingSoldKey(listingId, userId));
+        }
+    }
 
-        List<UserNotification> notifications = recipientIds.stream()
-                .map(userRepository::getReferenceById)
-                .map(user -> new UserNotification(user, LISTING_SOLD_TYPE, message))
-                .toList();
-
-        return notificationRepository.saveAll(notifications);
+    static String listingSoldKey(long listingId, long userId) {
+        return "listing-sold:" + listingId + ":" + userId;
     }
 
     @Transactional

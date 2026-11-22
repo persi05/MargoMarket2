@@ -1,5 +1,6 @@
 package com.margomarket.listing;
 
+import com.margomarket.listing.internal.ListingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

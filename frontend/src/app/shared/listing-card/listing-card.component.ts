@@ -17,16 +17,40 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [ItemPreviewComponent, AsyncPipe, DatePipe, RouterLink, PrivateDetailComponent],
   templateUrl: './listing-card.component.html',
-  styleUrl: './listing-card.component.css'
+  styleUrl: './listing-card.component.css',
 })
 export class ListingCardComponent {
   protected readonly viewer$ = inject(AuthService).user$;
-  private readonly listings=inject(ListingService);
-  protected goldBusy=false;protected goldError='';
-  protected get goldLabel(){return formatGold(this.listing.goldAmount!);}
-  protected get goldRate(){return formatGoldRate(this.listing.goldRateMode,this.listing.rateGoldUnits,this.listing.ratePriceMinor);}
-  protected get goldPrice(){return formatPln(this.listing.priceMinor);}
-  protected withdrawGold(){if(this.goldBusy)return;this.goldBusy=true;this.listings.withdraw(this.listing.id).subscribe({next:l=>{this.listing=l;this.goldBusy=false},error:()=>{this.goldError='Nie udało się zakończyć oferty.';this.goldBusy=false}});}
+  private readonly listings = inject(ListingService);
+  protected goldBusy = false;
+  protected goldError = '';
+  protected get goldLabel() {
+    return formatGold(this.listing.goldAmount!);
+  }
+  protected get goldRate() {
+    return formatGoldRate(
+      this.listing.goldRateMode,
+      this.listing.rateGoldUnits,
+      this.listing.ratePriceMinor,
+    );
+  }
+  protected get goldPrice() {
+    return formatPln(this.listing.priceMinor);
+  }
+  protected withdrawGold() {
+    if (this.goldBusy) return;
+    this.goldBusy = true;
+    this.listings.withdraw(this.listing.id).subscribe({
+      next: (l) => {
+        this.listing = l;
+        this.goldBusy = false;
+      },
+      error: () => {
+        this.goldError = 'Nie udało się zakończyć oferty.';
+        this.goldBusy = false;
+      },
+    });
+  }
 
   @Input({ required: true }) listing!: ListingResponse;
   @Input() showFavorite = false;
@@ -43,7 +67,6 @@ export class ListingCardComponent {
   @Output() sold = new EventEmitter<ListingResponse>();
   @Output() deleteListing = new EventEmitter<ListingResponse>();
 
-
   protected get isActive(): boolean {
     return this.listing.status === 'active';
   }
@@ -52,7 +75,9 @@ export class ListingCardComponent {
     return this.listing.status === 'sold';
   }
 
-  protected get isAuction(): boolean { return this.listing.saleMode === 'AUCTION'; }
+  protected get isAuction(): boolean {
+    return this.listing.saleMode === 'AUCTION';
+  }
 
   protected get priceValue(): string | null {
     if (this.isAuction) {
@@ -65,7 +90,8 @@ export class ListingCardComponent {
   }
 
   protected get statusLabel(): string {
-    if (this.isAuction) return this.listing.auction ? auctionStatus(this.listing.auction.status) : 'Licytacja';
+    if (this.isAuction)
+      return this.listing.auction ? auctionStatus(this.listing.auction.status) : 'Licytacja';
     if (this.listing.status === 'withdrawn') return 'Zakończone bez sprzedaży';
     if (this.listing.status === 'archived') return 'Zarchiwizowane';
     if (this.isActive) {
@@ -92,7 +118,8 @@ export class ListingCardComponent {
   }
 
   protected get enhancementLabel(): string {
-    return hasEnhancementLevel((this.listing.itemType?.name ?? ''), this.listing.itemName) ? `+${this.listing.enhancementLevel}` : '-';
+    return hasEnhancementLevel(this.listing.itemType?.name ?? '', this.listing.itemName)
+      ? `+${this.listing.enhancementLevel}`
+      : '-';
   }
-
 }

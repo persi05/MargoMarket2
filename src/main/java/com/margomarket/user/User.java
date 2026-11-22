@@ -1,5 +1,6 @@
 package com.margomarket.user;
 
+import com.margomarket.user.internal.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -75,6 +76,11 @@ public class User implements UserDetails {
 
     public boolean isAdmin() {
         return "admin".equals(role.getName());
+    }
+
+    /** The role name ("user" or "admin"), so other modules never touch the role entity. */
+    public String roleName() {
+        return role.getName();
     }
 
     @Override

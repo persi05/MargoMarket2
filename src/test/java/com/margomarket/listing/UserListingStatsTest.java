@@ -1,5 +1,6 @@
 package com.margomarket.listing;
 
+import com.margomarket.listing.internal.ListingRepository;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;

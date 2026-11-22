@@ -1,0 +1,163 @@
+package com.margomarket.pricing.internal;
+
+import com.margomarket.catalog.Server;
+import com.margomarket.catalog.WorldType;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalLong;
+
+/**
+ * Suggests prices for +0..+5 of one item on one world from observed samples. Pure logic, no I/O.
+ *
+ * <p>Samples come from the target world's market (all transferable worlds together, otherwise the world alone),
+ * converted to PLN with each sample's own world rates. Samples in the other bound state are turned into the requested
+ * one with the unbinding cost (minus it for a bound price, plus it for an unbound one); without an unbinding cost
+ * only samples in the requested state count. If at least {@link #MIN_SAMPLES} samples in the requested state exist
+ * at exactly +N, the suggestion is their weighted median. Otherwise every sample is reduced to +0 by subtracting its
+ * upgrade cost, the weighted median of those +0 prices is taken and the target world's upgrade cost of +N is added back.
+ */
+public final class PriceSuggestionCalculator {
+    public static final int MIN_SAMPLES = 3;
+    public static final Duration RECENT_WINDOW = Duration.ofDays(180);
+
+    public enum Basis { DIRECT, ESTIMATED, NONE }
+
+    public record Level(int enhancement, Basis basis, Long baseGrosze, Long upgradeGrosze, Long totalGrosze,
+                        Long totalGold, int sampleCount, boolean lowData, boolean upgradeRateMissing,
+                        int convertedSamples) {}
+
+    public record Result(List<Level> levels, boolean recentOnly, List<Long> marketWorldIds) {}
+
+    /** {@code grosze} is already in the requested bound state; {@code converted} marks samples moved there by the unbinding cost. */
+    private record Priced(PriceSample sample, long grosze, boolean converted) {}
+
+    private PriceSuggestionCalculator() {}
+
+    public static Result suggest(String rarity, int itemLevel, Server target, Map<Long, Server> worlds,
+                                 List<PriceSample> samples, boolean bound, Instant now) {
+        return suggest(rarity, itemLevel, target, worlds, samples, bound, true, now);
+    }
+
+    /**
+     * For items that cannot be upgraded (skrytki, torby, talizmany...) every sample counts as +0
+     * and only the +0 level is returned.
+     */
+    public static Result suggest(String rarity, int itemLevel, Server target, Map<Long, Server> worlds,
+                                 List<PriceSample> samples, boolean bound, boolean upgradeable, Instant now) {
+        return suggest(rarity, itemLevel, target, worlds, samples, bound, upgradeable, null, now);
+    }
+
+    /**
+     * @param unbindGrosze price of unbinding this item in grosze; null when bound and unbound prices must not be mixed
+     */
+    public static Result suggest(String rarity, int itemLevel, Server target, Map<Long, Server> worlds,
+                                 List<PriceSample> samples, boolean bound, boolean upgradeable, Long unbindGrosze, Instant now) {
+        List<Long> market = marketWorldIds(target, worlds);
+        List<Priced> priced = new ArrayList<>();
+        for (PriceSample sample : samples) {
+            boolean converted = sample.bound() != bound;
+            if ((converted && unbindGrosze == null) || !market.contains(sample.serverId())) continue;
+            if (!upgradeable && sample.enhancement() != 0)
+                sample = new PriceSample(sample.listingId(), sample.source(), sample.serverId(), 0, sample.bound(),
+                        sample.currency(), sample.amount(), sample.at());
+            Server world = worlds.get(sample.serverId());
+            OptionalLong grosze = sample.currency() == PriceSample.Currency.PLN
+                    ? OptionalLong.of(sample.amount()) : WorldRates.goldToGrosze(sample.amount(), world);
+            if (grosze.isEmpty()) continue;
+            long value = !converted ? grosze.getAsLong() : bound ? grosze.getAsLong() - unbindGrosze : grosze.getAsLong() + unbindGrosze;
+            if (value > 0) priced.add(new Priced(sample, value, converted));
+        }
+        List<Priced> recent = priced.stream().filter(p -> !p.sample().at().isBefore(now.minus(RECENT_WINDOW))).toList();
+        boolean recentOnly = recent.size() >= MIN_SAMPLES;
+        List<Priced> used = recentOnly ? recent : priced;
+
+        List<Level> levels = new ArrayList<>();
+        int maxEnhancement = upgradeable ? UpgradeCostCalculator.MAX_ENHANCEMENT : 0;
+        for (int n = 0; n <= maxEnhancement; n++)
+            levels.add(level(n, rarity, itemLevel, target, worlds, used));
+        return new Result(levels, recentOnly, market);
+    }
+
+    private static Level level(int n, String rarity, int itemLevel, Server target, Map<Long, Server> worlds, List<Priced> samples) {
+        OptionalLong upgrade = UpgradeCostCalculator.cost(rarity, itemLevel, n)
+                .map(cost -> WorldRates.upgradeGrosze(cost, target)).orElse(OptionalLong.empty());
+        Long upgradeGrosze = upgrade.isPresent() ? upgrade.getAsLong() : null;
+
+        List<Weighted> direct = samples.stream().filter(p -> !p.converted() && p.sample().enhancement() == n)
+                .map(p -> new Weighted(p.grosze(), p.sample().source().weight())).toList();
+        if (direct.size() >= MIN_SAMPLES) {
+            long total = weightedMedian(trimOutliers(direct));
+            return new Level(n, Basis.DIRECT, null, upgradeGrosze, total, gold(total, target), direct.size(), false, false, 0);
+        }
+
+        List<Weighted> base = new ArrayList<>();
+        int converted = 0;
+        for (Priced p : samples) {
+            Server world = worlds.get(p.sample().serverId());
+            OptionalLong cost = UpgradeCostCalculator.cost(rarity, itemLevel, p.sample().enhancement())
+                    .map(c -> WorldRates.upgradeGrosze(c, world)).orElse(OptionalLong.empty());
+            if (cost.isEmpty()) continue;
+            long plusZero = p.grosze() - cost.getAsLong();
+            if (plusZero > 0) {
+                base.add(new Weighted(plusZero, p.sample().source().weight()));
+                if (p.converted()) converted++;
+            }
+        }
+        if (base.isEmpty()) {
+            // Fall back to the few direct samples rather than showing nothing.
+            if (direct.isEmpty()) return new Level(n, Basis.NONE, null, upgradeGrosze, null, null, 0, true, upgradeGrosze == null, 0);
+            long total = weightedMedian(direct);
+            return new Level(n, Basis.DIRECT, null, upgradeGrosze, total, gold(total, target), direct.size(), true, false, 0);
+        }
+        long plusZero = weightedMedian(trimOutliers(base));
+        Long total = upgradeGrosze == null ? null : plusZero + upgradeGrosze;
+        return new Level(n, Basis.ESTIMATED, plusZero, upgradeGrosze, total, total == null ? null : gold(total, target),
+                base.size(), base.size() < MIN_SAMPLES, upgradeGrosze == null, converted);
+    }
+
+    public static List<Long> marketWorldIds(Server target, Map<Long, Server> worlds) {
+        if (target.getWorldType() != WorldType.TRANSFERABLE) return List.of(target.getId());
+        return worlds.values().stream().filter(w -> w.getWorldType() == WorldType.TRANSFERABLE)
+                .map(Server::getId).sorted().toList();
+    }
+
+    private static Long gold(long grosze, Server target) {
+        OptionalLong gold = WorldRates.groszeToGold(grosze, target);
+        return gold.isPresent() ? gold.getAsLong() : null;
+    }
+
+    record Weighted(long value, double weight) {}
+
+    /** Drops values outside 1.5 x IQR once there are enough samples to tell. */
+    static List<Weighted> trimOutliers(List<Weighted> values) {
+        if (values.size() < 4) return values;
+        double[] sorted = values.stream().mapToDouble(Weighted::value).sorted().toArray();
+        double q1 = quantile(sorted, 0.25), q3 = quantile(sorted, 0.75), spread = 1.5 * (q3 - q1);
+        return values.stream().filter(w -> w.value() >= q1 - spread && w.value() <= q3 + spread).toList();
+    }
+
+    static long weightedMedian(List<Weighted> values) {
+        List<Weighted> sorted = values.stream().sorted(Comparator.comparingLong(Weighted::value)).toList();
+        double half = sorted.stream().mapToDouble(Weighted::weight).sum() / 2;
+        double cumulative = 0;
+        for (int i = 0; i < sorted.size(); i++) {
+            cumulative += sorted.get(i).weight();
+            if (Math.abs(cumulative - half) < 1e-9 && i + 1 < sorted.size())
+                return Math.round((sorted.get(i).value() + sorted.get(i + 1).value()) / 2.0);
+            if (cumulative > half) return sorted.get(i).value();
+        }
+        return sorted.getLast().value();
+    }
+
+    private static double quantile(double[] sorted, double q) {
+        double position = q * (sorted.length - 1);
+        int lower = (int) Math.floor(position);
+        int upper = (int) Math.ceil(position);
+        return sorted[lower] + (sorted[upper] - sorted[lower]) * (position - lower);
+    }
+}

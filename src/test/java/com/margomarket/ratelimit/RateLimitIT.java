@@ -1,10 +1,10 @@
 package com.margomarket.ratelimit;
 
-import com.margomarket.catalog.ItemCatalogImporter;
+import com.margomarket.catalog.internal.ItemCatalogImporter;
 import com.margomarket.listing.auction.AuctionScheduler;
 import com.margomarket.security.JwtService;
 import com.margomarket.user.User;
-import com.margomarket.user.UserRepository;
+import com.margomarket.user.internal.UserRepository;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

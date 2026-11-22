@@ -1,12 +1,12 @@
 package com.margomarket.listing.comment;
 
 import com.margomarket.listing.Listing;
-import com.margomarket.listing.ListingRepository;
+import com.margomarket.listing.internal.ListingRepository;
 import com.margomarket.listing.ListingStatus;
 import com.margomarket.moderation.UserModerationService;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.textmoderation.TextModerationService;
-import com.margomarket.user.Role;
+import com.margomarket.user.internal.Role;
 import com.margomarket.user.User;
 
 import org.junit.jupiter.api.Test;

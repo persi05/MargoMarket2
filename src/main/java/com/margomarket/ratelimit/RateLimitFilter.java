@@ -1,5 +1,8 @@
 package com.margomarket.ratelimit;
 
+import com.margomarket.ratelimit.internal.RateLimitExceededException;
+import com.margomarket.ratelimit.internal.RateLimitPolicies;
+import com.margomarket.ratelimit.internal.RateLimitPolicy;
 import com.margomarket.user.User;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

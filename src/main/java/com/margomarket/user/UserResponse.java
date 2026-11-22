@@ -10,4 +10,8 @@ public record UserResponse(
         String role,
         LocalDateTime createdAt
 ) {
+    public static UserResponse of(User user) {
+        return new UserResponse(user.getId(), user.getUsername(), user.getDisplayName(), user.getEmail(),
+                user.getRole().getName(), user.getCreatedAt());
+    }
 }

@@ -1,11 +1,10 @@
 package com.margomarket.listing.gold;
 
-import com.margomarket.catalog.CurrencyRepository;
-import com.margomarket.catalog.ServerRepository;
-import com.margomarket.listing.FavoriteRepository;
+import com.margomarket.catalog.Catalog;
+import com.margomarket.listing.internal.FavoriteRepository;
 import com.margomarket.listing.Listing;
-import com.margomarket.listing.ListingRepository;
-import com.margomarket.listing.ListingStatusRepository;
+import com.margomarket.listing.internal.ListingRepository;
+import com.margomarket.listing.internal.ListingStatusRepository;
 import com.margomarket.moderation.ModerationScope;
 import com.margomarket.moderation.UserModerationService;
 import com.margomarket.shared.ForbiddenOperationException;
@@ -28,8 +27,7 @@ public class GoldListingService {
 
     private final UserModerationService userModeration;
     private final ListingRepository listings;
-    private final ServerRepository servers;
-    private final CurrencyRepository currencies;
+    private final Catalog catalog;
     private final ListingStatusRepository statuses;
     private final FavoriteRepository favorites;
 
@@ -107,8 +105,8 @@ public class GoldListingService {
         l.setRarity(null);
         l.setItem(null);
         l.setCurrency(
-            currencies
-                .findByNameIgnoreCase("PLN")
+            catalog
+                .currencyNamed("PLN")
                 .orElseThrow(() -> new NotFoundException("Brak waluty PLN"))
         );
         apply(l, request);
@@ -149,8 +147,8 @@ public class GoldListingService {
 
     private void apply(Listing l, GoldListingRequest r) {
         l.setServer(
-            servers
-                .findById(r.serverId())
+            catalog
+                .server(r.serverId())
                 .orElseThrow(() -> new NotFoundException("Świat nie istnieje"))
         );
         l.setGoldAmount(r.goldAmount());

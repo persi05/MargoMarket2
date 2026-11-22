@@ -1,5 +1,7 @@
 package com.margomarket.ratelimit;
 
+import com.margomarket.ratelimit.internal.RateLimitPolicy;
+import com.margomarket.ratelimit.internal.RateLimitProperties;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bucket;
