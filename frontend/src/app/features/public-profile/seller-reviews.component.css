@@ -1,0 +1,25 @@
+:host { display: block; margin: 36px 0; }
+h2 { font-size: 1.2rem; }
+.summary { display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: center; padding: 20px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-dark); }
+.score { display: grid; gap: 6px; justify-items: start; }
+.score strong { font-size: 2.4rem; line-height: 1; }
+.score mm-star-rating { font-size: 1.3rem; }
+.score span { color: var(--color-text-muted); }
+.bars { flex: 1 1 240px; max-width: 420px; margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.bars li { display: grid; grid-template-columns: 3em 1fr 2.5em; gap: 10px; align-items: center; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.bar { height: 8px; border-radius: 4px; background: var(--color-input-dark); overflow: hidden; }
+.bar span { display: block; height: 100%; background: #facc15; }
+.list { margin: 20px 0 0; padding: 0; list-style: none; }
+.review { padding: 16px 0; border-bottom: 1px solid var(--color-border); }
+.review-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.review-head a { color: var(--color-primary); font-weight: 700; }
+.review-head time, .item { color: var(--color-text-muted); }
+.item { margin: 6px 0 0; font-size: .9rem; }
+.comment { margin: 8px 0 0; color: var(--color-text-main); white-space: pre-line; overflow-wrap: anywhere; }
+.hide-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.hide-form label { width: 100%; font-weight: 700; }
+.hide-form input { flex: 1 1 220px; padding: 9px 10px; border: 1px solid var(--color-border); border-radius: 5px; background: var(--color-input-dark); color: var(--color-text-main); font: inherit; }
+.hide-form p { width: 100%; margin: 0; color: var(--color-danger); }
+.link-button { margin-top: 8px; padding: 0; border: 0; background: none; color: var(--color-text-muted); text-decoration: underline; cursor: pointer; font: inherit; font-size: .85rem; }
+.empty, .note { color: var(--color-text-muted); }
+.note { font-size: .9rem; }

@@ -303,3 +303,36 @@ export interface PriceHistoryEntry {
   plnGrosze: number | null;
   at: string;
 }
+
+/** Confirmed exchange the current user bought in and has not reviewed yet. */
+export interface PendingReview {
+  confirmationId: number;
+  sellerId: number;
+  sellerDisplayName: string;
+  itemName: string;
+  confirmedAt: string;
+  reviewableUntil: string;
+}
+
+export interface SellerReview {
+  id: number;
+  rating: number;
+  comment: string | null;
+  buyerId: number;
+  buyerDisplayName: string;
+  itemName: string;
+  createdAt: string;
+}
+
+export interface ReviewSummary {
+  count: number;
+  average: number | null;
+  positivePercent: number | null;
+  /** distribution[i] = number of reviews rated i + 1. */
+  distribution: number[];
+}
+
+export interface SellerReviewsResponse {
+  summary: ReviewSummary;
+  reviews: PageResponse<SellerReview>;
+}

@@ -40,6 +40,7 @@
       <nav class="account-options" aria-label="Opcje konta">
         <a [routerLink]="['/u', user.id, 'profil']" (click)="closeAccountMenu()">Zobacz profil</a>
         <a routerLink="/notifications" routerLinkActive="active" (click)="closeAccountMenu()">Powiadomienia</a>
+        <a routerLink="/reviews" routerLinkActive="active" (click)="closeAccountMenu()">Opinie do wystawienia</a>
         @if (user.role === 'admin') {
           <a routerLink="/admin" routerLinkActive="active" (click)="closeAccountMenu()">Administracja</a>
         }

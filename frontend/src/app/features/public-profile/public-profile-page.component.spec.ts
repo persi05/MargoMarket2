@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 describe('Public profile',()=>{
  beforeEach(()=>TestBed.configureTestingModule({imports:[PublicProfilePageComponent],providers:[provideHttpClient(),provideHttpClientTesting(),provideRouter([]),{provide:ActivatedRoute,useValue:{paramMap:of(convertToParamMap({id:'7',slug:'profil'}))}}]}));
- afterEach(()=>TestBed.inject(HttpTestingController).verify());
+ afterEach(()=>{const http=TestBed.inject(HttpTestingController);http.match(r=>r.url.endsWith('/reviews'));http.verify();});
  it('separates confirmed exchanges from sold statuses',()=>{
  const fixture=TestBed.createComponent(PublicProfilePageComponent);const http=TestBed.inject(HttpTestingController);
  http.expectOne(environment.apiUrl+'/profiles/7').flush({id:7,displayName:'Rycerz',createdAt:'2026-01-01',activeListings:0,soldListings:30,confirmedPurchases:1,confirmedSales:2});

@@ -1,0 +1,39 @@
+<section class="reviews-page">
+  <mm-page-header eyebrow="Twoje konto" title="Opinie do wystawienia"
+    lead="Opinię możesz wystawić tylko po wymianie potwierdzonej przez pośrednika. Dzięki temu oceny pochodzą od prawdziwych kupujących." />
+
+  @if (notice) { <p class="notice" role="status">{{ notice }}</p> }
+  @if (error) { <p role="alert" class="error">{{ error }}</p> }
+
+  @if (loading) {
+    <div class="empty">Ładowanie…</div>
+  } @else if (!error) {
+    @for (p of pending; track p.confirmationId) {
+      <article class="pending" [attr.aria-labelledby]="'review-' + p.confirmationId">
+        <header>
+          <h2 [id]="'review-' + p.confirmationId">{{ p.itemName }}</h2>
+          <p>Sprzedawca: <a [routerLink]="['/u', p.sellerId, 'profil']">{{ p.sellerDisplayName }}</a>
+            · potwierdzono {{ p.confirmedAt | date:'dd.MM.yyyy' }}
+            · możesz ocenić do {{ p.reviewableUntil | date:'dd.MM.yyyy' }}</p>
+        </header>
+        <div class="rating-row">
+          <mm-star-rating [editable]="true" [value]="draft(p).rating" [disabled]="draft(p).busy"
+            [label]="'Ocena sprzedawcy ' + p.sellerDisplayName" (changed)="draft(p).rating = $event; draft(p).error = ''" />
+          <span class="rating-label">{{ draft(p).rating ? labels[draft(p).rating - 1] : 'Wybierz ocenę' }}</span>
+        </div>
+        <label [for]="'comment-' + p.confirmationId">Komentarz (opcjonalnie)</label>
+        <textarea [id]="'comment-' + p.confirmationId" rows="3" [attr.maxlength]="maxComment" [value]="draft(p).comment"
+          [disabled]="draft(p).busy" (input)="comment(p, $event)" placeholder="Jak przebiegła wymiana?"></textarea>
+        <div class="actions">
+          <small>{{ draft(p).comment.length }} / {{ maxComment }} · opinii nie można później edytować</small>
+          <button type="button" class="mm-button" [disabled]="draft(p).busy" (click)="submit(p)">
+            {{ draft(p).busy ? 'Zapisywanie…' : 'Opublikuj opinię' }}
+          </button>
+        </div>
+        @if (draft(p).error) { <p role="alert" class="error">{{ draft(p).error }}</p> }
+      </article>
+    } @empty {
+      <div class="empty">Nie masz wymian czekających na opinię.</div>
+    }
+  }
+</section>
