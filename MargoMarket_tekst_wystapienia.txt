@@ -1,0 +1,296 @@
+MargoMarket - tekst wystąpienia (seminarium dyplomowe)
+=======================================================
+
+Prezentacja: MargoMarket_FINAL_2026.pptx (18 slajdów)
+Czas: ok. 12-13 minut mówienia + pytania.
+
+Jak korzystać:
+- Nie ucz się słowo w słowo. Zapamiętaj HASŁA przy każdym slajdzie, resztę mów własnymi słowami.
+- Czasy w nawiasach są orientacyjne. Jeśli brakuje czasu, skróć slajdy 9-13 do jednego zdania
+  i pokazania ekranu.
+- Na końcu jest lista pytań, które komisja może zadać, z krótkimi odpowiedziami.
+
+
+-------------------------------------------------------
+SLAJD 1 - Strona tytułowa (ok. 20 s)
+HASŁA: powitanie, temat, promotor
+-------------------------------------------------------
+Dzień dobry. Nazywam się Patryk Persak, a temat mojej pracy to "Platforma ogłoszeniowa
+do sprzedaży przedmiotów w grach typu MMORPG". Pracę realizuję pod kierunkiem pani
+dr inż. Anny Plichty. Aplikacja, którą zbudowałem, nazywa się MargoMarket.
+
+
+-------------------------------------------------------
+SLAJD 2 - Dlaczego powstał MargoMarket? (ok. 45 s)
+HASŁA: rozproszone ogłoszenia, specyfika przedmiotów, kontakt
+-------------------------------------------------------
+Margonem to polska gra MMORPG, w której gracze bardzo dużo handlują przedmiotami.
+Problem polega na tym, że ogłoszenia są rozrzucone - po czacie w grze, serwerach Discord
+i forum. Żeby znaleźć konkretny przedmiot, trzeba przeszukać kilka miejsc.
+
+Do tego przedmioty w Margonem mają swoje parametry: poziom, typ, stopień ulepszenia
+i świat gry. Zwykłe ogłoszenie tekstowe tego dobrze nie opisuje.
+
+Trzeci problem to kontakt - kupujący i sprzedający muszą się jakoś dogadać.
+MargoMarket ma zebrać te trzy rzeczy w jednym miejscu.
+
+
+-------------------------------------------------------
+SLAJD 3 - Cel i zakres pracy (ok. 40 s)
+HASŁA: cel główny, pięć obszarów
+-------------------------------------------------------
+Celem pracy jest zaprojektowanie i zaimplementowanie aplikacji webowej do sprzedaży
+przedmiotów z gier MMORPG, na przykładzie Margonem.
+
+Zakres obejmuje pięć obszarów: katalog i wyszukiwanie ofert, sprzedaż i licytacje,
+komunikację między użytkownikami, administrację z moderacją oraz zabezpieczenia i testy.
+
+
+-------------------------------------------------------
+SLAJD 4 - Główne zagadnienia pracy (ok. 50 s)
+HASŁA: model przedmiotów, licytacje na żywo, komunikacja, role, bezpieczeństwo
+-------------------------------------------------------
+W pracy musiałem rozwiązać kilka konkretnych problemów.
+
+Pierwszy to model danych przedmiotów - ogłoszenie jest powiązane z przedmiotem z katalogu,
+a nie z dowolnie wpisaną nazwą. Dzięki temu filtry działają poprawnie.
+
+Drugi to licytacje w czasie rzeczywistym. Oferty muszą być przyjmowane poprawnie nawet
+wtedy, gdy kilka osób podbija cenę w tym samym momencie, a wszyscy widzą aktualną cenę
+bez odświeżania strony.
+
+Trzeci to komunikacja - rozdzieliłem ją na prywatne rozmowy i publiczną dyskusję
+pod ogłoszeniem.
+
+Czwarty to role i moderacja, czyli kto co może zrobić w systemie.
+Piąty to bezpieczeństwo kont i danych.
+
+
+-------------------------------------------------------
+SLAJD 5 - Istniejące rozwiązania (ok. 55 s)
+HASŁA: jak handluje się dziś, TibiaTrade, duże serwisy, brak serwisu dla Margonem
+-------------------------------------------------------
+Zanim zacząłem, sprawdziłem, czy ktoś już rozwiązał ten problem.
+
+W samym Margonem handel odbywa się dziś głównie na forum gry, na serwerach Discord
+i na czacie w grze. To działa, ale ogłoszenia nie mają wspólnego formatu i nie da się
+ich filtrować.
+
+Najbliższym odpowiednikiem jest TibiaTrade - serwis ogłoszeniowy dla gry Tibia,
+widoczny na zrzucie. Pokazuje, że wyspecjalizowana platforma dla jednej gry ma sens.
+Są też duże, ogólne serwisy, jak G2G czy Eldorado.gg, ale obsługują setki gier naraz
+i nie znają specyfiki przedmiotów z Margonem.
+
+Nie znalazłem serwisu, który robiłby to dla Margonem.
+
+
+-------------------------------------------------------
+SLAJD 6 - Porównanie i własny wkład (ok. 45 s)
+HASŁA: wspólna idea, trzy elementy wkładu, nowe jest zestawienie
+-------------------------------------------------------
+Po lewej jest to, co MargoMarket dzieli z innymi serwisami: publikowanie ogłoszeń,
+filtrowanie i kontakt z kupującym.
+
+Mój własny wkład to trzy rzeczy:
+- katalog przedmiotów z parametrami Margonem, z którego wybiera się przedmiot
+  przy wystawianiu ogłoszenia,
+- licytacje z historią ofert, aktualizowane na żywo,
+- połączenie prywatnych rozmów, publicznej dyskusji i moderacji w jednej aplikacji.
+
+Nie twierdzę, że żadna z tych funkcji nigdzie nie istnieje. Nowe jest ich zestawienie
+w systemie dedykowanym jednej grze.
+
+
+-------------------------------------------------------
+SLAJD 7 - Architektura systemu (ok. 50 s)
+HASŁA: trzy warstwy, REST i WebSocket
+-------------------------------------------------------
+Aplikacja ma klasyczną architekturę trójwarstwową.
+
+Frontend jest napisany w Angularze 21 i TypeScripcie - odpowiada za widoki, formularze
+i wyszukiwanie. Backend to Java 21 i Spring Boot - tam jest logika biznesowa, API
+i sprawdzanie uprawnień. Dane trzymam w PostgreSQL, a strukturę bazy zmieniam
+migracjami Flyway.
+
+Frontend rozmawia z backendem na dwa sposoby: przez REST API przy zwykłych operacjach
+i przez WebSocket z protokołem STOMP, kiedy coś ma się zaktualizować od razu -
+na przykład nowa oferta w licytacji albo nowa wiadomość.
+
+
+-------------------------------------------------------
+SLAJD 8 - Model danych (ok. 45 s)
+HASŁA: listings w centrum, użytkownik i katalog, licytacje, rozmowy, dyskusja
+-------------------------------------------------------
+Tu jest uproszczony model bazy. Centralnym elementem jest ogłoszenie - tabela listings.
+Jest ono powiązane z użytkownikiem, który je wystawił, czyli tabelą users, i z przedmiotem
+z katalogu - tabelą items.
+
+Jeśli ogłoszenie jest licytacją, ma swój rekord w tabeli auctions, a oferty w licytacji
+są w auction_bids. Do ogłoszenia należą też prywatne rozmowy z wiadomościami
+oraz wpisy w publicznej dyskusji.
+
+To jest uproszczenie - cała baza ma ponad 30 tabel, między innymi słowniki, moderację,
+powiadomienia i opinie o sprzedających.
+
+
+-------------------------------------------------------
+SLAJD 9 - Katalog i wystawianie ogłoszeń: lista ofert (ok. 40 s)
+HASŁA: trzy rodzaje ofert, filtry, waluty
+-------------------------------------------------------
+Tak wygląda lista ogłoszeń. U góry można przełączać się między przedmiotami,
+sprzedażą złota i licytacjami.
+
+Po lewej są filtry: nazwa przedmiotu, typ, waluta, świat gry i zakres poziomów.
+W tabeli widać poziom, ulepszenie, cenę - w złocie z gry albo w złotówkach -
+sprzedającego i serwer. Gwiazdką można dodać ogłoszenie do ulubionych.
+
+
+-------------------------------------------------------
+SLAJD 10 - Dodawanie przedmiotu (ok. 45 s)
+HASŁA: dwa kroki, wybór z katalogu, szczegóły, sugerowana cena
+-------------------------------------------------------
+Wystawienie ogłoszenia ma dwa kroki. U góry wybiera się rodzaj: zwykła sprzedaż,
+licytacja albo sprzedaż złota.
+
+W pierwszym kroku użytkownik wybiera przedmiot z katalogu - dzięki temu nazwy są
+zawsze takie same i filtry działają.
+
+W drugim kroku uzupełnia szczegóły: poziom ulepszenia, cenę, walutę i serwer.
+Aplikacja podpowiada też cenę na podstawie wcześniejszych transakcji tego przedmiotu
+i pokazuje historię cen.
+
+
+-------------------------------------------------------
+SLAJD 11 - Rozmowy i dyskusja przy ogłoszeniu (ok. 45 s)
+HASŁA: rozmowa prywatna, dyskusja publiczna
+-------------------------------------------------------
+Komunikacja ma dwie formy.
+
+Po lewej jest prywatna rozmowa ze sprzedającym, zawsze powiązana z konkretną ofertą -
+tu ustala się szczegóły transakcji. Z rozmowy można też zgłosić użytkownika
+albo poprosić o pośrednika z administracji.
+
+Po prawej jest publiczna dyskusja pod ogłoszeniem. Jeśli kilka osób pyta o to samo,
+sprzedający odpowiada raz i wszyscy to widzą, zamiast powtarzać to samo w kilku czatach.
+
+
+-------------------------------------------------------
+SLAJD 12 - Licytacja przedmiotów (ok. 50 s)
+HASŁA: cena wywoławcza, minimalne podbicie, czas, historia, WebSocket
+-------------------------------------------------------
+Oprócz sprzedaży za stałą cenę można wystawić przedmiot na licytację. Sprzedający
+ustala cenę wywoławczą, minimalne podbicie i czas zakończenia.
+
+Kupujący widzi aktualną najwyższą ofertę, minimalną kwotę kolejnej oferty i ile czasu
+zostało. Poniżej jest historia przyjętych ofert.
+
+Nowe oferty pojawiają się u wszystkich od razu dzięki WebSocketom. Po stronie serwera
+oferty są przyjmowane po kolei, więc dwie osoby licytujące w tej samej chwili
+nie zepsują wyniku.
+
+
+-------------------------------------------------------
+SLAJD 13 - Administracja i moderacja (ok. 45 s)
+HASŁA: konta i role, zgłoszenia rozmów, ograniczenia kont
+-------------------------------------------------------
+Administrator ma własny panel. U góry widać listę kont z rolami i liczbą ogłoszeń -
+administrator może też usunąć konto.
+
+Niżej jest zgłoszenie rozmowy. Użytkownik może zgłosić rozmowę, na przykład gdy
+podejrzewa oszustwo. Administrator widzi zgłoszenie, może przejrzeć ostatnie wiadomości,
+przejść do czatu i oznaczyć sprawę jako sprawdzoną.
+
+Może też nałożyć ograniczenia: zablokować publikowanie, licytowanie, wysyłanie wiadomości
+albo całe konto.
+
+
+-------------------------------------------------------
+SLAJD 14 - Bezpieczeństwo i testy (ok. 45 s)
+HASŁA: JWT i BCrypt, role i limity, testy automatyczne
+-------------------------------------------------------
+Konta są chronione tokenami JWT, hasła są haszowane algorytmem BCrypt, a adres e-mail
+trzeba potwierdzić przy rejestracji. Liczba nieudanych prób logowania jest ograniczona.
+
+Dostęp do funkcji zależy od roli użytkownika, dane z formularzy są sprawdzane
+po stronie serwera, a liczba zapytań do API i ofert w licytacji jest limitowana.
+
+Aplikacja ma około 350 testów backendu, w tym testy integracyjne na prawdziwej bazie
+PostgreSQL uruchamianej w Dockerze, około 140 testów frontendu i test end-to-end
+w przeglądarce. Wszystkie uruchamiają się automatycznie w GitHub Actions przy każdej
+zmianie w kodzie.
+
+
+-------------------------------------------------------
+SLAJD 15 - Pokrycie testami - JaCoCo (ok. 30 s)
+HASŁA: 86% instrukcji, 72% rozgałęzień, raport automatyczny
+-------------------------------------------------------
+To raport pokrycia kodu testami z narzędzia JaCoCo. Obejmuje cały backend - testy
+jednostkowe i integracyjne razem.
+
+Testy pokrywają 86% instrukcji i 72% rozgałęzień. Najważniejsze moduły - ogłoszenia,
+licytacje i rozmowy - mają od 76 do 88%. Raport generuje się automatycznie
+w GitHub Actions przy każdej zmianie.
+
+
+-------------------------------------------------------
+SLAJD 16 - Literatura i źródła (ok. 25 s)
+HASŁA: dokumentacja, analizowane serwisy, dane przedmiotów
+-------------------------------------------------------
+Przygotowując pracę, korzystałem z oficjalnej dokumentacji Angulara, Springa
+i PostgreSQL. Analizowałem też istniejące serwisy, które pokazywałem wcześniej:
+TibiaTrade, G2G, Eldorado i forum Margonem.
+
+Dane i grafiki przedmiotów pochodzą z zasobów Margonem i serwisu MargoWorld.
+
+
+-------------------------------------------------------
+SLAJD 17 - Zastosowanie i dalszy rozwój (ok. 45 s)
+HASŁA: dla kogo, inne gry, kolejne kroki, regulamin
+-------------------------------------------------------
+Aplikacja jest przeznaczona dla graczy Margonem, którzy kupują i sprzedają przedmioty.
+Zamiast szukać ofert w kilku miejscach, mają jeden serwis z filtrami, licytacjami
+i kontaktem.
+
+Świat gry, typy przedmiotów i waluty są w osobnych tabelach, więc po przygotowaniu
+importu katalogu dla innej gry platformę można przenieść na inne gry MMORPG.
+
+Kolejne kroki to testy z prawdziwymi użytkownikami, poprawki użyteczności
+i publiczne wdrożenie. Wdrożenie musi być zgodne z regulaminem gry.
+
+
+-------------------------------------------------------
+SLAJD 18 - Podsumowanie (ok. 20 s)
+HASŁA: jedno zdanie, podziękowanie
+-------------------------------------------------------
+Podsumowując: MargoMarket łączy ogłoszenia, licytacje i komunikację między graczami
+w jednej aplikacji webowej, dopasowanej do specyfiki Margonem.
+Dziękuję za uwagę i chętnie odpowiem na pytania.
+
+
+=======================================================
+MOŻLIWE PYTANIA KOMISJI
+=======================================================
+
+1. Jak zapewniasz, że dwie osoby licytujące w tej samej chwili nie zepsują wyniku?
+   Każda oferta jest przyjmowana w transakcji, która blokuje wiersz ogłoszenia i licytacji
+   w bazie, zawsze w tej samej kolejności. Oferty są więc sprawdzane po kolei. Historii ofert
+   nie da się zmienić ani usunąć - pilnują tego triggery w bazie.
+
+2. Co się dzieje, gdy ktoś licytuje w ostatniej sekundzie?
+   Oferta złożona w ostatnich 2 minutach przedłuża licytację do 2 minut od jej przyjęcia,
+   żeby inni mieli czas odpowiedzieć (tzw. anti-sniping). Przedłużenia mogą się powtarzać.
+
+3. Dlaczego WebSocket, a nie odpytywanie serwera co kilka sekund?
+   Serwer sam wysyła zmianę w chwili, gdy nastąpi - mniej zapytań i brak opóźnienia.
+
+4. Skąd macie dane przedmiotów?
+   Katalog został zaimportowany z zasobów MargoWorld. Administrator może go odświeżyć
+   z poziomu panelu - import dodaje i aktualizuje przedmioty, niczego nie usuwa.
+
+5. Dlaczego niektóre pakiety w JaCoCo mają niskie pokrycie (np. 19%, 23%)?
+   To małe pakiety pomocnicze, po kilkanaście linii kodu. Główna logika tych modułów
+   jest w pakietach moderation (94%) i notification (100%).
+
+6. Czy aplikacja obsługuje prawdziwe pieniądze?
+   Ceny w złotówkach są tylko informacją w ogłoszeniu - serwis nie przeprowadza płatności.
+   Kupujący i sprzedający ustalają szczegóły w rozmowie.
