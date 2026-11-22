@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.ListingCommentRequest;
 import com.margomarket.dto.ListingCommentResponse;
 import com.margomarket.dto.PageResponse;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Komentarze", description = "Dyskusja pod ogłoszeniami")
 @RestController
 @RequestMapping("/api/listings/{listingId}/comments")
 @RequiredArgsConstructor

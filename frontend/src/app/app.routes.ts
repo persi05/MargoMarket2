@@ -69,6 +69,12 @@ export const routes: Routes = [
     title: 'Rozmowa | MargoMarket'
   },
   {
+    path: 'reviews',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/reviews/reviews-page.component').then((m) => m.ReviewsPageComponent),
+    title: 'Opinie do wystawienia | MargoMarket'
+  },
+  {
     path: 'notifications',
     canActivate: [authGuard],
     loadComponent: () => import('./features/notifications/notifications-page.component').then((m) => m.NotificationsPageComponent),

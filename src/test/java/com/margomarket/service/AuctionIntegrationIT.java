@@ -190,7 +190,7 @@ class AuctionIntegrationIT {
         long id=create(); auctions.update(id,request("GOLD",1500000000),seller);
         auctions.bid(id,new PlaceBidRequest(1500000000L,"GOLD",UUID.randomUUID()),buyer);
         assertThatThrownBy(()->auctions.update(id,request("PLN",1000),seller)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(()->listings.updateListing(id,new ListingRequest(item,"Miecz",1L,100,0,false,1L,99,1L,world,"czat"),seller)).isInstanceOf(ForbiddenOperationException.class);
+        assertThatThrownBy(()->listings.updateListing(id,new ListingRequest(item,"Miecz",1L,100,0,false,1L,99L,1L,world,"czat"),seller)).isInstanceOf(ForbiddenOperationException.class);
         assertThatThrownBy(()->listings.deleteListing(id,admin)).isInstanceOf(ForbiddenOperationException.class);
         assertThatThrownBy(()->listings.markAsSold(id,seller)).isInstanceOf(ForbiddenOperationException.class);
         assertThatThrownBy(()->auctions.cancel(id,seller,"Rezygnacja")).isInstanceOf(ForbiddenOperationException.class);

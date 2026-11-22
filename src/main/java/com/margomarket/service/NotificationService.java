@@ -30,6 +30,10 @@ public class NotificationService {
         jdbc.update("INSERT INTO notifications(user_id,type,message,is_read,created_at,auction_id,event_key) VALUES (?,?,?,false,clock_timestamp(),?,?) ON CONFLICT(event_key) DO NOTHING",userId,type,message,auctionId,eventKey+":"+userId);
     }
 
+    public void review(long userId,String type,String message,String eventKey) {
+        jdbc.update("INSERT INTO notifications(user_id,type,message,is_read,created_at,event_key) VALUES (?,?,?,false,clock_timestamp(),?) ON CONFLICT(event_key) DO NOTHING",userId,type,message,eventKey);
+    }
+
     public Page<UserNotification> getUserNotifications(User user, int page) {
         return notificationRepository.findByUserOrderByCreatedAtDescIdDesc(user,
                 PageRequest.of(Math.max(0, page - 1), 20));

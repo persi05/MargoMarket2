@@ -25,7 +25,7 @@ class ListingMapperTest {
 
         assertThat(publicResponse.price()).isNull();
         assertThat(publicResponse.contact()).isNull();
-        assertThat(privateResponse.price()).isEqualTo(1500);
+        assertThat(privateResponse.price()).isEqualTo(1500L);
         assertThat(privateResponse.contact()).isEqualTo("Sprzedawca#123");
         assertThat(publicResponse.sellerDisplayName()).isEqualTo("Gracz 7");
     }
@@ -60,7 +60,7 @@ class ListingMapperTest {
         listing.setCurrency(new Currency());
         listing.setServer(new Server());
         listing.setStatus(status);
-        listing.setPrice(1500);
+        listing.setPrice(1500L);
         listing.setContact("Sprzedawca#123");
         return listing;
     }

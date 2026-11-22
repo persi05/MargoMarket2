@@ -31,6 +31,7 @@ export class NotificationsPageComponent {
   protected unreadCount = 0;
   protected loading = true;
   protected notice = '';
+  protected get userId(): number | null { return this.authService.currentUser?.id ?? null; }
 
   constructor() {
     this.loadNotifications();

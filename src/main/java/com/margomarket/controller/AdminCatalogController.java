@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.service.*;
 
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Administracja: katalog", description = "Odświeżanie katalogu przedmiotów")
 @RestController
 @RequestMapping("/api/admin/catalog")
 @RequiredArgsConstructor

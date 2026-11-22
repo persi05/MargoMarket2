@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.PageResponse;
 import com.margomarket.model.User;
 import com.margomarket.service.AuctionModerationService;
@@ -10,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+@Tag(name = "Administracja: aukcje", description = "Unieważnianie ofert, zgłoszenia i ograniczenia aukcyjne")
 @RestController
 @RequestMapping("/api/admin/auctions")
 @RequiredArgsConstructor

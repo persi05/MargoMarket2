@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.NotificationResponse;
 import com.margomarket.dto.PageResponse;
 import com.margomarket.mapper.NotificationMapper;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+@Tag(name = "Powiadomienia", description = "Powiadomienia użytkownika")
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor

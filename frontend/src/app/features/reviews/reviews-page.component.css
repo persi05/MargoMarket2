@@ -1,0 +1,16 @@
+.reviews-page { max-width: 900px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 40px); color: var(--color-text-main); }
+.pending { margin-bottom: 20px; padding: 20px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-dark); }
+.pending h2 { margin: 0 0 6px; font-size: 1.15rem; }
+.pending header p { margin: 0 0 14px; color: var(--color-text-muted); line-height: 1.5; }
+.pending a { color: var(--color-primary); }
+.rating-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 14px; }
+.rating-label { color: var(--color-text-muted); }
+label { display: block; margin-bottom: 6px; font-weight: 700; }
+textarea { box-sizing: border-box; width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: 5px; background: var(--color-input-dark); color: var(--color-text-main); font: inherit; resize: vertical; }
+textarea:focus { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.actions small { color: var(--color-text-muted); }
+.error { color: var(--color-danger); }
+.notice { padding: 12px 16px; border-left: 4px solid var(--color-success); background: var(--color-card-dark); }
+.empty { padding: 32px; border: 1px dashed var(--color-border); border-radius: 8px; color: var(--color-text-muted); text-align: center; }
+@media (max-width: 600px) { .actions .mm-button { width: 100%; } }

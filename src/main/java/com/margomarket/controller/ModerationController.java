@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.BlockedWordRequest;
 import com.margomarket.model.BlockedWord;
 import com.margomarket.dto.PageResponse;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 
+@Tag(name = "Administracja: blokowane słowa", description = "Słownik moderacji tekstu")
 @RestController
 @RequestMapping("/api/admin/blocked-words")
 @RequiredArgsConstructor

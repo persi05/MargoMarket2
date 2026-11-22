@@ -11,6 +11,7 @@ import { ListingResponse, PageResponse } from '../../core/models/api.models';
 import { ListingCardComponent } from '../../shared/listing-card/listing-card.component';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
 import { AuthService } from '../../core/services/auth.service';
+import { SellerReviewsComponent } from './seller-reviews.component';
 
 interface Profile {
   endedAuctions?: number;
@@ -26,7 +27,7 @@ interface Profile {
 @Component({
   selector: 'mm-public-profile-page',
   standalone: true,
-  imports: [AsyncPipe, UserModerationComponent, DatePipe, RouterLink, ListingCardComponent, PaginationComponent],
+  imports: [AsyncPipe, UserModerationComponent, DatePipe, RouterLink, ListingCardComponent, PaginationComponent, SellerReviewsComponent],
   templateUrl: './public-profile-page.component.html',
   styleUrl: './public-profile-page.component.css'
 })

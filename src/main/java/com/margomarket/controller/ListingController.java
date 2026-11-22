@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.ListingFilter;
 import com.margomarket.dto.ListingRequest;
 import com.margomarket.dto.ListingResponse;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Tag(name = "Ogłoszenia", description = "Ogłoszenia przedmiotów i ulubione")
 @RestController
 @RequestMapping("/api/listings")
 @RequiredArgsConstructor
@@ -73,13 +75,16 @@ public class ListingController {
     public ListingResponse update(@PathVariable Long id,
                                   @Valid @RequestBody ListingRequest request,
                                   @AuthenticationPrincipal User user) {
-        return listingMapper.toResponse(listingService.updateListing(id, request, user));
+        listingService.updateListing(id, request, user);
+        return listingMapper.toResponse(listingService.getListing(id));
     }
 
     @PostMapping("/{id}/sold")
     public ListingResponse markAsSold(@PathVariable Long id,
                                       @AuthenticationPrincipal User user) {
-        return listingMapper.toResponse(listingService.markAsSold(id, user));
+        listingService.markAsSold(id, user);
+        // The locked entity has lazy relations and the mapper runs after the transaction, so read it again with details.
+        return listingMapper.toResponse(listingService.getListing(id));
     }
 
     @GetMapping("/favorites")

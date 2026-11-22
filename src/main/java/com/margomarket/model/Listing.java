@@ -66,7 +66,7 @@ public class Listing {
     private Rarity rarity;
 
     @Column
-    private Integer price;
+    private Long price;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "currency_id", nullable = false)

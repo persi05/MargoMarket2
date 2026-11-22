@@ -285,6 +285,6 @@ public class AuctionService {
     }
     private ListingRequest listingRequest(AuctionRequest r) {
         com.margomarket.model.Currency c=currencies.findByNameIgnoreCase("PLN".equals(r.currency())?"PLN":"w grze").orElseThrow(()->new NotFoundException("Brak waluty"));
-        return new ListingRequest(r.itemId(),"Przedmiot",1L,1,r.enhancementLevel(),r.bound(),1L,1,c.getId(),r.serverId(),r.contact()==null?"":r.contact());
+        return new ListingRequest(r.itemId(),"Przedmiot",1L,1,r.enhancementLevel(),r.bound(),1L,1L,c.getId(),r.serverId(),r.contact()==null?"":r.contact());
     }
 }

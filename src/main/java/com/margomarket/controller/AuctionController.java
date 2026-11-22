@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.*;
 import com.margomarket.model.User;
 import com.margomarket.service.*;
@@ -11,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+@Tag(name = "Aukcje", description = "Aukcje przedmiotów, licytacje i rozliczenia")
 @RestController
 @RequestMapping("/api/auctions")
 @RequiredArgsConstructor

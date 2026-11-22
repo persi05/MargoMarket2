@@ -1,5 +1,6 @@
 package com.margomarket.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margomarket.dto.WorldRatesRequest;
 import com.margomarket.dto.WorldResponse;
 import com.margomarket.pricing.WorldAdminService;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Administracja: światy", description = "Zarządzanie światami gry")
 @RestController
 @RequestMapping("/api/admin/worlds")
 @RequiredArgsConstructor

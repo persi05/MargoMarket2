@@ -1,10 +1,12 @@
 package com.margomarket.controller;
-import com.margomarket.service.ExchangeConfirmationService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;import com.margomarket.service.ExchangeConfirmationService;
 import com.margomarket.dto.ConversationResponse;
 import com.margomarket.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+@Tag(name = "Potwierdzenia wymian", description = "Potwierdzanie zakończonych transakcji")
 @RestController
 @RequiredArgsConstructor
 public class ExchangeConfirmationController {

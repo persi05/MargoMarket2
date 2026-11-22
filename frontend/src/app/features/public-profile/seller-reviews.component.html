@@ -1,0 +1,50 @@
+<section class="seller-reviews" aria-labelledby="reviews-title" [attr.aria-busy]="loading()">
+  <h2 id="reviews-title">Opinie kupujących</h2>
+  @if (error()) { <p role="alert">{{ error() }}</p> }
+  @if (data(); as d) {
+    @if (d.summary.count) {
+      <div class="summary">
+        <div class="score">
+          <strong>{{ average(d.summary.average) }}</strong>
+          <mm-star-rating [value]="d.summary.average ?? 0" />
+          <span>{{ d.summary.count }} {{ noun(d.summary.count) }} · {{ d.summary.positivePercent }}% pozytywnych</span>
+        </div>
+        <ul class="bars" aria-label="Rozkład ocen">
+          @for (level of levels; track level) {
+            <li><span>{{ level }} ★</span><span class="bar" aria-hidden="true"><span [style.width.%]="share(level)"></span></span><span>{{ d.summary.distribution[level - 1] }}</span></li>
+          }
+        </ul>
+      </div>
+      <ul class="list">
+        @for (review of d.reviews.content; track review.id) {
+          <li class="review">
+            <div class="review-head">
+              <mm-star-rating [value]="review.rating" />
+              <a [routerLink]="['/u', review.buyerId, 'profil']">{{ review.buyerDisplayName }}</a>
+              <time [dateTime]="review.createdAt">{{ review.createdAt | date:'dd.MM.yyyy' }}</time>
+            </div>
+            <p class="item">Wymiana: {{ review.itemName }}</p>
+            @if (review.comment) { <p class="comment">{{ review.comment }}</p> }
+            @if (admin()) {
+              @if (hiding?.id === review.id) {
+                <div class="hide-form">
+                  <label [for]="'hide-' + review.id">Uzasadnienie ukrycia</label>
+                  <input [id]="'hide-' + review.id" maxlength="1000" [value]="hideReason" (input)="reason($event)" [disabled]="hideBusy" />
+                  <button type="button" class="mm-button" (click)="confirmHide()" [disabled]="hideBusy">Ukryj opinię</button>
+                  <button type="button" class="mm-button secondary" (click)="hiding = null" [disabled]="hideBusy">Anuluj</button>
+                  @if (hideError) { <p role="alert">{{ hideError }}</p> }
+                </div>
+              } @else {
+                <button type="button" class="link-button" (click)="startHide(review)">Ukryj (moderacja)</button>
+              }
+            }
+          </li>
+        }
+      </ul>
+      <mm-pagination [page]="d.reviews" [loading]="loading()" (pageChange)="load(sellerId(), $event)" />
+    } @else {
+      <p class="empty">Ten sprzedawca nie ma jeszcze opinii.</p>
+    }
+    <p class="note">Opinie mogą wystawiać wyłącznie kupujący z wymian potwierdzonych przez pośrednika. Opinie z unieważnionych wymian nie są liczone.</p>
+  }
+</section>
