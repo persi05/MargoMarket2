@@ -21,7 +21,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import java.util.Map;
 
 /**
- * Without SWAGGER_ENABLED the specification and Swagger UI must not be served.
+ * With the flag set to false the specification and Swagger UI must not be served.
  */
 @SpringBootTest
 @ActiveProfiles("auction-test")
@@ -44,7 +44,7 @@ class OpenApiDisabledIT {
     @Autowired MockMvc mvc;
 
     @Test
-    void docsAreOffByDefault() throws Exception {
+    void docsAreOffWhenFlagIsFalse() throws Exception {
         mvc.perform(get("/v3/api-docs")).andExpect(status().isNotFound());
         mvc.perform(get("/v3/api-docs.yaml")).andExpect(status().isNotFound());
         mvc.perform(get("/swagger-ui/index.html")).andExpect(status().isNotFound());

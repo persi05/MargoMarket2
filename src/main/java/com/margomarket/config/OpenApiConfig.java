@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * OpenAPI specification and Swagger UI setup. Both are disabled unless SWAGGER_ENABLED=true.
+ * OpenAPI specification and Swagger UI setup, switched on and off by the required SWAGGER_ENABLED flag.
  */
 @Configuration
 public class OpenApiConfig {
