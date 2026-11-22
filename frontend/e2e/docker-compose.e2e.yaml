@@ -39,7 +39,7 @@ services:
     ports:
       - "18080:8080"
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/api/dictionaries || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health/readiness || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 40

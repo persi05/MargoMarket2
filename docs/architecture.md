@@ -23,6 +23,7 @@ u siebie encje, repozytoria, serwisy, DTO i kontrolery swojego obszaru.
 | Opinie | `review` | opinie o sprzedających | shared, user, moderation, textmoderation, notification, conversation |
 | Profile | `profile` | publiczne profile | shared, user, listing |
 | Administracja | `admin` | panel administratora | shared, user, listing |
+| Monitoring | `monitoring` | health check i metryki Actuatora | — (czyta bazę bezpośrednio) |
 
 Dozwolone zależności są zapisane w `package-info.java` każdego modułu
 (`@ApplicationModule(allowedDependencies = …)`). Podpakiety modułu są jego
@@ -48,7 +49,7 @@ zakończone aukcje.
   (`ACCOUNT_BLOCKED`, `ACTION_RESTRICTED`, `RATE_LIMITED`, …) się nie zmienił.
 
 Baza danych pozostaje wspólna (jeden schemat Flyway). Moduły korzystają też
-z zapytań SQL na tabelach innych obszarów (np. statystyki).
+z zapytań SQL na tabelach innych obszarów (np. statystyki, monitoring).
 Granice pilnują zależności w kodzie, a nie dostępu do tabel.
 
 ## Kontrola granic
@@ -62,6 +63,9 @@ Granice pilnują zależności w kodzie, a nie dostępu do tabel.
   `target/spring-modulith-docs` (`components.puml`, `module-*.puml`,
   `all-docs.adoc`).
 
+Mapa modułów jest też dostępna w działającej aplikacji pod
+`/actuator/modulith` (tylko dla administratora).
+
 ## Dodawanie kodu
 
 1. Nowa klasa trafia do modułu swojego obszaru, a nie do warstwy technicznej.
@@ -70,3 +74,32 @@ Granice pilnują zależności w kodzie, a nie dostępu do tabel.
    świadomie albo opublikuj zdarzenie.
 3. Gdy moduł A musiałby wołać B, a B już zależy od A, opublikuj zdarzenie w A
    i obsłuż je w B.
+
+## Monitoring
+
+| Endpoint | Dostęp | Zawartość |
+|---|---|---|
+| `/actuator/health` | publiczny | tylko `status`; administrator widzi też składniki |
+| `/actuator/health/liveness`, `/readiness` | publiczny | sondy dla Dockera i load balancera; readiness obejmuje bazę |
+| `/actuator/metrics`, `/actuator/prometheus` | administrator | metryki JVM, HTTP, puli połączeń i biznesowe |
+| `/actuator/modulith`, `/actuator/info` | administrator | mapa modułów, informacje o aplikacji |
+
+Metryki biznesowe (odświeżane co najwyżej co 30 s jednym zapytaniem):
+
+- `margomarket_auctions_active`: trwające aukcje,
+- `margomarket_auctions_overdue`: aktywne aukcje ponad 2 minuty po czasie zakończenia,
+- `margomarket_listings_active{kind="item"|"gold"}`: aktywne ogłoszenia z ceną stałą,
+- `margomarket_conversations_open`: otwarte rozmowy,
+- `margomarket_reports_open{type="conversation"|"auction"}`: zgłoszenia czekające na moderatora,
+- `margomarket_fulfillments_disputed`: sporne rozliczenia aukcji.
+
+Składnik zdrowia `auctionClosing` jest `DOWN`, gdy aktywna aukcja jest
+otwarta dłużej niż 2 minuty po czasie zakończenia. Oznacza to, że
+harmonogram zamykania stanął. Nie wchodzi do grupy readiness, więc instancja
+dalej obsługuje ruch, ale `/actuator/health` zwraca 503.
+Kontrola zdrowia poczty jest wyłączona, bo awaria SMTP nie powinna oznaczać
+całej usługi jako niedziałającej.
+
+Docker Compose sprawdza kontener przez `/actuator/health/readiness`.
+Prometheus może pobierać `/actuator/prometheus` z tokenem administratora
+(`Authorization: Bearer …`).

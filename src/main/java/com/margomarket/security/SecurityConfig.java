@@ -69,6 +69,9 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/ws/conversations").permitAll()
+                        // Status only for everyone (load balancers, Docker); details, metrics and the module map for admins.
+                        .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/liveness", "/actuator/health/readiness").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers("/v3/api-docs", "/v3/api-docs.yaml", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/listings/mine", "/api/listings/favorites", "/api/listings/private-details").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/auctions/mine").authenticated()
