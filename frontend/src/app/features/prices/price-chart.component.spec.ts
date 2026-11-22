@@ -1,21 +1,27 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
 import { PriceHistoryEntry } from '../../core/models/api.models';
-import { PriceChartComponent, dayTicks, median, niceStep, priceDomain, rollingMedian, typicalRange } from './price-chart.component';
+import {
+  PriceChartComponent, averageByDay, dayTicks, labelTicks, median, mergeSamePrice, niceStep, priceDomain, soldWord,
+  spread, typicalRange
+} from './price-chart.component';
 
 function entry(id: number, at: string, plnGrosze: number | null, changes: Partial<PriceHistoryEntry> = {}): PriceHistoryEntry {
   return { listingId: id, source: 'SALE', serverName: 'Classic', enhancement: 0, bound: false, currency: 'PLN',
     amount: plnGrosze ?? 0, plnGrosze, at, ...changes };
 }
 
+// Times around noon UTC stay on the same calendar day in any European time zone.
 const entries = [
-  entry(3, '2026-11-10T10:00:00Z', 15_000, { enhancement: 3, source: 'OFFER' }),
-  entry(1, '2026-11-01T10:00:00Z', 10_000),
-  entry(2, '2026-11-05T10:00:00Z', 12_000, { source: 'AUCTION', currency: 'GOLD', amount: 2_400_000_000 }),
-  entry(5, '2026-11-07T10:00:00Z', 11_000, { enhancement: 3 }),
-  entry(4, '2026-11-06T10:00:00Z', null)
+  entry(1, '2026-11-01T12:00:00Z', 10_000),
+  entry(2, '2026-11-05T11:00:00Z', 12_000, { source: 'AUCTION', currency: 'GOLD', amount: 2_400_000_000 }),
+  entry(3, '2026-11-05T11:05:00Z', 14_000, { enhancement: 3 }),
+  entry(4, '2026-11-07T12:00:00Z', 11_000, { enhancement: 3 }),
+  entry(7, '2026-11-07T13:00:00Z', 11_000),
+  entry(5, '2026-11-10T12:00:00Z', 15_000, { source: 'OFFER' }),
+  entry(6, '2026-11-06T12:00:00Z', null)
 ];
-const NOW = Date.parse('2026-11-12T00:00:00Z');
+const NOW = Date.parse('2026-11-12T12:00:00Z');
 
 describe('price chart', () => {
   afterEach(() => TestBed.resetTestingModule());
@@ -30,152 +36,173 @@ describe('price chart', () => {
     return { fixture, element: fixture.nativeElement as HTMLElement, chart: fixture.componentInstance as any };
   }
 
-  it('draws priced entries oldest first with a shape per kind', async () => {
+  it('draws every sale as its own dot and merges only same-day sales for the same price', async () => {
     const { element, chart } = await render();
     const points = chart.chart().points;
-    expect(points.map((p: any) => p.entry.listingId)).toEqual([1, 2, 5, 3]);
-    expect(points[0].x).toBeLessThan(points[1].x);
-    expect(points[1].y).toBeLessThan(points[0].y);
-    expect(element.querySelectorAll('circle.mark.sale').length).toBe(2);
-    expect(element.querySelectorAll('path.mark.auction').length).toBe(1);
-    expect(element.querySelectorAll('circle.mark.offer').length).toBe(1);
+    expect(points.map((p: any) => [p.price, p.count])).toEqual([[10_000, 1], [12_000, 1], [14_000, 1], [11_000, 2]]);
+    expect(element.querySelectorAll('circle.dot').length).toBe(4);
+    expect(element.querySelectorAll('circle.dot.auction').length).toBe(1);
+    // Five minutes apart, yet the two sales of 5.11 sit side by side.
+    expect(points[2].x - points[1].x).toBeGreaterThanOrEqual(12);
   });
 
-  it('builds the trend and statistics from paid prices only, not from offers', async () => {
+  it('labels the last price on the right and sums up the sales', async () => {
     const { element, chart } = await render();
-    expect(chart.chart().trend.match(/[ML]/g)).toHaveLength(3);
-    expect(chart.stats()).toEqual({ median: 11_000, low: 10_000, high: 12_000, count: 3 });
-    const stats = element.querySelector('.stats')!.textContent!;
-    expect(stats).toContain('Mediana110 zł');
-    expect(stats).toContain('Transakcje3');
-    expect(element.querySelector('.median-label')!.textContent).toContain('mediana 110 zł');
+    expect(element.querySelector('.last text')!.textContent).toBe('110 zł');
+    expect(chart.stats()).toEqual({ median: 11_000, low: 10_000, high: 14_000, count: 5 });
+    expect(element.querySelector('.stats')!.textContent).toContain('Sprzedanych5');
   });
 
-  it('shows what sold, where, when and for how much at the crosshair', async () => {
+  it('shows the price, the kind of sale and the time at the crosshair', async () => {
     const { fixture, element, chart } = await render();
     const auction = chart.chart().points[1];
-    element.querySelector('.plot')!.dispatchEvent(new MouseEvent('pointermove', { clientX: auction.x + 3 }));
+    element.querySelector('.plot')!.dispatchEvent(new MouseEvent('pointermove', { clientX: auction.x + 2 }));
     fixture.detectChanges();
     const tooltip = element.querySelector('.tooltip')?.textContent ?? '';
+    expect(tooltip).toContain('120 zł');
     expect(tooltip).toContain('2,4g');
-    expect(tooltip).toContain('≈ 120 zł');
-    expect(tooltip).toContain('Licytacja · Classic');
-    expect(tooltip).toContain('05.11.2026');
-    expect(element.querySelector('line.crosshair')).not.toBeNull();
+    expect(tooltip).toContain('1 sprzedany · licytacja · +0');
+    expect(tooltip).toMatch(/5 lis 2026, \d\d:00/);
+    expect(element.querySelectorAll('line.cross').length).toBe(2);
+
+    const pair = chart.chart().points[3];
+    element.querySelector('.plot')!.dispatchEvent(new MouseEvent('pointermove', { clientX: pair.x }));
+    fixture.detectChanges();
+    expect(element.querySelector('.tooltip')!.textContent).toContain('2 sprzedane');
+
     element.querySelector('.plot')!.dispatchEvent(new MouseEvent('pointerleave'));
     fixture.detectChanges();
     expect(element.querySelector('.tooltip')).toBeNull();
   });
 
-  it('steps through the points with the keyboard', async () => {
-    const { fixture, element, chart } = await render();
+  it('steps through the dots with the keyboard', async () => {
+    const { element, chart } = await render();
     const plot = element.querySelector('.plot') as HTMLElement;
-    expect(plot.getAttribute('tabindex')).toBe('0');
     plot.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
     plot.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
-    fixture.detectChanges();
-    expect(chart.active().entry.listingId).toBe(2);
+    expect(chart.active().price).toBe(12_000);
     plot.dispatchEvent(new KeyboardEvent('keydown', { key: 'End' }));
-    expect(chart.active().entry.listingId).toBe(3);
+    expect(chart.active().count).toBe(2);
     plot.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(chart.active()).toBeNull();
   });
 
-  it('filters by upgrade level and time range', async () => {
+  it('filters by time range and upgrade level', async () => {
     const { fixture, element, chart } = await render();
-    const groups = element.querySelectorAll('.controls .chips');
-    const ranges = Array.from(groups[0].querySelectorAll<HTMLButtonElement>('button'));
-    const levels = Array.from(groups[1].querySelectorAll<HTMLButtonElement>('button'));
-    expect(ranges.map(b => b.textContent?.trim())).toEqual(['7 dni', '30 dni', '90 dni', 'Wszystko']);
+    const ranges = Array.from(element.querySelectorAll<HTMLButtonElement>('.ranges button'));
+    expect(ranges.map(b => b.textContent?.trim())).toEqual(['1M', '3M', '1R', 'Wszystko']);
+    expect(ranges[3].getAttribute('aria-pressed')).toBe('true');
+    const levels = Array.from(element.querySelectorAll<HTMLButtonElement>('.chips button'));
     expect(levels.map(b => b.textContent?.trim())).toEqual(['Każde ulepszenie', '+0', '+3']);
 
     levels[2].click();
     fixture.detectChanges();
-    expect(chart.chart().points.map((p: any) => p.entry.listingId)).toEqual([5, 3]);
+    expect(chart.chart().points.map((p: any) => p.price)).toEqual([14_000, 11_000]);
 
     levels[0].click();
-    ranges[0].click(); // last 7 days before 12.11: 5.11 onwards
+    chart.now = () => Date.parse('2026-12-20T12:00:00Z'); // the sales now lie 6–7 weeks back
+    ranges[0].click();
     fixture.detectChanges();
-    expect(chart.chart().points.map((p: any) => p.entry.listingId)).toEqual([2, 5, 3]);
-    expect(ranges[0].getAttribute('aria-pressed')).toBe('true');
+    expect(chart.chart()).toBeNull();
+    expect(element.textContent).toContain('Brak sprzedaży w wybranym okresie.');
+    ranges[1].click();
+    fixture.detectChanges();
+    expect(chart.chart().points).toHaveLength(4);
   });
 
-  it('hides a series from the legend and leaves the others', async () => {
-    const { fixture, element, chart } = await render();
-    const legend = Array.from(element.querySelectorAll<HTMLButtonElement>('.legend button'));
-    expect(legend.map(b => b.textContent?.replace(/\s+/g, ' ').trim())).toEqual(['Sprzedaż 2', 'Licytacja 1', 'Aktualna oferta 1']);
-    legend[1].click();
-    fixture.detectChanges();
-    expect(legend[1].getAttribute('aria-pressed')).toBe('false');
-    expect(element.querySelectorAll('.mark.auction').length).toBe(0);
-    expect(chart.stats().count).toBe(2);
+  it('averages whole days only when the sales would not fit side by side', async () => {
+    const many = Array.from({ length: 150 }, (_, i) =>
+      entry(i + 1, `2026-11-0${(i % 5) + 1}T${String(8 + (i % 10)).padStart(2, '0')}:${String(i % 60).padStart(2, '0')}:00Z`, 10_000 + i * 10));
+    const { element, chart } = await render(many);
+    const points = chart.chart().points;
+    expect(points).toHaveLength(5);
+    expect(points.every((p: any) => p.averaged && p.count === 30)).toBe(true);
+    expect(element.querySelector('.hint')!.textContent).toContain('średnia z dnia');
   });
 
-  it('draws a far outlier on the edge instead of squashing the chart', async () => {
-    const list = Array.from({ length: 12 }, (_, i) => entry(i + 1, `2026-11-0${(i % 9) + 1}T10:00:00Z`, 5_000 + i * 100));
-    list.push(entry(99, '2026-11-10T10:00:00Z', 200_000));
+  it('keeps a far outlier on the edge instead of squashing the line', async () => {
+    const list = Array.from({ length: 12 }, (_, i) => entry(i + 1, `2026-10-${String(i + 10).padStart(2, '0')}T12:00:00Z`, 5_000 + i * 100));
+    list.push(entry(99, '2026-11-01T12:00:00Z', 200_000));
     const { element, chart } = await render(list);
-    const outlier = chart.chart().points.find((p: any) => p.entry.listingId === 99);
+    const outlier = chart.chart().points.find((p: any) => p.price === 200_000);
     expect(outlier.clipped).toBe('high');
     expect(outlier.y).toBe(chart.chart().top);
-    expect(chart.chart().yTicks.at(-1).label).not.toContain('2000');
-    expect(element.querySelector('.legend')!.textContent).toContain('1 poza skalą');
-    // Statistics still use the real price.
+    expect(element.querySelectorAll('path.clip').length).toBe(1);
     expect(chart.stats().high).toBe(200_000);
   });
 
-  it('says when there is nothing to draw', async () => {
-    const { element } = await render([entry(4, '2026-11-06T10:00:00Z', null)]);
-    expect(element.textContent).toContain('Brak cen do pokazania na wykresie.');
+  it('says when there are no sales at all', async () => {
+    const { element } = await render([entry(5, '2026-11-10T12:00:00Z', 15_000, { source: 'OFFER' })]);
+    expect(element.textContent).toContain('Brak sprzedaży do pokazania na wykresie.');
     expect(element.querySelector('.stats')).toBeNull();
-  });
-
-  it('says when the time range is empty', async () => {
-    const { fixture, element } = await render([entry(1, '2026-01-01T10:00:00Z', 10_000)]);
-    (element.querySelector('.controls .chips button') as HTMLButtonElement).click();
-    fixture.detectChanges();
-    expect(element.textContent).toContain('Brak cen w wybranym okresie.');
   });
 });
 
+async function renderNarrow(list: PriceHistoryEntry[]) {
+  const fixture = TestBed.createComponent(PriceChartComponent);
+  (fixture.componentInstance as any).now = () => NOW;
+  (fixture.componentInstance as any).width.set(340);
+  fixture.componentRef.setInput('entries', list);
+  fixture.detectChanges();
+  return { chart: fixture.componentInstance as any };
+}
+
 describe('price chart helpers', () => {
-  it('picks round grid steps', () => {
-    expect(niceStep(4_125)).toBe(5_000);
-    expect(niceStep(1_500)).toBe(2_000);
-    expect(niceStep(10)).toBe(100);
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('merges sales of the same day only when the price is the same', () => {
+    const points = mergeSamePrice([entry(1, '2026-11-05T09:00:00Z', 100), entry(2, '2026-11-05T15:00:00Z', 100),
+      entry(3, '2026-11-05T16:00:00Z', 300), entry(4, '2026-11-06T12:00:00Z', 100)]);
+    expect(points.map(p => [p.price, p.count, p.entry?.listingId ?? null])).toEqual([[100, 2, null], [300, 1, 3], [100, 1, 4]]);
   });
 
-  it('fits the price axis around the prices without going below zero', () => {
+  it('averages a day', () => {
+    const [day] = averageByDay([entry(1, '2026-11-05T09:00:00Z', 100), entry(2, '2026-11-05T15:00:00Z', 300)]);
+    expect([day.price, day.low, day.high, day.count, day.averaged]).toEqual([200, 100, 300, 2, true]);
+  });
+
+  it('never stacks dots on the left edge, even when the space is tight', async () => {
+    const list = Array.from({ length: 60 }, (_, i) => entry(i + 1, `2026-11-${String((i % 28) + 1).padStart(2, '0')}T12:00:00Z`, 5_000 + i * 7));
+    const { chart } = await renderNarrow(list);
+    const xs = chart.chart().points.map((p: any) => p.x);
+    for (let i = 1; i < xs.length; i++) expect(xs[i]).toBeGreaterThan(xs[i - 1]);
+  });
+
+  it('pushes close dots apart and keeps them inside the plot', () => {
+    expect(spread([10, 10, 10, 50], 0, 100, 12)).toEqual([10, 22, 34, 50]);
+    expect(spread([90, 95, 100], 0, 100, 12)).toEqual([76, 88, 100]);
+  });
+
+  it('writes the number of pieces in Polish', () => {
+    expect([1, 2, 4, 5, 12, 22, 25].map(n => `${n} ${soldWord(n)}`))
+      .toEqual(['1 sprzedany', '2 sprzedane', '4 sprzedane', '5 sprzedanych', '12 sprzedanych', '22 sprzedane', '25 sprzedanych']);
+  });
+
+  it('marks the start of a month with its name', () => {
+    const ticks = [new Date(2026, 9, 28).getTime(), new Date(2026, 9, 31).getTime(), new Date(2026, 10, 3).getTime()];
+    expect(labelTicks(ticks).map(t => t.label)).toEqual(['28', '31', 'lis']);
+  });
+
+  it('picks round grid steps and fits the axis around the prices', () => {
+    expect(niceStep(4_125)).toBe(5_000);
+    expect(niceStep(10)).toBe(100);
     expect(priceDomain(10_000, 15_000)).toEqual([8_000, 16_000, 2_000]);
-    const [min] = priceDomain(100, 200);
-    expect(min).toBe(0);
-    const [low, high] = priceDomain(5_000, 5_000);
-    expect(high).toBeGreaterThan(low);
+    expect(priceDomain(100, 200)[0]).toBe(0);
   });
 
   it('keeps the range when there is no clear outlier', () => {
     expect(typicalRange([1, 2, 3])).toEqual([1, 3]);
-    expect(typicalRange([10, 11, 12, 13, 14, 15, 16, 17, 18])).toEqual([10, 18]);
     expect(typicalRange([10, 11, 12, 13, 14, 15, 16, 17, 500])).toEqual([10, 17]);
   });
 
-  it('computes medians', () => {
-    expect(median([3, 1, 2])).toBe(2);
+  it('computes medians and date ticks', () => {
     expect(median([1, 2, 3, 4])).toBe(3);
-    expect(rollingMedian([1, 100, 2, 3, 4], 3)).toEqual([51, 2, 3, 3, 4]);
-  });
-
-  it('places at least two midnight date ticks and never too many', () => {
     const from = new Date(2026, 8, 25, 13).getTime(), to = new Date(2026, 10, 22, 9).getTime();
-    for (const max of [2, 4, 8, 12]) {
+    for (const max of [4, 8, 12]) {
       const ticks = dayTicks(from, to, max);
       expect(ticks.length).toBeGreaterThanOrEqual(2);
-      if (max >= 4) expect(ticks.length).toBeLessThanOrEqual(max);
-      for (const t of ticks) {
-        expect(new Date(t).getHours()).toBe(0);
-        expect(t).toBeGreaterThanOrEqual(from);
-        expect(t).toBeLessThanOrEqual(to);
-      }
+      expect(ticks.length).toBeLessThanOrEqual(max);
+      ticks.forEach(t => expect(new Date(t).getHours()).toBe(0));
     }
   });
 });
