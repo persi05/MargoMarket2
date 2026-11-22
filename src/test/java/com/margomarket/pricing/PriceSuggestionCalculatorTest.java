@@ -1,13 +1,14 @@
 package com.margomarket.pricing;
 
+import com.margomarket.catalog.Server;
+import com.margomarket.catalog.WorldType;
+
 import static com.margomarket.pricing.PriceSample.Currency.GOLD;
 import static com.margomarket.pricing.PriceSample.Currency.PLN;
 import static com.margomarket.pricing.PriceSample.Source.*;
 import static com.margomarket.pricing.PriceSuggestionCalculator.Basis.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.margomarket.model.Server;
-import com.margomarket.model.WorldType;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;

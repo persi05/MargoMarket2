@@ -53,3 +53,8 @@ AGENTS.md
 
 ### Root npm leftovers ###
 /package-lock.json
+
+### Playwright ###
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/

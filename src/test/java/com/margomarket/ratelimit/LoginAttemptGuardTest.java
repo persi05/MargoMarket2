@@ -3,7 +3,6 @@ package com.margomarket.ratelimit;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.margomarket.exception.RateLimitExceededException;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;

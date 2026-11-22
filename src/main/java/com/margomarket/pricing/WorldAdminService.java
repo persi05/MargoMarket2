@@ -1,10 +1,9 @@
 package com.margomarket.pricing;
 
-import com.margomarket.dto.WorldRatesRequest;
-import com.margomarket.dto.WorldResponse;
-import com.margomarket.exception.NotFoundException;
-import com.margomarket.model.Server;
-import com.margomarket.repository.ServerRepository;
+import com.margomarket.catalog.Server;
+import com.margomarket.catalog.ServerRepository;
+import com.margomarket.shared.NotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

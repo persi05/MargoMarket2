@@ -40,6 +40,34 @@ jobs:
             target/failsafe-reports/
           if-no-files-found: warn
           retention-days: 7
+      - name: Summarise test coverage
+        if: always() && hashFiles('target/site/jacoco/jacoco.csv') != ''
+        run: |
+          # jacoco.csv: one row per class, columns 4/5 = missed/covered instructions, 6/7 = branches, 8/9 = lines
+          awk -F, 'NR>1 {mi+=$4; ci+=$5; mb+=$6; cb+=$7; ml+=$8; cl+=$9}
+            END {
+              printf "### Pokrycie testami (JaCoCo)\n\n| Miara | Pokrycie |\n|---|---|\n"
+              printf "| Instrukcje | %.1f%% |\n", 100*ci/(mi+ci)
+              printf "| Gałęzie | %.1f%% |\n", 100*cb/(mb+cb)
+              printf "| Linie | %.1f%% |\n", 100*cl/(ml+cl)
+              printf "\nPełny raport: artefakt **jacoco-report** (otwórz index.html).\n"
+            }' target/site/jacoco/jacoco.csv >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload module diagrams
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: module-docs
+          path: target/spring-modulith-docs/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload backend build
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -77,3 +105,47 @@ jobs:
           path: frontend/dist/
           if-no-files-found: error
           retention-days: 7
+
+  e2e:
+    name: End-to-end test (Playwright)
+    # Playwright installs browser system packages only for Ubuntu releases it knows.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Node.js 24
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Start backend and database
+        run: npm run e2e:stack
+      - name: Run end-to-end tests
+        run: npm run e2e
+        env:
+          CI: 'true'
+      - name: Backend logs on failure
+        if: failure()
+        run: docker logs margomarket-e2e-api --tail 200 || true
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Stop backend and database
+        if: always()
+        run: npm run e2e:stack:down

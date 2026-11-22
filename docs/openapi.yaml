@@ -4099,6 +4099,9 @@ components:
         confirmedAt:
           type: string
           format: date-time
+        conversationId:
+          type: integer
+          format: int64
         itemName:
           type: string
         reviewableUntil:

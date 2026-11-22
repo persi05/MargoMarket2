@@ -1,13 +1,14 @@
 package com.margomarket.ratelimit;
 
+import com.margomarket.catalog.ItemCatalogImporter;
+import com.margomarket.listing.auction.AuctionScheduler;
+import com.margomarket.security.JwtService;
+import com.margomarket.user.User;
+import com.margomarket.user.UserRepository;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.margomarket.model.User;
-import com.margomarket.repository.UserRepository;
-import com.margomarket.security.JwtService;
-import com.margomarket.service.AuctionScheduler;
-import com.margomarket.service.ItemCatalogImporter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

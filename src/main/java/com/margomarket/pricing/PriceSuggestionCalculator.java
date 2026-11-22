@@ -1,7 +1,7 @@
 package com.margomarket.pricing;
 
-import com.margomarket.model.Server;
-import com.margomarket.model.WorldType;
+import com.margomarket.catalog.Server;
+import com.margomarket.catalog.WorldType;
 
 import java.time.Duration;
 import java.time.Instant;

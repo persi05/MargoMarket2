@@ -1,0 +1,118 @@
+package com.margomarket.security;
+
+import com.margomarket.ratelimit.RateLimitFilter;
+import com.margomarket.ratelimit.RateLimiter;
+import com.margomarket.user.UserService;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.context.WebServerInitializedEvent;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.event.EventListener;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+    /** Actual Actuator port, known once its server starts (-1 when Actuator shares the API port). */
+    private volatile int managementPort = -1;
+
+    @EventListener
+    void webServerStarted(WebServerInitializedEvent event) {
+        if ("management".equals(event.getApplicationContext().getServerNamespace()))
+            managementPort = event.getWebServer().getPort();
+    }
+
+
+    private final UserService userService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimiter rateLimiter;
+    private final ObjectMapper objectMapper;
+
+    @Value("${app.cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
+    @Bean
+    public static PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/ws/conversations").permitAll()
+                        // Actuator lives on its own port (management.server.port), reachable only inside the
+                        // container/host network, so it needs no token there. On the public port it is refused.
+                        .requestMatchers(request -> request.getLocalPort() == managementPort).permitAll()
+                        .requestMatchers("/actuator/**").denyAll()
+                        .requestMatchers("/v3/api-docs", "/v3/api-docs.yaml", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/listings/mine", "/api/listings/favorites", "/api/listings/private-details").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/auctions/mine").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/auctions", "/api/auctions/config", "/api/auctions/*", "/api/auctions/*/bids").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/*", "/api/listings/gold/config", "/api/dictionaries", "/api/items").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/listings/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register", "/api/auth/verify-email").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/profiles/*", "/api/profiles/*/listings", "/api/profiles/*/reviews").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                )
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new RateLimitFilter(rateLimiter, objectMapper), JwtAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", configuration);
+        return source;
+    }
+}

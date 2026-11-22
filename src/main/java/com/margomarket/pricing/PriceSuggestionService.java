@@ -1,12 +1,13 @@
 package com.margomarket.pricing;
 
-import com.margomarket.dto.PageResponse;
-import com.margomarket.exception.NotFoundException;
-import com.margomarket.model.Item;
-import com.margomarket.model.ItemRules;
-import com.margomarket.model.Server;
-import com.margomarket.repository.ItemRepository;
-import com.margomarket.repository.ServerRepository;
+import com.margomarket.catalog.Item;
+import com.margomarket.catalog.ItemRepository;
+import com.margomarket.catalog.ItemRules;
+import com.margomarket.catalog.Server;
+import com.margomarket.catalog.ServerRepository;
+import com.margomarket.shared.NotFoundException;
+import com.margomarket.shared.PageResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,7 +1,10 @@
 package com.margomarket.security;
 
-import com.margomarket.model.User;
-import com.margomarket.service.UserService;
+import com.margomarket.moderation.ModerationScope;
+import com.margomarket.moderation.UserRestrictedException;
+import com.margomarket.user.User;
+import com.margomarket.user.UserService;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String path=request.getRequestURI().substring(request.getContextPath().length());
                 if(user.isAccessBlocked() && !path.equals("/api/auth/moderation") && !path.equals("/api/auth/login")) {
                     response.setStatus(403);response.setContentType("application/json");response.setCharacterEncoding("UTF-8");
-                    mapper.writeValue(response.getWriter(),new com.margomarket.exception.UserRestrictedException(com.margomarket.service.ModerationScope.ACCOUNT,user.getAccountBlockReason(),user.getAccountBlockUntil()).response());
+                    mapper.writeValue(response.getWriter(),new UserRestrictedException(ModerationScope.ACCOUNT,user.getAccountBlockReason(),user.getAccountBlockUntil()).response());
                     return;
                 }
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

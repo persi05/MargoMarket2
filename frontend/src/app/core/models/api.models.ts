@@ -307,6 +307,8 @@ export interface PriceHistoryEntry {
 /** Confirmed exchange the current user bought in and has not reviewed yet. */
 export interface PendingReview {
   confirmationId: number;
+  /** Conversation in which the intermediary confirmed the exchange. */
+  conversationId: number | null;
   sellerId: number;
   sellerDisplayName: string;
   itemName: string;

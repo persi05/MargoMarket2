@@ -1,6 +1,7 @@
 package com.margomarket.ratelimit;
 
 import static com.margomarket.ratelimit.RateLimitPolicy.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;

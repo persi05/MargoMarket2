@@ -1,16 +1,21 @@
 package com.margomarket.pricing;
 
+import com.margomarket.catalog.ItemCatalogImporter;
+import com.margomarket.listing.auction.AuctionBidRateLimiter;
+import com.margomarket.listing.auction.AuctionClosingService;
+import com.margomarket.listing.auction.AuctionRequest;
+import com.margomarket.listing.auction.AuctionScheduler;
+import com.margomarket.listing.auction.AuctionService;
+import com.margomarket.listing.auction.PlaceBidRequest;
+import com.margomarket.security.JwtService;
+import com.margomarket.user.User;
+import com.margomarket.user.UserRepository;
+
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import org.springframework.http.MediaType;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.margomarket.dto.AuctionRequest;
-import com.margomarket.dto.PlaceBidRequest;
-import com.margomarket.model.User;
-import com.margomarket.repository.UserRepository;
-import com.margomarket.security.JwtService;
-import com.margomarket.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

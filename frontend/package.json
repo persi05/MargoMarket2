@@ -6,7 +6,10 @@
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "e2e": "playwright test",
+    "e2e:stack": "docker compose -f e2e/docker-compose.e2e.yaml up -d --build --wait",
+    "e2e:stack:down": "docker compose -f e2e/docker-compose.e2e.yaml down"
   },
   "dependencies": {
     "@angular/animations": "^21.0.0",
@@ -25,6 +28,7 @@
     "@angular/build": "^21.0.0",
     "@angular/cli": "^21.0.0",
     "@angular/compiler-cli": "^21.0.0",
+    "@playwright/test": "^1.56.1",
     "jsdom": "^31.0.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.8"

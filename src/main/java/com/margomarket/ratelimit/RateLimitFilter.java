@@ -1,8 +1,8 @@
 package com.margomarket.ratelimit;
 
+import com.margomarket.user.User;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.margomarket.exception.RateLimitExceededException;
-import com.margomarket.model.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

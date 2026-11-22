@@ -523,3 +523,8 @@ button:disabled {
   .chat-panel:has(.chat-placeholder) { display: none; }
   .inbox:has(+ .chat-panel .chat-placeholder) { border-bottom: 0; }
 }
+
+.review-prompt { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; margin: 0 0 12px; padding: 14px 16px; border: 1px solid rgba(250, 204, 21, .45); border-left: 4px solid #facc15; border-radius: 6px; background: var(--color-card-dark); }
+.review-prompt strong { display: block; margin-bottom: 4px; }
+.review-prompt p { margin: 0; color: var(--color-text-muted); line-height: 1.5; }
+@media (max-width: 600px) { .review-prompt .mm-button { width: 100%; } }
