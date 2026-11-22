@@ -40,6 +40,35 @@ jobs:
             target/failsafe-reports/
           if-no-files-found: warn
           retention-days: 7
+      - name: Summarise test coverage
+        if: always() && hashFiles('target/site/jacoco/jacoco.csv') != ''
+        run: |
+          # jacoco.csv: one row per class, columns 4/5 = missed/covered instructions, 6/7 = branches, 8/9 = lines
+          awk -F, 'NR>1 {mi+=$4; ci+=$5; mb+=$6; cb+=$7; ml+=$8; cl+=$9}
+            END {
+              printf "### Pokrycie testami (JaCoCo)
+
+| Miara | Pokrycie |
+|---|---|
+"
+              printf "| Instrukcje | %.1f%% |
+", 100*ci/(mi+ci)
+              printf "| Gałęzie | %.1f%% |
+", 100*cb/(mb+cb)
+              printf "| Linie | %.1f%% |
+", 100*cl/(ml+cl)
+              printf "
+Pełny raport: artefakt **jacoco-report** (otwórz index.html).
+"
+            }' target/site/jacoco/jacoco.csv >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload backend build
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

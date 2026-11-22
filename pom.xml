@@ -30,6 +30,7 @@
 		<java.version>21</java.version>
 		<lombok.version>1.18.42</lombok.version>
 		<testcontainers.version>2.0.5</testcontainers.version>
+		<jacoco.version>0.8.14</jacoco.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -163,6 +164,37 @@
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+                Test coverage. One agent records unit tests (Surefire) and integration tests (Failsafe)
+                into the same target/jacoco.exec, so target/site/jacoco/index.html shows the combined
+                coverage. The report is written after the integration tests and before the verify goal
+                checks their results, so it exists even when a test fails.
+            -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>com/margomarket/MargomarketApplication.class</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>
