@@ -2,48 +2,23 @@ package com.margomarket.listing.internal;
 
 import com.margomarket.listing.ListingSoldEvent;
 import com.margomarket.notification.NotificationService;
-import com.margomarket.notification.internal.UserNotification;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 class ListingSoldNotificationListenerTest {
 
     @Test
     void handleListingSoldDelegatesToNotificationServiceWithOwnerAndObservers() {
-        RecordingNotificationService notificationService = new RecordingNotificationService();
-        ListingSoldNotificationListener listener = new ListingSoldNotificationListener(notificationService);
-        ListingSoldEvent event = new ListingSoldEvent(10L, 1L, List.of(2L, 3L), "Smoczy miecz");
+        NotificationService notifications = mock(NotificationService.class);
+        ListingSoldNotificationListener listener = new ListingSoldNotificationListener(notifications);
 
-        listener.handleListingSold(event);
+        listener.handleListingSold(new ListingSoldEvent(10L, 1L, List.of(2L, 3L), "Smoczy miecz"));
 
-        assertThat(notificationService.ownerId).isEqualTo(1L);
-        assertThat(notificationService.observerIds).containsExactly(2L, 3L);
-        assertThat(notificationService.itemName).isEqualTo("Smoczy miecz");
-    }
-
-    private static final class RecordingNotificationService extends NotificationService {
-        private Long ownerId;
-        private List<Long> observerIds;
-        private String itemName;
-
-        private RecordingNotificationService() {
-            super(nullRepository(), nullRepository(), null);
-        }
-
-        @Override
-        public List<UserNotification> createListingSoldNotifications(Long ownerId, List<Long> observerIds, String itemName) {
-            this.ownerId = ownerId;
-            this.observerIds = observerIds;
-            this.itemName = itemName;
-            return List.of();
-        }
-
-        private static <T> T nullRepository() {
-            return null;
-        }
+        verify(notifications).createListingSoldNotifications(10L, 1L, List.of(2L, 3L), "Smoczy miecz");
     }
 }

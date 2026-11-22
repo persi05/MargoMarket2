@@ -95,8 +95,9 @@ identyfikatory, encje też trafią do `internal`.
   czeka w tabeli. `EventPublicationMaintenance` co 5 minut ponawia zdarzenia
   nieobsłużone od ponad 5 minut. Po restarcie aplikacji ponawiane są wszystkie
   niedokończone. Obsłużone wpisy są usuwane po 7 dniach. Przez ponowienia
-  słuchacz może dostać to samo zdarzenie więcej niż raz. Dlatego zaproszenie do
-  opinii ma klucz zdarzenia (`event_key`) i drugi raz się nie zapisuje.
+  słuchacz może dostać to samo zdarzenie więcej niż raz. Dlatego powiadomienia
+  (zaproszenie do opinii, sprzedaż) mają klucz zdarzenia (`event_key`)
+  i drugi raz się nie zapisują.
 - **Obsługa błędów.** Każdy moduł tłumaczy własne wyjątki we własnym
   `@RestControllerAdvice` z `@Order(GlobalExceptionHandler.MODULE_HANDLERS)`.
   `GlobalExceptionHandler` obsługuje tylko błędy wspólne. Format odpowiedzi

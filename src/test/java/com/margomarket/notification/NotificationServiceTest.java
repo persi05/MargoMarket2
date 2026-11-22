@@ -5,7 +5,6 @@ import com.margomarket.notification.internal.UserNotification;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.shared.NotFoundException;
 import com.margomarket.user.User;
-import com.margomarket.user.UserDirectory;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +36,7 @@ class NotificationServiceTest {
     private NotificationRepository notificationRepository;
 
     @Mock
-    private UserDirectory users;
+    private JdbcTemplate jdbc;
 
     @InjectMocks
     private NotificationService notificationService;
@@ -65,48 +66,15 @@ class NotificationServiceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    void createListingSoldNotificationsSavesNotificationForOwnerAndObservers() {
-        User owner = user(1L);
-        User observer = user(2L);
-        when(users.reference(1L)).thenReturn(owner);
-        when(users.reference(2L)).thenReturn(observer);
-        when(notificationRepository.saveAll(anyList()))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+    void createListingSoldNotificationsNotifiesOwnerAndObserversOnceEach() {
+        notificationService.createListingSoldNotifications(10L, 1L, List.of(2L, 1L), "Smoczy miecz");
 
-        List<UserNotification> notifications = notificationService.createListingSoldNotifications(1L, List.of(2L), "Smoczy miecz");
-
-        ArgumentCaptor<List<UserNotification>> notificationsCaptor = ArgumentCaptor.forClass(List.class);
-        verify(notificationRepository).saveAll(notificationsCaptor.capture());
-        List<UserNotification> savedNotifications = notificationsCaptor.getValue();
-
-        assertThat(notifications).hasSize(2);
-        assertThat(savedNotifications).hasSize(2);
-        assertThat(savedNotifications).extracting(UserNotification::getUser).containsExactly(owner, observer);
-        assertThat(savedNotifications).allSatisfy(notification -> {
-            assertThat(notification.getType()).isEqualTo("LISTING_SOLD");
-            assertThat(notification.getMessage()).contains("Smoczy miecz");
-            assertThat(notification.isRead()).isFalse();
-        });
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    void createListingSoldNotificationsDoesNotDuplicateOwner() {
-        User owner = user(1L);
-        when(users.reference(1L)).thenReturn(owner);
-        when(notificationRepository.saveAll(anyList()))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-
-        List<UserNotification> notifications = notificationService.createListingSoldNotifications(1L, List.of(1L), "Smoczy miecz");
-
-        ArgumentCaptor<List<UserNotification>> notificationsCaptor = ArgumentCaptor.forClass(List.class);
-        verify(notificationRepository).saveAll(notificationsCaptor.capture());
-
-        assertThat(notifications).hasSize(1);
-        assertThat(notifications.getFirst().getUser()).isSameAs(owner);
-        assertThat(notificationsCaptor.getValue()).hasSize(1);
-        assertThat(notificationsCaptor.getValue().getFirst().getUser()).isSameAs(owner);
+        String sql = "INSERT INTO notifications(user_id,type,message,is_read,created_at,event_key) VALUES (?,?,?,false,clock_timestamp(),?) "
+                + "ON CONFLICT(event_key) DO NOTHING";
+        String message = "Ogłoszenie \"Smoczy miecz\" zostało oznaczone jako sprzedane.";
+        verify(jdbc).update(sql, 1L, "LISTING_SOLD", message, "listing-sold:10:1");
+        verify(jdbc).update(sql, 2L, "LISTING_SOLD", message, "listing-sold:10:2");
+        verifyNoMoreInteractions(jdbc);
     }
 
     @Test

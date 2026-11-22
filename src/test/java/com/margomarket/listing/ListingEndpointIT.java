@@ -2,10 +2,12 @@ package com.margomarket.listing;
 
 import com.margomarket.catalog.internal.ItemCatalogImporter;
 import com.margomarket.listing.auction.AuctionScheduler;
+import com.margomarket.notification.NotificationService;
 import com.margomarket.user.User;
 import com.margomarket.user.internal.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -21,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import java.time.Duration;
 import java.util.*;
 
 /** Full HTTP round trips: responses are mapped outside the transaction (open-in-view is off). */
@@ -45,6 +48,7 @@ class ListingEndpointIT {
     @Autowired JdbcTemplate jdbc;
     @Autowired UserRepository users;
     @Autowired MockMvc mvc;
+    @Autowired NotificationService notifications;
     User owner, other;
     long listing;
 
@@ -77,6 +81,16 @@ class ListingEndpointIT {
                 .isEqualTo("sold");
         // Marking again is harmless and still answers with the listing.
         mvc.perform(post("/api/listings/" + listing + "/sold").with(user(owner))).andExpect(status().isOk());
+
+        // The sale notification arrives after the commit, through the outbox, exactly once.
+        await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> assertThat(soldNotifications()).isEqualTo(1L));
+        // A repeated delivery of the same sale event (an outbox retry) adds nothing.
+        notifications.createListingSoldNotifications(listing, owner.getId(), List.of(), "Miecz");
+        assertThat(soldNotifications()).isEqualTo(1L);
+    }
+
+    long soldNotifications() {
+        return jdbc.queryForObject("SELECT count(*) FROM notifications WHERE user_id=? AND type='LISTING_SOLD'", Long.class, owner.getId());
     }
 
     @Test

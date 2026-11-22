@@ -16,6 +16,6 @@ public class ListingSoldNotificationListener {
 
     @ApplicationModuleListener
     public void handleListingSold(ListingSoldEvent event) {
-        notificationService.createListingSoldNotifications(event.ownerId(), event.observerIds(), event.itemName());
+        notificationService.createListingSoldNotifications(event.listingId(), event.ownerId(), event.observerIds(), event.itemName());
     }
 }
