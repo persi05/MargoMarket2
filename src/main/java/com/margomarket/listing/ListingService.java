@@ -1,13 +1,16 @@
 
 package com.margomarket.listing;
 
+import com.margomarket.listing.internal.FavoriteRepository;
+import com.margomarket.listing.internal.ListingRepository;
+import com.margomarket.listing.internal.ListingRequest;
+import com.margomarket.listing.internal.ListingStatusRepository;
+import com.margomarket.listing.internal.PrivateListingDetails;
 import com.margomarket.catalog.Currency;
-import com.margomarket.catalog.CurrencyRepository;
+import com.margomarket.catalog.Catalog;
 import com.margomarket.catalog.Item;
-import com.margomarket.catalog.ItemRepository;
 import com.margomarket.catalog.ItemRules;
 import com.margomarket.catalog.Server;
-import com.margomarket.catalog.ServerRepository;
 import com.margomarket.listing.auction.AuctionListingPolicy;
 import com.margomarket.moderation.ModerationScope;
 import com.margomarket.moderation.UserModerationService;
@@ -36,9 +39,7 @@ public class ListingService {
     private final UserModerationService userModeration;
     private final ListingRepository listingRepository;
     private final ListingStatusRepository listingStatusRepository;
-    private final ServerRepository serverRepository;
-    private final ItemRepository itemRepository;
-    private final CurrencyRepository currencyRepository;
+    private final Catalog catalog;
     private final FavoriteRepository favoriteRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final AuctionListingPolicy auctionPolicy;
@@ -214,17 +215,17 @@ public class ListingService {
     }
 
     private Server getServer(Long id) {
-        return serverRepository.findById(id)
+        return catalog.server(id)
                 .orElseThrow(() -> new NotFoundException("Serwer nie istnieje"));
     }
 
     private Item getItem(Long id) {
-        return itemRepository.findById(id)
+        return catalog.item(id)
                 .orElseThrow(() -> new NotFoundException("Przedmiot nie istnieje"));
     }
 
     private Currency getCurrency(Long id) {
-        return currencyRepository.findById(id)
+        return catalog.currency(id)
                 .orElseThrow(() -> new NotFoundException("Waluta nie istnieje"));
     }
 }

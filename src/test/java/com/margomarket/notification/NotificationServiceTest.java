@@ -1,9 +1,11 @@
 package com.margomarket.notification;
 
+import com.margomarket.notification.internal.NotificationRepository;
+import com.margomarket.notification.internal.UserNotification;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.shared.NotFoundException;
 import com.margomarket.user.User;
-import com.margomarket.user.UserRepository;
+import com.margomarket.user.UserDirectory;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +35,7 @@ class NotificationServiceTest {
     private NotificationRepository notificationRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserDirectory users;
 
     @InjectMocks
     private NotificationService notificationService;
@@ -67,8 +69,8 @@ class NotificationServiceTest {
     void createListingSoldNotificationsSavesNotificationForOwnerAndObservers() {
         User owner = user(1L);
         User observer = user(2L);
-        when(userRepository.getReferenceById(1L)).thenReturn(owner);
-        when(userRepository.getReferenceById(2L)).thenReturn(observer);
+        when(users.reference(1L)).thenReturn(owner);
+        when(users.reference(2L)).thenReturn(observer);
         when(notificationRepository.saveAll(anyList()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -92,7 +94,7 @@ class NotificationServiceTest {
     @SuppressWarnings("unchecked")
     void createListingSoldNotificationsDoesNotDuplicateOwner() {
         User owner = user(1L);
-        when(userRepository.getReferenceById(1L)).thenReturn(owner);
+        when(users.reference(1L)).thenReturn(owner);
         when(notificationRepository.saveAll(anyList()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 

@@ -1,6 +1,6 @@
 package com.margomarket.listing.gold;
 
-import com.margomarket.listing.ListingMapper;
+import com.margomarket.listing.internal.ListingMapper;
 import com.margomarket.listing.ListingResponse;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.shared.PageMapper;

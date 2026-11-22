@@ -1,9 +1,9 @@
 package com.margomarket.listing;
 
-import com.margomarket.catalog.ItemCatalogImporter;
+import com.margomarket.catalog.internal.ItemCatalogImporter;
 import com.margomarket.listing.auction.AuctionScheduler;
 import com.margomarket.user.User;
-import com.margomarket.user.UserRepository;
+import com.margomarket.user.internal.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;

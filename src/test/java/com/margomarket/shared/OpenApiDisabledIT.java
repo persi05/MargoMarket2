@@ -1,6 +1,7 @@
 package com.margomarket.shared;
 
-import com.margomarket.catalog.ItemCatalogImporter;
+import java.util.Map;
+import com.margomarket.catalog.internal.ItemCatalogImporter;
 import com.margomarket.listing.auction.AuctionScheduler;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -19,7 +20,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import java.util.Map;
 
 /**
  * With the flag set to false the specification and Swagger UI must not be served.

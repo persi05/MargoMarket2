@@ -1,5 +1,7 @@
 package com.margomarket.ratelimit;
 
+import com.margomarket.ratelimit.internal.RateLimitExceededException;
+import com.margomarket.ratelimit.internal.RateLimitProperties;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

@@ -1,5 +1,9 @@
 package com.margomarket.catalog;
 
+import com.margomarket.catalog.internal.CatalogItem;
+import com.margomarket.catalog.internal.CatalogSource;
+import com.margomarket.catalog.internal.CatalogStore;
+import com.margomarket.catalog.internal.ItemCatalogImporter;
 import com.margomarket.listing.auction.AuctionScheduler;
 
 import static org.assertj.core.api.Assertions.*;

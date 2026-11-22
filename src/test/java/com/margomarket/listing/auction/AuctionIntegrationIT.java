@@ -1,19 +1,19 @@
 package com.margomarket.listing.auction;
 
-import com.margomarket.catalog.ItemCatalogImporter;
-import com.margomarket.conversation.AuctionFulfillmentService;
-import com.margomarket.conversation.ConversationExchangeService;
-import com.margomarket.conversation.ConversationService;
-import com.margomarket.conversation.ExchangeConfirmationService;
-import com.margomarket.listing.ListingRequest;
+import com.margomarket.catalog.internal.ItemCatalogImporter;
+import com.margomarket.conversation.internal.AuctionFulfillmentService;
+import com.margomarket.conversation.internal.ConversationExchangeService;
+import com.margomarket.conversation.internal.ConversationService;
+import com.margomarket.conversation.internal.ExchangeConfirmationService;
+import com.margomarket.listing.internal.ListingRequest;
 import com.margomarket.listing.ListingService;
 import com.margomarket.moderation.ModerationScope;
 import com.margomarket.moderation.UserModerationService;
-import com.margomarket.profile.PublicProfileService;
+import com.margomarket.profile.internal.PublicProfileService;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.shared.NotFoundException;
 import com.margomarket.user.User;
-import com.margomarket.user.UserRepository;
+import com.margomarket.user.internal.UserRepository;
 
 import org.junit.jupiter.api.*;
 import org.springframework.test.context.DynamicPropertyRegistry;

@@ -1,18 +1,20 @@
 package com.margomarket.listing;
 
+import com.margomarket.listing.internal.FavoriteRepository;
+import com.margomarket.listing.internal.ListingRepository;
+import com.margomarket.listing.internal.ListingRequest;
+import com.margomarket.listing.internal.ListingStatusRepository;
 import com.margomarket.catalog.Currency;
-import com.margomarket.catalog.CurrencyRepository;
+import com.margomarket.catalog.Catalog;
 import com.margomarket.catalog.Item;
-import com.margomarket.catalog.ItemRepository;
 import com.margomarket.catalog.ItemType;
 import com.margomarket.catalog.Rarity;
 import com.margomarket.catalog.Server;
-import com.margomarket.catalog.ServerRepository;
 import com.margomarket.listing.auction.AuctionListingPolicy;
 import com.margomarket.moderation.UserModerationService;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.shared.NotFoundException;
-import com.margomarket.user.Role;
+import com.margomarket.user.internal.Role;
 import com.margomarket.user.User;
 
 import org.junit.jupiter.api.Test;
@@ -47,13 +49,7 @@ class ListingServiceTest {
     private ListingStatusRepository listingStatusRepository;
 
     @Mock
-    private ServerRepository serverRepository;
-
-    @Mock
-    private ItemRepository itemRepository;
-
-    @Mock
-    private CurrencyRepository currencyRepository;
+    private Catalog catalog;
 
     @Mock
     private FavoriteRepository favoriteRepository;
@@ -109,9 +105,9 @@ class ListingServiceTest {
         Rarity rarity = rarity(3L);
         Currency currency = currency(4L);
 
-        when(serverRepository.findById(1L)).thenReturn(Optional.of(server));
-        when(itemRepository.findById(9L)).thenReturn(Optional.of(item(9L, "Lekka skrytka mocy", 20, itemType, rarity)));
-        when(currencyRepository.findById(4L)).thenReturn(Optional.of(currency));
+        when(catalog.server(1L)).thenReturn(Optional.of(server));
+        when(catalog.item(9L)).thenReturn(Optional.of(item(9L, "Lekka skrytka mocy", 20, itemType, rarity)));
+        when(catalog.currency(4L)).thenReturn(Optional.of(currency));
         when(listingStatusRepository.findByName("active")).thenReturn(Optional.of(activeStatus));
         when(listingRepository.save(any(Listing.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -127,9 +123,9 @@ class ListingServiceTest {
         itemType.setName("Konsumpcyjne");
         Rarity rarity = rarity(3L);
 
-        when(serverRepository.findById(1L)).thenReturn(Optional.of(server(1L)));
-        when(itemRepository.findById(9L)).thenReturn(Optional.of(item(9L, "Eliksir", 20, itemType, rarity)));
-        when(currencyRepository.findById(4L)).thenReturn(Optional.of(currency(4L)));
+        when(catalog.server(1L)).thenReturn(Optional.of(server(1L)));
+        when(catalog.item(9L)).thenReturn(Optional.of(item(9L, "Eliksir", 20, itemType, rarity)));
+        when(catalog.currency(4L)).thenReturn(Optional.of(currency(4L)));
         when(listingStatusRepository.findByName("active")).thenReturn(Optional.of(status("active")));
         when(listingRepository.save(any(Listing.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -145,9 +141,9 @@ class ListingServiceTest {
         itemType.setName("Talizmany");
         Rarity rarity = rarity(3L);
 
-        when(serverRepository.findById(1L)).thenReturn(Optional.of(server(1L)));
-        when(itemRepository.findById(9L)).thenReturn(Optional.of(item(9L, "Talizman", 20, itemType, rarity)));
-        when(currencyRepository.findById(4L)).thenReturn(Optional.of(currency(4L)));
+        when(catalog.server(1L)).thenReturn(Optional.of(server(1L)));
+        when(catalog.item(9L)).thenReturn(Optional.of(item(9L, "Talizman", 20, itemType, rarity)));
+        when(catalog.currency(4L)).thenReturn(Optional.of(currency(4L)));
         when(listingStatusRepository.findByName("active")).thenReturn(Optional.of(status("active")));
         when(listingRepository.save(any(Listing.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -350,8 +346,8 @@ class ListingServiceTest {
 
     @Test
     void keepsThePreviousLimitForPlnPrices() {
-        when(itemRepository.findById(9L)).thenReturn(Optional.of(item(9L, "Smoczy miecz", 100, itemType(2L), rarity(3L))));
-        when(currencyRepository.findById(4L)).thenReturn(Optional.of(currency(4L)));
+        when(catalog.item(9L)).thenReturn(Optional.of(item(9L, "Smoczy miecz", 100, itemType(2L), rarity(3L))));
+        when(catalog.currency(4L)).thenReturn(Optional.of(currency(4L)));
 
         assertThatThrownBy(() -> listingService.createListing(priced(ListingRequest.MAX_PLN_PRICE + 1), user(1L, "user")))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -364,9 +360,9 @@ class ListingServiceTest {
     }
 
     private void mockLookups(Server server, ItemType itemType, Rarity rarity, Currency currency) {
-        when(serverRepository.findById(1L)).thenReturn(Optional.of(server));
-        when(itemRepository.findById(9L)).thenReturn(Optional.of(item(9L, "Smoczy miecz", 100, itemType, rarity)));
-        when(currencyRepository.findById(4L)).thenReturn(Optional.of(currency));
+        when(catalog.server(1L)).thenReturn(Optional.of(server));
+        when(catalog.item(9L)).thenReturn(Optional.of(item(9L, "Smoczy miecz", 100, itemType, rarity)));
+        when(catalog.currency(4L)).thenReturn(Optional.of(currency));
     }
 
     private static ListingRequest request(String itemName, String contact) {

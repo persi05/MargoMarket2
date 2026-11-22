@@ -4,11 +4,11 @@ import com.margomarket.shared.Inputs;
 import com.margomarket.listing.auction.AuctionRepository.State;
 
 import com.margomarket.catalog.Currency;
-import com.margomarket.catalog.CurrencyRepository;
+import com.margomarket.catalog.Catalog;
 import com.margomarket.listing.Listing;
-import com.margomarket.listing.ListingMapper;
-import com.margomarket.listing.ListingRepository;
-import com.margomarket.listing.ListingRequest;
+import com.margomarket.listing.internal.ListingMapper;
+import com.margomarket.listing.internal.ListingRepository;
+import com.margomarket.listing.internal.ListingRequest;
 import com.margomarket.listing.ListingService;
 import com.margomarket.moderation.ModerationScope;
 import com.margomarket.moderation.UserModerationService;
@@ -37,7 +37,7 @@ public class AuctionService {
     private final JdbcTemplate jdbc;
     private final ListingService listings;
     private final ListingRepository listingRepository;
-    private final CurrencyRepository currencies;
+    private final Catalog catalog;
     private final ListingMapper mapper;
     private final AuctionBidRateLimiter limiter;
     private final AuctionRealtimePublisher realtime;
@@ -258,7 +258,7 @@ public class AuctionService {
     void endListing(long id) {
         jdbc.update("UPDATE listings SET status_id=(SELECT id FROM listing_statuses WHERE name='auction_ended'),version=version+1 WHERE id=?",id);
     }
-    public void audit(long id,Long actor,String action,String reason) {
+    void audit(long id,Long actor,String action,String reason) {
         jdbc.update("INSERT INTO auction_audit(auction_id,actor_id,action,reason) VALUES (?,?,?,?)",id,actor,action,reason);
     }
     static String reason(String value) { return Inputs.reason(value); }
@@ -294,7 +294,7 @@ public class AuctionService {
         return previous;
     }
     private ListingRequest listingRequest(AuctionRequest r) {
-        Currency c=currencies.findByNameIgnoreCase("PLN".equals(r.currency())?"PLN":"w grze").orElseThrow(()->new NotFoundException("Brak waluty"));
+        Currency c=catalog.currencyNamed("PLN".equals(r.currency())?"PLN":"w grze").orElseThrow(()->new NotFoundException("Brak waluty"));
         return new ListingRequest(r.itemId(),"Przedmiot",1L,1,r.enhancementLevel(),r.bound(),1L,1L,c.getId(),r.serverId(),r.contact()==null?"":r.contact());
     }
 }

@@ -1,9 +1,11 @@
 package com.margomarket.notification;
 
+import com.margomarket.notification.internal.NotificationRepository;
+import com.margomarket.notification.internal.UserNotification;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.shared.NotFoundException;
 import com.margomarket.user.User;
-import com.margomarket.user.UserRepository;
+import com.margomarket.user.UserDirectory;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +24,7 @@ public class NotificationService {
     private static final String LISTING_SOLD_TYPE = "LISTING_SOLD";
 
     private final NotificationRepository notificationRepository;
-    private final UserRepository userRepository;
+    private final UserDirectory users;
     private final org.springframework.jdbc.core.JdbcTemplate jdbc;
 
     public void auction(long userId,long auctionId,String type,String message,String eventKey) {
@@ -50,7 +52,7 @@ public class NotificationService {
         recipientIds.addAll(observerIds);
 
         List<UserNotification> notifications = recipientIds.stream()
-                .map(userRepository::getReferenceById)
+                .map(users::reference)
                 .map(user -> new UserNotification(user, LISTING_SOLD_TYPE, message))
                 .toList();
 

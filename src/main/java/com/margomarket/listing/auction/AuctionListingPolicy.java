@@ -5,10 +5,12 @@ import com.margomarket.shared.ForbiddenOperationException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.modulith.NamedInterface;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@NamedInterface("auction")
 public class AuctionListingPolicy {
     private final JdbcTemplate jdbc;
     private final AuctionRealtimePublisher realtime;

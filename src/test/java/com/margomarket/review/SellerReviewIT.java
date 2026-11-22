@@ -1,15 +1,16 @@
 package com.margomarket.review;
 
-import com.margomarket.review.SellerReviewDtos.CreateReviewRequest;
+import com.margomarket.review.internal.SellerReviewService;
+import com.margomarket.review.internal.SellerReviewDtos.CreateReviewRequest;
 
-import com.margomarket.catalog.ItemCatalogImporter;
+import com.margomarket.catalog.internal.ItemCatalogImporter;
 import com.margomarket.listing.auction.AuctionScheduler;
 import com.margomarket.moderation.ModerationScope;
 import com.margomarket.moderation.UserModerationService;
 import com.margomarket.moderation.UserRestrictedException;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.user.User;
-import com.margomarket.user.UserRepository;
+import com.margomarket.user.internal.UserRepository;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;

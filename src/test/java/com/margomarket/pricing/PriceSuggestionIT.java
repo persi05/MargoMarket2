@@ -1,6 +1,6 @@
 package com.margomarket.pricing;
 
-import com.margomarket.catalog.ItemCatalogImporter;
+import com.margomarket.catalog.internal.ItemCatalogImporter;
 import com.margomarket.listing.auction.AuctionBidRateLimiter;
 import com.margomarket.listing.auction.AuctionClosingService;
 import com.margomarket.listing.auction.AuctionRequest;
@@ -9,7 +9,7 @@ import com.margomarket.listing.auction.AuctionService;
 import com.margomarket.listing.auction.PlaceBidRequest;
 import com.margomarket.security.JwtService;
 import com.margomarket.user.User;
-import com.margomarket.user.UserRepository;
+import com.margomarket.user.internal.UserRepository;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

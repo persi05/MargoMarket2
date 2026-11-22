@@ -1,8 +1,7 @@
 /**
- * Auctions of item listings. Exposed as the named interface {@code listing::auction} because
- * conversations settle finished auctions (fulfillment) and enforce the auction rules on exchanges.
+ * Auctions of item listings. Internal to the listing module except for the types marked with
+ * {@code @NamedInterface("auction")}: {@link com.margomarket.listing.auction.AuctionSettlement} and
+ * {@link com.margomarket.listing.auction.AuctionListingPolicy}, which conversations use to settle
+ * finished auctions and to apply the auction rules to exchanges.
  */
-@NamedInterface("auction")
 package com.margomarket.listing.auction;
-
-import org.springframework.modulith.NamedInterface;

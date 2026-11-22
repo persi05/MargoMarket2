@@ -1,6 +1,8 @@
 package com.margomarket.ratelimit;
 
-import com.margomarket.user.Role;
+import com.margomarket.ratelimit.internal.RateLimitPolicy;
+import com.margomarket.ratelimit.internal.RateLimitProperties;
+import com.margomarket.user.internal.Role;
 import com.margomarket.user.User;
 
 import static org.assertj.core.api.Assertions.assertThat;

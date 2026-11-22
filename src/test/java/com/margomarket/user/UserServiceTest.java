@@ -1,5 +1,10 @@
 package com.margomarket.user;
 
+import java.util.List;
+import com.margomarket.user.internal.EmailAlreadyUsedException;
+import com.margomarket.user.internal.Role;
+import com.margomarket.user.internal.RoleRepository;
+import com.margomarket.user.internal.UserRepository;
 import com.margomarket.listing.Listing;
 import com.margomarket.listing.ListingStatus;
 import com.margomarket.shared.ForbiddenOperationException;
@@ -16,7 +21,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;

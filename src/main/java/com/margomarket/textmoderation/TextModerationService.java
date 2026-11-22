@@ -1,5 +1,8 @@
 package com.margomarket.textmoderation;
 
+import com.margomarket.textmoderation.internal.BlockedWord;
+import com.margomarket.textmoderation.internal.BlockedWordRepository;
+import com.margomarket.textmoderation.internal.BlockedWordRequest;
 import com.margomarket.shared.NotFoundException;
 
 import lombok.RequiredArgsConstructor;

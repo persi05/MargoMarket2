@@ -1,8 +1,8 @@
 package com.margomarket.moderation;
 
-import com.margomarket.catalog.ItemCatalogImporter;
-import com.margomarket.conversation.ConversationService;
-import com.margomarket.listing.ListingRequest;
+import com.margomarket.catalog.internal.ItemCatalogImporter;
+import com.margomarket.conversation.internal.ConversationService;
+import com.margomarket.listing.internal.ListingRequest;
 import com.margomarket.listing.ListingService;
 import com.margomarket.listing.auction.AuctionBidRateLimiter;
 import com.margomarket.listing.auction.AuctionRequest;
@@ -15,7 +15,7 @@ import com.margomarket.listing.gold.GoldListingService;
 import com.margomarket.security.JwtService;
 import com.margomarket.shared.ForbiddenOperationException;
 import com.margomarket.user.User;
-import com.margomarket.user.UserRepository;
+import com.margomarket.user.internal.UserRepository;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;

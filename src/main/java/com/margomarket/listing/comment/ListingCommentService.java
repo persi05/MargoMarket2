@@ -1,7 +1,7 @@
 package com.margomarket.listing.comment;
 
 import com.margomarket.listing.Listing;
-import com.margomarket.listing.ListingRepository;
+import com.margomarket.listing.internal.ListingRepository;
 import com.margomarket.moderation.ModerationScope;
 import com.margomarket.moderation.UserModerationService;
 import com.margomarket.shared.ForbiddenOperationException;
