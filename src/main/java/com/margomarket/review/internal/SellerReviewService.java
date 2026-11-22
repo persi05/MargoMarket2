@@ -24,9 +24,9 @@ import java.time.Instant;
 import java.util.*;
 
 /**
- * Opinie o sprzedawcach. Opinię może wystawić tylko kupujący z wymiany potwierdzonej przez
- * pośrednika, jedną na potwierdzenie i w ograniczonym czasie. Unieważnienie potwierdzenia lub
- * ukrycie opinii przez administratora wyłącza ją z listy i ze statystyk.
+ * Reviews of sellers. Only the buyer of an exchange confirmed by an intermediary may review it,
+ * once per confirmation and within a limited time. A revoked confirmation or a review hidden by
+ * an administrator drops out of the list and the statistics.
  */
 @Service
 @RequiredArgsConstructor

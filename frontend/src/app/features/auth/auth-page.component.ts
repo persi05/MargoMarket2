@@ -204,7 +204,7 @@ export class AuthPageComponent {
     try {
       sessionStorage.setItem(this.pendingKey, JSON.stringify({ username, displayName, email }));
     } catch {
-      // Weryfikacja działa dalej w otwartej karcie, nawet bez pamięci przeglądarki.
+      // Verification still works in the open tab, even without browser storage.
     }
   }
 
@@ -212,7 +212,7 @@ export class AuthPageComponent {
     try {
       sessionStorage.removeItem(this.pendingKey);
     } catch {
-      // Brak dostępu do pamięci nie blokuje zakończenia rejestracji.
+      // No access to storage must not block finishing the registration.
     }
   }
 

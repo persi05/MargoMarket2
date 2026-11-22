@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Order(GlobalExceptionHandler.MODULE_HANDLERS)
 class AuctionExceptionHandler {
     @ExceptionHandler(AuctionRateLimitException.class)
-    public ResponseEntity<java.util.Map<String,Object>> auctionRateLimit(AuctionRateLimitException ex) {
-        return ResponseEntity.status(429).header("Retry-After",String.valueOf(ex.retryAfterSeconds))
-                .body(java.util.Map.of("status",429,"message",ex.getMessage(),"retryAfterSeconds",ex.retryAfterSeconds));
+    public ResponseEntity<java.util.Map<String, Object>> auctionRateLimit(AuctionRateLimitException ex) {
+        return ResponseEntity.status(429)
+                .header("Retry-After", String.valueOf(ex.retryAfterSeconds))
+                .body(java.util.Map.of(
+                        "status", 429, "message", ex.getMessage(), "retryAfterSeconds", ex.retryAfterSeconds));
     }
 }

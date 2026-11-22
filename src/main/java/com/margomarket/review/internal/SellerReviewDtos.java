@@ -18,7 +18,7 @@ public final class SellerReviewDtos {
     public record SellerReviewResponse(long id, int rating, String comment, long buyerId, String buyerDisplayName,
                                        String itemName, Instant createdAt) {}
 
-    /** distribution[i] = liczba opinii z oceną i+1. */
+    /** distribution[i] = number of reviews rated i + 1. */
     public record ReviewSummary(long count, Double average, Integer positivePercent, List<Long> distribution) {}
 
     public record SellerReviewsResponse(ReviewSummary summary, PageResponse<SellerReviewResponse> reviews) {}
