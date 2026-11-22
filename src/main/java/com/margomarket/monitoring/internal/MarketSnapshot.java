@@ -17,10 +17,12 @@ class MarketSnapshot {
     static final Duration MAX_AGE = Duration.ofSeconds(30);
     /** An active auction this long past its end means the closing scheduler is not keeping up. */
     static final Duration CLOSING_GRACE = Duration.ofMinutes(2);
+    /** An event between modules still unhandled after this has a failing listener and waits for a retry. */
+    static final Duration EVENT_GRACE = Duration.ofMinutes(1);
 
     record Counts(long activeAuctions, long overdueAuctions, long activeItemListings, long activeGoldListings,
                   long openConversations, long openConversationReports, long openAuctionReports,
-                  long disputedFulfillments, Instant oldestOverdueEnd) {}
+                  long disputedFulfillments, long incompleteEvents, Instant oldestOverdueEnd) {}
 
     private final JdbcTemplate jdbc;
     private final Clock clock;
@@ -66,12 +68,14 @@ class MarketSnapshot {
                   (SELECT count(*) FROM conversations WHERE closed_at IS NULL) AS open_conversations,
                   (SELECT count(*) FROM conversation_reports WHERE status='OPEN') AS conversation_reports,
                   (SELECT count(*) FROM auction_reports WHERE resolved_at IS NULL) AS auction_reports,
-                  (SELECT count(*) FROM auction_fulfillments WHERE status='DISPUTED') AS disputed
+                  (SELECT count(*) FROM auction_fulfillments WHERE status='DISPUTED') AS disputed,
+                  (SELECT count(*) FROM event_publication WHERE completion_date IS NULL
+                    AND publication_date<=clock_timestamp()-make_interval(secs=>?)) AS incomplete_events
                 """, (rs, i) -> new Counts(
                 rs.getLong("active_auctions"), rs.getLong("overdue_auctions"),
                 rs.getLong("item_listings"), rs.getLong("gold_listings"), rs.getLong("open_conversations"),
-                rs.getLong("conversation_reports"), rs.getLong("auction_reports"), rs.getLong("disputed"),
+                rs.getLong("conversation_reports"), rs.getLong("auction_reports"), rs.getLong("disputed"), rs.getLong("incomplete_events"),
                 rs.getTimestamp("oldest_overdue") == null ? null : rs.getTimestamp("oldest_overdue").toInstant()),
-                CLOSING_GRACE.toSeconds(), CLOSING_GRACE.toSeconds());
+                CLOSING_GRACE.toSeconds(), CLOSING_GRACE.toSeconds(), EVENT_GRACE.toSeconds());
     }
 }

@@ -120,6 +120,7 @@ class MonitoringIT {
                 .contains("margomarket_auctions_active{application=\"margomarket\"} " + (before + 1) + ".0")
                 .contains("margomarket_listings_active{application=\"margomarket\",kind=\"gold\"}")
                 .contains("margomarket_reports_open{application=\"margomarket\",type=\"auction\"}")
+                .contains("margomarket_events_incomplete{application=\"margomarket\"} 0.0")
                 .contains("http_server_requests_seconds");
     }
 

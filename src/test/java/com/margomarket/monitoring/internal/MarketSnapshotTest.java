@@ -23,12 +23,12 @@ class MarketSnapshotTest {
     };
 
     static MarketSnapshot.Counts counts(long active) {
-        return new MarketSnapshot.Counts(active, 0, 0, 0, 0, 0, 0, 0, null);
+        return new MarketSnapshot.Counts(active, 0, 0, 0, 0, 0, 0, 0, 0, null);
     }
 
     @SuppressWarnings("unchecked")
     void databaseReturns(long active) {
-        when(jdbc.queryForObject(anyString(), any(RowMapper.class), any(), any())).thenReturn(counts(active));
+        when(jdbc.queryForObject(anyString(), any(RowMapper.class), any(), any(), any())).thenReturn(counts(active));
     }
 
     @Test
@@ -62,7 +62,7 @@ class MarketSnapshotTest {
         when(snapshot.refresh()).thenReturn(counts(4));
         assertThat(health.health().getStatus().getCode()).isEqualTo("UP");
 
-        when(snapshot.refresh()).thenReturn(new MarketSnapshot.Counts(4, 2, 0, 0, 0, 0, 0, 0, Instant.parse("2026-11-22T09:50:00Z")));
+        when(snapshot.refresh()).thenReturn(new MarketSnapshot.Counts(4, 2, 0, 0, 0, 0, 0, 0, 0, Instant.parse("2026-11-22T09:50:00Z")));
         var down = health.health();
         assertThat(down.getStatus().getCode()).isEqualTo("DOWN");
         assertThat(down.getDetails()).containsEntry("overdueAuctions", 2L).containsEntry("oldestOverdueEnd", "2026-11-22T09:50:00Z");

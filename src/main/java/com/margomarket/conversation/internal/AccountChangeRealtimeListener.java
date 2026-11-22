@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.modulith.events.ApplicationModuleListener;
 
 import java.util.Map;
 
@@ -20,7 +20,7 @@ class AccountChangeRealtimeListener {
     private final SimpMessagingTemplate messaging;
     private final ModerationWebSocketSessions sessions;
 
-    @TransactionalEventListener
+    @ApplicationModuleListener
     public void changed(UserModerationChanged event) {
         try {
             String name =

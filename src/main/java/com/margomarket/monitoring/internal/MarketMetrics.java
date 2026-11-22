@@ -34,6 +34,8 @@ class MarketMetrics implements MeterBinder {
         Gauge.builder("margomarket.reports.open", () -> snapshot.counts().openAuctionReports())
                 .description("Zgłoszenia czekające na moderatora").tag("type", "auction").register(registry);
         gauge(registry, "margomarket.fulfillments.disputed", "Sporne rozliczenia aukcji", MarketSnapshot.Counts::disputedFulfillments);
+        gauge(registry, "margomarket.events.incomplete",
+                "Zdarzenia między modułami, których obsługa się nie udała i czeka na ponowienie", MarketSnapshot.Counts::incompleteEvents);
     }
 
     private void gauge(MeterRegistry registry, String name, String description, ToLongFunction<MarketSnapshot.Counts> value) {
