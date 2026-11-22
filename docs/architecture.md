@@ -64,7 +64,7 @@ Granice pilnują zależności w kodzie, a nie dostępu do tabel.
   `all-docs.adoc`).
 
 Mapa modułów jest też dostępna w działającej aplikacji pod
-`/actuator/modulith` (tylko dla administratora).
+`/actuator/modulith` (port 8081).
 
 ## Dodawanie kodu
 
@@ -77,12 +77,20 @@ Mapa modułów jest też dostępna w działającej aplikacji pod
 
 ## Monitoring
 
-| Endpoint | Dostęp | Zawartość |
-|---|---|---|
-| `/actuator/health` | publiczny | tylko `status`; administrator widzi też składniki |
-| `/actuator/health/liveness`, `/readiness` | publiczny | sondy dla Dockera i load balancera; readiness obejmuje bazę |
-| `/actuator/metrics`, `/actuator/prometheus` | administrator | metryki JVM, HTTP, puli połączeń i biznesowe |
-| `/actuator/modulith`, `/actuator/info` | administrator | mapa modułów, informacje o aplikacji |
+Actuator działa na osobnym porcie **8081** (`MANAGEMENT_PORT`). Docker Compose
+wystawia na zewnątrz tylko 8080, więc `/actuator/**` jest dostępne wyłącznie
+z wnętrza kontenera albo z tego samego serwera, np. dla Prometheusa w tej
+samej sieci Dockera. Na porcie 8080 `/actuator/**` jest odrzucane.
+Na porcie 8081 nie trzeba tokenu.
+
+| Endpoint (port 8081) | Zawartość |
+|---|---|
+| `/actuator/health` | stan aplikacji ze składnikami (`db`, `auctionClosing`, …) |
+| `/actuator/health/liveness`, `/readiness` | sondy dla Dockera i load balancera; readiness obejmuje bazę |
+| `/actuator/metrics`, `/actuator/prometheus` | metryki JVM, HTTP, puli połączeń i biznesowe |
+| `/actuator/modulith`, `/actuator/info` | mapa modułów, informacje o aplikacji |
+
+Podgląd lokalnie: `docker exec margomarket-api wget -qO- localhost:8081/actuator/health`.
 
 Metryki biznesowe (odświeżane co najwyżej co 30 s jednym zapytaniem):
 
@@ -100,6 +108,4 @@ dalej obsługuje ruch, ale `/actuator/health` zwraca 503.
 Kontrola zdrowia poczty jest wyłączona, bo awaria SMTP nie powinna oznaczać
 całej usługi jako niedziałającej.
 
-Docker Compose sprawdza kontener przez `/actuator/health/readiness`.
-Prometheus może pobierać `/actuator/prometheus` z tokenem administratora
-(`Authorization: Bearer …`).
+Docker Compose sprawdza kontener przez `localhost:8081/actuator/health/readiness`.

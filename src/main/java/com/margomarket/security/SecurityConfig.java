@@ -7,7 +7,9 @@ import com.margomarket.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.event.EventListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +35,15 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    /** Actual Actuator port, known once its server starts (-1 when Actuator shares the API port). */
+    private volatile int managementPort = -1;
+
+    @EventListener
+    void webServerStarted(WebServerInitializedEvent event) {
+        if ("management".equals(event.getApplicationContext().getServerNamespace()))
+            managementPort = event.getWebServer().getPort();
+    }
+
 
     private final UserService userService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -69,9 +80,10 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/ws/conversations").permitAll()
-                        // Status only for everyone (load balancers, Docker); details, metrics and the module map for admins.
-                        .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/liveness", "/actuator/health/readiness").permitAll()
-                        .requestMatchers("/actuator/**").hasRole("ADMIN")
+                        // Actuator lives on its own port (management.server.port), reachable only inside the
+                        // container/host network, so it needs no token there. On the public port it is refused.
+                        .requestMatchers(request -> request.getLocalPort() == managementPort).permitAll()
+                        .requestMatchers("/actuator/**").denyAll()
                         .requestMatchers("/v3/api-docs", "/v3/api-docs.yaml", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/listings/mine", "/api/listings/favorites", "/api/listings/private-details").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/auctions/mine").authenticated()

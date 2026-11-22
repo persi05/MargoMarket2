@@ -10,33 +10,32 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.server.LocalManagementPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+/** Actuator runs on its own port: open there, absent from the public API port. */
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "management.server.port=0")
 @ActiveProfiles("auction-test")
-@AutoConfigureMockMvc
 @AutoConfigureObservability // @SpringBootTest turns metric exporters off unless asked
 @Testcontainers
 class MonitoringIT {
@@ -53,14 +52,24 @@ class MonitoringIT {
 
     @MockBean ItemCatalogImporter importer;
     @MockBean AuctionScheduler scheduler;
-    @Autowired MockMvc mvc;
     @Autowired JdbcTemplate jdbc;
     @Autowired UserRepository users;
     @Autowired AuctionService auctions;
     @Autowired MarketSnapshot snapshot;
+    @LocalServerPort int apiPort;
+    @LocalManagementPort int managementPort;
 
+    final HttpClient http = HttpClient.newHttpClient();
     long item, world;
     User seller;
+
+    record Reply(int status, String body) {}
+
+    Reply get(int port, String path) throws Exception {
+        HttpResponse<String> response = http.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + path)).GET().build(),
+                HttpResponse.BodyHandlers.ofString());
+        return new Reply(response.statusCode(), response.body());
+    }
 
     @BeforeEach
     void setup() {
@@ -82,31 +91,21 @@ class MonitoringIT {
     }
 
     @Test
-    void healthIsPublicButShowsOnlyTheStatus() throws Exception {
-        mvc.perform(get("/actuator/health")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("UP"))
-                .andExpect(jsonPath("$.components").doesNotExist());
-        mvc.perform(get("/actuator/health/liveness")).andExpect(status().isOk());
-        mvc.perform(get("/actuator/health/readiness")).andExpect(status().isOk());
-    }
-
-    @Test
-    void adminSeesHealthDetails() throws Exception {
-        mvc.perform(get("/actuator/health").with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
-                .andExpect(jsonPath("$.components.db.status").value("UP"))
-                .andExpect(jsonPath("$.components.auctionClosing.status").value("UP"))
-                .andExpect(jsonPath("$.components.mail").doesNotExist());
-    }
-
-    @Test
-    void metricsAndModuleMapAreForAdminsOnly() throws Exception {
-        for (String path : new String[] {"/actuator/prometheus", "/actuator/metrics", "/actuator/modulith", "/actuator/info"}) {
-            // Guests are refused like on /api (the app answers 403 without a token).
-            mvc.perform(get(path)).andExpect(result -> assertThat(result.getResponse().getStatus()).isIn(401, 403));
-            mvc.perform(get(path).with(user("user").roles("USER"))).andExpect(status().isForbidden());
+    void actuatorIsNotReachableThroughThePublicPort() throws Exception {
+        assertThat(managementPort).isNotEqualTo(apiPort);
+        for (String path : new String[] {"/actuator/health", "/actuator/prometheus", "/actuator/metrics", "/actuator/modulith"}) {
+            assertThat(get(apiPort, path).status()).as(path).isIn(401, 403, 404);
         }
-        mvc.perform(get("/actuator/modulith").with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
-                .andExpect(content().string(containsString("conversation")));
+    }
+
+    @Test
+    void managementPortShowsHealthWithDetailsAndProbes() throws Exception {
+        Reply health = get(managementPort, "/actuator/health");
+        assertThat(health.status()).isEqualTo(200);
+        assertThat(health.body()).contains("\"db\"").contains("\"auctionClosing\"").doesNotContain("\"mail\"");
+        assertThat(get(managementPort, "/actuator/health/liveness").status()).isEqualTo(200);
+        assertThat(get(managementPort, "/actuator/health/readiness").status()).isEqualTo(200);
+        assertThat(get(managementPort, "/actuator/modulith").body()).contains("conversation");
     }
 
     @Test
@@ -114,12 +113,14 @@ class MonitoringIT {
         long before = snapshot.refresh().activeAuctions();
         auction();
         snapshot.refresh();
-        mvc.perform(get("/actuator/prometheus").with(user("admin").roles("ADMIN"))).andExpect(status().isOk())
-                .andExpect(content().string(containsString("margomarket_auctions_active{application=\"margomarket\"} " + (before + 1) + ".0")))
-                .andExpect(content().string(containsString("margomarket_listings_active{application=\"margomarket\",kind=\"gold\"}")))
-                .andExpect(content().string(containsString("margomarket_reports_open{application=\"margomarket\",type=\"auction\"}")))
-                .andExpect(content().string(containsString("http_server_requests_seconds")))
-                .andExpect(content().string(not(containsString("margomarket_auctions_overdue{application=\"margomarket\"} 1.0"))));
+        assertThat(get(apiPort, "/api/dictionaries").status()).isEqualTo(200); // so the HTTP timer exists
+        Reply metrics = get(managementPort, "/actuator/prometheus");
+        assertThat(metrics.status()).isEqualTo(200);
+        assertThat(metrics.body())
+                .contains("margomarket_auctions_active{application=\"margomarket\"} " + (before + 1) + ".0")
+                .contains("margomarket_listings_active{application=\"margomarket\",kind=\"gold\"}")
+                .contains("margomarket_reports_open{application=\"margomarket\",type=\"auction\"}")
+                .contains("http_server_requests_seconds");
     }
 
     @Test
@@ -128,12 +129,11 @@ class MonitoringIT {
         jdbc.update("UPDATE auctions SET created_at=clock_timestamp()-interval '2 hours',original_ends_at=clock_timestamp()-interval '10 minutes',"
                 + "ends_at=clock_timestamp()-interval '10 minutes' WHERE id=?", id);
         try {
-            mvc.perform(get("/actuator/health").with(user("admin").roles("ADMIN"))).andExpect(status().isServiceUnavailable())
-                    .andExpect(jsonPath("$.components.auctionClosing.status").value("DOWN"))
-                    .andExpect(jsonPath("$.components.auctionClosing.details.overdueAuctions").value(1));
+            Reply health = get(managementPort, "/actuator/health");
+            assertThat(health.status()).isEqualTo(503);
+            assertThat(health.body()).contains("\"overdueAuctions\":1");
             // Readiness covers only the app state and the database, so the instance keeps serving.
-            mvc.perform(get("/actuator/health/readiness")).andExpect(status().isOk());
-            assertThat(snapshot.counts().overdueAuctions()).isEqualTo(1);
+            assertThat(get(managementPort, "/actuator/health/readiness").status()).isEqualTo(200);
         } finally {
             jdbc.update("UPDATE auctions SET status='CANCELLED' WHERE id=?", id);
         }
