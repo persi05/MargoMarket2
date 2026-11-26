@@ -84,8 +84,6 @@ export class AuctionDetailComponent {
   protected busy = false;
   protected loading = false;
   protected admin = false;
-  protected enabled = false;
-  protected plnEnabled = false;
   protected attemptsPerMinute = 30;
   protected attemptSpacingSeconds = 2;
   protected discussion = false;
@@ -138,8 +136,6 @@ export class AuctionDetailComponent {
       .config()
       .pipe(takeUntilDestroyed())
       .subscribe((c) => {
-        this.enabled = c.enabled;
-        this.plnEnabled = c.plnEnabled;
         this.attemptsPerMinute = c.attemptsPerMinute ?? 30;
         this.attemptSpacingSeconds = c.attemptSpacingSeconds ?? 2;
       });

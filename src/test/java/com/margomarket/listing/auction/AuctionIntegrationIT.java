@@ -116,8 +116,6 @@ class AuctionIntegrationIT {
     void setup() {
         ReflectionTestUtils.setField(limiter, "spacing", 0);
         ReflectionTestUtils.setField(limiter, "maximum", 100000);
-        ReflectionTestUtils.setField(auctions, "enabled", true);
-        ReflectionTestUtils.setField(auctions, "plnEnabled", true);
         seller = account("user");
         buyer = account("user");
         other = account("user");
@@ -466,11 +464,6 @@ class AuctionIntegrationIT {
         }
         assertThat(auctions.get(id, buyer).highestAmount()).isEqualTo(1000);
         assertThat(auctions.get(id, buyer).bidCount()).isEqualTo(1);
-        ReflectionTestUtils.setField(auctions, "enabled", false);
-        assertThatThrownBy(() -> auctions.create(request("PLN", 1), seller))
-                .isInstanceOf(ForbiddenOperationException.class);
-        assertThatThrownBy(() -> auctions.bid(id, bid(1100), other)).isInstanceOf(ForbiddenOperationException.class);
-        assertThat(auctions.get(id, null)).isNotNull();
     }
 
     @Test
@@ -507,7 +500,7 @@ class AuctionIntegrationIT {
     }
 
     @Test
-    void apiRejectsFractionalUnitsMalformedKeysAndDisabledPln() throws Exception {
+    void apiRejectsFractionalUnitsAndMalformedKeys() throws Exception {
         long id = create();
         mvc.perform(post("/api/auctions/" + id + "/bids")
                         .with(user(buyer))
@@ -520,13 +513,6 @@ class AuctionIntegrationIT {
                         .contentType("application/json")
                         .content("{\"amount\":1000,\"currency\":\"PLN\",\"idempotencyKey\":\"bad-key\"}"))
                 .andExpect(status().isBadRequest());
-        ReflectionTestUtils.setField(auctions, "plnEnabled", false);
-        mvc.perform(post("/api/auctions/" + id + "/bids")
-                        .with(user(buyer))
-                        .contentType("application/json")
-                        .content("{\"amount\":1000,\"currency\":\"PLN\",\"idempotencyKey\":\"" + UUID.randomUUID()
-                                + "\"}"))
-                .andExpect(status().isForbidden());
     }
 
     @Test

@@ -90,7 +90,7 @@ describe('auction bidding', () => {
     flushState();
     http
       .expectOne(`${environment.apiUrl}/auctions/config`)
-      .flush({ enabled: true, plnEnabled: true });
+      .flush({ attemptsPerMinute: 30, attemptSpacingSeconds: 2 });
     c.input = '25,50';
     c.bid();
     c.bid();
@@ -113,7 +113,7 @@ describe('auction bidding', () => {
     flushState();
     http
       .expectOne(`${environment.apiUrl}/auctions/config`)
-      .flush({ enabled: true, plnEnabled: true });
+      .flush({ attemptsPerMinute: 30, attemptSpacingSeconds: 2 });
     component.toggleWatch();
     component.toggleWatch();
     const add = http.expectOne(`${environment.apiUrl}/listings/7/favorite`);
@@ -132,7 +132,7 @@ describe('auction bidding', () => {
     flushState(state(true));
     http
       .expectOne(`${environment.apiUrl}/auctions/config`)
-      .flush({ enabled: true, plnEnabled: true });
+      .flush({ attemptsPerMinute: 30, attemptSpacingSeconds: 2 });
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('input[name="bid"]')).toBeNull();
   });
@@ -142,7 +142,7 @@ describe('auction bidding', () => {
     const oldHistory = http.expectOne(`${url}/bids?page=1`);
     http
       .expectOne(`${environment.apiUrl}/auctions/config`)
-      .flush({ enabled: true, plnEnabled: true });
+      .flush({ attemptsPerMinute: 30, attemptSpacingSeconds: 2 });
     auth.isLoggedIn = false;
     user$.next(null);
     expect((fixture.componentInstance as any).auction).toBeNull();
@@ -167,7 +167,7 @@ describe('auction bidding', () => {
     flushState();
     http
       .expectOne(`${environment.apiUrl}/auctions/config`)
-      .flush({ enabled: true, plnEnabled: true });
+      .flush({ attemptsPerMinute: 30, attemptSpacingSeconds: 2 });
     socket.connected = true;
     vi.advanceTimersByTime(10000);
     http.expectNone(() => true);
@@ -184,7 +184,7 @@ describe('auction bidding', () => {
     flushState();
     http
       .expectOne(`${environment.apiUrl}/auctions/config`)
-      .flush({ enabled: true, plnEnabled: true });
+      .flush({ attemptsPerMinute: 30, attemptSpacingSeconds: 2 });
     vi.advanceTimersByTime(10000);
     flushState();
     fixture.destroy();
@@ -204,7 +204,7 @@ describe('auction bidding', () => {
     flushState(state(true), [bid]);
     http
       .expectOne(environment.apiUrl + '/auctions/config')
-      .flush({ enabled: true, plnEnabled: true });
+      .flush({ attemptsPerMinute: 30, attemptSpacingSeconds: 2 });
     fixture.detectChanges();
     const report = Array.from(fixture.nativeElement.querySelectorAll('button')).find((b: any) =>
       b.textContent.includes('Zgłoś ofertę'),
@@ -227,7 +227,7 @@ describe('auction bidding', () => {
     flushState();
     http
       .expectOne(environment.apiUrl + '/auctions/config')
-      .flush({ enabled: true, plnEnabled: true });
+      .flush({ attemptsPerMinute: 30, attemptSpacingSeconds: 2 });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).not.toContain('Zgłoś ofertę');
     fixture.destroy();

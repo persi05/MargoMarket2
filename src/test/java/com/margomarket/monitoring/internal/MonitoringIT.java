@@ -18,7 +18,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -73,8 +72,6 @@ class MonitoringIT {
 
     @BeforeEach
     void setup() {
-        ReflectionTestUtils.setField(auctions, "enabled", true);
-        ReflectionTestUtils.setField(auctions, "plnEnabled", true);
         String name = "m" + UUID.randomUUID().toString().replace("-", "").substring(0, 20);
         long id = jdbc.queryForObject("INSERT INTO users(email,username,display_name,password,role_id,email_verified,created_at) "
                 + "VALUES (?,?,?,'unused',(SELECT id FROM roles WHERE name='user'),true,localtimestamp-interval '2 days') RETURNING id",

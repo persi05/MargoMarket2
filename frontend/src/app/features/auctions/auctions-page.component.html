@@ -95,11 +95,9 @@
         </p>
       </div>
       <div class="market-heading-actions">
-        @if (enabled) {
-          <a class="market-create-action" routerLink="/new" [queryParams]="{ mode: 'auction' }"
-            >Wystaw na licytację</a
-          >
-        }
+        <a class="market-create-action" routerLink="/new" [queryParams]="{ mode: 'auction' }"
+          >Wystaw na licytację</a
+        >
         @if (result; as r) {
           <nav class="pager" aria-label="Górna paginacja licytacji">
             <button [disabled]="loading || r.first" (click)="load(r.page - 1, false)">

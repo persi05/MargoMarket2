@@ -163,9 +163,7 @@
             </div>
           } @else if (a.biddingRestriction) {
             <div class="eligibility-warning" role="alert">{{ a.biddingRestriction }}</div>
-          } @else if (
-            enabled && (a.currency !== 'PLN' || plnEnabled) && a.nextMinimumBid !== null
-          ) {
+          } @else if (a.nextMinimumBid !== null) {
             <form (ngSubmit)="bid()">
               <label
                 >Twoja oferta ({{ a.currency === 'PLN' ? 'PLN' : 'm złota' }})<input

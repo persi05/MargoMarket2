@@ -40,8 +40,6 @@ export class ListingFormPageComponent {
   private readonly route = inject(ActivatedRoute);
   protected auctionMode = this.route.snapshot.queryParamMap.get('mode') === 'auction' || this.route.snapshot.paramMap.has('id');
   protected auctionEditId = Number(this.route.snapshot.paramMap.get('id')) || null;
-  protected auctionsEnabled = false;
-  protected plnAuctionsEnabled = false;
   protected auctionEnd = new Date(Date.now() + 24 * 3600_000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   protected auctionDescription = '';
 
@@ -101,7 +99,6 @@ export class ListingFormPageComponent {
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe(params => {
       if (!this.auctionEditId) this.auctionMode = params.get('mode') === 'auction';
     });
-    this.auctions.config().subscribe(c => { this.auctionsEnabled = c.enabled; this.plnAuctionsEnabled = c.plnEnabled; });
     if (this.auctionEditId) this.auctions.get(this.auctionEditId).subscribe({
       next: a => {
         if (!a.owner || a.bidCount || a.status !== 'ACTIVE') { this.error = 'Tej aukcji nie można edytować.'; return; }

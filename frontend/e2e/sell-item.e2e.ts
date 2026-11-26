@@ -38,6 +38,6 @@ test('seller lists an item for 6,5g and marks it as sold', async ({ page }) => {
   await expect(page.locator('.notice')).not.toContainText('Nie udało się');
 
   const row = sql(`SELECT l.price || '|' || s.name FROM listings l JOIN listing_statuses s ON s.id = l.status_id
-                   JOIN users u ON u.id = l.user_id WHERE u.username = '${E2E_USER.username}'`).trim();
+                   JOIN users u ON u.id = l.user_id WHERE u.username = '${E2E_USER.username}' AND l.item_name = 'Lisia ochrona'`).trim();
   expect(row).toBe('6500000000|sold');
 });

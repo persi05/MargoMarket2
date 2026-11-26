@@ -6,20 +6,7 @@ stan, historię i realizację, a `/auctions/edit/{id}` pozwala zmienić dane prz
 pierwszą ofertą. Widoki „Moje wystawione” i „Moje licytowane” są dostępne
 z panelu użytkownika. Złoto jako sprzedawane dobro nadal korzysta z PR 2.
 
-## Uruchomienie
-
-Domyślnie nowe aukcje i składanie ofert są wyłączone na backendzie:
-
-```dotenv
-ITEM_AUCTIONS_ENABLED=false
-PLN_AUCTIONS_ENABLED=false
-```
-
-Po osobnej decyzji o uruchomieniu ustaw `ITEM_AUCTIONS_ENABLED=true`,
-a dla PLN także `PLN_AUCTIONS_ENABLED=true`, i uruchom ponownie backend.
-Docker Compose przekazuje obie zmienne. Flagi są niezależne od
-`GOLD_LISTINGS_ENABLED`. Odczyt, zamykanie, moderacja i realizacja istniejących
-aukcji działają również po wyłączeniu nowych ofert.
+## Baza danych
 
 Flyway V29 rozszerza bazę po V28. Migracje nie reinterpretują dotychczasowych
 cen. `sale_mode=AUCTION` odróżnia licytacje od zwykłych ogłoszeń `ITEM`.

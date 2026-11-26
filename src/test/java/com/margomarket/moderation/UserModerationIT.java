@@ -78,9 +78,6 @@ class UserModerationIT {
         admin = account("admin");
         target = account("user");
         other = account("user");
-        ReflectionTestUtils.setField(auctions, "enabled", true);
-        ReflectionTestUtils.setField(auctions, "plnEnabled", true);
-        ReflectionTestUtils.setField(gold, "enabled", true);
         ReflectionTestUtils.setField(limiter, "spacing", 0);
         ReflectionTestUtils.setField(limiter, "maximum", 100000);
         world = jdbc.queryForObject("SELECT id FROM servers ORDER BY id LIMIT 1", Long.class);

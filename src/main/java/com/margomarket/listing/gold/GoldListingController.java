@@ -43,11 +43,6 @@ public class GoldListingController {
         );
     }
 
-    @GetMapping("/gold/config")
-    public java.util.Map<String, Boolean> config() {
-        return java.util.Map.of("enabled", service.enabled());
-    }
-
     @PostMapping("/gold")
     @ResponseStatus(org.springframework.http.HttpStatus.CREATED)
     public ListingResponse create(

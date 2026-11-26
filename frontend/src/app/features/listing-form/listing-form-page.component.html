@@ -1,8 +1,7 @@
 <section class="page">
   <mm-page-header eyebrow="Nowa oferta" [title]="auctionMode ? (auctionEditId ? 'Edytuj licytację' : 'Wystaw przedmiot na licytację') : 'Dodaj przedmiot na giełdę'">
     @if (!auctionEditId) {
-      <mm-sale-mode [active]="auctionMode ? 'auction' : 'item'" [auctionsEnabled]="auctionsEnabled" />
-      @if (!auctionsEnabled) {<p class="form-notice">Nowe licytacje nie zostały jeszcze uruchomione.</p>}
+      <mm-sale-mode [active]="auctionMode ? 'auction' : 'item'" />
     }
   </mm-page-header>
 
@@ -13,7 +12,6 @@
           <label [class.invalid]="hasFieldError('auctionEnd')">Koniec licytacji<input [attr.aria-invalid]="hasFieldError('auctionEnd')" aria-describedby="auction-end-error" type="datetime-local" [value]="auctionEnd" [max]="auctionMaxEnd" (input)="auctionFieldChanged('auctionEnd', $any($event.target).value)" required><small id="auction-end-error" class="auction-field-feedback" aria-live="polite">{{ fieldError('auctionEnd') }}</small></label>
           <label [class.invalid]="hasFieldError('auctionDescription')">Opis aukcji<textarea [attr.aria-invalid]="hasFieldError('auctionDescription')" aria-describedby="auction-description-error" maxlength="2000" [value]="auctionDescription" (input)="auctionFieldChanged('auctionDescription', $any($event.target).value)" rows="3"></textarea><small id="auction-description-error" class="auction-field-feedback" aria-live="polite">{{ fieldError('auctionDescription') }}</small></label>
           <p>Oferta przyjęta w ostatnich 2 minutach przedłuża licytację. Po pierwszej ofercie dane aukcji nie mogą być zmieniane przez sprzedawcę.</p>
-          @if (!plnAuctionsEnabled) {<p>Licytacje w zł nie zostały jeszcze uruchomione.</p>}
         </div>
       }
       <div class="section-heading wide">
@@ -215,7 +213,7 @@
         </div>
       }
 
-      <button type="submit" [disabled]="loading || (auctionMode && !auctionsEnabled)">{{ loading ? 'Zapisywanie…' : auctionMode ? (auctionEditId ? 'Zapisz licytację' : 'Wystaw na licytację') : 'Dodaj ogłoszenie' }}</button>
+      <button type="submit" [disabled]="loading">{{ loading ? 'Zapisywanie…' : auctionMode ? (auctionEditId ? 'Zapisz licytację' : 'Wystaw na licytację') : 'Dodaj ogłoszenie' }}</button>
       }
 
     </form>

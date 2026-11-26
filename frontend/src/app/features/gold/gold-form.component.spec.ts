@@ -9,7 +9,6 @@ describe('gold form validation', () => {
   afterEach(() => TestBed.resetTestingModule());
   function setup() {
     const service = {
-      goldConfig: () => of({ enabled: true }),
       createGold: vi.fn(() => of({ id: 9 })),
     };
     TestBed.configureTestingModule({

@@ -51,7 +51,7 @@ export interface AuctionRequest {
 export class AuctionService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.apiUrl}/auctions`;
-  config() { return this.http.get<{enabled: boolean; plnEnabled: boolean; attemptsPerMinute:number; attemptSpacingSeconds:number}>(`${this.url}/config`); }
+  config() { return this.http.get<{attemptsPerMinute:number; attemptSpacingSeconds:number}>(`${this.url}/config`); }
   list(filters: Record<string, string | number>) {
     let params = new HttpParams();
     for (const [key, value] of Object.entries(filters)) if (value !== '') params = params.set(key, value);

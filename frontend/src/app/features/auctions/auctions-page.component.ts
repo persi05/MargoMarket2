@@ -60,7 +60,6 @@ export class AuctionsPageComponent {
   };
   protected types: LookupResponse[] = [];
   private appliedFilters = { ...this.filters };
-  protected enabled = false;
   protected loading = false;
   protected error = '';
   protected admin = false;
@@ -78,10 +77,6 @@ export class AuctionsPageComponent {
         this.worlds = d.servers;
         this.types = d.itemTypes;
       });
-    this.service
-      .config()
-      .pipe(takeUntilDestroyed())
-      .subscribe((c) => (this.enabled = c.enabled));
     this.auth.user$.pipe(takeUntilDestroyed()).subscribe((user) => {
       this.admin = user?.role === 'admin';
       this.favoriteSession++;

@@ -114,9 +114,6 @@ export class ListingService {
   searchGold(filter: Record<string, unknown> = {}): Observable<PageResponse<ListingResponse>> {
     return this.cached(this.baseUrl + '/gold', filter);
   }
-  goldConfig(): Observable<{ enabled: boolean }> {
-    return this.http.get<{ enabled: boolean }>(this.baseUrl + '/gold/config');
-  }
   createGold(request: unknown): Observable<ListingResponse> {
     return this.http
       .post<ListingResponse>(this.baseUrl + '/gold', request)

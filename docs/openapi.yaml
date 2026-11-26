@@ -884,7 +884,7 @@ paths:
       - Aukcje
   /api/auctions/config:
     get:
-      operationId: config_1
+      operationId: config
       responses:
         "200":
           content:
@@ -2257,28 +2257,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ListingResponse"
           description: Created
-        "4XX":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-          description: "Błąd żądania (walidacja, brak uprawnień, ograniczenie konta,\
-            \ konflikt). Ograniczenia konta i limity zapytań zwracają dodatkowe pola,\
-            \ np. `code` i `retryAfterSeconds`."
-      tags:
-      - Ogłoszenia złota
-  /api/listings/gold/config:
-    get:
-      operationId: config
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  type: boolean
-          description: OK
         "4XX":
           content:
             application/json:
