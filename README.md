@@ -18,7 +18,7 @@ Backend napisano w Spring Boot 3 (Java 21), frontend w Angularze, a dane trzyma 
 | Katalog | Zawartość |
 |---|---|
 | `src/main/java/com/margomarket` | backend podzielony na moduły (Spring Modulith), opis w [docs/architecture.md](docs/architecture.md) |
-| `src/main/resources/db/migration` | migracje Flyway (V1–V36) |
+| `src/main/resources/db/migration` | migracje Flyway (V1–V37) |
 | `src/test` | testy jednostkowe i integracyjne backendu |
 | `frontend/src` | aplikacja Angular z testami Vitest |
 | `frontend/e2e` | testy end-to-end w Playwright |
@@ -110,3 +110,7 @@ Workflow `.github/workflows/ci.yml` startuje przy każdym pushu i pull requeści
 - [docs/user-moderation.md](docs/user-moderation.md): blokady i ograniczenia kont,
 - [docs/catalog.md](docs/catalog.md): aktualizacja katalogu przedmiotów,
 - [docs/openapi.yaml](docs/openapi.yaml): specyfikacja REST API, generowana przez test `OpenApiSpecIT`.
+
+## Prawa do treści gry
+
+MargoMarket jest niezależnym projektem i nie jest powiązany z Garmory Sp. z o.o. Nazwy i grafiki przedmiotów oraz inne elementy gry Margonem należą do Garmory Sp. z o.o. Aplikacja korzysta z nich wyłącznie w celach informacyjnych, w zakresie potrzebnym do opisania wystawianych przedmiotów. Grafiki nie są kopiowane do repozytorium, ładują się bezpośrednio z serwerów Garmory.
