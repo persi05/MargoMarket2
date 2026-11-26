@@ -75,9 +75,9 @@ identyfikatory, encje też trafią do `internal`.
 - **Wywołanie publicznego API.** Przykład: `listing` sprawdza ograniczenia
   przez `UserModerationService`, a przedmioty i światy pobiera przez `Catalog`.
   Żaden moduł nie używa cudzych repozytoriów ani mapperów.
-- **Zdarzenia z outboxem.** Używamy ich tam, gdzie bezpośrednie wywołanie
-  tworzyłoby cykl albo odwracało kierunek zależności. Także tam, gdzie skutek
-  uboczny (powiadomienie, komunikat na żywo) nie powinien cofać głównej
+- **Zdarzenia z outboxem.** Służą tam, gdzie bezpośrednie wywołanie
+  tworzyłoby cykl albo odwracało kierunek zależności, oraz tam, gdzie skutek
+  uboczny (powiadomienie, komunikat na żywo) nie może cofnąć głównej
   operacji:
   - `moderation.UserModerationChanged`: `conversation` odświeża otwarte strony
     użytkownika i zamyka sesje WebSocket zablokowanego konta;
@@ -100,16 +100,17 @@ identyfikatory, encje też trafią do `internal`.
   i drugi raz się nie zapisują.
 - **Obsługa błędów.** Każdy moduł tłumaczy własne wyjątki we własnym
   `@RestControllerAdvice` z `@Order(GlobalExceptionHandler.MODULE_HANDLERS)`.
-  `GlobalExceptionHandler` obsługuje tylko błędy wspólne. Format odpowiedzi
-  (`ACCOUNT_BLOCKED`, `ACTION_RESTRICTED`, `RATE_LIMITED`, …) się nie zmienił.
+  `GlobalExceptionHandler` obsługuje tylko błędy wspólne. Wszystkie moduły
+  zwracają błędy w tym samym formacie, z kodami takimi jak `ACCOUNT_BLOCKED`,
+  `ACTION_RESTRICTED` czy `RATE_LIMITED`.
 
-Baza danych pozostaje wspólna (jeden schemat Flyway). Moduły korzystają też
-z zapytań SQL na tabelach innych obszarów (np. statystyki, monitoring).
-Granice pilnują zależności w kodzie, a nie dostępu do tabel.
+Baza danych jest wspólna (jeden schemat Flyway). Niektóre moduły, np.
+statystyki i monitoring, czytają SQL-em tabele innych obszarów. Granice
+modułów dotyczą zależności w kodzie, a nie dostępu do tabel.
 
 ## Kontrola granic
 
-`ModuleStructureTest` (zwykły test jednostkowy, uruchamiany też w CI):
+`ModuleStructureTest` to zwykły test jednostkowy, uruchamiany także w CI:
 
 - `ApplicationModules.verify()` przerywa build przy cyklu między modułami,
   przy użyciu wewnętrznego typu innego modułu (czegokolwiek z jego
@@ -118,12 +119,12 @@ Granice pilnują zależności w kodzie, a nie dostępu do tabel.
   w pakiecie głównym modułu, czyli w jego publicznym API.
 - Publiczne mogą być tylko encje z listy `SHARED_ENTITIES`, czyli te, do
   których inne moduły mają relacje JPA.
-
-`EventPublicationIT` sprawdza outbox: zapis zdarzenia razem z transakcją,
-brak publikacji po wycofaniu i ponowienie po błędzie słuchacza.
 - `Documenter` zapisuje diagramy PlantUML i opisy modułów do
   `target/spring-modulith-docs` (`components.puml`, `module-*.puml`,
   `all-docs.adoc`).
+
+`EventPublicationIT` sprawdza outbox: zapis zdarzenia razem z transakcją,
+brak publikacji po jej wycofaniu i ponowienie po błędzie słuchacza.
 
 Mapa modułów jest też dostępna w działającej aplikacji pod
 `/actuator/modulith` (port 8081).
@@ -133,22 +134,22 @@ Mapa modułów jest też dostępna w działającej aplikacji pod
 1. Nowa klasa trafia do modułu swojego obszaru, domyślnie do jego pakietu
    `internal`. Do pakietu głównego trafia tylko to, czego potrzebują inne
    moduły.
-2. Potrzebujesz czegoś z innego modułu? Użyj jego publicznego API. Jeśli
-   czegoś brakuje, dodaj metodę do publicznej klasy tamtego modułu (np.
-   `Catalog`, `UserDirectory`, `ListingQueries`), zamiast udostępniać
-   repozytorium. Jeśli tej zależności nie ma w `allowedDependencies`, dopisz
-   ją świadomie albo opublikuj zdarzenie.
-3. Gdy moduł A musiałby wołać B, a B już zależy od A, opublikuj zdarzenie w A
-   i obsłuż je w B metodą z `@ApplicationModuleListener`. Słuchacz musi
-   znieść ponowne dostarczenie tego samego zdarzenia.
+2. Kod z innego modułu jest dostępny tylko przez jego publiczne API. Jeśli
+   czegoś w nim brakuje, należy dodać metodę do publicznej klasy tamtego
+   modułu (np. `Catalog`, `UserDirectory`, `ListingQueries`), a nie
+   udostępniać repozytorium. Nową zależność trzeba dopisać do
+   `allowedDependencies` albo zastąpić ją zdarzeniem.
+3. Gdy moduł A musiałby wołać B, a B już zależy od A, A publikuje zdarzenie,
+   a B obsługuje je metodą z `@ApplicationModuleListener`. Słuchacz musi
+   poprawnie obsłużyć ponowne dostarczenie tego samego zdarzenia.
 
 ## Monitoring
 
 Actuator działa na osobnym porcie **8081** (`MANAGEMENT_PORT`). Docker Compose
 wystawia na zewnątrz tylko 8080, więc `/actuator/**` jest dostępne wyłącznie
 z wnętrza kontenera albo z tego samego serwera, np. dla Prometheusa w tej
-samej sieci Dockera. Na porcie 8080 `/actuator/**` jest odrzucane.
-Na porcie 8081 nie trzeba tokenu.
+samej sieci Dockera. Na porcie 8080 zapytania o `/actuator/**` są
+odrzucane, a na porcie 8081 nie wymagają tokenu.
 
 | Endpoint (port 8081) | Zawartość |
 |---|---|
@@ -160,9 +161,9 @@ Na porcie 8081 nie trzeba tokenu.
 Docker Compose wystawia port 8081 tylko na `127.0.0.1`, więc na tym samym
 komputerze wystarczy otworzyć `http://localhost:8081/actuator/health`
 (albo `/actuator/prometheus`, `/actuator/modulith`). Z sieci port nie jest
-dostępny. Na serwerze dostęp z własnego komputera daje tunel SSH:
-`ssh -L 8081:localhost:8081 użytkownik@serwer`. Nie wystawiaj portu
-bez `127.0.0.1:`, bo na 8081 nie ma logowania.
+dostępny. Do serwera można się dostać z własnego komputera tunelem SSH:
+`ssh -L 8081:localhost:8081 użytkownik@serwer`. Portu nie należy wystawiać
+bez prefiksu `127.0.0.1:`, bo na 8081 nie ma logowania.
 
 Metryki biznesowe (odświeżane co najwyżej co 30 s jednym zapytaniem):
 
@@ -176,10 +177,10 @@ Metryki biznesowe (odświeżane co najwyżej co 30 s jednym zapytaniem):
   ponad minuty (słuchacz rzucił wyjątek i zdarzenie czeka na ponowienie).
 
 Składnik zdrowia `auctionClosing` jest `DOWN`, gdy aktywna aukcja jest
-otwarta dłużej niż 2 minuty po czasie zakończenia. Oznacza to, że
-harmonogram zamykania stanął. Nie wchodzi do grupy readiness, więc instancja
-dalej obsługuje ruch, ale `/actuator/health` zwraca 503.
-Kontrola zdrowia poczty jest wyłączona, bo awaria SMTP nie powinna oznaczać
+otwarta dłużej niż 2 minuty po czasie zakończenia, czyli gdy harmonogram
+zamykania przestał działać. Składnik nie należy do grupy readiness, więc
+instancja dalej obsługuje ruch, ale `/actuator/health` zwraca 503.
+Kontrola zdrowia poczty jest wyłączona: awaria SMTP nie powinna oznaczać
 całej usługi jako niedziałającej.
 
 Docker Compose sprawdza kontener przez `localhost:8081/actuator/health/readiness`.
