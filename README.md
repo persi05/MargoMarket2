@@ -56,7 +56,7 @@ Administrator uruchamia aktualizację w panelu administracyjnym: **Katalog przed
 
 Pobieranie i walidacja poprzedzają zapis. Błąd źródła lub importu zachowuje dotychczasowe dane. Import aktualizuje przedmioty po identyfikatorze zewnętrznym, zachowuje ich lokalne ID i powiązania z ogłoszeniami. Brak przedmiotu w źródle nie usuwa go z bazy. Baza blokuje równoczesne aktualizacje; przerwany import można ponowić po 5 minutach bez postępu.
 
-Plik `src/main/resources/data/margoworld-market-items.json` jest wyłącznie katalogiem startowym, wczytywanym jednorazowo. Późniejszy restart nie nadpisuje katalogu z bazy. Skrypt `node scripts/update-margoworld-items.mjs` służy opcjonalnie do odświeżania tego pliku w repozytorium dla nowych instalacji. Na hostingu PostgreSQL musi mieć trwałe dane; lokalny Docker Compose używa wolumenu.
+Plik `src/main/resources/data/margoworld-market-items.json` jest wyłącznie katalogiem startowym, wczytywanym jednorazowo. Późniejszy restart nie nadpisuje katalogu z bazy. Na hostingu PostgreSQL musi mieć trwałe dane; lokalny Docker Compose używa wolumenu.
 
 ## Testy backendu
 
