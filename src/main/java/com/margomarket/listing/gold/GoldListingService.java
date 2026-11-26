@@ -88,7 +88,7 @@ public class GoldListingService {
         Listing l = new Listing();
         l.setListingKind("GOLD");
         l.setUser(owner);
-        l.setItemName("Złoto Margonem");
+        l.setItemName("Złoto");
         l.setLevel(null);
         l.setItemType(null);
         l.setRarity(null);
