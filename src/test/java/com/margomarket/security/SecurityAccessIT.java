@@ -50,7 +50,7 @@ class SecurityAccessIT {
 
     /** Endpoints a guest may call. Keep in sync with SecurityConfig – adding one here is a deliberate decision. */
     static final Set<String> PUBLIC = Set.of(
-            "GET /api/listings", "GET /api/listings/{id}", "GET /api/listings/gold", "GET /api/listings/gold/config",
+            "GET /api/listings", "GET /api/listings/{id}", "GET /api/listings/gold",
             "GET /api/listings/{listingId}/comments",
             "GET /api/dictionaries", "GET /api/items",
             "GET /api/auctions", "GET /api/auctions/config", "GET /api/auctions/{id}", "GET /api/auctions/{id}/bids",

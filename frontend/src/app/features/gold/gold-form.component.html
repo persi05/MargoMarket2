@@ -7,9 +7,6 @@
       <mm-sale-mode active="gold" />
     }
   </mm-page-header>
-  @if (!enabled && !editing) {
-    <p class="form-notice" role="status">Wystawianie złota nie zostało jeszcze uruchomione.</p>
-  }
   <form (ngSubmit)="submit()" novalidate>
     <div class="section-heading wide">
       <span>1</span>
@@ -104,7 +101,7 @@
     }
     <div class="form-actions wide">
       <a class="mm-button secondary" routerLink="/gold">Anuluj</a
-      ><button class="mm-button" type="submit" [disabled]="busy || (!enabled && !editing)">
+      ><button class="mm-button" type="submit" [disabled]="busy">
         {{ busy ? 'Zapisywanie…' : editing ? 'Zapisz zmiany' : 'Wystaw złoto' }}
       </button>
     </div>

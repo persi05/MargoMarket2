@@ -49,11 +49,7 @@
       </p>
     </div>
     <div class="market-heading-actions">
-    @if (enabled) {
-      <a class="market-create-action" routerLink="/gold/new">Wystaw złoto</a>
-    } @else {
-      <span>Wystawianie złota nie zostało jeszcze uruchomione.</span>
-    }
+    <a class="market-create-action" routerLink="/gold/new">Wystaw złoto</a>
     @if (result; as r) {<nav class="pager" aria-label="Górna paginacja złota"><button [disabled]="loading || r.first" (click)="load(r.page-1)">Poprzednia</button><button [disabled]="loading || r.last" (click)="load(r.page+1)">Następna</button></nav>}
     </div>
   </header>

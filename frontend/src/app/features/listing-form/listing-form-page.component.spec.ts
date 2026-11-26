@@ -24,7 +24,7 @@ describe('auction form validation', () => {
         { provide: ListingService, useValue: {} },
         {
           provide: AuctionService,
-          useValue: { config: () => of({ enabled: true, plnEnabled: true }) },
+          useValue: { config: () => of({ attemptsPerMinute: 30, attemptSpacingSeconds: 2 }) },
         },
         { provide: ItemService, useValue: { search: () => of([]) } },
       ],
@@ -92,7 +92,7 @@ describe('suggested price in the listing form', () => {
         { provide: ListingService, useValue: {} },
         {
           provide: AuctionService,
-          useValue: { config: () => of({ enabled: true, plnEnabled: true }) },
+          useValue: { config: () => of({ attemptsPerMinute: 30, attemptSpacingSeconds: 2 }) },
         },
         { provide: ItemService, useValue: { search: () => of([]) } },
       ],

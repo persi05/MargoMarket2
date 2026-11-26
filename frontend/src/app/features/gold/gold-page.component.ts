@@ -36,7 +36,6 @@ export class GoldPageComponent {
   protected result: PageResponse<ListingResponse> | null = null;
   protected loading = false;
   protected error = '';
-  protected enabled = false;
   protected discussion: ListingResponse | null = null;
   protected filters = {
     serverId: '',
@@ -57,7 +56,6 @@ export class GoldPageComponent {
     inject(DictionaryService)
       .getAll()
       .subscribe((d) => (this.worlds = d.servers));
-    this.service.goldConfig().subscribe((c) => (this.enabled = c.enabled));
     this.load(this.currentPage);
     const authSub = inject(AuthService)
       .user$.pipe(skip(1))

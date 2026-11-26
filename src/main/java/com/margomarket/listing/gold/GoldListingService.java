@@ -14,7 +14,6 @@ import com.margomarket.user.User;
 import jakarta.persistence.criteria.Predicate;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -30,13 +29,6 @@ public class GoldListingService {
     private final Catalog catalog;
     private final ListingStatusRepository statuses;
     private final FavoriteRepository favorites;
-
-    @Value("${app.features.gold-listings-enabled:false}")
-    private boolean enabled;
-
-    public boolean enabled() {
-        return enabled;
-    }
 
     public Page<Listing> search(GoldListingFilter f) {
         if (
@@ -92,9 +84,6 @@ public class GoldListingService {
     @Transactional
     public Listing create(GoldListingRequest request, User owner) {
         userModeration.requireAllowed(owner,ModerationScope.GOLD_LISTINGS);
-        if (!enabled) throw new ForbiddenOperationException(
-            "Wystawianie złota nie jest jeszcze włączone"
-        );
         if (!owner.isEmailVerified()) throw new ForbiddenOperationException("Zweryfikuj konto");
         Listing l = new Listing();
         l.setListingKind("GOLD");

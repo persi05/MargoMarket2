@@ -20,7 +20,6 @@ import com.margomarket.user.User;
 import java.time.*;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,18 +40,8 @@ public class AuctionService {
     private final NotificationService notifications;
     private final TextModerationService textModeration;
 
-    @Value("${app.features.item-auctions-enabled:false}")
-    private boolean enabled;
-
-    @Value("${app.features.pln-auctions-enabled:false}")
-    private boolean plnEnabled;
-
     public Map<String, Object> config() {
         return Map.of(
-                "enabled",
-                enabled,
-                "plnEnabled",
-                plnEnabled,
                 "minimumHours",
                 1,
                 "maximumDays",
@@ -66,7 +55,6 @@ public class AuctionService {
     @Transactional
     public AuctionResponse create(AuctionRequest r, User user) {
         requireDescriptionAllowed(r.description());
-        requireEnabled(r.currency());
         if (!user.isEmailVerified()) throw new ForbiddenOperationException("Zweryfikuj e-mail");
         var now = auctions.now();
         AuctionRules.amount(r.currency(), r.startingAmount());
@@ -94,7 +82,6 @@ public class AuctionService {
         State a = auctions.lock(id);
         Listing l = listings.getListing(id);
         owner(l, user);
-        requireEnabled(r.currency());
         if (!"ACTIVE".equals(a.status()) || !auctions.now().isBefore(a.endsAt()) || a.bidCount() > 0)
             throw new IllegalArgumentException("Można edytować tylko aktywną aukcję bez ofert");
         AuctionRules.amount(r.currency(), r.startingAmount());
@@ -285,7 +272,6 @@ public class AuctionService {
         prior = receipt(id, user, r.idempotencyKey());
         if (!prior.isEmpty()) return replay(prior.getFirst(), r);
         var now = auctions.now();
-        requireEnabled(a.currency());
         if (!user.isEmailVerified()
                 || user.getCreatedAt() == null
                 || user.getCreatedAt()
@@ -443,11 +429,6 @@ public class AuctionService {
 
     static OffsetDateTime time(Instant value) {
         return Inputs.utc(value);
-    }
-
-    private void requireEnabled(String currency) {
-        if (!enabled || ("PLN".equals(currency) && !plnEnabled))
-            throw new ForbiddenOperationException("Licytacje w tej walucie nie zostały jeszcze uruchomione");
     }
 
     private void owner(Listing l, User user) {

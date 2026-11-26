@@ -71,8 +71,6 @@ class PriceSuggestionIT {
     void setup() {
         ReflectionTestUtils.setField(limiter, "spacing", 0);
         ReflectionTestUtils.setField(limiter, "maximum", 100000);
-        ReflectionTestUtils.setField(auctions, "enabled", true);
-        ReflectionTestUtils.setField(auctions, "plnEnabled", true);
         seller = account();
         buyer = account();
         token = "Bearer " + jwt.generateToken(buyer);

@@ -18,7 +18,6 @@ import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 class GoldListingServiceTest {
 
@@ -35,27 +34,7 @@ class GoldListingServiceTest {
     );
 
     @Test
-    void creationDisabledByDefault() {
-        assertThatThrownBy(() ->
-            service.create(
-                new GoldListingRequest(
-                    1L,
-                    1500000000L,
-                    "PLN_PER_G",
-                    1000000000L,
-                    2300L,
-                    null,
-                    null
-                ),
-                new User()
-            )
-        ).isInstanceOf(ForbiddenOperationException.class);
-        verifyNoInteractions(listings);
-    }
-
-    @Test
     void createsGoldWithoutCatalogItem() {
-        ReflectionTestUtils.setField(service, "enabled", true);
         User owner = new User();
         owner.setId(1L);
         when(catalog.server(2L)).thenReturn(Optional.of(new Server()));

@@ -55,7 +55,6 @@ export class GoldFormComponent {
   }
   protected busy = false;
   protected error = '';
-  protected enabled = false;
   protected get editing() {
     return this.id !== null;
   }
@@ -90,10 +89,6 @@ export class GoldFormComponent {
     inject(DictionaryService)
       .getAll()
       .subscribe((d) => (this.worlds = d.servers));
-    this.service.goldConfig().subscribe({
-      next: (c) => (this.enabled = c.enabled),
-      error: () => (this.error = 'Nie udało się sprawdzić dostępności wystawiania.'),
-    });
     if (this.id)
       this.service.getOne(this.id).subscribe({
         next: (l) => {
@@ -122,7 +117,7 @@ export class GoldFormComponent {
       });
   }
   protected submit() {
-    if (this.busy || (!this.enabled && !this.editing)) return;
+    if (this.busy) return;
     const goldAmount = parseGoldMillions(this.form.amount);
     const quote = parseGoldRate(this.form.rate, this.form.rateMode);
     this.submitted = true;

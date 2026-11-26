@@ -8,9 +8,6 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      ITEM_AUCTIONS_ENABLED: ${ITEM_AUCTIONS_ENABLED:-false}
-      PLN_AUCTIONS_ENABLED: ${PLN_AUCTIONS_ENABLED:-false}
-      GOLD_LISTINGS_ENABLED: ${GOLD_LISTINGS_ENABLED:-false}
       RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
       FORWARD_HEADERS_STRATEGY: ${FORWARD_HEADERS_STRATEGY:-none}
       SWAGGER_ENABLED: ${SWAGGER_ENABLED:?required}
